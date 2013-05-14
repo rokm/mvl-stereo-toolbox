@@ -44,6 +44,8 @@ public:
 protected:
     void rectifyImages ();
     void computeDepthImage ();
+
+protected slots:
     void methodParameterChanged ();
 
 signals:

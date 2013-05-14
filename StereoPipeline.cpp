@@ -36,8 +36,14 @@ void StereoPipeline::setCalibration (const QString &, const QString &)
 }
 
 
-void StereoPipeline::setStereoMethod (StereoMethod *)
+void StereoPipeline::setStereoMethod (StereoMethod *newMethod)
 {
+    if (method) {
+        disconnect(method, SIGNAL(parameterChanged()), this, SLOT(methodParameterChanged()));
+    }
+    
+    method = newMethod;
+    connect(method, SIGNAL(parameterChanged()), this, SLOT(methodParameterChanged()));
 }
 
 void StereoPipeline::processImagePair (const cv::Mat &left, const cv::Mat &right)
