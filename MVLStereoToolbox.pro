@@ -15,9 +15,13 @@ unix {
 # Input
 SOURCES += \
     main.cpp \
+    StereoCalibration.cpp \
     StereoMethod.cpp \
+    StereoMethodBlockMatching.cpp \
     StereoPipeline.cpp
 
 HEADERS += \
+    StereoCalibration.h \
     StereoMethod.h \
+    StereoMethodBlockMatching.h \
     StereoPipeline.h
