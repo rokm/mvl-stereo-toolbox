@@ -17,13 +17,42 @@ public:
     virtual void computeDepthImage (const cv::Mat &, const cv::Mat &, cv::Mat &);
 
 
+    int getPreFilterType () const;
+    void setPreFilterType (int);
+    
+    int getPreFilterSize () const;
+    void setPreFilterSize (int);
+    
+    int getPreFilterCap () const;
+    void setPreFilterCap (int);
+        
+    
+    int getSADWindowSize () const;
+    void setSADWindowSize (int);
+    
+    int getMinDisparity () const;
+    void setMinDisparity (int);
+
+    int getNumDisparities () const;
+    void setNumDisparities (int);
+    
+    
+    int getTextureThreshold () const;
+    void setTextureThreshold (int);
+    
+    int getUniquenessRatio () const;
+    void setUniquenessRatio (int);
+    
+    int getSpeckleWindowSize () const;
+    void setSpeckleWindowSize (int);
+    
+    int getSpeckleRange () const;
+    void setSpeckleRange (int);
+    
+    bool getTrySmallerWindows () const;
+    void setTrySmallerWindows (bool);
+    
 protected:
-
-    // Parameters
-    int preset;
-    int numDisparities;
-    int windowSize;
-
     // Block matcher
     cv::StereoBM bm;
 };
