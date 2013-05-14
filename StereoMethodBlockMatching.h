@@ -52,6 +52,9 @@ public:
     bool getTrySmallerWindows () const;
     void setTrySmallerWindows (bool);
     
+    int getDisp12MaxDiff () const;
+    void setDisp12MaxDiff (int);
+    
 protected:
     // Block matcher
     cv::StereoBM bm;

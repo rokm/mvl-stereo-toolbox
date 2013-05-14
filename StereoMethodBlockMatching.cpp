@@ -151,6 +151,18 @@ void StereoMethodBlockMatching::setTrySmallerWindows (bool newValue)
     emit parameterChanged();
 }
 
+// Disp12MaxDiff
+int StereoMethodBlockMatching::getDisp12MaxDiff () const
+{
+    return bm.state->disp12MaxDiff;
+}
+
+void StereoMethodBlockMatching::setDisp12MaxDiff (int newValue)
+{
+    bm.state->disp12MaxDiff = newValue;
+    emit parameterChanged();
+}
+
 
 //
 // Depth image computation

@@ -18,10 +18,12 @@ SOURCES += \
     StereoCalibration.cpp \
     StereoMethod.cpp \
     StereoMethodBlockMatching.cpp \
+    StereoMethodSemiGlobalBlockMatching.cpp \
     StereoPipeline.cpp
 
 HEADERS += \
     StereoCalibration.h \
     StereoMethod.h \
     StereoMethodBlockMatching.h \
+    StereoMethodSemiGlobalBlockMatching.h \
     StereoPipeline.h
