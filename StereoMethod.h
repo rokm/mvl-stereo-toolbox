@@ -20,6 +20,7 @@
 #define STEREO_METHOD
 
 #include <QtCore>
+#include <QtGui>
 
 #include <opencv2/core/core.hpp>
 
@@ -33,6 +34,9 @@ public:
     virtual ~StereoMethod ();
 
     virtual void computeDepthImage (const cv::Mat &, const cv::Mat &, cv::Mat &) = 0;
+
+    // Config interface
+    virtual void addConfigTab (QTabWidget *) = 0;
 
 signals:
     void parameterChanged ();

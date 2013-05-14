@@ -1,10 +1,10 @@
 #ifndef STEREO_METHOD_BLOCK_MATCHING
 #define STEREO_METHOD_BLOCK_MATCHING
 
-#include <QtCore>
+#include "StereoMethod.h"
+
 #include <opencv2/calib3d/calib3d.hpp>
 
-#include "StereoMethod.h"
 
 class StereoMethodBlockMatching : public StereoMethod
 {
@@ -15,44 +15,42 @@ public:
     virtual ~StereoMethodBlockMatching ();
 
     virtual void computeDepthImage (const cv::Mat &, const cv::Mat &, cv::Mat &);
-
+    virtual void addConfigTab (QTabWidget *);
 
     int getPreFilterType () const;
-    void setPreFilterType (int);
-    
     int getPreFilterSize () const;
-    void setPreFilterSize (int);
-    
     int getPreFilterCap () const;
+
+    int getSADWindowSize () const;
+    int getMinDisparity () const;
+    int getNumDisparities () const;
+
+    int getTextureThreshold () const;
+    int getUniquenessRatio () const;
+    int getSpeckleWindowSize () const;
+    int getSpeckleRange () const;
+
+    bool getTrySmallerWindows () const;
+
+    int getDisp12MaxDiff () const;
+
+public slots:
+    void setPreFilterType (int);
+    void setPreFilterSize (int);
     void setPreFilterCap (int);
         
-    
-    int getSADWindowSize () const;
     void setSADWindowSize (int);
-    
-    int getMinDisparity () const;
     void setMinDisparity (int);
-
-    int getNumDisparities () const;
     void setNumDisparities (int);
     
     
-    int getTextureThreshold () const;
     void setTextureThreshold (int);
-    
-    int getUniquenessRatio () const;
     void setUniquenessRatio (int);
-    
-    int getSpeckleWindowSize () const;
     void setSpeckleWindowSize (int);
-    
-    int getSpeckleRange () const;
     void setSpeckleRange (int);
     
-    bool getTrySmallerWindows () const;
     void setTrySmallerWindows (bool);
     
-    int getDisp12MaxDiff () const;
     void setDisp12MaxDiff (int);
     
 protected:
@@ -61,5 +59,21 @@ protected:
     
     cv::Mat tmpDepth;
 };
+
+/*
+class ConfigTabBlockMatching : public QWidget
+{
+    Q_OBJECT
+    
+public:
+    ConfigTabBlockMatching (QWidget * = 0);
+    virtual ~ConfigTabBlockMatching ();
+
+protected slots:
+
+protected:
+    
+};
+*/
 
 #endif

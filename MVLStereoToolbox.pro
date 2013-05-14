@@ -19,11 +19,16 @@ SOURCES += \
     StereoMethod.cpp \
     StereoMethodBlockMatching.cpp \
     StereoMethodSemiGlobalBlockMatching.cpp \
-    StereoPipeline.cpp
+    StereoPipeline.cpp \
+    Toolbox.cpp
 
 HEADERS += \
     StereoCalibration.h \
     StereoMethod.h \
     StereoMethodBlockMatching.h \
     StereoMethodSemiGlobalBlockMatching.h \
-    StereoPipeline.h
+    StereoPipeline.h \
+    Toolbox.h
+
+FORMS += \
+    Toolbox.ui

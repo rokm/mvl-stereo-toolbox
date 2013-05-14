@@ -23,8 +23,10 @@ int StereoMethodSemiGlobalBlockMatching::getMinDisparity () const
 
 void StereoMethodSemiGlobalBlockMatching::setMinDisparity (int newValue)
 {
-    sgbm.minDisparity = newValue;
-    emit parameterChanged();
+    if (sgbm.minDisparity != newValue) {
+        sgbm.minDisparity = newValue;
+        emit parameterChanged();
+    }
 }
 
 // Number of diparity levels
@@ -35,8 +37,10 @@ int StereoMethodSemiGlobalBlockMatching::getNumDisparities () const
 
 void StereoMethodSemiGlobalBlockMatching::setNumDisparities (int newValue)
 {
-    sgbm.numberOfDisparities = newValue;
-    emit parameterChanged();
+    if (sgbm.numberOfDisparities != newValue) {
+        sgbm.numberOfDisparities = newValue;
+        emit parameterChanged();
+    }
 }
 
 // Sum-of-absolute difference window size
@@ -47,8 +51,10 @@ int StereoMethodSemiGlobalBlockMatching::getSADWindowSize () const
 
 void StereoMethodSemiGlobalBlockMatching::setSADWindowSize (int newValue)
 {
-    sgbm.SADWindowSize = newValue;
-    emit parameterChanged();
+    if (sgbm.SADWindowSize != newValue) {
+        sgbm.SADWindowSize = newValue;
+        emit parameterChanged();
+    }
 }
 
 // Pre-filter clipping
@@ -59,8 +65,10 @@ int StereoMethodSemiGlobalBlockMatching::getPreFilterCap () const
 
 void StereoMethodSemiGlobalBlockMatching::setPreFilterCap (int newValue)
 {
-    sgbm.preFilterCap = newValue;
-    emit parameterChanged();
+    if (sgbm.preFilterCap != newValue) {
+        sgbm.preFilterCap = newValue;
+        emit parameterChanged();
+    }
 }
 
 
@@ -74,8 +82,10 @@ int StereoMethodSemiGlobalBlockMatching::getUniquenessRatio () const
 
 void StereoMethodSemiGlobalBlockMatching::setUniquenessRatio (int newValue)
 {
-    sgbm.uniquenessRatio = newValue;
-    emit parameterChanged();
+    if (sgbm.uniquenessRatio != newValue) {
+        sgbm.uniquenessRatio = newValue;
+        emit parameterChanged();
+    }
 }
 
 // P1
@@ -86,8 +96,10 @@ int StereoMethodSemiGlobalBlockMatching::getP1 () const
 
 void StereoMethodSemiGlobalBlockMatching::setP1 (int newValue)
 {
-    sgbm.P1 = newValue;
-    emit parameterChanged();
+    if (sgbm.P1 != newValue) {
+        sgbm.P1 = newValue;
+        emit parameterChanged();
+    }
 }
 
 // P2    
@@ -98,8 +110,10 @@ int StereoMethodSemiGlobalBlockMatching::getP2 () const
 
 void StereoMethodSemiGlobalBlockMatching::setP2 (int newValue)
 {
-    sgbm.P2 = newValue;
-    emit parameterChanged();
+    if (sgbm.P2 != newValue) {
+        sgbm.P2 = newValue;
+        emit parameterChanged();
+    }
 }
 
 // Disparity variantion window
@@ -110,8 +124,10 @@ int StereoMethodSemiGlobalBlockMatching::getSpeckleWindowSize () const
 
 void StereoMethodSemiGlobalBlockMatching::setSpeckleWindowSize (int newValue)
 {
-    sgbm.speckleWindowSize = newValue;
-    emit parameterChanged();
+    if (sgbm.speckleWindowSize != newValue) {
+        sgbm.speckleWindowSize = newValue;
+        emit parameterChanged();
+    }
 }
 
 // Acceptable range of variation in window    
@@ -134,8 +150,10 @@ int StereoMethodSemiGlobalBlockMatching::getDisp12MaxDiff () const
 
 void StereoMethodSemiGlobalBlockMatching::setDisp12MaxDiff (int newValue)
 {
-    sgbm.disp12MaxDiff = newValue;
-    emit parameterChanged();
+    if (sgbm.disp12MaxDiff != newValue) {
+        sgbm.disp12MaxDiff = newValue;
+        emit parameterChanged();
+    }
 }
 
 
@@ -147,8 +165,10 @@ bool StereoMethodSemiGlobalBlockMatching::getFullDP () const
 
 void StereoMethodSemiGlobalBlockMatching::setFullDP (bool newValue)
 {
-    sgbm.fullDP = newValue;
-    emit parameterChanged();
+    if (sgbm.fullDP != newValue) {
+        sgbm.fullDP = newValue;
+        emit parameterChanged();
+    }
 }
 
 //
@@ -159,4 +179,10 @@ void StereoMethodSemiGlobalBlockMatching::computeDepthImage (const cv::Mat &img1
     sgbm(img1, img2, depth);
 }
 
+void StereoMethodSemiGlobalBlockMatching::addConfigTab (QTabWidget *tabWidget)
+{
+    QWidget *configTab = new QWidget(tabWidget);
+    
+    tabWidget->addTab(configTab, "SGBM");
+}
 

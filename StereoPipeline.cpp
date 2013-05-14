@@ -40,6 +40,28 @@ const cv::Mat &StereoPipeline::getDepthImage () const
 }
 
 
+const cv::Mat &StereoPipeline::getLeftImage () const
+{
+    return inputImageL;
+}
+
+const cv::Mat &StereoPipeline::getRightImage () const
+{
+    return inputImageR;
+}
+    
+const cv::Mat &StereoPipeline::getLeftRectifiedImage () const
+{
+    return rectifiedImageL;
+}
+
+const cv::Mat &StereoPipeline::getRightRectifiedImage () const
+{
+    return rectifiedImageR;
+}
+    
+
+
 // *********************************************************************
 // *                         Calibration object                        *
 // *********************************************************************
@@ -95,12 +117,6 @@ void StereoPipeline::computeDepthImage ()
 {
     if (!method) {
         emit error("Stereo method not set!");
-        return;
-    }
-
-    // If we do not have rectified images, do nothing
-    if (rectifiedImageL.empty() || rectifiedImageR.empty()) {
-        emit error("Images not set!");
         return;
     }
 

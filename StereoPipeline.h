@@ -39,6 +39,13 @@ public:
     void setStereoMethod (StereoMethod *);
 
     void processImagePair (const cv::Mat &, const cv::Mat &);
+    
+    const cv::Mat &getLeftImage () const;
+    const cv::Mat &getRightImage () const;
+    
+    const cv::Mat &getLeftRectifiedImage () const;
+    const cv::Mat &getRightRectifiedImage () const;
+    
     const cv::Mat &getDepthImage () const;
 
 protected:
