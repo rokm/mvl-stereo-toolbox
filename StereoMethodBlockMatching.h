@@ -58,6 +58,8 @@ public:
 protected:
     // Block matcher
     cv::StereoBM bm;
+    
+    cv::Mat tmpDepth;
 };
 
 #endif

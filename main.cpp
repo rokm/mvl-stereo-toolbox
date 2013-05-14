@@ -19,11 +19,44 @@
 #include <QtCore>
 #include <QtGui>
 
+#include "StereoPipeline.h"
+#include "StereoMethodBlockMatching.h"
+
+#include <opencv2/highgui/highgui.hpp>
+
 int main (int argc, char **argv)
 {
     QApplication app(argc, argv);
 
     qDebug() << "MVL StereoToolbox v.1.0, (C) 2013 Rok Mandeljc <rok.mandeljc@fe.uni-lj.si>";
+    
+    StereoPipeline *pipeline = new StereoPipeline();
+    StereoMethodBlockMatching *method = new StereoMethodBlockMatching();
+    
+   
+    cv::Mat imgL = cv::imread("tsukuba/scene1.row3.col3.ppm", 0);
+    cv::Mat imgR = cv::imread("tsukuba/scene1.row3.col5.ppm", 0);
+    
+    cv::imshow("Left", imgL);
+    cv::imshow("Right", imgR);
+
+    method->setPreFilterSize(5);
+    method->setPreFilterCap(1);
+	method->setSADWindowSize(5);
+	method->setMinDisparity(0);
+	method->setNumDisparities(64);
+	method->setTextureThreshold(0);
+    method->setUniquenessRatio(0);
+    method->setSpeckleWindowSize(0);
+	method->setSpeckleRange(0);  
+
+    pipeline->setStereoMethod(method);
+  
+    pipeline->processImagePair(imgL, imgR);
+    
+    cv::imshow("Depth", pipeline->getDepthImage());
+    
+    pipeline->deleteLater();
     
     return app.exec();
 }

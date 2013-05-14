@@ -169,7 +169,8 @@ void StereoMethodBlockMatching::setDisp12MaxDiff (int newValue)
 //
 void StereoMethodBlockMatching::computeDepthImage (const cv::Mat &img1, const cv::Mat &img2, cv::Mat &depth)
 {
-    bm(img1, img2, depth);
+    bm(img1, img2, tmpDepth);
+    tmpDepth.convertTo(depth, CV_8U, 255/(bm.state->numberOfDisparities*16.));
 }
 
 

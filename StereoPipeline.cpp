@@ -25,17 +25,33 @@
 StereoPipeline::StereoPipeline (QObject *parent)
     : QObject(parent)
 {
+    calibration = NULL;
+    method = NULL;
 }
 
 StereoPipeline::~StereoPipeline ()
 {
 }
 
-void StereoPipeline::setCalibration (const QString &, const QString &)
+
+const cv::Mat &StereoPipeline::getDepthImage () const
 {
+    return depthImage;
 }
 
 
+// *********************************************************************
+// *                         Calibration object                        *
+// *********************************************************************
+void StereoPipeline::setCalibration (StereoCalibration *newCalibration)
+{
+    calibration = newCalibration;
+}
+
+
+// *********************************************************************
+// *                        Stereo method object                       *
+// *********************************************************************
 void StereoPipeline::setStereoMethod (StereoMethod *newMethod)
 {
     if (method) {
@@ -46,6 +62,10 @@ void StereoPipeline::setStereoMethod (StereoMethod *newMethod)
     connect(method, SIGNAL(parameterChanged()), this, SLOT(methodParameterChanged()));
 }
 
+
+// *********************************************************************
+// *                             Processing                            *
+// *********************************************************************
 void StereoPipeline::processImagePair (const cv::Mat &left, const cv::Mat &right)
 {
     // Store images
@@ -59,10 +79,15 @@ void StereoPipeline::processImagePair (const cv::Mat &left, const cv::Mat &right
     computeDepthImage();
 }
 
-
-
 void StereoPipeline::rectifyImages ()
 {
+    if (!calibration) {
+        rectifiedImageL = inputImageL;
+        rectifiedImageR = inputImageR;
+        //emit error("Stereo calibration object not set!");
+        return;
+    }
+
     calibration->rectifyImagePair(inputImageL, inputImageR, rectifiedImageL, rectifiedImageR);
 }
 
@@ -70,6 +95,12 @@ void StereoPipeline::computeDepthImage ()
 {
     if (!method) {
         emit error("Stereo method not set!");
+        return;
+    }
+
+    // If we do not have rectified images, do nothing
+    if (rectifiedImageL.empty() || rectifiedImageR.empty()) {
+        emit error("Images not set!");
         return;
     }
 

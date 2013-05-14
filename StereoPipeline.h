@@ -35,11 +35,11 @@ public:
     StereoPipeline (QObject * = 0);
     virtual ~StereoPipeline ();
 
-    void setCalibration (const QString &, const QString &);
-
+    void setCalibration (StereoCalibration *);
     void setStereoMethod (StereoMethod *);
 
     void processImagePair (const cv::Mat &, const cv::Mat &);
+    const cv::Mat &getDepthImage () const;
 
 protected:
     void rectifyImages ();
@@ -70,6 +70,9 @@ protected:
 
     // Cached depth image
     cv::Mat depthImage;
+    
+    // Some operation parameters
+    bool enableImageRectification;
 };
 
 #endif
