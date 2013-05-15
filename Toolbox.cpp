@@ -59,7 +59,10 @@ Toolbox::Toolbox (QWidget *parent)
     for (int i = 0; i < methods.size(); i++) {
         tabWidget->addTab(methods[i]->getConfigWidget(), methods[i]->getShortName());
     }
-    pipeline->setStereoMethod(methods[0]);
+
+    // Method selection
+    pipeline->setStereoMethod(methods[tabWidget->currentIndex()]);
+    connect(tabWidget, SIGNAL(currentIndexChanged(int)), this, SLOT(setStereoMethod(int)));
 
     // Test :)
     cv::Mat imgL = cv::imread("tsukuba/scene1.row3.col3.ppm");
@@ -72,6 +75,11 @@ Toolbox::~Toolbox ()
 {
 }
 
+
+void Toolbox::setStereoMethod (int i)
+{
+    pipeline->setStereoMethod(methods[i]);
+}
 
 void Toolbox::updateInputImages ()
 {

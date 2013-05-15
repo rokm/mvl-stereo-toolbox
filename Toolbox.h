@@ -22,6 +22,8 @@ public:
     virtual ~Toolbox ();
 
 protected slots:
+    void setStereoMethod (int);
+
     void updateInputImages ();
     void updateDepthImage ();
 
