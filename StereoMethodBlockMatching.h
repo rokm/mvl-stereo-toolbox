@@ -60,20 +60,37 @@ protected:
     cv::Mat tmpDepth;
 };
 
-/*
+
 class ConfigTabBlockMatching : public QWidget
 {
     Q_OBJECT
     
 public:
-    ConfigTabBlockMatching (QWidget * = 0);
+    ConfigTabBlockMatching (StereoMethodBlockMatching *, QWidget * = 0);
     virtual ~ConfigTabBlockMatching ();
 
 protected slots:
+    void currentIndexChanged (int);
+    void trySmallerWindowsChanged (int);
+
+    void updateParameters ();
 
 protected:
-    
+    StereoMethodBlockMatching *method;
+
+    QComboBox *comboBoxPreFilterType;
+    QSpinBox *spinBoxPreFilterSize;
+    QSpinBox *spinBoxPreFilterCap;
+    QSpinBox *spinBoxSADWindowSize;
+    QSpinBox *spinBoxMinDisparity;
+    QSpinBox *spinBoxNumDisparities;
+    QSpinBox *spinBoxTextureThreshold;
+    QSpinBox *spinBoxUniquenessRatio;
+    QSpinBox *spinBoxSpeckleWindowSize;
+    QSpinBox *spinBoxSpeckleRange;
+    QCheckBox *checkBoxTrySmallerWindow;
+    QSpinBox *spinBoxDisp12MaxDiff;
 };
-*/
+
 
 #endif

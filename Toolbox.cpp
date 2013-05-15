@@ -45,8 +45,9 @@ Toolbox::Toolbox (QWidget *parent)
     : QMainWindow(parent)
 {
     setupUi(this);
-    
-    StereoPipeline *pipeline = new StereoPipeline();
+
+    // Stereo pipeline
+    pipeline = new StereoPipeline();
        
     StereoMethodBlockMatching *method1 = new StereoMethodBlockMatching();
     StereoMethodSemiGlobalBlockMatching *method2 = new StereoMethodSemiGlobalBlockMatching();
@@ -60,7 +61,9 @@ Toolbox::Toolbox (QWidget *parent)
     pipeline->setStereoMethod(method1);
   
     pipeline->processImagePair(imgL, imgR);
-        
+
+    connect(pipeline, SIGNAL(depthImageChanged()), this, SLOT(updateDepthImage()));
+    
     labelImageLeft->setPixmap(QPixmap::fromImage(cvMatToQImage(pipeline->getLeftImage())));
     labelImageRight->setPixmap(QPixmap::fromImage(cvMatToQImage(pipeline->getRightImage())));
     labelImageDepth->setPixmap(QPixmap::fromImage(cvMatToQImage(pipeline->getDepthImage())));
@@ -69,4 +72,10 @@ Toolbox::Toolbox (QWidget *parent)
 
 Toolbox::~Toolbox ()
 {
+}
+
+
+void Toolbox::updateDepthImage ()
+{
+    labelImageDepth->setPixmap(QPixmap::fromImage(cvMatToQImage(pipeline->getDepthImage())));
 }

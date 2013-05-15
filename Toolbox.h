@@ -7,6 +7,8 @@
 #include "ui_Toolbox.h"
 
 
+class StereoPipeline;
+
 // *********************************************************************
 // *                              Toolbox                              *
 // *********************************************************************
@@ -18,7 +20,11 @@ public:
     Toolbox (QWidget * = 0);
     virtual ~Toolbox ();
 
-private:
+protected slots:
+    void updateDepthImage ();
+
+protected:
+    StereoPipeline *pipeline;
 };
 
 #endif
