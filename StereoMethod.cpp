@@ -21,8 +21,23 @@
 StereoMethod::StereoMethod (QObject *parent)
     : QObject(parent)
 {
+    configWidget = NULL;
 }
 
 StereoMethod::~StereoMethod ()
 {
+}
+
+
+// *********************************************************************
+// *                           Config widget                           *
+// *********************************************************************
+const QString &StereoMethod::getShortName () const
+{
+    return shortName;
+}
+
+QWidget *StereoMethod::getConfigWidget ()
+{
+    return configWidget;
 }

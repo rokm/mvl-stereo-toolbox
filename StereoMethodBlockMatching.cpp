@@ -1,14 +1,45 @@
 #include "StereoMethodBlockMatching.h"
 
+#include <opencv2/imgproc/imgproc.hpp>
+
 
 StereoMethodBlockMatching::StereoMethodBlockMatching (QObject *parent)
     : StereoMethod(parent)
 {
-
+    shortName = "BM";
+    configWidget = new ConfigTabBlockMatching(this);
 }
 
 StereoMethodBlockMatching::~StereoMethodBlockMatching ()
 {
+    //delete configWidget;
+}
+
+
+// *********************************************************************
+// *                      Depth image computation                      *
+// *********************************************************************
+void StereoMethodBlockMatching::computeDepthImage (const cv::Mat &img1, const cv::Mat &img2, cv::Mat &depth)
+{
+    // Convert to grayscale
+    if (img1.channels() == 3) {
+        cv::cvtColor(img1, tmpImg1, CV_RGB2GRAY);
+    } else {
+        tmpImg1 = img1;
+    }
+
+    if (img2.channels() == 3) {
+        cv::cvtColor(img2, tmpImg2, CV_RGB2GRAY);
+    } else {
+        tmpImg2 = img2;
+    }
+
+    
+    // Compute depth image
+    bm(tmpImg1, tmpImg2, tmpDepth);
+
+    // Normalize to output
+    tmpDepth.convertTo(depth, CV_8U, 255/(bm.state->numberOfDisparities*16.));
 }
 
 
@@ -216,24 +247,6 @@ void StereoMethodBlockMatching::setDisp12MaxDiff (int newValue)
         bm.state->disp12MaxDiff = newValue;
         emit parameterChanged();
     }
-}
-
-
-//
-// Depth image computation
-//
-void StereoMethodBlockMatching::computeDepthImage (const cv::Mat &img1, const cv::Mat &img2, cv::Mat &depth)
-{
-    bm(img1, img2, tmpDepth);
-    tmpDepth.convertTo(depth, CV_8U, 255/(bm.state->numberOfDisparities*16.));
-}
-
-
-void StereoMethodBlockMatching::addConfigTab (QTabWidget *tabWidget)
-{
-    QWidget *configTab = new ConfigTabBlockMatching(this, tabWidget);
-    
-    tabWidget->addTab(configTab, "BM");
 }
 
 

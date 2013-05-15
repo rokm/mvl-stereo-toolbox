@@ -36,10 +36,15 @@ public:
     virtual void computeDepthImage (const cv::Mat &, const cv::Mat &, cv::Mat &) = 0;
 
     // Config interface
-    virtual void addConfigTab (QTabWidget *) = 0;
+    virtual const QString &getShortName () const;
+    virtual QWidget *getConfigWidget ();
 
 signals:
     void parameterChanged ();
+
+protected:
+    QString shortName;
+    QWidget *configWidget;
 };
 
 #endif

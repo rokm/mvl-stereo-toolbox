@@ -14,9 +14,10 @@ public:
     StereoMethodBlockMatching (QObject * = 0);
     virtual ~StereoMethodBlockMatching ();
 
+    // Depth image computation
     virtual void computeDepthImage (const cv::Mat &, const cv::Mat &, cv::Mat &);
-    virtual void addConfigTab (QTabWidget *);
 
+    // Parameters
     int getPreFilterType () const;
     int getPreFilterSize () const;
     int getPreFilterCap () const;
@@ -56,7 +57,8 @@ public slots:
 protected:
     // Block matcher
     cv::StereoBM bm;
-    
+
+    cv::Mat tmpImg1, tmpImg2;
     cv::Mat tmpDepth;
 };
 

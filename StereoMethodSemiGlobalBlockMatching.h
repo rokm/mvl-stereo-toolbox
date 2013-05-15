@@ -14,9 +14,10 @@ public:
     StereoMethodSemiGlobalBlockMatching (QObject * = 0);
     virtual ~StereoMethodSemiGlobalBlockMatching ();
 
+    // Depth image computation
     virtual void computeDepthImage (const cv::Mat &, const cv::Mat &, cv::Mat &);
-    void addConfigTab (QTabWidget *);
 
+    // Parameters
     int getMinDisparity () const;
     void setMinDisparity (int);
     

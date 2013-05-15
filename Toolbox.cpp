@@ -47,31 +47,36 @@ Toolbox::Toolbox (QWidget *parent)
     setupUi(this);
 
     // Stereo pipeline
-    pipeline = new StereoPipeline();
-       
-    StereoMethodBlockMatching *method1 = new StereoMethodBlockMatching();
-    StereoMethodSemiGlobalBlockMatching *method2 = new StereoMethodSemiGlobalBlockMatching();
-   
-    method1->addConfigTab(tabWidget);
-    method2->addConfigTab(tabWidget);
-    
-    cv::Mat imgL = cv::imread("tsukuba/scene1.row3.col3.ppm", 0);
-    cv::Mat imgR = cv::imread("tsukuba/scene1.row3.col5.ppm", 0);
-    
-    pipeline->setStereoMethod(method1);
-  
-    pipeline->processImagePair(imgL, imgR);
-
+    pipeline = new StereoPipeline(this);
+    connect(pipeline, SIGNAL(inputImagesChanged()), this, SLOT(updateInputImages()));
     connect(pipeline, SIGNAL(depthImageChanged()), this, SLOT(updateDepthImage()));
+
+    // Stereo Methods
+    methods.append(new StereoMethodBlockMatching(this)); // OpenCV block matching
+    methods.append(new StereoMethodSemiGlobalBlockMatching(this)); // OpenCV semi-global block matching
+
+    // Create config tabs
+    for (int i = 0; i < methods.size(); i++) {
+        tabWidget->addTab(methods[i]->getConfigWidget(), methods[i]->getShortName());
+    }
+    pipeline->setStereoMethod(methods[0]);
+
+    // Test :)
+    cv::Mat imgL = cv::imread("tsukuba/scene1.row3.col3.ppm");
+    cv::Mat imgR = cv::imread("tsukuba/scene1.row3.col5.ppm");
     
-    labelImageLeft->setPixmap(QPixmap::fromImage(cvMatToQImage(pipeline->getLeftImage())));
-    labelImageRight->setPixmap(QPixmap::fromImage(cvMatToQImage(pipeline->getRightImage())));
-    labelImageDepth->setPixmap(QPixmap::fromImage(cvMatToQImage(pipeline->getDepthImage())));
-    
+    pipeline->processImagePair(imgL, imgR);
 }
 
 Toolbox::~Toolbox ()
 {
+}
+
+
+void Toolbox::updateInputImages ()
+{
+    labelImageLeft->setPixmap(QPixmap::fromImage(cvMatToQImage(pipeline->getLeftImage())));
+    labelImageRight->setPixmap(QPixmap::fromImage(cvMatToQImage(pipeline->getRightImage())));
 }
 
 

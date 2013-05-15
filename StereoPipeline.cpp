@@ -97,6 +97,8 @@ void StereoPipeline::processImagePair (const cv::Mat &left, const cv::Mat &right
     // Rectify input images
     rectifyImages();
 
+    emit inputImagesChanged();
+
     // Compute depth image
     computeDepthImage();
 }

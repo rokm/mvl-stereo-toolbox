@@ -4,11 +4,22 @@
 StereoMethodSemiGlobalBlockMatching::StereoMethodSemiGlobalBlockMatching (QObject *parent)
     : StereoMethod(parent)
 {
-
+    shortName = "SGBM";
+    configWidget = new QWidget();
 }
 
 StereoMethodSemiGlobalBlockMatching::~StereoMethodSemiGlobalBlockMatching ()
 {
+    //delete configWidget;
+}
+
+
+// *********************************************************************
+// *                      Depth image computation                      *
+// *********************************************************************
+void StereoMethodSemiGlobalBlockMatching::computeDepthImage (const cv::Mat &img1, const cv::Mat &img2, cv::Mat &depth)
+{
+    sgbm(img1, img2, depth);
 }
 
 
@@ -171,18 +182,4 @@ void StereoMethodSemiGlobalBlockMatching::setFullDP (bool newValue)
     }
 }
 
-//
-// Depth image computation
-//
-void StereoMethodSemiGlobalBlockMatching::computeDepthImage (const cv::Mat &img1, const cv::Mat &img2, cv::Mat &depth)
-{
-    sgbm(img1, img2, depth);
-}
-
-void StereoMethodSemiGlobalBlockMatching::addConfigTab (QTabWidget *tabWidget)
-{
-    QWidget *configTab = new QWidget(tabWidget);
-    
-    tabWidget->addTab(configTab, "SGBM");
-}
 

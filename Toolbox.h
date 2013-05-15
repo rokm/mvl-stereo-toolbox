@@ -8,6 +8,7 @@
 
 
 class StereoPipeline;
+class StereoMethod;
 
 // *********************************************************************
 // *                              Toolbox                              *
@@ -21,10 +22,12 @@ public:
     virtual ~Toolbox ();
 
 protected slots:
+    void updateInputImages ();
     void updateDepthImage ();
 
 protected:
     StereoPipeline *pipeline;
+    QList<StereoMethod *> methods;
 };
 
 #endif
