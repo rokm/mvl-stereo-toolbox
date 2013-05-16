@@ -19,41 +19,87 @@ public:
 
     // Parameters
     int getMinDisparity () const;
-    void setMinDisparity (int);
-    
     int getNumDisparities () const;
-    void setNumDisparities (int);
-    
     int getSADWindowSize () const;
+
+    int getPreFilterCap () const;
+    int getUniquenessRatio () const;
+
+    int getP1 () const;
+    int getP2 () const;
+
+    int getSpeckleWindowSize () const;
+    int getSpeckleRange () const;
+
+    int getDisp12MaxDiff () const;
+
+    bool getFullDP () const;
+
+    enum {
+        OpenCV,
+        StereoMatch,
+    } PresetType;
+
+public slots:
+    void usePreset (int);
+    
+    void setMinDisparity (int);
+    void setNumDisparities (int);   
     void setSADWindowSize (int);
     
-    int getPreFilterCap () const;
     void setPreFilterCap (int);
-    
-    int getUniquenessRatio () const;
     void setUniquenessRatio (int);
     
-    int getP1 () const;
     void setP1 (int);
-    
-    int getP2 () const;
     void setP2 (int);
     
-    int getSpeckleWindowSize () const;
     void setSpeckleWindowSize (int);
-    
-    int getSpeckleRange () const;
     void setSpeckleRange (int);
     
-    int getDisp12MaxDiff () const;
     void setDisp12MaxDiff (int);
-    
-    bool getFullDP () const;
+
     void setFullDP (bool);
     
 protected:
     // Semi-global block matcher
     cv::StereoSGBM sgbm;
+
+    cv::Mat tmpDepth;
 };
+
+
+class ConfigTabSemiGlobalBlockMatching : public QWidget
+{
+    Q_OBJECT
+    
+public:
+    ConfigTabSemiGlobalBlockMatching (StereoMethodSemiGlobalBlockMatching *, QWidget * = 0);
+    virtual ~ConfigTabSemiGlobalBlockMatching ();
+
+protected slots:
+    void presetChanged (int);
+
+    void fullDPChanged (int);
+    
+    void updateParameters ();
+
+protected:
+    StereoMethodSemiGlobalBlockMatching *method;
+
+    QComboBox *comboBoxPreset;
+    QSpinBox *spinBoxMinDisparity;
+    QSpinBox *spinBoxNumDisparities;
+    QSpinBox *spinBoxSADWindowSize;
+    QSpinBox *spinBoxPreFilterCap;
+    QSpinBox *spinBoxUniquenessRatio;
+    QSpinBox *spinBoxP1;
+    QSpinBox *spinBoxP2;
+    QSpinBox *spinBoxSpeckleWindowSize;
+    QSpinBox *spinBoxSpeckleRange;
+    QSpinBox *spinBoxDisp12MaxDiff;
+    QCheckBox *checkBoxFullDP;
+};
+
+
 
 #endif

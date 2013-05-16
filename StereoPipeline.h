@@ -47,6 +47,7 @@ public:
     const cv::Mat &getRightRectifiedImage () const;
     
     const cv::Mat &getDepthImage () const;
+    int getDepthImageComputationTime () const;
 
 protected:
     void rectifyImages ();
@@ -77,6 +78,7 @@ protected:
 
     // Cached depth image
     cv::Mat depthImage;
+    int depthImageComputationTime;
     
     // Some operation parameters
     bool enableImageRectification;

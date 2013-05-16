@@ -39,6 +39,11 @@ const cv::Mat &StereoPipeline::getDepthImage () const
     return depthImage;
 }
 
+int StereoPipeline::getDepthImageComputationTime () const
+{
+    return depthImageComputationTime;
+}
+
 
 const cv::Mat &StereoPipeline::getLeftImage () const
 {
@@ -76,12 +81,16 @@ void StereoPipeline::setCalibration (StereoCalibration *newCalibration)
 // *********************************************************************
 void StereoPipeline::setStereoMethod (StereoMethod *newMethod)
 {
+    // Change method
     if (method) {
         disconnect(method, SIGNAL(parameterChanged()), this, SLOT(methodParameterChanged()));
     }
     
     method = newMethod;
     connect(method, SIGNAL(parameterChanged()), this, SLOT(methodParameterChanged()));
+
+    // Compute new depth image
+    computeDepthImage();
 }
 
 
@@ -122,7 +131,14 @@ void StereoPipeline::computeDepthImage ()
         return;
     }
 
+    // No-op if images are not set
+    if (rectifiedImageL.empty() || rectifiedImageR.empty()) {
+        return;
+    }
+
+    QTime timer; timer.start();
     method->computeDepthImage(rectifiedImageL, rectifiedImageR, depthImage);
+    depthImageComputationTime = timer.elapsed();
     
     emit depthImageChanged();
 }

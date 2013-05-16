@@ -22,10 +22,42 @@ StereoMethod::StereoMethod (QObject *parent)
     : QObject(parent)
 {
     configWidget = NULL;
+
+    // Default image dimensions
+    imageWidth = 640;
+    imageHeight = 480;
+    imageChannels = 1;
 }
 
 StereoMethod::~StereoMethod ()
 {
+}
+
+// *********************************************************************
+// *                        Image dimensions                           *
+// *********************************************************************
+void StereoMethod::setImageDimensions (int width, int height, int channels)
+{
+    imageWidth = width;
+    imageHeight = height;
+    imageChannels = channels;
+
+    emit imageDimensionsChanged();
+}
+
+int StereoMethod::getImageWidth () const
+{
+    return imageWidth;
+}
+
+int StereoMethod::getImageHeight () const
+{
+    return imageHeight;
+}
+
+int StereoMethod::getImageChannels () const
+{
+    return imageChannels;
 }
 
 

@@ -33,18 +33,41 @@ public:
     StereoMethod (QObject * = 0);
     virtual ~StereoMethod ();
 
+    // Image information
+    void setImageDimensions (int, int, int);
+    
+    int getImageWidth () const;
+    int getImageHeight () const;
+    int getImageChannels () const;
+    
+    // Depth image computation
     virtual void computeDepthImage (const cv::Mat &, const cv::Mat &, cv::Mat &) = 0;
 
     // Config interface
     virtual const QString &getShortName () const;
     virtual QWidget *getConfigWidget ();
 
+    // Generic parameter setting
+    template <typename T> void setParameter (T &parameter, const T &newValue) {
+        // Set only if necessary
+        if (parameter != newValue) {
+            parameter = newValue;
+            emit parameterChanged();
+        }
+    }
+
 signals:
+    void imageDimensionsChanged ();
     void parameterChanged ();
 
 protected:
     QString shortName;
     QWidget *configWidget;
+
+    // Image dimensions
+    int imageWidth;
+    int imageHeight;
+    int imageChannels;
 };
 
 #endif

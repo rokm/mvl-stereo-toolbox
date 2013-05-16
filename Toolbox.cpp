@@ -3,6 +3,7 @@
 #include "StereoPipeline.h"
 #include "StereoMethodBlockMatching.h"
 #include "StereoMethodSemiGlobalBlockMatching.h"
+#include "StereoMethodVar.h"
 
 #include <opencv2/highgui/highgui.hpp>
 
@@ -54,6 +55,7 @@ Toolbox::Toolbox (QWidget *parent)
     // Stereo Methods
     methods.append(new StereoMethodBlockMatching(this)); // OpenCV block matching
     methods.append(new StereoMethodSemiGlobalBlockMatching(this)); // OpenCV semi-global block matching
+    methods.append(new StereoMethodVar(this)); // OpenCV variational matching
 
     // Create config tabs
     for (int i = 0; i < methods.size(); i++) {
@@ -61,13 +63,13 @@ Toolbox::Toolbox (QWidget *parent)
     }
 
     // Method selection
+    connect(tabWidget, SIGNAL(currentChanged(int)), this, SLOT(setStereoMethod(int)));
     pipeline->setStereoMethod(methods[tabWidget->currentIndex()]);
-    connect(tabWidget, SIGNAL(currentIndexChanged(int)), this, SLOT(setStereoMethod(int)));
 
     // Test :)
     cv::Mat imgL = cv::imread("tsukuba/scene1.row3.col3.ppm");
     cv::Mat imgR = cv::imread("tsukuba/scene1.row3.col5.ppm");
-    
+
     pipeline->processImagePair(imgL, imgR);
 }
 
@@ -91,4 +93,6 @@ void Toolbox::updateInputImages ()
 void Toolbox::updateDepthImage ()
 {
     labelImageDepth->setPixmap(QPixmap::fromImage(cvMatToQImage(pipeline->getDepthImage())));
+
+    statusbar->showMessage(QString("Depth image computed in %1 milliseconds").arg(pipeline->getDepthImageComputationTime()));
 }

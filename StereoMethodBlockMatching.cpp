@@ -8,6 +8,8 @@ StereoMethodBlockMatching::StereoMethodBlockMatching (QObject *parent)
 {
     shortName = "BM";
     configWidget = new ConfigTabBlockMatching(this);
+
+    usePreset(OpenCVBasic);
 }
 
 StereoMethodBlockMatching::~StereoMethodBlockMatching ()
@@ -15,6 +17,45 @@ StereoMethodBlockMatching::~StereoMethodBlockMatching ()
     //delete configWidget;
 }
 
+
+void StereoMethodBlockMatching::usePreset (int type)
+{
+    switch (type) {
+        case OpenCVBasic: {
+            // OpenCV basic
+            bm = cv::StereoBM(cv::StereoBM::BASIC_PRESET);
+            break;
+        }
+        case OpenCVFishEye: {
+            // OpenCV fish eye
+            bm = cv::StereoBM(cv::StereoBM::FISH_EYE_PRESET);
+            break;
+        }
+        case OpenCVNarrow: {
+            // OpenCV narrow
+            bm = cv::StereoBM(cv::StereoBM::NARROW_PRESET);
+            break;
+        }
+        case StereoMatch: {
+            // "Stereo match" example
+            bm = cv::StereoBM();
+
+            bm.state->preFilterCap = 31;
+            bm.state->SADWindowSize = 9;
+            bm.state->minDisparity = 0;
+            bm.state->numberOfDisparities = ((imageWidth/8) + 15) & -16;
+            bm.state->textureThreshold = 10;
+            bm.state->uniquenessRatio = 15;
+            bm.state->speckleWindowSize = 100;
+            bm.state->speckleRange = 32;
+            bm.state->disp12MaxDiff = 1;
+            
+            break;
+        }
+    };
+
+    emit parameterChanged();
+}
 
 // *********************************************************************
 // *                      Depth image computation                      *
@@ -59,11 +100,7 @@ void StereoMethodBlockMatching::setPreFilterType (int newValue)
         newValue = CV_STEREO_BM_NORMALIZED_RESPONSE;
     }
 
-    // Set if necessary
-    if (bm.state->preFilterType != newValue) {
-        bm.state->preFilterType = newValue;
-        emit parameterChanged();
-    }
+    setParameter(bm.state->preFilterType, newValue);
 }
 
 // Pre-filter size
@@ -77,12 +114,8 @@ void StereoMethodBlockMatching::setPreFilterSize (int newValue)
     // Validate
     newValue += !(newValue % 2); // Must be odd
     newValue = qBound(5, newValue, 255);
-    
-    // Set if necessary
-    if (bm.state->preFilterSize != newValue) {
-        bm.state->preFilterSize = newValue;
-        emit parameterChanged();
-    }
+
+    setParameter(bm.state->preFilterSize, newValue);
 }
     
 // Pre-filter clipping
@@ -96,11 +129,7 @@ void StereoMethodBlockMatching::setPreFilterCap (int newValue)
     // Validate
     newValue = qBound(1, newValue, 63);
 
-    // Set if necessary
-    if (bm.state->preFilterCap != newValue) {
-        bm.state->preFilterCap = newValue;
-        emit parameterChanged();
-    }
+    setParameter(bm.state->preFilterCap, newValue);
 }
         
 
@@ -116,11 +145,7 @@ void StereoMethodBlockMatching::setSADWindowSize (int newValue)
     newValue += !(newValue % 2); // Must be odd
     newValue = qBound(5, newValue, 255);
 
-    // Set if necessary
-    if (bm.state->SADWindowSize != newValue) {
-        bm.state->SADWindowSize = newValue;
-        emit parameterChanged();
-    }
+    setParameter(bm.state->SADWindowSize, newValue);
 }
     
 // Minimum disparity
@@ -131,11 +156,7 @@ int StereoMethodBlockMatching::getMinDisparity () const
 
 void StereoMethodBlockMatching::setMinDisparity (int newValue)
 {
-    // Set if necessary
-    if (bm.state->minDisparity != newValue) {
-        bm.state->minDisparity = newValue;
-        emit parameterChanged();
-    }
+    setParameter(bm.state->minDisparity, newValue);
 }
 
 // Number of disparity levels
@@ -150,11 +171,7 @@ void StereoMethodBlockMatching::setNumDisparities (int newValue)
     newValue = qRound(newValue / 16.0) * 16; // Must be divisible by 16
     newValue = qMax(16, newValue);
     
-    // Set if necessary
-    if (bm.state->numberOfDisparities != newValue) {
-        bm.state->numberOfDisparities = newValue;
-        emit parameterChanged();
-    }
+    setParameter(bm.state->numberOfDisparities, newValue);
 }
     
   
@@ -166,11 +183,7 @@ int StereoMethodBlockMatching::getTextureThreshold () const
 
 void StereoMethodBlockMatching::setTextureThreshold (int newValue)
 {
-    // Set if necessary
-    if (bm.state->textureThreshold != newValue) {
-        bm.state->textureThreshold = newValue;
-        emit parameterChanged();
-    }
+    setParameter(bm.state->textureThreshold, newValue);
 }
 
 // Uniqueness ratio; accept disparity d* only if:
@@ -183,11 +196,7 @@ int StereoMethodBlockMatching::getUniquenessRatio () const
 
 void StereoMethodBlockMatching::setUniquenessRatio (int newValue)
 {
-    // Set if necessary
-    if (bm.state->uniquenessRatio != newValue) {
-        bm.state->uniquenessRatio = newValue;
-        emit parameterChanged();
-    }
+    setParameter(bm.state->uniquenessRatio, newValue);
 }
 
 // Disparity variantion window
@@ -198,11 +207,7 @@ int StereoMethodBlockMatching::getSpeckleWindowSize () const
 
 void StereoMethodBlockMatching::setSpeckleWindowSize (int newValue)
 {
-    // Set if necessary
-    if (bm.state->speckleWindowSize != newValue) {
-        bm.state->speckleWindowSize = newValue;
-        emit parameterChanged();
-    }
+    setParameter(bm.state->speckleWindowSize, newValue);
 }
 
 // Acceptable range of variation in window    
@@ -213,11 +218,7 @@ int StereoMethodBlockMatching::getSpeckleRange () const
 
 void StereoMethodBlockMatching::setSpeckleRange (int newValue)
 {
-    // Set if necessary
-    if (bm.state->speckleRange != newValue) {
-        bm.state->speckleRange = newValue;
-        emit parameterChanged();
-    }
+    setParameter(bm.state->speckleRange, newValue);
 }
  
 // Whether to try smaller windows or not (more accurate results, but slower)
@@ -228,11 +229,7 @@ bool StereoMethodBlockMatching::getTrySmallerWindows () const
 
 void StereoMethodBlockMatching::setTrySmallerWindows (bool newValue)
 {
-    // Set if necessary
-    if (bm.state->trySmallerWindows != newValue) {
-        bm.state->trySmallerWindows = newValue;
-        emit parameterChanged();
-    }
+    setParameter(bm.state->trySmallerWindows, (int)newValue);
 }
 
 // Disp12MaxDiff
@@ -243,10 +240,7 @@ int StereoMethodBlockMatching::getDisp12MaxDiff () const
 
 void StereoMethodBlockMatching::setDisp12MaxDiff (int newValue)
 {
-    if (bm.state->disp12MaxDiff != newValue) {
-        bm.state->disp12MaxDiff = newValue;
-        emit parameterChanged();
-    }
+    setParameter(bm.state->disp12MaxDiff, newValue);
 }
 
 
@@ -265,6 +259,8 @@ ConfigTabBlockMatching::ConfigTabBlockMatching (StereoMethodBlockMatching *m, QW
     QFrame *line;
     QCheckBox *checkBox;
 
+    QString tooltip;
+
     connect(method, SIGNAL(parameterChanged()), this, SLOT(updateParameters()));
 
     // Name
@@ -281,21 +277,52 @@ ConfigTabBlockMatching::ConfigTabBlockMatching (StereoMethodBlockMatching *m, QW
 
     row++;
 
+    // Preset
+    tooltip = "Presets for quick initialization.";
+    
+    label = new QLabel("Preset", this);
+    label->setToolTip(tooltip);
+    layout->addWidget(label, row, 0);
+
+    comboBox = new QComboBox(this);
+    comboBox->addItem("OpenCV - Basic", StereoMethodBlockMatching::OpenCVBasic);
+    comboBox->addItem("OpenCV - FishEye", StereoMethodBlockMatching::OpenCVFishEye);
+    comboBox->addItem("OpenCV - Narrow", StereoMethodBlockMatching::OpenCVNarrow);
+    comboBox->addItem("StereoMatch", StereoMethodBlockMatching::StereoMatch);
+    connect(comboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(presetChanged(int)));
+    layout->addWidget(comboBox, row, 1);
+    comboBoxPreset = comboBox;
+
+    row++;
+
+    // Separator
+    line = new QFrame(this);
+    line->setFrameStyle(QFrame::HLine | QFrame::Sunken);
+    layout->addWidget(line, row, 0, 1, 2);
+
+    row++;
+
     // Pre-filter type
+    tooltip = "Type of pre-filter used for normalizing input images.";
+
     label = new QLabel("Pre-filter type", this);
+    label->setToolTip(tooltip);
     layout->addWidget(label, row, 0);
 
     comboBox = new QComboBox(this);
     comboBox->addItem("NORMALIZED_RESPONSE", CV_STEREO_BM_NORMALIZED_RESPONSE);
     comboBox->addItem("XSOBEL", CV_STEREO_BM_XSOBEL);
-    connect(comboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(currentIndexChanged(int)));
+    connect(comboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(preFilterTypeChanged(int)));
     layout->addWidget(comboBox, row, 1);
     comboBoxPreFilterType = comboBox;
 
     row++;
 
     // Pre-filter size
+    tooltip = "Pre-filter size; ~5x5 ... 21x21";
+
     label = new QLabel("Pre-filter size", this);
+    label->setToolTip(tooltip);
     layout->addWidget(label, row, 0);
 
     spinBox = new QSpinBox(this);
@@ -309,7 +336,10 @@ ConfigTabBlockMatching::ConfigTabBlockMatching (StereoMethodBlockMatching *m, QW
     row++;
 
     // Pre-filter cap
+    tooltip = "Truncation value for the pre-filtered image pixels; up to ~31.";
+
     label = new QLabel("Pre-filter cap", this);
+    label->setToolTip(tooltip);
     layout->addWidget(label, row, 0);
 
     spinBox = new QSpinBox(this);
@@ -329,7 +359,14 @@ ConfigTabBlockMatching::ConfigTabBlockMatching (StereoMethodBlockMatching *m, QW
     row++;
 
     // SAD window size
+    tooltip = "Window size for Sum of Absolute Difference (SAD): the linear size of the blocks \n"
+              "compared by the algorithm. The size should be odd (as the block is centered at the \n"
+              "current pixel). Larger block size implies smoother, though less accurate disparity map. \n"
+              "Smaller block size gives more detailed disparity map, but there is higher chance for \n"
+              "algorithm to find a wrong correspondence.";
+
     label = new QLabel("SAD window size", this);
+    label->setToolTip(tooltip);
     layout->addWidget(label, row, 0);
 
     spinBox = new QSpinBox(this);
@@ -343,12 +380,16 @@ ConfigTabBlockMatching::ConfigTabBlockMatching (StereoMethodBlockMatching *m, QW
     row++;
 
     // Min disparity
+    tooltip = "Minimum possible disparity value. Normally, it is zero but sometimes rectification \n"
+              "algorithms can shift images, so this parameter needs to be adjusted accordingly.";
+
     label = new QLabel("Min. disparity", this);
+    label->setToolTip(tooltip);
     layout->addWidget(label, row, 0);
 
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
-    spinBox->setRange(-1000, 1000);
+    spinBox->setRange(-9999, 9999);
     connect(spinBox, SIGNAL(valueChanged(int)), method, SLOT(setMinDisparity(int)));
     layout->addWidget(spinBox, row, 1);
     spinBoxMinDisparity = spinBox;
@@ -356,7 +397,11 @@ ConfigTabBlockMatching::ConfigTabBlockMatching (StereoMethodBlockMatching *m, QW
     row++;
 
     // Num disparities
+    tooltip = "Maximum disparity minus minimum disparity. The value is always greater than zero. In \n"
+              "the current implementation, this parameter must be divisible by 16.";
+    
     label = new QLabel("Num. disparities", this);
+    label->setToolTip(tooltip);
     layout->addWidget(label, row, 0);
 
     spinBox = new QSpinBox(this);
@@ -377,7 +422,10 @@ ConfigTabBlockMatching::ConfigTabBlockMatching (StereoMethodBlockMatching *m, QW
     row++;
 
     // Texture threshold
+    tooltip = "Texture threshold; areas with no texture (or texture below threshold) are ignored.";
+    
     label = new QLabel("Texture threshold", this);
+    label->setToolTip(tooltip);
     layout->addWidget(label, row, 0);
 
     spinBox = new QSpinBox(this);
@@ -390,7 +438,10 @@ ConfigTabBlockMatching::ConfigTabBlockMatching (StereoMethodBlockMatching *m, QW
     row++;
 
     // Uniqueness ratio
+    tooltip = "Filter out pixels if there are other close with different disparity, as controlled by this ratio.";
+
     label = new QLabel("Uniqueness ratio", this);
+    label->setToolTip(tooltip);
     layout->addWidget(label, row, 0);
 
     spinBox = new QSpinBox(this);
@@ -403,12 +454,14 @@ ConfigTabBlockMatching::ConfigTabBlockMatching (StereoMethodBlockMatching *m, QW
     row++;
 
     // Speckle window size
+    tooltip = "The maximum area of speckles to remove (set to 0 to disable speckle filtering).";
+
     label = new QLabel("Speckle window size", this);
     layout->addWidget(label, row, 0);
 
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
-    spinBox->setRange(0, 100);
+    spinBox->setRange(0, 200);
     connect(spinBox, SIGNAL(valueChanged(int)), method, SLOT(setSpeckleWindowSize(int)));
     layout->addWidget(spinBox, row, 1);
     spinBoxSpeckleWindowSize = spinBox;
@@ -416,7 +469,10 @@ ConfigTabBlockMatching::ConfigTabBlockMatching (StereoMethodBlockMatching *m, QW
     row++;
 
     // Speckle range
+    tooltip = "Acceptable range of disparity variation in each connected component.";
+    
     label = new QLabel("Speckle range", this);
+    label->setToolTip(tooltip);
     layout->addWidget(label, row, 0);
 
     spinBox = new QSpinBox(this);
@@ -436,7 +492,10 @@ ConfigTabBlockMatching::ConfigTabBlockMatching (StereoMethodBlockMatching *m, QW
     row++;
 
     // Try smaller windows
+    tooltip = "If enabled, results may be more accurate, at the expense of slower processing.";
+    
     checkBox = new QCheckBox("Try smaller windows", this);
+    checkBox->setToolTip(tooltip);
     connect(checkBox, SIGNAL(stateChanged(int)), this, SLOT(trySmallerWindowsChanged(int)));
     layout->addWidget(checkBox, row, 0, 1, 2);
     checkBoxTrySmallerWindow = checkBox;
@@ -451,18 +510,25 @@ ConfigTabBlockMatching::ConfigTabBlockMatching (StereoMethodBlockMatching *m, QW
     row++;
 
     // Disp12MaxDiff
+    tooltip = "Maximum allowed difference (in integer pixel units) in the left-right disparity check. \n"
+              "Set it to a non-positive value to disable the check.";
+
     label = new QLabel("Disp12MaxDiff", this);
+    label->setToolTip(tooltip);
     layout->addWidget(label, row, 0);
 
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
+    spinBox->setRange(-1, 255);
     connect(spinBox, SIGNAL(valueChanged(int)), method, SLOT(setDisp12MaxDiff(int)));
     layout->addWidget(spinBox, row, 1);
     spinBoxDisp12MaxDiff = spinBox;
 
     row++;
 
-    // Spring for padding
+    // Spacer for padding
+    QSpacerItem *spacer = new QSpacerItem(1, 1, QSizePolicy::Expanding, QSizePolicy::Expanding);
+    layout->addItem(spacer, row, 0, 1, 2);
 
     // Update parameters
     updateParameters();
@@ -472,7 +538,12 @@ ConfigTabBlockMatching::~ConfigTabBlockMatching ()
 {
 }
 
-void ConfigTabBlockMatching::currentIndexChanged (int index)
+void ConfigTabBlockMatching::presetChanged (int index)
+{
+    method->usePreset(comboBoxPreset->itemData(index).toInt());
+}
+
+void ConfigTabBlockMatching::preFilterTypeChanged (int index)
 {
     method->setPreFilterType(comboBoxPreFilterType->itemData(index).toInt());
 }

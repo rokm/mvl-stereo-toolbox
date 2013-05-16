@@ -7,6 +7,8 @@ TARGET =
 DEPENDPATH += .
 INCLUDEPATH += .
 
+CONFIG += debug
+
 unix {
     CONFIG += link_pkgconfig
     PKGCONFIG += opencv
@@ -19,6 +21,7 @@ SOURCES += \
     StereoMethod.cpp \
     StereoMethodBlockMatching.cpp \
     StereoMethodSemiGlobalBlockMatching.cpp \
+    StereoMethodVar.cpp \
     StereoPipeline.cpp \
     Toolbox.cpp
 
@@ -27,6 +30,7 @@ HEADERS += \
     StereoMethod.h \
     StereoMethodBlockMatching.h \
     StereoMethodSemiGlobalBlockMatching.h \
+    StereoMethodVar.h \
     StereoPipeline.h \
     Toolbox.h
 

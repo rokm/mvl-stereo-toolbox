@@ -35,7 +35,16 @@ public:
 
     int getDisp12MaxDiff () const;
 
+    enum {
+        OpenCVBasic,
+        OpenCVFishEye,
+        OpenCVNarrow,
+        StereoMatch,
+    } PresetType;
+
 public slots:
+    void usePreset (int type);
+
     void setPreFilterType (int);
     void setPreFilterSize (int);
     void setPreFilterCap (int);
@@ -72,7 +81,9 @@ public:
     virtual ~ConfigTabBlockMatching ();
 
 protected slots:
-    void currentIndexChanged (int);
+    void presetChanged (int);
+
+    void preFilterTypeChanged (int);
     void trySmallerWindowsChanged (int);
 
     void updateParameters ();
@@ -80,6 +91,7 @@ protected slots:
 protected:
     StereoMethodBlockMatching *method;
 
+    QComboBox *comboBoxPreset;
     QComboBox *comboBoxPreFilterType;
     QSpinBox *spinBoxPreFilterSize;
     QSpinBox *spinBoxPreFilterCap;
