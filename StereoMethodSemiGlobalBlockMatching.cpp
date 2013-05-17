@@ -239,8 +239,10 @@ ConfigTabSemiGlobalBlockMatching::ConfigTabSemiGlobalBlockMatching (StereoMethod
 
     comboBox = new QComboBox(this);
     comboBox->addItem("OpenCV", StereoMethodSemiGlobalBlockMatching::OpenCV);
+    comboBox->setItemData(0, "Initial OpenCV settings.", Qt::ToolTipRole);
     comboBox->addItem("StereoMatch", StereoMethodSemiGlobalBlockMatching::StereoMatch);
-    connect(comboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(presetChanged(int)));
+    comboBox->setItemData(1, "Settings from \"Stereo Match\" example.", Qt::ToolTipRole);
+    connect(comboBox, SIGNAL(activated(int)), this, SLOT(presetChanged(int)));
     layout->addWidget(comboBox, row, 1);
     comboBoxPreset = comboBox;
 
@@ -360,7 +362,7 @@ ConfigTabSemiGlobalBlockMatching::ConfigTabSemiGlobalBlockMatching (StereoMethod
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
     spinBox->setRange(0, INT_MAX);
-    connect(spinBox, SIGNAL(valueChanged(int)), this, SLOT(setP1(int)));
+    connect(spinBox, SIGNAL(valueChanged(int)), method, SLOT(setP1(int)));
     layout->addWidget(spinBox, row, 1);
     spinBoxP1 = spinBox;
 

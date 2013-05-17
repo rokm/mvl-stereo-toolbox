@@ -19,7 +19,10 @@ SOURCES += \
     main.cpp \
     StereoCalibration.cpp \
     StereoMethod.cpp \
+    StereoMethodConstantSpaceBeliefPropagationGPU.cpp \
+    StereoMethodBeliefPropagationGPU.cpp \
     StereoMethodBlockMatching.cpp \
+    StereoMethodBlockMatchingGPU.cpp \
     StereoMethodSemiGlobalBlockMatching.cpp \
     StereoMethodVar.cpp \
     StereoPipeline.cpp \
@@ -28,7 +31,10 @@ SOURCES += \
 HEADERS += \
     StereoCalibration.h \
     StereoMethod.h \
+    StereoMethodConstantSpaceBeliefPropagationGPU.h \
+    StereoMethodBeliefPropagationGPU.h \
     StereoMethodBlockMatching.h \
+    StereoMethodBlockMatchingGPU.h \
     StereoMethodSemiGlobalBlockMatching.h \
     StereoMethodVar.h \
     StereoPipeline.h \

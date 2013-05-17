@@ -286,10 +286,14 @@ ConfigTabBlockMatching::ConfigTabBlockMatching (StereoMethodBlockMatching *m, QW
 
     comboBox = new QComboBox(this);
     comboBox->addItem("OpenCV - Basic", StereoMethodBlockMatching::OpenCVBasic);
+    comboBox->setItemData(0, "Initial OpenCV settings with \"Basic\" preset.", Qt::ToolTipRole);
     comboBox->addItem("OpenCV - FishEye", StereoMethodBlockMatching::OpenCVFishEye);
+    comboBox->setItemData(1, "Initial OpenCV settings with \"FishEye\" preset.", Qt::ToolTipRole);
     comboBox->addItem("OpenCV - Narrow", StereoMethodBlockMatching::OpenCVNarrow);
+    comboBox->setItemData(2, "Initial OpenCV settings with \"Narrow\" preset.", Qt::ToolTipRole);
     comboBox->addItem("StereoMatch", StereoMethodBlockMatching::StereoMatch);
-    connect(comboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(presetChanged(int)));
+    comboBox->setItemData(3, "Settings from \"Stereo Match\" example.", Qt::ToolTipRole);
+    connect(comboBox, SIGNAL(activated(int)), this, SLOT(presetChanged(int)));
     layout->addWidget(comboBox, row, 1);
     comboBoxPreset = comboBox;
 
@@ -311,7 +315,9 @@ ConfigTabBlockMatching::ConfigTabBlockMatching (StereoMethodBlockMatching *m, QW
 
     comboBox = new QComboBox(this);
     comboBox->addItem("NORMALIZED_RESPONSE", CV_STEREO_BM_NORMALIZED_RESPONSE);
+    comboBox->setItemData(0, "Normalized response filter.", Qt::ToolTipRole);
     comboBox->addItem("XSOBEL", CV_STEREO_BM_XSOBEL);
+    comboBox->setItemData(0, "Sobel filter.", Qt::ToolTipRole);
     connect(comboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(preFilterTypeChanged(int)));
     layout->addWidget(comboBox, row, 1);
     comboBoxPreFilterType = comboBox;

@@ -1,9 +1,14 @@
 #include "Toolbox.h"
 
 #include "StereoPipeline.h"
+
 #include "StereoMethodBlockMatching.h"
 #include "StereoMethodSemiGlobalBlockMatching.h"
 #include "StereoMethodVar.h"
+
+#include "StereoMethodConstantSpaceBeliefPropagationGPU.h"
+#include "StereoMethodBeliefPropagationGPU.h"
+#include "StereoMethodBlockMatchingGPU.h"
 
 #include <opencv2/highgui/highgui.hpp>
 
@@ -53,9 +58,17 @@ Toolbox::Toolbox (QWidget *parent)
     connect(pipeline, SIGNAL(depthImageChanged()), this, SLOT(updateDepthImage()));
 
     // Stereo Methods
-    methods.append(new StereoMethodBlockMatching(this)); // OpenCV block matching
-    methods.append(new StereoMethodSemiGlobalBlockMatching(this)); // OpenCV semi-global block matching
-    methods.append(new StereoMethodVar(this)); // OpenCV variational matching
+    methods.append(new StereoMethodBlockMatching(this));
+    methods.append(new StereoMethodSemiGlobalBlockMatching(this));
+    methods.append(new StereoMethodVar(this));
+    
+    if (cv::gpu::getCudaEnabledDeviceCount()) {
+        cv::gpu::setDevice(0);
+        
+        methods.append(new StereoMethodBlockMatchingGPU(this));
+        methods.append(new StereoMethodBeliefPropagationGPU(this));
+        methods.append(new StereoMethodConstantSpaceBeliefPropagationGPU(this));
+    }
 
     // Create config tabs
     for (int i = 0; i < methods.size(); i++) {

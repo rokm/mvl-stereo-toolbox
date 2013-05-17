@@ -258,8 +258,10 @@ ConfigTabVar::ConfigTabVar (StereoMethodVar *m, QWidget *parent)
 
     comboBox = new QComboBox(this);
     comboBox->addItem("OpenCV", StereoMethodVar::OpenCV);
+    comboBox->setItemData(0, "Initial OpenCV settings.", Qt::ToolTipRole);
     comboBox->addItem("StereoMatch", StereoMethodVar::StereoMatch);
-    connect(comboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(presetChanged(int)));
+    comboBox->setItemData(1, "Settings from \"Stereo Match\" example.", Qt::ToolTipRole);
+    connect(comboBox, SIGNAL(activated(int)), this, SLOT(presetChanged(int)));
     layout->addWidget(comboBox, row, 1);
     comboBoxPreset = comboBox;
 
@@ -410,8 +412,8 @@ ConfigTabVar::ConfigTabVar (StereoMethodVar *m, QWidget *parent)
     row++;
 
     // Lambda
-    tooltip = "The threshold parameter for edge-preserving smoothness. (This parameter is ignored if PENALIZATION_CHARBONNIER or \n"
-              "PENALIZATION_PERONA_MALIK is used.)";
+    tooltip = "The threshold parameter for edge-preserving smoothness (ignored if PENALIZATION_CHARBONNIER or \n"
+              "PENALIZATION_PERONA_MALIK is used).";
     
     label = new QLabel("Lambda", this);
     label->setToolTip(tooltip);
@@ -428,11 +430,7 @@ ConfigTabVar::ConfigTabVar (StereoMethodVar *m, QWidget *parent)
     row++;
 
     // Penalization
-    tooltip = "Possible penalization options: \n"
-              " PENALIZATION_TICHONOV - linear smoothness\n"
-              " PENALIZATION_CHARBONNIER - non-linear edge preserving smoothness\n"
-              " PENALIZATION_PERONA_MALIK - non-linear edge-enhancing smoothness\n"
-              "(This parameter is ignored if flag USE_AUTO_PARAMS is set).";
+    tooltip = "Penalization option (ignored if flag USE_AUTO_PARAMS is set).";
     
     label = new QLabel("Penalization", this);
     label->setToolTip(tooltip);
@@ -440,8 +438,11 @@ ConfigTabVar::ConfigTabVar (StereoMethodVar *m, QWidget *parent)
 
     comboBox = new QComboBox(this);
     comboBox->addItem("TICHONOV", cv::StereoVar::PENALIZATION_TICHONOV);
+    comboBox->setItemData(0, "Linear smoothness.", Qt::ToolTipRole);
     comboBox->addItem("CHARBONNIER", cv::StereoVar::PENALIZATION_CHARBONNIER);
+    comboBox->setItemData(1, "Non-linear edge preserving smoothness.", Qt::ToolTipRole);
     comboBox->addItem("PERONA_MALIK", cv::StereoVar::PENALIZATION_PERONA_MALIK);
+    comboBox->setItemData(2, "Non-linear edge-enhancing smoothness.", Qt::ToolTipRole);
     connect(comboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(penalizationChanged(int)));
     layout->addWidget(comboBox, row, 1);
     comboBoxPenalization = comboBox;
@@ -449,10 +450,7 @@ ConfigTabVar::ConfigTabVar (StereoMethodVar *m, QWidget *parent)
     row++;
 
     // Cycle
-    tooltip = "Type of the multigrid cycle. Possible values: \n"
-              " CYCLE_O - null-cycles\n"
-              " CYCLE_V - v-cycles\n"
-              "(This parameter is ignored if flag USE_AUTO_PARAMS is set).";
+    tooltip = "Type of the multigrid cycle (ignored if flag USE_AUTO_PARAMS is set).";
     
     label = new QLabel("Cycle", this);
     label->setToolTip(tooltip);
@@ -460,7 +458,9 @@ ConfigTabVar::ConfigTabVar (StereoMethodVar *m, QWidget *parent)
 
     comboBox = new QComboBox(this);
     comboBox->addItem("Null-cycle", cv::StereoVar::CYCLE_O);
+    comboBox->setItemData(0, "Null-cycles.", Qt::ToolTipRole);
     comboBox->addItem("V-cycle", cv::StereoVar::CYCLE_V);
+    comboBox->setItemData(1, "V-cycles.", Qt::ToolTipRole);
     connect(comboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(cycleChanged(int)));
     layout->addWidget(comboBox, row, 1);
     comboBoxCycle = comboBox;

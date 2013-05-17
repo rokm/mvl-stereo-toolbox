@@ -136,11 +136,15 @@ void StereoPipeline::computeDepthImage ()
         return;
     }
 
-    QTime timer; timer.start();
-    method->computeDepthImage(rectifiedImageL, rectifiedImageR, depthImage);
-    depthImageComputationTime = timer.elapsed();
+    try {
+        QTime timer; timer.start();
+        method->computeDepthImage(rectifiedImageL, rectifiedImageR, depthImage);
+        depthImageComputationTime = timer.elapsed();
     
-    emit depthImageChanged();
+        emit depthImageChanged();
+    } catch (std::exception &e) {
+        qWarning() << "Error: " << e.what();
+    }
 }
 
 void StereoPipeline::methodParameterChanged ()
