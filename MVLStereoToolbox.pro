@@ -12,6 +12,7 @@ CONFIG += debug
 unix {
     CONFIG += link_pkgconfig
     PKGCONFIG += opencv
+    PKGCONFIG += libelas
 }
 
 # Input
@@ -23,6 +24,7 @@ SOURCES += \
     StereoMethodBeliefPropagationGPU.cpp \
     StereoMethodBlockMatching.cpp \
     StereoMethodBlockMatchingGPU.cpp \
+    StereoMethodELAS.cpp \
     StereoMethodSemiGlobalBlockMatching.cpp \
     StereoMethodVar.cpp \
     StereoPipeline.cpp \
@@ -35,6 +37,7 @@ HEADERS += \
     StereoMethodBeliefPropagationGPU.h \
     StereoMethodBlockMatching.h \
     StereoMethodBlockMatchingGPU.h \
+    StereoMethodELAS.h \
     StereoMethodSemiGlobalBlockMatching.h \
     StereoMethodVar.h \
     StereoPipeline.h \

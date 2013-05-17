@@ -6,6 +6,8 @@
 #include "StereoMethodSemiGlobalBlockMatching.h"
 #include "StereoMethodVar.h"
 
+#include "StereoMethodELAS.h"
+
 #include "StereoMethodConstantSpaceBeliefPropagationGPU.h"
 #include "StereoMethodBeliefPropagationGPU.h"
 #include "StereoMethodBlockMatchingGPU.h"
@@ -52,6 +54,8 @@ Toolbox::Toolbox (QWidget *parent)
 {
     setupUi(this);
 
+    tabWidget->setTabPosition(QTabWidget::West);
+
     // Stereo pipeline
     pipeline = new StereoPipeline(this);
     connect(pipeline, SIGNAL(inputImagesChanged()), this, SLOT(updateInputImages()));
@@ -61,7 +65,8 @@ Toolbox::Toolbox (QWidget *parent)
     methods.append(new StereoMethodBlockMatching(this));
     methods.append(new StereoMethodSemiGlobalBlockMatching(this));
     methods.append(new StereoMethodVar(this));
-    
+    methods.append(new StereoMethodELAS(this));
+
     if (cv::gpu::getCudaEnabledDeviceCount()) {
         cv::gpu::setDevice(0);
         
