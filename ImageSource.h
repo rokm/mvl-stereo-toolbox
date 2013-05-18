@@ -14,13 +14,24 @@ public:
     ImageSource (QObject * = 0);
     virtual ~ImageSource ();
 
+    virtual void getImages (cv::Mat &, cv::Mat &);
+
     // Config interface
     const QString &getShortName () const;
     QWidget *getConfigWidget ();
 
+signals:
+    void imagesChanged ();
+
 protected:
     QString shortName;
     QWidget *configWidget;
+
+    // Images
+    QReadWriteLock imagesLock;
+    
+    cv::Mat imageLeft;
+    cv::Mat imageRight;
 };
 
 #endif

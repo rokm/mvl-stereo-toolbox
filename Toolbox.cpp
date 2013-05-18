@@ -20,6 +20,8 @@
 
 #include "StereoPipeline.h"
 
+#include "ImageSourceFile.h"
+
 #include "StereoMethodBlockMatching.h"
 #include "StereoMethodSemiGlobalBlockMatching.h"
 #include "StereoMethodVar.h"
@@ -79,6 +81,10 @@ Toolbox::Toolbox (QWidget *parent)
     connect(pipeline, SIGNAL(inputImagesChanged()), this, SLOT(updateInputImages()));
     connect(pipeline, SIGNAL(depthImageChanged()), this, SLOT(updateDepthImage()));
 
+    // Image source
+    source = new ImageSourceFile(this);
+    pipeline->setImageSource(source);
+
     // Stereo Methods
     methods.append(new StereoMethodBlockMatching(this));
     methods.append(new StereoMethodSemiGlobalBlockMatching(this));
@@ -102,11 +108,8 @@ Toolbox::Toolbox (QWidget *parent)
     connect(tabWidget, SIGNAL(currentChanged(int)), this, SLOT(setStereoMethod(int)));
     pipeline->setStereoMethod(methods[tabWidget->currentIndex()]);
 
-    // Test :)
-    cv::Mat imgL = cv::imread("tsukuba/scene1.row3.col3.ppm");
-    cv::Mat imgR = cv::imread("tsukuba/scene1.row3.col5.ppm");
-
-    pipeline->processImagePair(imgL, imgR);
+    // Test - feed two images to source
+    qobject_cast<ImageSourceFile *>(source)->loadImagePair("tsukuba/scene1.row3.col3.ppm", "tsukuba/scene1.row3.col5.ppm");
 }
 
 Toolbox::~Toolbox ()

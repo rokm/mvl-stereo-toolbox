@@ -11,6 +11,8 @@ class ImageSourceFile : public ImageSource
 public:
     ImageSourceFile (QObject * = 0);
     virtual ~ImageSourceFile ();
+
+    void loadImagePair (const QString &, const QString &);
 };
 
 #endif

@@ -9,6 +9,15 @@ ImageSource::~ImageSource ()
 {
 }
 
+void ImageSource::getImages (cv::Mat &left, cv::Mat &right)
+{
+    // Copy images under lock, in case source implements dynamic image grab
+    QReadLocker lock(&imagesLock);
+    
+    left = imageLeft;
+    right = imageRight;
+}
+
 
 // *********************************************************************
 // *                           Config widget                           *

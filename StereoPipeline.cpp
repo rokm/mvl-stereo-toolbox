@@ -18,6 +18,7 @@
 
 #include "StereoPipeline.h"
 
+#include "ImageSource.h"
 #include "StereoCalibration.h"
 #include "StereoMethod.h"
 
@@ -25,6 +26,7 @@
 StereoPipeline::StereoPipeline (QObject *parent)
     : QObject(parent)
 {
+    imageSource = NULL;
     calibration = NULL;
     method = NULL;
 }
@@ -65,6 +67,20 @@ const cv::Mat &StereoPipeline::getRightRectifiedImage () const
     return rectifiedImageR;
 }
     
+// *********************************************************************
+// *                         Image source object                       *
+// *********************************************************************
+void StereoPipeline::setImageSource (ImageSource *newSource)
+{
+    // Change source
+    if (imageSource) {
+        disconnect(imageSource, SIGNAL(imagesChanged()), this, SLOT(beginProcessing()));
+    }
+
+    imageSource = newSource;
+
+    connect(imageSource, SIGNAL(imagesChanged()), this, SLOT(beginProcessing()));
+}
 
 
 // *********************************************************************
@@ -97,12 +113,11 @@ void StereoPipeline::setStereoMethod (StereoMethod *newMethod)
 // *********************************************************************
 // *                             Processing                            *
 // *********************************************************************
-void StereoPipeline::processImagePair (const cv::Mat &left, const cv::Mat &right)
+void StereoPipeline::beginProcessing ()
 {
-    // Store images
-    inputImageL = left;
-    inputImageR = right;
-
+    // Get images from source
+    imageSource->getImages(inputImageL, inputImageR);
+    
     // Rectify input images
     rectifyImages();
 

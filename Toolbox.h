@@ -26,6 +26,7 @@
 
 
 class StereoPipeline;
+class ImageSource;
 class StereoMethod;
 
 // *********************************************************************
@@ -47,6 +48,7 @@ protected slots:
 
 protected:
     StereoPipeline *pipeline;
+    ImageSource *source;
     QList<StereoMethod *> methods;
 };
 

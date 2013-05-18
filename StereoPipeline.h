@@ -23,7 +23,7 @@
 
 #include <opencv2/core/core.hpp>
 
-
+class ImageSource;
 class StereoCalibration;
 class StereoMethod;
 
@@ -35,10 +35,9 @@ public:
     StereoPipeline (QObject * = 0);
     virtual ~StereoPipeline ();
 
+    void setImageSource (ImageSource *);
     void setCalibration (StereoCalibration *);
     void setStereoMethod (StereoMethod *);
-
-    void processImagePair (const cv::Mat &, const cv::Mat &);
     
     const cv::Mat &getLeftImage () const;
     const cv::Mat &getRightImage () const;
@@ -49,11 +48,12 @@ public:
     const cv::Mat &getDepthImage () const;
     int getDepthImageComputationTime () const;
 
-protected:
+protected slots:
+    void beginProcessing ();
+
     void rectifyImages ();
     void computeDepthImage ();
 
-protected slots:
     void methodParameterChanged ();
 
 signals:
@@ -62,6 +62,9 @@ signals:
     void depthImageChanged ();
 
 protected:
+    // Image source
+    ImageSource *imageSource;
+
     // Stereo calibration & rectification
     StereoCalibration *calibration;
     
