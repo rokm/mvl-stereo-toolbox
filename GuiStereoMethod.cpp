@@ -47,10 +47,12 @@ GuiStereoMethod::GuiStereoMethod (StereoPipeline *p, QList<StereoMethod *> &m, Q
     layout->setContentsMargins(2, 2, 2, 2);
     setLayout(layout);
 
-    // Left image
+    // Disparity image
     labelDisparityImage = new QLabel("Disparity image", this);
+    labelDisparityImage->setToolTip("Disparity image");
     labelDisparityImage->setFrameStyle(QFrame::Box | QFrame::Sunken);
     labelDisparityImage->setAlignment(Qt::AlignCenter);
+    labelDisparityImage->setMinimumSize(384, 288);
     layout->addWidget(labelDisparityImage, 0, 1);
 
     // Methods
