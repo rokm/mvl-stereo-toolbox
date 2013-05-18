@@ -43,9 +43,16 @@ public:
     // Depth image computation
     virtual void computeDepthImage (const cv::Mat &, const cv::Mat &, cv::Mat &) = 0;
 
+    // Parameter import/export
+    void loadParameters (const QString &);
+    virtual void loadParameters (const cv::FileStorage &);
+
+    void saveParameters (const QString &) const;
+    virtual void saveParameters (cv::FileStorage &) const;
+
     // Config interface
-    virtual const QString &getShortName () const;
-    virtual QWidget *getConfigWidget ();
+    const QString &getShortName () const;
+    QWidget *getConfigWidget ();
 
     // Generic parameter setting
     template <typename T> void setParameter (T &parameter, const T &newValue) {

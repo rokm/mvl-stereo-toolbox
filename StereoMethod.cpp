@@ -60,6 +60,51 @@ int StereoMethod::getImageChannels () const
     return imageChannels;
 }
 
+// *********************************************************************
+// *                     Parameter import/export                       *
+// *********************************************************************
+void StereoMethod::loadParameters (const QString &filename)
+{
+    // Open storage
+    cv::FileStorage storage(filename.toStdString(), cv::FileStorage::READ);
+    if (!storage.isOpened()) {
+        throw QString("Cannot open file \"%1\" for reading!").arg(filename);
+    }
+
+    // Load from storage
+    loadParameters(storage);
+}
+
+void StereoMethod::loadParameters (const cv::FileStorage &storage)
+{
+    // Validate method name
+    QString storedName = QString::fromStdString(storage["MethodName"]);
+    if (shortName.compare(storedName)) {
+        throw QString("Invalid configuration for method \"%1\"!").arg(shortName);
+    }
+
+    // Actual parameter loading is implemented by children...
+}
+
+void StereoMethod::saveParameters (const QString &filename) const
+{
+    cv::FileStorage storage(filename.toStdString(), cv::FileStorage::WRITE);
+    if (!storage.isOpened()) {
+        throw QString("Cannot open file \"%1\" for writing!").arg(filename);
+    }
+
+    // Save to storage
+    saveParameters(storage);
+}
+
+void StereoMethod::saveParameters (cv::FileStorage &storage) const
+{
+    // Store method name, so it can be validate upon loading
+    storage << "MethodName" << shortName.toStdString();
+
+    // Actual parameter saving is implemented by children...
+}
+
 
 // *********************************************************************
 // *                           Config widget                           *

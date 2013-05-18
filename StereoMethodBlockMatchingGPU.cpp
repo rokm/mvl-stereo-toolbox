@@ -75,6 +75,37 @@ void StereoMethodBlockMatchingGPU::computeDepthImage (const cv::Mat &img1, const
     gpu_depth.download(depth);
 }
 
+// *********************************************************************
+// *                     Parameter import/export                       *
+// *********************************************************************
+void StereoMethodBlockMatchingGPU::loadParameters (const cv::FileStorage &storage)
+{
+    // Chain up to parent, which validates the storage
+    StereoMethod::loadParameters(storage);
+    
+    // Load parameters
+    bm = cv::gpu::StereoBM_GPU();
+    
+    storage["Preset"] >> bm.preset;
+    storage["NumDisparities"] >> bm.ndisp;
+    storage["WindowSize"] >> bm.winSize;
+    storage["AverageTextureThreshold"] >> bm.avergeTexThreshold;
+    
+    emit parameterChanged();
+}
+
+void StereoMethodBlockMatchingGPU::saveParameters (cv::FileStorage &storage) const
+{
+    // Chain up to parent, which sets up method name
+    StereoMethod::saveParameters(storage);
+
+    // Save parameters
+    storage << "Preset" << bm.preset;
+    storage << "NumDisparities" << bm.ndisp;
+    storage << "WindowSize" << bm.winSize;
+    storage << "AverageTextureThreshold" << bm.avergeTexThreshold;
+}
+
 
 // *********************************************************************
 // *                         Method parameters                         *

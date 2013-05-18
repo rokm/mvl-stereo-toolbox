@@ -86,6 +86,54 @@ void StereoMethodVar::computeDepthImage (const cv::Mat &img1, const cv::Mat &img
 
 
 // *********************************************************************
+// *                     Parameter import/export                       *
+// *********************************************************************
+void StereoMethodVar::loadParameters (const cv::FileStorage &storage)
+{
+    // Chain up to parent, which validates the storage
+    StereoMethod::loadParameters(storage);
+    
+    // Load parameters
+    var = cv::StereoVar();
+    
+    storage["Levels"] >> var.levels;
+    storage["PyrScale"] >> var.pyrScale;
+    storage["NumIterations"] >> var.nIt;
+    storage["MinDisparity"] >> var.minDisp;
+    storage["MaxDisparity"] >> var.maxDisp;
+    storage["PolyN"] >> var.poly_n;
+    storage["PolySigma"] >> var.poly_sigma;
+    storage["Fi"] >> var.fi;
+    storage["Lambda"] >> var.lambda;
+    storage["Penalization"] >> var.penalization;
+    storage["Cycle"] >> var.cycle;
+    storage["Flags"] >> var.flags;
+    
+    emit parameterChanged();
+}
+
+void StereoMethodVar::saveParameters (cv::FileStorage &storage) const
+{
+    // Chain up to parent, which sets up method name
+    StereoMethod::saveParameters(storage);
+
+    // Save parameters
+    storage << "Levels" << var.levels;
+    storage << "PyrScale" << var.pyrScale;
+    storage << "NumIterations" << var.nIt;
+    storage << "MinDisparity" << var.minDisp;
+    storage << "MaxDisparity" << var.maxDisp;
+    storage << "PolyN" << var.poly_n;
+    storage << "PolySigma" << var.poly_sigma;
+    storage << "Fi" << var.fi;
+    storage << "Lambda" << var.lambda;
+    storage << "Penalization" << var.penalization;
+    storage << "Cycle" << var.cycle;
+    storage << "Flags" << var.flags;
+}
+
+
+// *********************************************************************
 // *                         Method parameters                         *
 // *********************************************************************
 // Levels

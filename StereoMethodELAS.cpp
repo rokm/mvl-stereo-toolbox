@@ -97,6 +97,92 @@ void StereoMethodELAS::computeDepthImage (const cv::Mat &img1, const cv::Mat &im
     }
 }
 
+// *********************************************************************
+// *                     Parameter import/export                       *
+// *********************************************************************
+void StereoMethodELAS::loadParameters (const cv::FileStorage &storage)
+{
+    // Chain up to parent, which validates the storage
+    StereoMethod::loadParameters(storage);
+    
+    // Load parameters
+    param = Elas::parameters(Elas::ROBOTICS);
+
+    storage["MinDisparity"] >> param.disp_min;
+    storage["MaxDisparity"] >> param.disp_max;
+    
+    storage["SupportThreshold"] >> param.support_threshold;
+    storage["SupportTexture"] >> param.support_texture;
+    storage["CandidateStepSize"] >> param.candidate_stepsize;
+    storage["InconsistentWindowSize"] >> param.incon_window_size;
+    storage["InconsistentThreshold"] >> param.incon_threshold;
+    storage["InconsistentMinSupport"] >> param.incon_min_support;
+
+    storage["AddCorners"] >> param.add_corners;
+    storage["GridSize"] >> param.grid_size;
+    
+    storage["Beta"] >> param.beta;
+    storage["Gamma"] >> param.gamma;
+    storage["Sigma"] >> param.sigma;
+    storage["SigmaRadius"] >> param.sradius;
+    
+    storage["MatchTexture"] >> param.match_texture;
+    storage["LRThreshold"] >> param.lr_threshold;
+    
+    storage["SpeckleSimThreshold"] >> param.speckle_sim_threshold;
+    storage["SpeckleSize"] >> param.speckle_size;
+    storage["InterpolationGapWidth"] >> param.ipol_gap_width;
+
+    storage["FilterMedian"] >> param.filter_median;
+    storage["FilterAdaptiveMean"] >> param.filter_adaptive_mean;
+    storage["PostProcessOnlyLeft"] >> param.postprocess_only_left;
+    storage["Subsampling"] >> param.subsampling;
+    
+    storage["ReturnLeft"] >> returnLeft;
+    
+    elas = Elas(param);
+    emit parameterChanged();
+}
+
+void StereoMethodELAS::saveParameters (cv::FileStorage &storage) const
+{
+    // Chain up to parent, which sets up method name
+    StereoMethod::saveParameters(storage);
+
+    // Save parameters
+    storage << "MinDisparity" << param.disp_min;
+    storage << "MaxDisparity" << param.disp_max;
+    
+    storage << "SupportThreshold" << param.support_threshold;
+    storage << "SupportTexture" << param.support_texture;
+    storage << "CandidateStepSize" << param.candidate_stepsize;
+    storage << "InconsistentWindowSize" << param.incon_window_size;
+    storage << "InconsistentThreshold" << param.incon_threshold;
+    storage << "InconsistentMinSupport" << param.incon_min_support;
+
+    storage << "AddCorners" << param.add_corners;
+    storage << "GridSize" << param.grid_size;
+
+    storage << "Beta" << param.beta;
+    storage << "Gamma" << param.gamma;
+    storage << "Sigma" << param.sigma;
+    storage << "SigmaRadius" << param.sradius;
+    
+    storage << "MatchTexture" << param.match_texture;
+    storage << "LRThreshold" << param.lr_threshold;
+    
+    storage << "SpeckleSimThreshold" << param.speckle_sim_threshold;
+    storage << "SpeckleSize" << param.speckle_size;
+    storage << "InterpolationGapWidth" << param.ipol_gap_width;
+    
+    storage << "FilterMedian" << param.filter_median;
+    storage << "FilterAdaptiveMean" << param.filter_adaptive_mean;
+    storage << "PostProcessOnlyLeft" << param.postprocess_only_left;
+    storage << "Subsampling" << param.subsampling;
+
+    storage << "ReturnLeft" << returnLeft;
+}
+
 
 // *********************************************************************
 // *                         Method parameters                         *

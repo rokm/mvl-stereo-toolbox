@@ -35,6 +35,10 @@ public:
     // Depth image computation
     virtual void computeDepthImage (const cv::Mat &, const cv::Mat &, cv::Mat &);
 
+    // Parameter import/export
+    virtual void loadParameters (const cv::FileStorage &);
+    virtual void saveParameters (cv::FileStorage &) const;
+
     // Generic parameter setting - we override it because elas object
     // needs to be reinitialized every time a parameter changes
     template <typename T> void setParameter (T &parameter, const T &newValue) {

@@ -35,6 +35,10 @@ public:
     // Depth image computation
     virtual void computeDepthImage (const cv::Mat &, const cv::Mat &, cv::Mat &);
 
+    // Parameter import/export
+    virtual void loadParameters (const cv::FileStorage &);
+    virtual void saveParameters (cv::FileStorage &) const;
+    
     // Parameters
     int getMinDisparity () const;
     int getNumDisparities () const;

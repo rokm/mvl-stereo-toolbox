@@ -76,6 +76,47 @@ void StereoMethodBeliefPropagationGPU::computeDepthImage (const cv::Mat &img1, c
 
 
 // *********************************************************************
+// *                     Parameter import/export                       *
+// *********************************************************************
+void StereoMethodBeliefPropagationGPU::loadParameters (const cv::FileStorage &storage)
+{
+    // Chain up to parent, which validates the storage
+    StereoMethod::loadParameters(storage);
+    
+    // Load parameters
+    bp = cv::gpu::StereoBeliefPropagation();
+    
+    storage["NumDisparities"] >> bp.ndisp;
+    
+    storage["Iterations"] >> bp.iters;
+    storage["Levels"] >> bp.levels;
+    
+    storage["MaxDataTerm"] >> bp.max_data_term;
+    storage["DataWeight"] >> bp.data_weight;
+    storage["MaxDiscTerm"] >> bp.max_disc_term;
+    storage["DiscSingleJump"] >> bp.disc_single_jump;
+
+    emit parameterChanged();
+}
+
+void StereoMethodBeliefPropagationGPU::saveParameters (cv::FileStorage &storage) const
+{
+    // Chain up to parent, which sets up method name
+    StereoMethod::saveParameters(storage);
+    
+    storage << "NumDisparities" << bp.ndisp;
+
+    storage << "Iterations" << bp.iters;
+    storage << "Levels" << bp.levels;
+    
+    storage << "MaxDataTerm" << bp.max_data_term;
+    storage << "DataWeight" << bp.data_weight;
+    storage << "MaxDiscTerm" << bp.max_disc_term;
+    storage << "DiscSingleJump" << bp.disc_single_jump;  
+}
+
+
+// *********************************************************************
 // *                         Method parameters                         *
 // *********************************************************************
 // Number of disparities

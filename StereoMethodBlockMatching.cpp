@@ -103,6 +103,62 @@ void StereoMethodBlockMatching::computeDepthImage (const cv::Mat &img1, const cv
 
 
 // *********************************************************************
+// *                     Parameter import/export                       *
+// *********************************************************************
+void StereoMethodBlockMatching::loadParameters (const cv::FileStorage &storage)
+{
+    // Chain up to parent, which validates the storage
+    StereoMethod::loadParameters(storage);
+    
+    // Load parameters
+    bm = cv::StereoBM();
+    
+    storage["PreFilterType"] >> bm.state->preFilterType;
+    storage["PreFilterSize"] >> bm.state->preFilterSize;
+    storage["PreFilterCap"] >> bm.state->preFilterCap;
+    
+    storage["SADWindowSize"] >> bm.state->SADWindowSize;
+    storage["MinDisparity"] >> bm.state->minDisparity;
+    storage["NumDisparities"] >> bm.state->numberOfDisparities;
+
+    storage["TextureThreshold"] >> bm.state->textureThreshold;
+    storage["UniquenessRatio"] >> bm.state->uniquenessRatio;
+    storage["SpeckleWindowSize"] >> bm.state->speckleWindowSize;
+    storage["SpeckleRange"] >> bm.state->speckleRange;
+
+    storage["TrySmallerWindows"] >> bm.state->trySmallerWindows;
+
+    storage["Disp12MaxDiff"] >> bm.state->disp12MaxDiff;
+
+    emit parameterChanged();
+}
+
+void StereoMethodBlockMatching::saveParameters (cv::FileStorage &storage) const
+{
+    // Chain up to parent, which sets up method name
+    StereoMethod::saveParameters(storage);
+
+    // Save parameters
+    storage << "PreFilterType" << bm.state->preFilterType;
+    storage << "PreFilterSize" << bm.state->preFilterSize;
+    storage << "PreFilterCap" << bm.state->preFilterCap;
+    
+    storage << "SADWindowSize" << bm.state->SADWindowSize;
+    storage << "MinDisparity" << bm.state->minDisparity;
+    storage << "NumDisparities" << bm.state->numberOfDisparities;
+
+    storage << "TextureThreshold" << bm.state->textureThreshold;
+    storage << "UniquenessRatio" << bm.state->uniquenessRatio;
+    storage << "SpeckleWindowSize" << bm.state->speckleWindowSize;
+    storage << "SpeckleRange" << bm.state->speckleRange;
+
+    storage << "TrySmallerWindows" << bm.state->trySmallerWindows;
+
+    storage << "Disp12MaxDiff" << bm.state->disp12MaxDiff;
+}
+
+
+// *********************************************************************
 // *                         Method parameters                         *
 // *********************************************************************
 // Pre-filter type

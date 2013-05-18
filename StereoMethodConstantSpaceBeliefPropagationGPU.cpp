@@ -78,6 +78,56 @@ void StereoMethodConstantSpaceBeliefPropagationGPU::computeDepthImage (const cv:
 
 
 // *********************************************************************
+// *                     Parameter import/export                       *
+// *********************************************************************
+void StereoMethodConstantSpaceBeliefPropagationGPU::loadParameters (const cv::FileStorage &storage)
+{
+    // Chain up to parent, which validates the storage
+    StereoMethod::loadParameters(storage);
+    
+    // Load parameters
+    bp = cv::gpu::StereoConstantSpaceBP();
+
+    storage["NumDisparities"] >> bp.ndisp;
+    
+    storage["Iterations"] >> bp.iters;
+    storage["Levels"] >> bp.levels;
+    storage["NrPlane"] >> bp.nr_plane;
+
+    storage["MaxDataTerm"] >> bp.max_data_term;
+    storage["DataWeight"] >> bp.data_weight;
+    storage["MaxDiscTerm"] >> bp.max_disc_term;
+    storage["DiscSingleJump"] >> bp.disc_single_jump;
+    storage["MinDispThreshold"] >> bp.min_disp_th;
+
+    storage["UseLocalCost"] >> bp.use_local_init_data_cost;
+    
+    emit parameterChanged();
+}
+
+void StereoMethodConstantSpaceBeliefPropagationGPU::saveParameters (cv::FileStorage &storage) const
+{
+    // Chain up to parent, which sets up method name
+    StereoMethod::saveParameters(storage);
+
+    // Save parameters
+    storage << "NumDisparities" << bp.ndisp;
+    
+    storage << "Iterations" << bp.iters;
+    storage << "Levels" << bp.levels;
+    storage << "NrPlane" << bp.nr_plane;
+
+    storage << "MaxDataTerm" << bp.max_data_term;
+    storage << "DataWeight" << bp.data_weight;
+    storage << "MaxDiscTerm" << bp.max_disc_term;
+    storage << "DiscSingleJump" << bp.disc_single_jump;
+    storage << "MinDispThreshold" << bp.min_disp_th;
+
+    storage << "UseLocalCost" << bp.use_local_init_data_cost;
+}
+
+
+// *********************************************************************
 // *                         Method parameters                         *
 // *********************************************************************
 // Number of disparities

@@ -83,6 +83,62 @@ void StereoMethodSemiGlobalBlockMatching::computeDepthImage (const cv::Mat &img1
 
 
 // *********************************************************************
+// *                     Parameter import/export                       *
+// *********************************************************************
+void StereoMethodSemiGlobalBlockMatching::loadParameters (const cv::FileStorage &storage)
+{
+    // Chain up to parent, which validates the storage
+    StereoMethodSemiGlobalBlockMatching::loadParameters(storage);
+    
+    // Load parameters
+    sgbm = cv::StereoSGBM();
+
+    storage["MinDisparity"] >> sgbm.minDisparity;
+    storage["NumDisparities"] >> sgbm.numberOfDisparities;
+    storage["SADWindowSize"] >> sgbm.SADWindowSize;
+    
+    storage["PreFilterCap"] >> sgbm.preFilterCap;
+    storage["UniquenessRatio"] >> sgbm.uniquenessRatio;
+
+    storage["P1"] >> sgbm.P1;
+    storage["P2"] >> sgbm.P2;
+
+    storage["SpeckleWindowSize"] >> sgbm.speckleWindowSize;
+    storage["SpeckleRange"] >> sgbm.speckleRange;
+
+    storage["Disp12MaxDiff"] >> sgbm.disp12MaxDiff;
+
+    storage["FullDP"] >> sgbm.fullDP;
+    
+    emit parameterChanged();
+}
+
+void StereoMethodSemiGlobalBlockMatching::saveParameters (cv::FileStorage &storage) const
+{
+    // Chain up to parent, which sets up method name
+    StereoMethod::saveParameters(storage);
+
+    // Save parameters
+    storage << "MinDisparity" << sgbm.minDisparity;
+    storage << "NumDisparities" << sgbm.numberOfDisparities;
+    storage << "SADWindowSize" << sgbm.SADWindowSize;
+
+    storage << "PreFilterCap" << sgbm.preFilterCap;
+    storage << "UniquenessRatio" << sgbm.uniquenessRatio;
+
+    storage << "P1" << sgbm.P1;
+    storage << "P2" << sgbm.P2;
+
+    storage << "SpeckleWindowSize" << sgbm.speckleWindowSize;
+    storage << "SpeckleRange" << sgbm.speckleRange;
+
+    storage << "Disp12MaxDiff" << sgbm.disp12MaxDiff;
+
+    storage << "FullDP" << sgbm.fullDP;
+}
+
+
+// *********************************************************************
 // *                         Method parameters                         *
 // *********************************************************************
 // Minimum disparity
