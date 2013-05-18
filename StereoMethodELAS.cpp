@@ -480,7 +480,7 @@ ConfigTabELAS::ConfigTabELAS (StereoMethodELAS *m, QWidget *parent)
     connect(method, SIGNAL(parameterChanged()), this, SLOT(updateParameters()));
 
     // Name
-    label = new QLabel("Efficient LArge-scale Stereo", this);
+    label = new QLabel("<b><u>Efficient LArge-scale Stereo</u></b>", this);
     label->setAlignment(Qt::AlignHCenter);
     layout->addWidget(label, row, 0, 1, 2);
 

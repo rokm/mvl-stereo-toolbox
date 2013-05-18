@@ -291,7 +291,7 @@ ConfigTabSemiGlobalBlockMatching::ConfigTabSemiGlobalBlockMatching (StereoMethod
     connect(method, SIGNAL(parameterChanged()), this, SLOT(updateParameters()));
 
     // Name
-    label = new QLabel("OpenCV semi-global block matching", this);
+    label = new QLabel("<b><u>OpenCV semi-global block matching</u></b>", this);
     label->setAlignment(Qt::AlignHCenter);
     layout->addWidget(label, row, 0, 1, 2);
 

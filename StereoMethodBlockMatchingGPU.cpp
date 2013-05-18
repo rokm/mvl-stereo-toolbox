@@ -186,7 +186,7 @@ ConfigTabBlockMatchingGPU::ConfigTabBlockMatchingGPU (StereoMethodBlockMatchingG
     connect(method, SIGNAL(parameterChanged()), this, SLOT(updateParameters()));
 
     // Name
-    label = new QLabel("OpenCV GPU block matching", this);
+    label = new QLabel("<b><u>OpenCV GPU block matching</u></b>", this);
     label->setAlignment(Qt::AlignHCenter);
     layout->addWidget(label, row, 0, 1, 2);
 

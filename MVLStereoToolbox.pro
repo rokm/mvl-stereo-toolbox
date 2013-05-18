@@ -7,7 +7,7 @@ TARGET =
 DEPENDPATH += .
 INCLUDEPATH += .
 
-CONFIG += debug
+#CONFIG += debug
 
 unix {
     CONFIG += link_pkgconfig
@@ -18,6 +18,9 @@ unix {
 # Input
 SOURCES += \
     main.cpp \
+    GuiCalibration.cpp \
+    GuiImageSource.cpp \
+    GuiStereoMethod.cpp \
     ImageSource.cpp \
     ImageSourceFile.cpp \
     ImageSourceDC1394.cpp \
@@ -30,14 +33,16 @@ SOURCES += \
     StereoMethodELAS.cpp \
     StereoMethodSemiGlobalBlockMatching.cpp \
     StereoMethodVar.cpp \
-    StereoPipeline.cpp \
-    Toolbox.cpp
+    StereoPipeline.cpp
 
 HEADERS += \
-    StereoCalibration.h \
+    GuiCalibration.h \
+    GuiImageSource.h \
+    GuiStereoMethod.h \
     ImageSource.h \
     ImageSourceFile.h \
     ImageSourceDC1394.h \
+    StereoCalibration.h \
     StereoMethod.h \
     StereoMethodConstantSpaceBeliefPropagationGPU.h \
     StereoMethodBeliefPropagationGPU.h \
@@ -46,8 +51,4 @@ HEADERS += \
     StereoMethodELAS.h \
     StereoMethodSemiGlobalBlockMatching.h \
     StereoMethodVar.h \
-    StereoPipeline.h \
-    Toolbox.h
-
-FORMS += \
-    Toolbox.ui
+    StereoPipeline.h

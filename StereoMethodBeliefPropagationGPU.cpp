@@ -217,7 +217,7 @@ ConfigTabBeliefPropagationGPU::ConfigTabBeliefPropagationGPU (StereoMethodBelief
     connect(method, SIGNAL(parameterChanged()), this, SLOT(updateParameters()));
 
     // Name
-    label = new QLabel("OpenCV GPU belief propagation", this);
+    label = new QLabel("<b><u>OpenCV GPU belief propagation</u></b>", this);
     label->setAlignment(Qt::AlignHCenter);
     layout->addWidget(label, row, 0, 1, 2);
 

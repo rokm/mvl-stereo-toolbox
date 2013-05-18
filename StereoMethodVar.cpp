@@ -277,7 +277,6 @@ int StereoMethodVar::getFlags () const
 
 void StereoMethodVar::setFlags (int newValue)
 {
-    qDebug() << "Setting new flags: "<< newValue << "OLD:" << var.flags;
     setParameter(var.flags, newValue);
 }
 
@@ -302,7 +301,7 @@ ConfigTabVar::ConfigTabVar (StereoMethodVar *m, QWidget *parent)
     connect(method, SIGNAL(parameterChanged()), this, SLOT(updateParameters()));
 
     // Name
-    label = new QLabel("OpenCV variational matching", this);
+    label = new QLabel("<b><u>OpenCV variational matching</u></b>", this);
     label->setAlignment(Qt::AlignHCenter);
     layout->addWidget(label, row, 0, 1, 2);
 

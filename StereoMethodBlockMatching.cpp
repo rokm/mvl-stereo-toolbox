@@ -338,7 +338,7 @@ ConfigTabBlockMatching::ConfigTabBlockMatching (StereoMethodBlockMatching *m, QW
     connect(method, SIGNAL(parameterChanged()), this, SLOT(updateParameters()));
 
     // Name
-    label = new QLabel("OpenCV block matching", this);
+    label = new QLabel("<b><u>OpenCV block matching</u></b>", this);
     label->setAlignment(Qt::AlignHCenter);
     layout->addWidget(label, row, 0, 1, 2);
 
