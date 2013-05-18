@@ -18,6 +18,9 @@ unix {
 # Input
 SOURCES += \
     main.cpp \
+    ImageSource.cpp \
+    ImageSourceFile.cpp \
+    ImageSourceDC1394.cpp \
     StereoCalibration.cpp \
     StereoMethod.cpp \
     StereoMethodConstantSpaceBeliefPropagationGPU.cpp \
@@ -32,6 +35,9 @@ SOURCES += \
 
 HEADERS += \
     StereoCalibration.h \
+    ImageSource.h \
+    ImageSourceFile.h \
+    ImageSourceDC1394.h \
     StereoMethod.h \
     StereoMethodConstantSpaceBeliefPropagationGPU.h \
     StereoMethodBeliefPropagationGPU.h \
