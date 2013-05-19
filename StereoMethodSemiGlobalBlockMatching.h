@@ -32,8 +32,8 @@ public:
     StereoMethodSemiGlobalBlockMatching (QObject * = 0);
     virtual ~StereoMethodSemiGlobalBlockMatching ();
 
-    // Depth image computation
-    virtual void computeDepthImage (const cv::Mat &, const cv::Mat &, cv::Mat &);
+    // Disparity image computation
+    virtual void computeDisparityImage (const cv::Mat &, const cv::Mat &, cv::Mat &);
 
     // Parameter import/export
     virtual void loadParameters (const cv::FileStorage &);

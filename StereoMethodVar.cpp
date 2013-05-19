@@ -73,9 +73,9 @@ void StereoMethodVar::usePreset (int type)
 
 
 // *********************************************************************
-// *                      Depth image computation                      *
+// *                    Disparity image computation                    *
 // *********************************************************************
-void StereoMethodVar::computeDepthImage (const cv::Mat &img1, const cv::Mat &img2, cv::Mat &depth)
+void StereoMethodVar::computeDisparityImage (const cv::Mat &img1, const cv::Mat &img2, cv::Mat &depth)
 {    
     // Compute depth image
     var(img1, img2, tmpDepth);

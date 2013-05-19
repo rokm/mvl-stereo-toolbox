@@ -56,9 +56,9 @@ void StereoMethodBeliefPropagationGPU::usePreset (int type)
 
 
 // *********************************************************************
-// *                      Depth image computation                      *
+// *                    Disparity image computation                    *
 // *********************************************************************
-void StereoMethodBeliefPropagationGPU::computeDepthImage (const cv::Mat &img1, const cv::Mat &img2, cv::Mat &depth)
+void StereoMethodBeliefPropagationGPU::computeDisparityImage (const cv::Mat &img1, const cv::Mat &img2, cv::Mat &depth)
 {
     // Upload to GPU
     cv::gpu::GpuMat gpu_img1(img1);

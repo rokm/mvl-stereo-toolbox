@@ -40,8 +40,8 @@ public:
     int getImageHeight () const;
     int getImageChannels () const;
     
-    // Depth image computation
-    virtual void computeDepthImage (const cv::Mat &, const cv::Mat &, cv::Mat &) = 0;
+    // Disparity image computation
+    virtual void computeDisparityImage (const cv::Mat &, const cv::Mat &, cv::Mat &) = 0;
 
     // Parameter import/export
     void loadParameters (const QString &);

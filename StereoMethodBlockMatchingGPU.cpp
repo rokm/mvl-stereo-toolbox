@@ -43,9 +43,9 @@ void StereoMethodBlockMatchingGPU::resetToDefaults ()
 
 
 // *********************************************************************
-// *                      Depth image computation                      *
+// *                    Disparity image computation                    *
 // *********************************************************************
-void StereoMethodBlockMatchingGPU::computeDepthImage (const cv::Mat &img1, const cv::Mat &img2, cv::Mat &depth)
+void StereoMethodBlockMatchingGPU::computeDisparityImage (const cv::Mat &img1, const cv::Mat &img2, cv::Mat &depth)
 {
     // Upload to GPU
     cv::gpu::GpuMat gpu_img1(img1);

@@ -47,7 +47,7 @@ GuiStereoMethod::GuiStereoMethod (StereoPipeline *p, QList<StereoMethod *> &m, Q
     setMethod(tabWidget->currentIndex());
 
     // Pipeline
-    connect(pipeline, SIGNAL(depthImageChanged()), this, SLOT(updateImage()));
+    connect(pipeline, SIGNAL(disparityImageChanged()), this, SLOT(updateImage()));
 }
 
 GuiStereoMethod::~GuiStereoMethod ()
@@ -62,6 +62,13 @@ void GuiStereoMethod::setMethod (int i)
 
 void GuiStereoMethod::updateImage ()
 {
-    displayDisparityImage->setImage(pipeline->getDepthImage());
-    statusBar->showMessage(QString("Disparity image computed in %1 milliseconds").arg(pipeline->getDepthImageComputationTime()));
+    const cv::Mat disparity = pipeline->getDisparityImage();
+
+    // Show image
+    displayDisparityImage->setImage(disparity);
+
+    // If image is valid, display computation time
+    if (disparity.data) {
+        statusBar->showMessage(QString("Disparity image computed in %1 milliseconds").arg(pipeline->getDisparityImageComputationTime()));
+    }
 }

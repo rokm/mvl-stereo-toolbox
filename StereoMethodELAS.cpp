@@ -57,9 +57,9 @@ void StereoMethodELAS::usePreset (int type)
 
 
 // *********************************************************************
-// *                      Depth image computation                      *
+// *                    Disparity image computation                    *
 // *********************************************************************
-void StereoMethodELAS::computeDepthImage (const cv::Mat &img1, const cv::Mat &img2, cv::Mat &depth)
+void StereoMethodELAS::computeDisparityImage (const cv::Mat &img1, const cv::Mat &img2, cv::Mat &depth)
 {
     // Convert to grayscale
     if (img1.channels() == 3) {

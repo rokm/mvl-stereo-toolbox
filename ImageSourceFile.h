@@ -14,9 +14,16 @@ public:
 
     void loadImagePair (const QString &, const QString &);
 
-    const QString &getFilenameLeft () const;
-    const QString &getFilenameRight () const;
+    const QString &getLeftFilename () const;
+    int getLeftWidth () const;
+    int getLeftHeight () const;
+    int getLeftChannels () const;
 
+    const QString &getRightFilename () const;
+    int getRightWidth () const;
+    int getRightHeight () const;
+    int getRightChannels () const;
+    
 protected:
     QString filenameLeft;
     QString filenameRight;

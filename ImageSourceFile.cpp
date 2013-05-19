@@ -15,17 +15,6 @@ ImageSourceFile::~ImageSourceFile ()
 }
 
 
-const QString &ImageSourceFile::getFilenameLeft () const
-{
-    return filenameLeft;
-}
-
-const QString &ImageSourceFile::getFilenameRight () const
-{
-    return filenameRight;
-}
-
-
 void ImageSourceFile::loadImagePair (const QString &left, const QString &right)
 {
     filenameLeft = left;
@@ -36,6 +25,56 @@ void ImageSourceFile::loadImagePair (const QString &left, const QString &right)
 
     emit imagesChanged();
 }
+
+
+// *********************************************************************
+// *                          Left image info                          *
+// *********************************************************************
+const QString &ImageSourceFile::getLeftFilename () const
+{
+    return filenameLeft;
+}
+
+int ImageSourceFile::getLeftWidth () const
+{
+    return imageLeft.cols;
+}
+
+int ImageSourceFile::getLeftHeight () const
+{
+    return imageLeft.rows;
+}
+
+int ImageSourceFile::getLeftChannels () const
+{
+    return imageLeft.channels();
+}
+
+
+// *********************************************************************
+// *                         Right image info                          *
+// *********************************************************************
+const QString &ImageSourceFile::getRightFilename () const
+{
+    return filenameRight;
+}
+
+int ImageSourceFile::getRightWidth () const
+{
+    return imageRight.cols;
+}
+
+int ImageSourceFile::getRightHeight () const
+{
+    return imageRight.rows;
+}
+
+int ImageSourceFile::getRightChannels () const
+{
+    return imageRight.channels();
+}
+
+
 
 
 // *********************************************************************
@@ -119,16 +158,15 @@ void ConfigTabFile::loadImages ()
 
     // Take first two images
     if (filenames.size() >= 2) {
-        // Use QFileInfo to get basenames
-        QFileInfo fileLeft(filenames[0]);
-        QFileInfo fileRight(filenames[1]);
-
         // Load image pair
         source->loadImagePair(filenames[0], filenames[1]);
 
-        // Display filenames
-        labelFilenameLeft->setText("<b>Left image: </b>" + fileLeft.fileName());
-        labelFilenameRight->setText("<b>Right image: </b>" + fileRight.fileName());
+        // Display image information
+        QFileInfo fileLeft(source->getLeftFilename());
+        QFileInfo fileRight(source->getRightFilename());
+
+        labelFilenameLeft->setText(QString("<b>Left image: </b> %1, %2x%3, %4 ch.").arg(fileLeft.fileName()).arg(source->getLeftWidth()).arg(source->getLeftHeight()).arg(source->getLeftChannels()));
+        labelFilenameRight->setText(QString("<b>Right image: </b> %1, %2x%3, %4 ch.").arg(fileRight.fileName()).arg(source->getRightWidth()).arg(source->getRightHeight()).arg(source->getRightChannels()));
     }
 }
 

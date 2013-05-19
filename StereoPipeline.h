@@ -45,21 +45,23 @@ public:
     const cv::Mat &getLeftRectifiedImage () const;
     const cv::Mat &getRightRectifiedImage () const;
     
-    const cv::Mat &getDepthImage () const;
-    int getDepthImageComputationTime () const;
+    const cv::Mat &getDisparityImage () const;
+    int getDisparityImageComputationTime () const;
 
 protected slots:
     void beginProcessing ();
 
     void rectifyImages ();
-    void computeDepthImage ();
+    void computeDisparityImage ();
 
     void methodParameterChanged ();
 
 signals:
     void error (const QString &);
+
     void inputImagesChanged ();
-    void depthImageChanged ();
+    void rectifiedImagesChanged ();
+    void disparityImageChanged ();
 
 protected:
     // Image source
@@ -79,12 +81,9 @@ protected:
     cv::Mat rectifiedImageL;
     cv::Mat rectifiedImageR;
 
-    // Cached depth image
-    cv::Mat depthImage;
-    int depthImageComputationTime;
-    
-    // Some operation parameters
-    bool enableImageRectification;
+    // Cached disparity image
+    cv::Mat disparityImage;
+    int disparityImageComputationTime;
 };
 
 #endif

@@ -36,14 +36,14 @@ StereoPipeline::~StereoPipeline ()
 }
 
 
-const cv::Mat &StereoPipeline::getDepthImage () const
+const cv::Mat &StereoPipeline::getDisparityImage () const
 {
-    return depthImage;
+    return disparityImage;
 }
 
-int StereoPipeline::getDepthImageComputationTime () const
+int StereoPipeline::getDisparityImageComputationTime () const
 {
-    return depthImageComputationTime;
+    return disparityImageComputationTime;
 }
 
 
@@ -80,6 +80,9 @@ void StereoPipeline::setImageSource (ImageSource *newSource)
     imageSource = newSource;
 
     connect(imageSource, SIGNAL(imagesChanged()), this, SLOT(beginProcessing()));
+
+    // Process
+    beginProcessing();
 }
 
 
@@ -105,8 +108,8 @@ void StereoPipeline::setStereoMethod (StereoMethod *newMethod)
     method = newMethod;
     connect(method, SIGNAL(parameterChanged()), this, SLOT(methodParameterChanged()));
 
-    // Compute new depth image
-    computeDepthImage();
+    // Compute new disparity image
+    computeDisparityImage();
 }
 
 
@@ -117,14 +120,13 @@ void StereoPipeline::beginProcessing ()
 {
     // Get images from source
     imageSource->getImages(inputImageL, inputImageR);
+    emit inputImagesChanged();
     
     // Rectify input images
     rectifyImages();
-
-    emit inputImagesChanged();
-
-    // Compute depth image
-    computeDepthImage();
+    
+    // Compute disparity image
+    computeDisparityImage();
 }
 
 void StereoPipeline::rectifyImages ()
@@ -139,31 +141,33 @@ void StereoPipeline::rectifyImages ()
     calibration->rectifyImagePair(inputImageL, inputImageR, rectifiedImageL, rectifiedImageR);
 }
 
-void StereoPipeline::computeDepthImage ()
+void StereoPipeline::computeDisparityImage ()
 {
     if (!method) {
         emit error("Stereo method not set!");
         return;
     }
 
-    // No-op if images are not set
+    // If input images are not set, clear disparity image; otherwise,
+    // compute new disparity image
     if (rectifiedImageL.empty() || rectifiedImageR.empty()) {
-        return;
+        disparityImage = cv::Mat();
+    } else {
+        try {
+            QTime timer; timer.start();
+            method->computeDisparityImage(rectifiedImageL, rectifiedImageR, disparityImage);
+            disparityImageComputationTime = timer.elapsed();
+        } catch (std::exception &e) {
+            disparityImage = cv::Mat(); // Clear
+            qWarning() << "ERROR WHILE PROCESSING: " << e.what();
+        }
     }
-
-    try {
-        QTime timer; timer.start();
-        method->computeDepthImage(rectifiedImageL, rectifiedImageR, depthImage);
-        depthImageComputationTime = timer.elapsed();
     
-        emit depthImageChanged();
-    } catch (std::exception &e) {
-        qWarning() << "Error: " << e.what();
-    }
+    emit disparityImageChanged();
 }
 
 void StereoPipeline::methodParameterChanged ()
 {
-    // Recompute depth image using cached (rectified) input images
-    computeDepthImage();
+    // Recompute disparity image using cached (rectified) input images
+    computeDisparityImage();
 }
