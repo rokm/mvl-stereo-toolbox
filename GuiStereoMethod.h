@@ -8,6 +8,9 @@
 class StereoPipeline;
 class StereoMethod;
 
+class ImageDisplayWidget;
+
+
 class GuiStereoMethod : public QWidget
 {
     Q_OBJECT
@@ -27,7 +30,7 @@ protected:
     QList<StereoMethod *> methods;
 
     // GUI
-    QLabel *labelDisparityImage;
+    ImageDisplayWidget *displayDisparityImage;
 
     QStatusBar *statusBar;
 };

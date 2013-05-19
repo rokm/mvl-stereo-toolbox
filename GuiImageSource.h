@@ -8,6 +8,9 @@
 class StereoPipeline;
 class ImageSource;
 
+class ImageDisplayWidget;
+
+
 class GuiImageSource : public QWidget
 {
     Q_OBJECT
@@ -27,8 +30,8 @@ protected:
     QList<ImageSource *> sources;
 
     // GUI
-    QLabel *labelImageLeft;
-    QLabel *labelImageRight;
+    ImageDisplayWidget *displayImageLeft;
+    ImageDisplayWidget *displayImageRight;
 
     QStatusBar *statusBar;
 };

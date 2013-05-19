@@ -21,6 +21,7 @@ SOURCES += \
     GuiCalibration.cpp \
     GuiImageSource.cpp \
     GuiStereoMethod.cpp \
+    ImageDisplayWidget.cpp \
     ImageSource.cpp \
     ImageSourceFile.cpp \
     ImageSourceDC1394.cpp \
@@ -39,6 +40,7 @@ HEADERS += \
     GuiCalibration.h \
     GuiImageSource.h \
     GuiStereoMethod.h \
+    ImageDisplayWidget.h \
     ImageSource.h \
     ImageSourceFile.h \
     ImageSourceDC1394.h \

@@ -1,40 +1,11 @@
 #include "GuiStereoMethod.h"
 
+#include "ImageDisplayWidget.h"
+
 #include "StereoPipeline.h"
 #include "StereoMethod.h"
 
 #include <opencv2/core/core.hpp>
-
-
-static inline QImage cvMatToQImage (const cv::Mat &src)
-{
-    QImage dest(src.cols, src.rows, QImage::Format_ARGB32);
-    QRgb *destrow;
-    int x, y;
-    
-    if (src.channels() == 3) {
-        // RGB
-        for (y = 0; y < src.rows; ++y) {
-            const cv::Vec3b *srcrow = src.ptr<cv::Vec3b>(y);
-            destrow = (QRgb*)dest.scanLine(y);
-            for (x = 0; x < src.cols; ++x) {
-                destrow[x] = qRgba(srcrow[x][2], srcrow[x][1], srcrow[x][0], 255);
-            }
-        }
-    } else {
-        // Gray
-        for (int y = 0; y < src.rows; ++y) {
-            const unsigned char *srcrow = src.ptr<unsigned char>(y);
-            destrow = (QRgb*)dest.scanLine(y);
-            for (int x = 0; x < src.cols; ++x) {
-                destrow[x] = qRgba(srcrow[x], srcrow[x], srcrow[x], 255);
-            }
-        }
-    }
-    
-    return dest;
-}
-
 
 
 GuiStereoMethod::GuiStereoMethod (StereoPipeline *p, QList<StereoMethod *> &m, QWidget *parent)
@@ -48,12 +19,8 @@ GuiStereoMethod::GuiStereoMethod (StereoPipeline *p, QList<StereoMethod *> &m, Q
     setLayout(layout);
 
     // Disparity image
-    labelDisparityImage = new QLabel("Disparity image", this);
-    labelDisparityImage->setToolTip("Disparity image");
-    labelDisparityImage->setFrameStyle(QFrame::Box | QFrame::Sunken);
-    labelDisparityImage->setAlignment(Qt::AlignCenter);
-    labelDisparityImage->setMinimumSize(384, 288);
-    layout->addWidget(labelDisparityImage, 0, 1);
+    displayDisparityImage = new ImageDisplayWidget("Disparity image", this);
+    layout->addWidget(displayDisparityImage, 0, 1);
 
     // Methods
     QScrollArea *scrollArea = new QScrollArea(this);
@@ -95,6 +62,6 @@ void GuiStereoMethod::setMethod (int i)
 
 void GuiStereoMethod::updateImage ()
 {
-    labelDisparityImage->setPixmap(QPixmap::fromImage(cvMatToQImage(pipeline->getDepthImage())));
+    displayDisparityImage->setImage(pipeline->getDepthImage());
     statusBar->showMessage(QString("Disparity image computed in %1 milliseconds").arg(pipeline->getDepthImageComputationTime()));
 }
