@@ -1,13 +1,13 @@
 #include "ImageDisplayWidget.h"
 
-ImageDisplayWidget::ImageDisplayWidget (const QString &text, QWidget *parent)
-    : QLabel(text, parent)
+ImageDisplayWidget::ImageDisplayWidget (const QString &t, QWidget *parent)
+    : QFrame(parent), text(t)
 {
     setToolTip(text);
 
     setFrameStyle(QFrame::Box | QFrame::Sunken);
-    setAlignment(Qt::AlignCenter);
-
+    setLineWidth(2);
+    
     setMinimumSize(384, 288);
 }
 
@@ -46,36 +46,50 @@ static inline QImage cvMatToQImage (const cv::Mat &src)
 }
 
 
-void ImageDisplayWidget::setImage (const cv::Mat &image)
+void ImageDisplayWidget::setImage (const cv::Mat &img)
 {
     // Convert cv::Mat to QImage
-    QImage tmp = cvMatToQImage(image);
+    image = cvMatToQImage(img);
 
-    // Create pixmap and store it
-    displayPixmap = QPixmap::fromImage(tmp);
-
-    // Display pixmap
-    displayScaledPixmap();
+    // Refresh
+    update();
 }
 
+void ImageDisplayWidget::paintEvent (QPaintEvent *event)
+{    
+    QPainter painter(this);
+    painter.setRenderHint(QPainter::Antialiasing);
 
-void ImageDisplayWidget::resizeEvent (QResizeEvent *event)
-{
-    // Rescale pixmap and display it
-    displayScaledPixmap();
-}
+    QRect area(0, 0, width(), height());
 
+    // Fill area
+    painter.fillRect(area, QBrush(QColor(0, 0, 0, 32), Qt::DiagCrossPattern));
 
-
-void ImageDisplayWidget::displayScaledPixmap ()
-{
-    if (!displayPixmap.isNull()) {
-        // Scale pixmap to fit the widget, while preserving aspect ratio
-        QPixmap tmp = displayPixmap.scaled(size(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
-
-        // Set scaled pixmap
-        setPixmap(tmp);
+    if (image.isNull()) {
+        // Display text
+        painter.drawText(area, Qt::AlignCenter, text);
     } else {
-        setPixmap(QPixmap());
+        // Display image
+        double aspect = (double)image.width() / image.height();
+
+        int w = image.width();
+        int h = image.height();
+
+        // Make sure image fits horizontally
+        if (w > width()) {
+            w = width();
+            h = w / aspect;
+        }
+
+        // Make sure image fits vertically
+        if (h > height()) {
+            h = height();
+            w = h * aspect;
+        }
+
+        painter.drawImage(QRect((width() - w)/2, (height() - h)/2, w, h), image);
     }
+
+    // Draw frame on top of it all
+    QFrame::paintEvent(event);
 }

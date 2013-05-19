@@ -6,7 +6,7 @@
 #include <opencv2/core/core.hpp>
 
 
-class ImageDisplayWidget : public QLabel
+class ImageDisplayWidget : public QFrame
 {
     Q_OBJECT
 
@@ -17,12 +17,11 @@ public:
     void setImage (const cv::Mat &);
 
 protected:
-    virtual void resizeEvent (QResizeEvent *);
-
-    void displayScaledPixmap ();
+    virtual void paintEvent (QPaintEvent *);
 
 protected:
-    QPixmap displayPixmap;
+    QString text;
+    QImage image;
 };
 
 #endif
