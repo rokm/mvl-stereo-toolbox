@@ -8,7 +8,7 @@ ImageDisplayWidget::ImageDisplayWidget (const QString &t, QWidget *parent)
     setFrameStyle(QFrame::Box | QFrame::Sunken);
     setLineWidth(2);
     
-    setMinimumSize(384, 288);
+    //setMinimumSize(384, 288);
 }
 
 ImageDisplayWidget::~ImageDisplayWidget ()

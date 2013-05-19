@@ -20,10 +20,12 @@ GuiImageSource::GuiImageSource (StereoPipeline *p, QList<ImageSource *> &s, QWid
 
     // Left image
     displayImageLeft = new ImageDisplayWidget("Left image", this);
+    displayImageLeft->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     layout->addWidget(displayImageLeft, 0, 0);
 
     // Right image
     displayImageRight = new ImageDisplayWidget("Right image", this);
+    displayImageRight->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     layout->addWidget(displayImageRight, 0, 1);
 
     // Sources tab widget

@@ -20,6 +20,7 @@ GuiStereoMethod::GuiStereoMethod (StereoPipeline *p, QList<StereoMethod *> &m, Q
 
     // Disparity image
     displayDisparityImage = new ImageDisplayWidget("Disparity image", this);
+    displayDisparityImage->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     layout->addWidget(displayDisparityImage, 0, 1);
 
     // Methods
