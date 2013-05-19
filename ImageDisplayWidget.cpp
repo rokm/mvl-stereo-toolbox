@@ -75,5 +75,7 @@ void ImageDisplayWidget::displayScaledPixmap ()
 
         // Set scaled pixmap
         setPixmap(tmp);
+    } else {
+        setPixmap(QPixmap());
     }
 }

@@ -70,5 +70,7 @@ void GuiStereoMethod::updateImage ()
     // If image is valid, display computation time
     if (disparity.data) {
         statusBar->showMessage(QString("Disparity image computed in %1 milliseconds").arg(pipeline->getDisparityImageComputationTime()));
+    } else {
+        statusBar->clearMessage();
     }
 }
