@@ -62,21 +62,25 @@ void StereoMethodConstantSpaceBeliefPropagationGPU::usePreset (int type)
 // *********************************************************************
 void StereoMethodConstantSpaceBeliefPropagationGPU::computeDisparityImage (const cv::Mat &img1, const cv::Mat &img2, cv::Mat &disparity, int &numDisparities)
 {
-    // Upload to GPU
-    cv::gpu::GpuMat gpu_img1(img1);
-    cv::gpu::GpuMat gpu_img2(img2);
+    cv::gpu::GpuMat gpu_disp;
 
-    cv::gpu::GpuMat gpu_disp, gpu_disp8u;
+    if (1) {
+        // Make sure that GPU matrices are destroyed as soon as they are
+        // not needed anymore via scoping...
+        cv::gpu::GpuMat gpu_img1(img1);
+        cv::gpu::GpuMat gpu_img2(img2);
 
-    // Compute disparity image
-    bp(gpu_img1, gpu_img2, gpu_disp);
-
+        // Compute disparity image
+        bp(gpu_img1, gpu_img2, gpu_disp);
+    }
+    
     // Convert and download
+    cv::gpu::GpuMat gpu_disp8u;
     gpu_disp.convertTo(gpu_disp8u, CV_8U);
     gpu_disp8u.download(disparity);
 
     // Number of disparities
-    numDisparities = numDisparities;
+    numDisparities = getNumDisparities();
 }
 
 

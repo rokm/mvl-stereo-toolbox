@@ -47,29 +47,25 @@ void StereoMethodBlockMatchingGPU::resetToDefaults ()
 // *********************************************************************
 void StereoMethodBlockMatchingGPU::computeDisparityImage (const cv::Mat &img1, const cv::Mat &img2, cv::Mat &disparity, int &numDisparities)
 {
-    // Upload to GPU
-    cv::gpu::GpuMat gpu_img1(img1);
-    cv::gpu::GpuMat gpu_img2(img2);
-
-    cv::gpu::GpuMat gpu_tmp1;
-    cv::gpu::GpuMat gpu_tmp2;
-    cv::gpu::GpuMat gpu_disp;
-
-    // Convert to grayscale
-    if (gpu_img1.channels() == 3) {
-        cv::gpu::cvtColor(gpu_img1, gpu_tmp1, CV_RGB2GRAY);
+    cv::gpu::GpuMat gpu_img1, gpu_img2, gpu_disp;
+    
+    // Upload to GPU and convert to grayscale, if needed
+    if (img1.channels() == 3) {
+        cv::gpu::GpuMat gpu_tmp(img1);
+        cv::gpu::cvtColor(gpu_tmp, gpu_img1, CV_RGB2GRAY);
     } else {
-        gpu_tmp1 = gpu_img1;
+        gpu_img1.upload(img1);
     }
 
-    if (gpu_img2.channels() == 3) {
-        cv::gpu::cvtColor(gpu_img2, gpu_tmp2, CV_RGB2GRAY);
+    if (img2.channels() == 3) {
+        cv::gpu::GpuMat gpu_tmp(img2);
+        cv::gpu::cvtColor(gpu_tmp, gpu_img2, CV_RGB2GRAY);
     } else {
-        gpu_tmp2 = gpu_img2;
+        gpu_img2.upload(img2);
     }
 
     // Compute disparity image
-    bm(gpu_tmp1, gpu_tmp2, gpu_disp);
+    bm(gpu_img1, gpu_img2, gpu_disp);
 
     // Download
     gpu_disp.download(disparity);
