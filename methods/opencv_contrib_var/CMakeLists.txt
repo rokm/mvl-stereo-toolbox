@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8)
-project(opencv_contrib_var CXX)
+project(method_opencv_contrib_var CXX)
 
 find_package(OpenCV REQUIRED core imgproc contrib)
 find_package(Qt4 REQUIRED)

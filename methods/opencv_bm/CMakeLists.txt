@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8)
-project(opencv_bm CXX)
+project(method_opencv_bm CXX)
 
 find_package(OpenCV REQUIRED core imgproc calib3d)
 find_package(Qt4 REQUIRED)

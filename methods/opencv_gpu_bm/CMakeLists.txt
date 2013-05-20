@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8)
-project(opencv_gpu_bm CXX)
+project(method_opencv_gpu_bm CXX)
 
 find_package(OpenCV REQUIRED core gpu)
 find_package(Qt4 REQUIRED)
