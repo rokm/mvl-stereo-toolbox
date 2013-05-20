@@ -24,20 +24,7 @@
 #include "StereoCalibration.h"
 #include "StereoMethod.h"
 #include "ImageSource.h"
-/*
-#include "ImageSourceFile.h"
-#include "ImageSourceDC1394.h"
 
-#include "StereoMethodBlockMatching.h"
-#include "StereoMethodSemiGlobalBlockMatching.h"
-#include "StereoMethodVar.h"
-
-#include "StereoMethodELAS.h"
-
-#include "StereoMethodConstantSpaceBeliefPropagationGPU.h"
-#include "StereoMethodBeliefPropagationGPU.h"
-#include "StereoMethodBlockMatchingGPU.h"
-*/
 
 void recursiveDirectoryScan (QDir dir, QStringList &files)
 {
@@ -63,8 +50,16 @@ void loadSources (QList<ImageSource *> &sources)
     recursiveDirectoryScan(pluginsDir.absoluteFilePath("sources"), files);
     
     foreach (QString fileName, files) {
-        qDebug() << "Testing:" << fileName;
+        // Make sure it is a library
+        if (!QLibrary::isLibrary(fileName)) {
+            continue;
+        }
+
+        // Load plugin
+        qDebug() << "Trying to load plugin:" << fileName;
+        
         QPluginLoader loader(fileName);
+        loader.setLoadHints(QLibrary::ResolveAllSymbolsHint);
 
         QObject *plugin = loader.instance();
         if (plugin) {
@@ -90,9 +85,17 @@ void loadMethods (QList<StereoMethod *> &methods)
     recursiveDirectoryScan(pluginsDir.absoluteFilePath("methods"), files);
     
     foreach (QString fileName, files) {
-        qDebug() << "Testing:" << fileName;
-        QPluginLoader loader(fileName);
+        // Make sure it is a library
+        if (!QLibrary::isLibrary(fileName)) {
+            continue;
+        }
 
+        // Load plugin
+        qDebug() << "Trying to load plugin:" << fileName;
+        
+        QPluginLoader loader(fileName);
+        loader.setLoadHints(QLibrary::ResolveAllSymbolsHint);
+        
         QObject *plugin = loader.instance();
         if (plugin) {
             qDebug() << "Plugin successfully loaded!";
