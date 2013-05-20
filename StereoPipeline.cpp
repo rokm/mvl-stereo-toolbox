@@ -29,6 +29,9 @@ StereoPipeline::StereoPipeline (QObject *parent)
     imageSource = NULL;
     calibration = NULL;
     method = NULL;
+
+    connect(this, SIGNAL(inputImagesChanged()), this, SLOT(rectifyImages()));
+    connect(this, SIGNAL(rectifiedImagesChanged()), this, SLOT(computeDisparityImage()));
 }
 
 StereoPipeline::~StereoPipeline ()
@@ -71,7 +74,8 @@ const cv::Mat &StereoPipeline::getRightRectifiedImage () const
 {
     return rectifiedImageR;
 }
-    
+
+
 // *********************************************************************
 // *                         Image source object                       *
 // *********************************************************************
@@ -135,12 +139,6 @@ void StereoPipeline::beginProcessing ()
     // Get images from source
     imageSource->getImages(inputImageL, inputImageR);
     emit inputImagesChanged();
-    
-    // Rectify input images
-    rectifyImages();
-    
-    // Compute disparity image
-    computeDisparityImage();
 }
 
 void StereoPipeline::rectifyImages ()
