@@ -60,7 +60,7 @@ void StereoCalibration::loadCalibration (const QString &filename)
 {
     // Reset state
     isValid = false;
-    emit stateChanged(isValid);
+    //emit stateChanged(isValid);
 
     // Load
     cv::FileStorage storage(filename.toStdString(), cv::FileStorage::READ);
@@ -120,7 +120,6 @@ void StereoCalibration::clearCalibration ()
 }
 
 
-
 // *********************************************************************
 // *                           Rectification                           *
 // *********************************************************************
@@ -133,8 +132,8 @@ void StereoCalibration::rectifyImagePair (const cv::Mat &img1, const cv::Mat &im
     
     if (!isValid) {
         // Pass-through
-        img1r = img1;
-        img2r = img2;
+        img1.copyTo(img1r);
+        img2.copyTo(img2r);
     } else {
         // Two simple remaps using look-up tables
         cv::remap(img1, img1r, map11, map12, cv::INTER_LINEAR);
