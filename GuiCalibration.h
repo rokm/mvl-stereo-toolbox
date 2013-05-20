@@ -27,6 +27,8 @@ protected slots:
     void exportCalibration ();
     void clearCalibration ();
 
+    void saveImages ();
+
     void updateImage ();
     void updateState ();
 
@@ -40,6 +42,7 @@ protected:
     QPushButton *pushButtonImport;
     QPushButton *pushButtonExport;
     QPushButton *pushButtonClear;
+    QPushButton *pushButtonSaveImages;
     
     ImagePairDisplayWidget *displayPair;
 

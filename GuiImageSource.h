@@ -24,12 +24,16 @@ protected slots:
     
     void updateImages ();
 
+    void saveImages ();
+
 protected:
     // Pipeline
     StereoPipeline *pipeline;
     QList<ImageSource *> sources;
 
     // GUI
+    QPushButton *pushButtonSaveImages;
+
     ImageDisplayWidget *displayImageLeft;
     ImageDisplayWidget *displayImageRight;
 

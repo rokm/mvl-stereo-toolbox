@@ -6,6 +6,7 @@
 #include "StereoCalibration.h"
 
 #include <opencv2/core/core.hpp>
+#include <opencv2/highgui/highgui.hpp>
 
 
 class BoardParametersDialog : public QDialog
@@ -101,29 +102,39 @@ GuiCalibration::GuiCalibration (StereoPipeline *p, StereoCalibration *c, QWidget
     
     layout->addLayout(buttonsLayout, 0, 0, 1, 2);
 
+    buttonsLayout->addStretch();
+
     pushButton = new QPushButton("Calibrate");
     pushButton->setToolTip("Calibrate from list of images.");
     connect(pushButton, SIGNAL(released()), this, SLOT(doCalibration()));
     buttonsLayout->addWidget(pushButton);
     pushButtonCalibrate = pushButton;
 
-    pushButton = new QPushButton("Import");
+    pushButton = new QPushButton("Import calib.");
     pushButton->setToolTip("Import calibration from file.");
     connect(pushButton, SIGNAL(released()), this, SLOT(importCalibration()));
     buttonsLayout->addWidget(pushButton);
     pushButtonImport = pushButton;
 
-    pushButton = new QPushButton("Export");
+    pushButton = new QPushButton("Export calib.");
     pushButton->setToolTip("Export current calibration to file.");
     connect(pushButton, SIGNAL(released()), this, SLOT(exportCalibration()));
     buttonsLayout->addWidget(pushButton);
     pushButtonExport = pushButton;
 
-    pushButton = new QPushButton("Clear");
+    pushButton = new QPushButton("Clear calib.");
     pushButton->setToolTip("Clear current calibration.");
     connect(pushButton, SIGNAL(released()), this, SLOT(clearCalibration()));
     buttonsLayout->addWidget(pushButton);
     pushButtonClear = pushButton;
+
+    pushButton = new QPushButton("Save rectified images");
+    pushButton->setToolTip("Save rectified image pair.");
+    connect(pushButton, SIGNAL(released()), this, SLOT(saveImages()));
+    buttonsLayout->addWidget(pushButton);
+    pushButtonSaveImages = pushButton;
+
+    buttonsLayout->addStretch();
 
     // Rectified image pair
     displayPair = new ImagePairDisplayWidget("Rectified image pair", this);
@@ -176,7 +187,9 @@ void GuiCalibration::updateState ()
 }
 
 
-
+// *********************************************************************
+// *                            Calibration                            *
+// *********************************************************************
 void GuiCalibration::doCalibration ()
 {
     QStringList fileNames = QFileDialog::getOpenFileNames(this, "Select calibration images or list file", QString(), "Images (*.jpg *.png *.bmp *.tif *.ppm *.pgm);; Text file (*.txt)");
@@ -246,4 +259,32 @@ void GuiCalibration::exportCalibration ()
 void GuiCalibration::clearCalibration ()
 {
     calibration->clearCalibration();
+}
+
+// *********************************************************************
+// *                            Image saving                           *
+// *********************************************************************
+void GuiCalibration::saveImages ()
+{
+    QString fileName = QFileDialog::getSaveFileName(this, "Save rectified images");
+    if (!fileName.isNull()) {
+        QFileInfo tmpFileName(fileName);
+
+        // Extension
+        QString ext = tmpFileName.completeSuffix();
+        if (ext.isEmpty()) {
+            ext = "jpg";
+        }
+
+        // Create filename
+        QString fileNameLeft = tmpFileName.absolutePath() + "/" + tmpFileName.baseName() + "L" + "." + ext;
+        QString fileNameRight = tmpFileName.absolutePath() + "/" + tmpFileName.baseName() + "R" + "." + ext;
+
+        try {
+            cv::imwrite(fileNameLeft.toStdString(), pipeline->getLeftRectifiedImage());
+            cv::imwrite(fileNameRight.toStdString(), pipeline->getRightRectifiedImage());
+        } catch (cv::Exception e) {
+            qWarning() << "Failed to save images:" << QString::fromStdString(e.what());
+        }
+    }
 }
