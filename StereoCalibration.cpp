@@ -27,6 +27,8 @@ StereoCalibration::StereoCalibration (QObject *parent)
     : QObject(parent)
 {
     isValid = false;
+
+    isVerticalStereo = false;
 }
 
 StereoCalibration::~StereoCalibration ()
@@ -40,7 +42,20 @@ bool StereoCalibration::getState () const
     return isValid;
 }
 
+const cv::Rect &StereoCalibration::getLeftROI () const
+{
+    return validRoi1;
+}
 
+const cv::Rect &StereoCalibration::getRightROI () const
+{
+    return validRoi2;
+}
+
+
+// *********************************************************************
+// *                     Calibration import/export                     * 
+// *********************************************************************
 void StereoCalibration::loadCalibration (const QString &filename)
 {
     // Reset state
@@ -95,10 +110,27 @@ void StereoCalibration::saveCalibration (const QString &filename) const
     }
 }
 
+void StereoCalibration::clearCalibration ()
+{
+    isValid = false;
+
+    isVerticalStereo = false;
+    
+    emit stateChanged(isValid);
+}
 
 
+
+// *********************************************************************
+// *                           Rectification                           *
+// *********************************************************************
 void StereoCalibration::rectifyImagePair (const cv::Mat &img1, const cv::Mat &img2, cv::Mat &img1r, cv::Mat &img2r) const
 {
+    // Make sure images are valid
+    if (!img1.data || !img2.data) {
+        return;
+    }
+    
     if (!isValid) {
         // Pass-through
         img1r = img1;
@@ -109,8 +141,6 @@ void StereoCalibration::rectifyImagePair (const cv::Mat &img1, const cv::Mat &im
         cv::remap(img2, img2r, map21, map22, cv::INTER_LINEAR);
     }
 }
-
-
 
 void StereoCalibration::initializeRectification ()
 {
@@ -127,18 +157,24 @@ void StereoCalibration::initializeRectification ()
 }
 
 
-
+// *********************************************************************
+// *                            Calibration                            * 
+// *********************************************************************
 void StereoCalibration::calibrateFromImages (const QStringList &images, int boardWidth, int boardHeight, float squareSize)
 {
     std::vector<std::vector<cv::Point2f> > imagePoints[2];
     std::vector<std::vector<cv::Point3f> > objectPoints;
 
     int i, j, k;
-    int num_images = images.size() / 2;
+    int numImages = images.size() / 2;
 
-    const int maxScale = 5;
+    const int maxScale = 1;
 
     cv::Size boardSize(boardWidth, boardHeight);
+
+    qDebug() << "Calibration:";
+    qDebug() << "Board dimensions:" << boardWidth << "x" << boardHeight << "," << squareSize << "mm";
+    qDebug() << "Image pairs: " << numImages;
 
     // Reset state
     isValid = false;
@@ -147,13 +183,19 @@ void StereoCalibration::calibrateFromImages (const QStringList &images, int boar
     imageSize = cv::Size();
 
     // *** Find corners ***
+    imagePoints[0].resize(numImages);
+    imagePoints[1].resize(numImages);
 
     // Go over all images
-    for (i = j = 0; i < num_images; i++) {
+    for (i = j = 0; i < numImages; i++) {
+        qDebug() << "Processing pair Nr." << i;
+        
         // Left-right pair
         for (k = 0; k < 2; k++) {
             // Load image
             const QString &filename = images[i*2 + k];
+            qDebug() << (k == 0 ? "Left" : "Right") << "image:" << filename;
+
             cv::Mat img = cv::imread(filename.toStdString(), 0);
 
             if (img.empty()) {
@@ -174,7 +216,7 @@ void StereoCalibration::calibrateFromImages (const QStringList &images, int boar
             std::vector<cv::Point2f> &corners = imagePoints[k][j];
 
             // Multi-scale search
-            for (int scale = 1; scale <= maxScale; scale++) {
+            for (int scale = 1; scale <= maxScale; scale++) {                
                 cv::Mat scaledImg;
 
                 // Rescale image, if necessary
@@ -200,18 +242,13 @@ void StereoCalibration::calibrateFromImages (const QStringList &images, int boar
 
             // DEBUG
             if (1) {
-                qDebug() << filename;
-
                 cv::Mat cimg;
                 cv::cvtColor(img, cimg, CV_GRAY2BGR);
                     
                 cv::drawChessboardCorners(cimg, boardSize, corners, found);
 
-                cv::imshow("corners", cimg);
-                char c = cv::waitKey(500);
-                if (c == 27 || c == 'q' || c == 'Q') { //Allow ESC to quit
-                    exit(-1);
-                }
+                cv::imshow("Corners", cimg);
+                cv::waitKey(500);
             }
 
             // If not found, break the loop (so that if this was the first
@@ -233,23 +270,23 @@ void StereoCalibration::calibrateFromImages (const QStringList &images, int boar
         }
     }
 
-    num_images = j;
+    numImages = j;
 
-    qDebug() << "Successfully detected checkboard in" << num_images << "images!";
+    qDebug() << "Successfully detected checkboard in" << numImages << "images!";
 
-    if (num_images < 2) {
+    if (numImages < 2) {
         throw QString("Too few pairs found to run calibration!");
     }
 
     // Resize image points
-    imagePoints[0].resize(num_images);
-    imagePoints[1].resize(num_images);
+    imagePoints[0].resize(numImages);
+    imagePoints[1].resize(numImages);
 
     // Create corresponding object points; these are coordinates on
     // the checkboard, and therefore are identical for all views
-    objectPoints.resize(num_images);
+    objectPoints.resize(numImages);
 
-    for (i = 0; i < num_images; i++) {
+    for (i = 0; i < numImages; i++) {
         for (j = 0; j < boardSize.height; j++) {
             for (k = 0; k < boardSize.width; k++) {
                 objectPoints[i].push_back(cv::Point3f(j*squareSize, k*squareSize, 0));
@@ -258,6 +295,8 @@ void StereoCalibration::calibrateFromImages (const QStringList &images, int boar
     }
 
     // *** Calibrate ***
+    qDebug() << "Calibrating stereo...";
+    
     M1 = cv::Mat::eye(3, 3, CV_64F);
     M2 = cv::Mat::eye(3, 3, CV_64F);
 
@@ -274,7 +313,7 @@ void StereoCalibration::calibrateFromImages (const QStringList &images, int boar
     int num_points = 0;
     std::vector<cv::Vec3f> lines1, lines2;
 
-    for (i = 0; i < num_images; i++) {
+    for (i = 0; i < numImages; i++) {
         int npt = imagePoints[0][i].size();
         cv::Mat imgpt1, imgpt2;
 

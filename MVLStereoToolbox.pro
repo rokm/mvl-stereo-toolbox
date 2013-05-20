@@ -22,6 +22,7 @@ SOURCES += \
     GuiImageSource.cpp \
     GuiStereoMethod.cpp \
     ImageDisplayWidget.cpp \
+    ImagePairDisplayWidget.cpp \
     ImageSource.cpp \
     ImageSourceFile.cpp \
     ImageSourceDC1394.cpp \
@@ -41,6 +42,7 @@ HEADERS += \
     GuiImageSource.h \
     GuiStereoMethod.h \
     ImageDisplayWidget.h \
+    ImagePairDisplayWidget.h \
     ImageSource.h \
     ImageSourceFile.h \
     ImageSourceDC1394.h \

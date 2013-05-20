@@ -1,11 +1,88 @@
 #include "GuiCalibration.h"
 
-#include "ImageDisplayWidget.h"
+#include "ImagePairDisplayWidget.h"
 
 #include "StereoPipeline.h"
 #include "StereoCalibration.h"
 
 #include <opencv2/core/core.hpp>
+
+
+class BoardParametersDialog : public QDialog
+{
+public:
+    BoardParametersDialog (QWidget *parent = 0)
+        : QDialog(parent)
+    {
+        QFormLayout *layout = new QFormLayout(this);
+        setLayout(layout);
+
+        setWindowTitle("Calibration pattern");
+
+        QLabel *label;
+        QFrame *separator;
+        QDialogButtonBox *buttonBox;
+
+        // Board width
+        label = new QLabel("Board width", this);
+        label->setToolTip("Checkboard width (number of inside corners in horizontal direction)");
+
+        spinBoxBoardWidth = new QSpinBox(this);
+        spinBoxBoardWidth->setRange(1, 1000);
+        spinBoxBoardWidth->setValue(19);
+        layout->addRow(label, spinBoxBoardWidth);
+
+        // Board height
+        label = new QLabel("Board height", this);
+        label->setToolTip("Checkboard height (number of inside corners in horizontal direction)");
+
+        spinBoxBoardHeight = new QSpinBox(this);
+        spinBoxBoardHeight->setRange(1, 1000);
+        spinBoxBoardHeight->setValue(12);
+        layout->addRow(label, spinBoxBoardHeight);
+
+        // Square size
+        label = new QLabel("Square size", this);
+        label->setToolTip("Size of checkboard square");
+
+        spinBoxSquareSize = new QDoubleSpinBox(this);
+        spinBoxSquareSize->setRange(1.0, 1000.0);
+        spinBoxSquareSize->setValue(25.0);
+        spinBoxSquareSize->setSuffix(" mm");
+        layout->addRow(label, spinBoxSquareSize);
+
+        // Separator
+        separator = new QFrame(this);
+        separator->setFrameStyle(QFrame::HLine | QFrame::Sunken);
+        layout->addRow(separator);
+
+        // Button box
+        buttonBox = new QDialogButtonBox(this);
+        connect(buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
+        connect(buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
+        layout->addRow(buttonBox);
+
+        buttonBox->addButton(QDialogButtonBox::Ok);
+        buttonBox->addButton(QDialogButtonBox::Cancel);
+    }
+    
+    virtual ~BoardParametersDialog ()
+    {
+    }
+
+    void getParameters (int &boardWidth, int &boardHeight, float &squareSize)
+    {
+        boardWidth = spinBoxBoardWidth->value();
+        boardHeight = spinBoxBoardHeight->value();
+        squareSize = spinBoxSquareSize->value();
+    }
+
+protected:
+    QSpinBox *spinBoxBoardWidth;
+    QSpinBox *spinBoxBoardHeight;
+    QDoubleSpinBox *spinBoxSquareSize;    
+};
+
 
 
 GuiCalibration::GuiCalibration (StereoPipeline *p, StereoCalibration *c, QWidget *parent)
@@ -18,10 +95,40 @@ GuiCalibration::GuiCalibration (StereoPipeline *p, StereoCalibration *c, QWidget
     layout->setContentsMargins(2, 2, 2, 2);
     setLayout(layout);
 
+    // Buttons
+    QHBoxLayout *buttonsLayout = new QHBoxLayout();
+    QPushButton *pushButton;
+    
+    layout->addLayout(buttonsLayout, 0, 0, 1, 2);
+
+    pushButton = new QPushButton("Calibrate");
+    pushButton->setToolTip("Calibrate from list of images.");
+    connect(pushButton, SIGNAL(released()), this, SLOT(doCalibration()));
+    buttonsLayout->addWidget(pushButton);
+    pushButtonCalibrate = pushButton;
+
+    pushButton = new QPushButton("Import");
+    pushButton->setToolTip("Import calibration from file.");
+    connect(pushButton, SIGNAL(released()), this, SLOT(importCalibration()));
+    buttonsLayout->addWidget(pushButton);
+    pushButtonImport = pushButton;
+
+    pushButton = new QPushButton("Export");
+    pushButton->setToolTip("Export current calibration to file.");
+    connect(pushButton, SIGNAL(released()), this, SLOT(exportCalibration()));
+    buttonsLayout->addWidget(pushButton);
+    pushButtonExport = pushButton;
+
+    pushButton = new QPushButton("Clear");
+    pushButton->setToolTip("Clear current calibration.");
+    connect(pushButton, SIGNAL(released()), this, SLOT(clearCalibration()));
+    buttonsLayout->addWidget(pushButton);
+    pushButtonClear = pushButton;
+
     // Rectified image pair
-    displayRectified = new ImageDisplayWidget("Rectified image pair", this);
-    displayRectified->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    layout->addWidget(displayRectified, 0, 1);
+    displayPair = new ImagePairDisplayWidget("Rectified image pair", this);
+    displayPair->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    layout->addWidget(displayPair, 1, 0);
 
     // Status bar
     statusBar = new QStatusBar(this);
@@ -33,6 +140,9 @@ GuiCalibration::GuiCalibration (StereoPipeline *p, StereoCalibration *c, QWidget
     // Calibration
     connect(calibration, SIGNAL(stateChanged(bool)), this, SLOT(updateState()));
     updateState();
+
+    // Pattern dialog
+    patternDialog = new BoardParametersDialog(this);
 }
 
 GuiCalibration::~GuiCalibration ()
@@ -41,27 +151,99 @@ GuiCalibration::~GuiCalibration ()
 
 void GuiCalibration::updateImage ()
 {
-    #if 0
-    //const cv::Mat disparity = pipeline->getDisparityImage();
-
-    // Show image
-    displayDisparityImage->setImage(disparity);
-
-    // If image is valid, display computation time
-    if (disparity.data) {
-        statusBar->showMessage(QString("Disparity image computed in %1 milliseconds").arg(pipeline->getDisparityImageComputationTime()));
-    } else {
-        statusBar->clearMessage();
-    }
-    #endif
+    displayPair->setImagePair(pipeline->getLeftRectifiedImage(), pipeline->getRightRectifiedImage());
 }
 
 void GuiCalibration::updateState ()
 {
     if (calibration->getState()) {
         statusBar->showMessage("Calibration set; rectifying input images.");
+
+        displayPair->setImagePairROI(calibration->getLeftROI(), calibration->getRightROI());
+
+        pushButtonClear->setEnabled(true);
+        pushButtonExport->setEnabled(true);
     } else {
         statusBar->showMessage("Calibration not set; passing input images through.");
+
+        displayPair->setImagePairROI(cv::Rect(), cv::Rect());
+
+        pushButtonClear->setEnabled(false);
+        pushButtonExport->setEnabled(false);
+    }
+
+    //updateImage();
+}
+
+
+
+void GuiCalibration::doCalibration ()
+{
+    QStringList fileNames = QFileDialog::getOpenFileNames(this, "Select calibration images or list file", QString(), "Images (*.jpg *.png *.bmp *.tif *.ppm *.pgm);; Text file (*.txt)");
+
+    // If no files are chosen, stop
+    if (!fileNames.size()) {
+        return;
+    }
+
+    // If we are given a single file, assume it is a file list
+    if (fileNames.size() == 1) {
+        QFile listFile(fileNames[0]);
+        if (listFile.open(QIODevice::ReadOnly)) {
+            QTextStream stream(&listFile);
+            QString line;
+            
+            // Clear file names
+            fileNames.clear();
+
+            while (1) {
+                line = stream.readLine();
+                if (line.isNull()) {
+                    break;
+                } else {
+                    fileNames << line;
+                }
+            }
+
+            if (!fileNames.size()) {
+                throw QString("Image list is empty!");
+            }
+        } else {
+            throw QString("Failed to open image list file \"%1\"!").arg(fileNames[0]);
+        }
+    }
+
+    // Run pattern dialog
+    if (patternDialog->exec() != QDialog::Accepted) {
+        return;
+    }
+    
+    int boardWidth;
+    int boardHeight;
+    float squareSize;
+    patternDialog->getParameters(boardWidth, boardHeight, squareSize);
+
+    // Finally, do calibration
+    calibration->calibrateFromImages(fileNames, boardWidth, boardHeight, squareSize);
+}
+
+void GuiCalibration::importCalibration ()
+{
+    QString fileName = QFileDialog::getOpenFileName(this, "Load calibration from file", QString(), "OpenCV storage file (*.xml *.yml *.yaml)");
+    if (!fileName.isNull()) {
+        calibration->loadCalibration(fileName);
     }
 }
 
+void GuiCalibration::exportCalibration ()
+{
+    QString fileName = QFileDialog::getSaveFileName(this, "Save calibration to file", QString(), "OpenCV storage file (*.xml *.yml *.yaml)");
+    if (!fileName.isNull()) {
+        calibration->saveCalibration(fileName);
+    }
+}
+
+void GuiCalibration::clearCalibration ()
+{
+    calibration->clearCalibration();
+}

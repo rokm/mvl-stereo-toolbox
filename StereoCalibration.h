@@ -34,12 +34,16 @@ public:
 
     void loadCalibration (const QString &);
     void saveCalibration (const QString &) const;
+    void clearCalibration ();
 
     void calibrateFromImages (const QStringList &, int, int, float);
 
     void rectifyImagePair (const cv::Mat &, const cv::Mat &, cv::Mat &, cv::Mat &) const;
 
+
     bool getState () const;
+    const cv::Rect &getLeftROI () const;
+    const cv::Rect &getRightROI () const;
 
 protected:
     void initializeRectification ();

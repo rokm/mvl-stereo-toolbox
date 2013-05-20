@@ -16,6 +16,8 @@ public:
 
     void setImage (const cv::Mat &);
 
+    static QImage convertCvMatToQImage (const cv::Mat &src);
+
 protected:
     virtual void paintEvent (QPaintEvent *);
 
@@ -23,5 +25,6 @@ protected:
     QString text;
     QImage image;
 };
+
 
 #endif

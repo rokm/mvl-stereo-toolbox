@@ -15,8 +15,7 @@ ImageDisplayWidget::~ImageDisplayWidget ()
 {
 }
 
-
-static inline QImage cvMatToQImage (const cv::Mat &src)
+QImage ImageDisplayWidget::convertCvMatToQImage (const cv::Mat &src)
 {
     QImage dest(src.cols, src.rows, QImage::Format_ARGB32);
     QRgb *destrow;
@@ -49,7 +48,7 @@ static inline QImage cvMatToQImage (const cv::Mat &src)
 void ImageDisplayWidget::setImage (const cv::Mat &img)
 {
     // Convert cv::Mat to QImage
-    image = cvMatToQImage(img);
+    image = convertCvMatToQImage(img);
 
     // Refresh
     update();

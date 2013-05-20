@@ -91,7 +91,16 @@ void StereoPipeline::setImageSource (ImageSource *newSource)
 // *********************************************************************
 void StereoPipeline::setCalibration (StereoCalibration *newCalibration)
 {
+    // Change calibration
+    if (calibration) {
+        disconnect(calibration, SIGNAL(stateChanged(bool)), this, SLOT(rectifyImages()));
+    }
+    
     calibration = newCalibration;
+    connect(calibration, SIGNAL(stateChanged(bool)), this, SLOT(rectifyImages()));
+
+    // Rectify images
+    rectifyImages();
 }
 
 
@@ -137,6 +146,7 @@ void StereoPipeline::rectifyImages ()
     }
 
     calibration->rectifyImagePair(inputImageL, inputImageR, rectifiedImageL, rectifiedImageR);
+    emit rectifiedImagesChanged();
 }
 
 void StereoPipeline::computeDisparityImage ()

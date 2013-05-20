@@ -8,7 +8,10 @@
 class StereoPipeline;
 class StereoCalibration;
 
-class ImageDisplayWidget;
+class ImagePairDisplayWidget;
+
+class BoardParametersDialog;
+
 
 class GuiCalibration : public QWidget
 {
@@ -18,7 +21,12 @@ public:
     GuiCalibration (StereoPipeline *, StereoCalibration *, QWidget * = 0);
     virtual ~GuiCalibration ();
 
-protected slots:   
+protected slots:
+    void doCalibration ();
+    void importCalibration ();
+    void exportCalibration ();
+    void clearCalibration ();
+
     void updateImage ();
     void updateState ();
 
@@ -28,9 +36,16 @@ protected:
     StereoCalibration *calibration;
 
     // GUI
-    ImageDisplayWidget *displayRectified;
+    QPushButton *pushButtonCalibrate;
+    QPushButton *pushButtonImport;
+    QPushButton *pushButtonExport;
+    QPushButton *pushButtonClear;
+    
+    ImagePairDisplayWidget *displayPair;
 
     QStatusBar *statusBar;
+
+    BoardParametersDialog *patternDialog;
 };
 
 #endif
