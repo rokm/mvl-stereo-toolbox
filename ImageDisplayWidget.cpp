@@ -20,8 +20,17 @@ QImage ImageDisplayWidget::convertCvMatToQImage (const cv::Mat &src)
     QImage dest(src.cols, src.rows, QImage::Format_ARGB32);
     QRgb *destrow;
     int x, y;
-    
-    if (src.channels() == 3) {
+
+    if (src.channels() ==1) {
+        // Gray
+        for (int y = 0; y < src.rows; ++y) {
+            const unsigned char *srcrow = src.ptr<unsigned char>(y);
+            destrow = (QRgb*)dest.scanLine(y);
+            for (int x = 0; x < src.cols; ++x) {
+                destrow[x] = qRgba(srcrow[x], srcrow[x], srcrow[x], 255);
+            }
+        }
+    } else if (src.channels() == 3) {
         // RGB
         for (y = 0; y < src.rows; ++y) {
             const cv::Vec3b *srcrow = src.ptr<cv::Vec3b>(y);
@@ -30,13 +39,13 @@ QImage ImageDisplayWidget::convertCvMatToQImage (const cv::Mat &src)
                 destrow[x] = qRgba(srcrow[x][2], srcrow[x][1], srcrow[x][0], 255);
             }
         }
-    } else {
-        // Gray
-        for (int y = 0; y < src.rows; ++y) {
-            const unsigned char *srcrow = src.ptr<unsigned char>(y);
+    } else if (src.channels() == 4) {
+        // RGBA
+        for (y = 0; y < src.rows; ++y) {
+            const cv::Vec4b *srcrow = src.ptr<cv::Vec4b>(y);
             destrow = (QRgb*)dest.scanLine(y);
-            for (int x = 0; x < src.cols; ++x) {
-                destrow[x] = qRgba(srcrow[x], srcrow[x], srcrow[x], 255);
+            for (x = 0; x < src.cols; ++x) {
+                destrow[x] = qRgba(srcrow[x][2], srcrow[x][1], srcrow[x][0], srcrow[x][3]);
             }
         }
     }
