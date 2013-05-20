@@ -27,7 +27,7 @@ GuiImageSource::GuiImageSource (StereoPipeline *p, QList<ImageSource *> &s, QWid
 
     buttonsLayout->addStretch();
 
-    pushButton = new QPushButton("Save images");
+    pushButton = new QPushButton("Save images", this);
     pushButton->setToolTip("Save image pair.");
     connect(pushButton, SIGNAL(released()), this, SLOT(saveImages()));
     buttonsLayout->addWidget(pushButton);

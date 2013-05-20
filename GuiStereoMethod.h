@@ -27,12 +27,19 @@ protected slots:
     void saveImage ();
 
 protected:
+    enum {
+        DisplayRawDisparity,
+        DisplayDynamicDisparity,
+        DisplayColorDisparity,
+    };
+
     // Pipeline
     StereoPipeline *pipeline;
     QList<StereoMethod *> methods;
 
     // GUI
     QPushButton *pushButtonSaveImage;
+    QComboBox *comboBoxDisplayType;
     
     ImageDisplayWidget *displayDisparityImage;
 

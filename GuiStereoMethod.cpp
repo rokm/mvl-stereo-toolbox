@@ -8,6 +8,8 @@
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
 
+#include <opencv2/gpu/gpu.hpp>
+
 
 GuiStereoMethod::GuiStereoMethod (StereoPipeline *p, QList<StereoMethod *> &m, QWidget *parent)
     : QWidget(parent), pipeline(p), methods(m)
@@ -22,16 +24,32 @@ GuiStereoMethod::GuiStereoMethod (StereoPipeline *p, QList<StereoMethod *> &m, Q
     // Buttons
     QHBoxLayout *buttonsLayout = new QHBoxLayout();
     QPushButton *pushButton;
+    QComboBox *comboBox;
     
     layout->addLayout(buttonsLayout, 0, 0, 1, 2);
 
     buttonsLayout->addStretch();
 
-    pushButton = new QPushButton("Save disparity image");
+    pushButton = new QPushButton("Save disparity image", this);
     pushButton->setToolTip("Save disparity image.");
     connect(pushButton, SIGNAL(released()), this, SLOT(saveImage()));
     buttonsLayout->addWidget(pushButton);
     pushButtonSaveImage = pushButton;
+
+    comboBox = new QComboBox(this);
+    comboBox->setToolTip("Disparity image display type");
+    comboBox->addItem("Raw", DisplayRawDisparity);
+    comboBox->setItemData(0, "Raw grayscale disparity.", Qt::ToolTipRole);
+    comboBox->addItem("Dynamic range", DisplayDynamicDisparity);
+    comboBox->setItemData(1, "Grayscale disparity scaled to min/max value.", Qt::ToolTipRole);
+    if (cv::gpu::getCudaEnabledDeviceCount()) {
+        // This one requires CUDA...
+        comboBox->addItem("Color (GPU)", DisplayColorDisparity);
+        comboBox->setItemData(2, "HSV disparity (computed on GPU).", Qt::ToolTipRole);
+    }    
+    connect(comboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(updateImage()));
+    buttonsLayout->addWidget(comboBox);
+    comboBoxDisplayType = comboBox;
 
     buttonsLayout->addStretch();
 
@@ -81,10 +99,44 @@ void GuiStereoMethod::setMethod (int i)
 
 void GuiStereoMethod::updateImage ()
 {
-    const cv::Mat disparity = pipeline->getDisparityImage();
+    const cv::Mat &disparity = pipeline->getDisparityImage();
+    int numDisparities = pipeline->getNumberOfDisparityLevels();
 
     // Show image
-    displayDisparityImage->setImage(disparity);
+    int displayType = comboBoxDisplayType->itemData(comboBoxDisplayType->currentIndex()).toInt();
+    switch (displayType) {
+        case DisplayRawDisparity: {
+            // Raw grayscale disparity
+            displayDisparityImage->setImage(disparity);
+            break;
+        }
+        case DisplayDynamicDisparity: {
+            // Grayscale with dynamically rescaled values
+            double minVal, maxVal, scale;
+            cv::Mat scaledDisp;
+
+            cv::minMaxLoc(disparity, &minVal, &maxVal, 0, 0);
+            scale = 255.0 / (maxVal-minVal);
+            disparity.convertTo(scaledDisp, CV_8UC1, scale, minVal/scale);
+            
+            displayDisparityImage->setImage(scaledDisp);
+            break;
+        }
+        case DisplayColorDisparity: {
+            // Hue-color-coded disparity
+            cv::gpu::GpuMat gpu_disp(disparity);
+            cv::gpu::GpuMat gpu_disp_color;
+            cv::Mat disp_color;
+        
+            cv::gpu::drawColorDisp(gpu_disp, gpu_disp_color, numDisparities);
+            gpu_disp_color.download(disp_color);
+    
+            displayDisparityImage->setImage(disp_color);
+        
+            break;
+        }
+    }
+        
 
     // If image is valid, display computation time
     if (disparity.data) {
