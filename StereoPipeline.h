@@ -46,6 +46,7 @@ public:
     const cv::Mat &getRightRectifiedImage () const;
     
     const cv::Mat &getDisparityImage () const;
+    int getNumberOfDisparityLevels () const;
     int getDisparityImageComputationTime () const;
 
 protected slots:
@@ -83,6 +84,7 @@ protected:
 
     // Cached disparity image
     cv::Mat disparityImage;
+    int disparityLevels;
     int disparityImageComputationTime;
 };
 

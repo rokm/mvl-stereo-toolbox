@@ -75,13 +75,16 @@ void StereoMethodVar::usePreset (int type)
 // *********************************************************************
 // *                    Disparity image computation                    *
 // *********************************************************************
-void StereoMethodVar::computeDisparityImage (const cv::Mat &img1, const cv::Mat &img2, cv::Mat &depth)
+void StereoMethodVar::computeDisparityImage (const cv::Mat &img1, const cv::Mat &img2, cv::Mat &disparity, int &numDisparities)
 {    
-    // Compute depth image
-    var(img1, img2, tmpDepth);
+    // Compute disparity image
+    var(img1, img2, tmpDisparity);
 
     // Normalize to output
-    tmpDepth.convertTo(depth, CV_8U);
+    tmpDisparity.convertTo(disparity, CV_8U);
+
+    // Number of disparities
+    numDisparities = getMaxDisparity() - getMinDisparity();
 }
 
 

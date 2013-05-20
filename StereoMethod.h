@@ -41,7 +41,7 @@ public:
     int getImageChannels () const;
     
     // Disparity image computation
-    virtual void computeDisparityImage (const cv::Mat &, const cv::Mat &, cv::Mat &) = 0;
+    virtual void computeDisparityImage (const cv::Mat &, const cv::Mat &, cv::Mat &, int &) = 0;
 
     // Parameter import/export
     void loadParameters (const QString &);

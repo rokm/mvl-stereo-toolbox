@@ -59,7 +59,7 @@ void StereoMethodELAS::usePreset (int type)
 // *********************************************************************
 // *                    Disparity image computation                    *
 // *********************************************************************
-void StereoMethodELAS::computeDisparityImage (const cv::Mat &img1, const cv::Mat &img2, cv::Mat &depth)
+void StereoMethodELAS::computeDisparityImage (const cv::Mat &img1, const cv::Mat &img2, cv::Mat &disparity, int &numDisparities)
 {
     // Convert to grayscale
     if (img1.channels() == 3) {
@@ -91,10 +91,13 @@ void StereoMethodELAS::computeDisparityImage (const cv::Mat &img1, const cv::Mat
 
     // Convert to output
     if (returnLeft) {
-        tmpDisp1.convertTo(depth, CV_8U);
+        tmpDisp1.convertTo(disparity, CV_8U);
     } else {
-        tmpDisp2.convertTo(depth, CV_8U);
+        tmpDisp2.convertTo(disparity, CV_8U);
     }
+
+    // Number of disparities
+    numDisparities = getMaxDisparity() - getMinDisparity();
 }
 
 // *********************************************************************

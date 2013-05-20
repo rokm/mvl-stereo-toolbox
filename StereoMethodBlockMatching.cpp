@@ -78,7 +78,7 @@ void StereoMethodBlockMatching::usePreset (int type)
 // *********************************************************************
 // *                    Disparity image computation                    *
 // *********************************************************************
-void StereoMethodBlockMatching::computeDisparityImage (const cv::Mat &img1, const cv::Mat &img2, cv::Mat &depth)
+void StereoMethodBlockMatching::computeDisparityImage (const cv::Mat &img1, const cv::Mat &img2, cv::Mat &disparity, int &numDisparities)
 {
     // Convert to grayscale
     if (img1.channels() == 3) {
@@ -95,10 +95,13 @@ void StereoMethodBlockMatching::computeDisparityImage (const cv::Mat &img1, cons
 
     
     // Compute depth image
-    bm(tmpImg1, tmpImg2, tmpDepth);
+    bm(tmpImg1, tmpImg2, tmpDisparity);
 
     // Normalize to output
-    tmpDepth.convertTo(depth, CV_8U, 255/(bm.state->numberOfDisparities*16.));
+    tmpDisparity.convertTo(disparity, CV_8U, 255/(bm.state->numberOfDisparities*16.));
+
+    // Number of disparities
+    numDisparities = getNumDisparities();
 }
 
 

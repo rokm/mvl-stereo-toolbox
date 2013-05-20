@@ -41,6 +41,11 @@ const cv::Mat &StereoPipeline::getDisparityImage () const
     return disparityImage;
 }
 
+int StereoPipeline::getNumberOfDisparityLevels () const
+{
+    return disparityLevels;
+}
+
 int StereoPipeline::getDisparityImageComputationTime () const
 {
     return disparityImageComputationTime;
@@ -163,7 +168,7 @@ void StereoPipeline::computeDisparityImage ()
     } else {
         try {
             QTime timer; timer.start();
-            method->computeDisparityImage(rectifiedImageL, rectifiedImageR, disparityImage);
+            method->computeDisparityImage(rectifiedImageL, rectifiedImageR, disparityImage, disparityLevels);
             disparityImageComputationTime = timer.elapsed();
         } catch (std::exception &e) {
             disparityImage = cv::Mat(); // Clear

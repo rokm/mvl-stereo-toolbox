@@ -60,20 +60,23 @@ void StereoMethodConstantSpaceBeliefPropagationGPU::usePreset (int type)
 // *********************************************************************
 // *                    Disparity image computation                    *
 // *********************************************************************
-void StereoMethodConstantSpaceBeliefPropagationGPU::computeDisparityImage (const cv::Mat &img1, const cv::Mat &img2, cv::Mat &depth)
+void StereoMethodConstantSpaceBeliefPropagationGPU::computeDisparityImage (const cv::Mat &img1, const cv::Mat &img2, cv::Mat &disparity, int &numDisparities)
 {
     // Upload to GPU
     cv::gpu::GpuMat gpu_img1(img1);
     cv::gpu::GpuMat gpu_img2(img2);
 
-    cv::gpu::GpuMat gpu_depth, gpu_depth8u;
+    cv::gpu::GpuMat gpu_disp, gpu_disp8u;
 
     // Compute disparity image
-    bp(gpu_img1, gpu_img2, gpu_depth);
+    bp(gpu_img1, gpu_img2, gpu_disp);
 
     // Convert and download
-    gpu_depth.convertTo(gpu_depth8u, CV_8U);
-    gpu_depth8u.download(depth);
+    gpu_disp.convertTo(gpu_disp8u, CV_8U);
+    gpu_disp8u.download(disparity);
+
+    // Number of disparities
+    numDisparities = numDisparities;
 }
 
 

@@ -73,12 +73,16 @@ void StereoMethodSemiGlobalBlockMatching::usePreset (int type)
 // *********************************************************************
 // *                    Disparity image computation                    *
 // *********************************************************************
-void StereoMethodSemiGlobalBlockMatching::computeDisparityImage (const cv::Mat &img1, const cv::Mat &img2, cv::Mat &depth)
+void StereoMethodSemiGlobalBlockMatching::computeDisparityImage (const cv::Mat &img1, const cv::Mat &img2, cv::Mat &disparity, int &numDisparities)
 {
-    sgbm(img1, img2, tmpDepth);
+    // Compute disparity image
+    sgbm(img1, img2, tmpDisparity);
 
     // Normalize to output
-    tmpDepth.convertTo(depth, CV_8U, 255/(sgbm.numberOfDisparities*16.));
+    tmpDisparity.convertTo(disparity, CV_8U, 255/(sgbm.numberOfDisparities*16.));
+
+    // Number of disparities
+    numDisparities = getNumDisparities();
 }
 
 

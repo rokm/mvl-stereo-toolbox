@@ -33,7 +33,7 @@ public:
     virtual ~StereoMethodVar ();
 
     // Disparity image computation
-    virtual void computeDisparityImage (const cv::Mat &, const cv::Mat &, cv::Mat &);
+    virtual void computeDisparityImage (const cv::Mat &, const cv::Mat &, cv::Mat &, int &);
 
     // Parameter import/export
     virtual void loadParameters (const cv::FileStorage &);
@@ -78,7 +78,7 @@ protected:
     // Semi-global block matcher
     cv::StereoVar var;
 
-    cv::Mat tmpDepth;
+    cv::Mat tmpDisparity;
 };
 
 

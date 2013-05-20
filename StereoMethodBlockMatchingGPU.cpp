@@ -45,7 +45,7 @@ void StereoMethodBlockMatchingGPU::resetToDefaults ()
 // *********************************************************************
 // *                    Disparity image computation                    *
 // *********************************************************************
-void StereoMethodBlockMatchingGPU::computeDisparityImage (const cv::Mat &img1, const cv::Mat &img2, cv::Mat &depth)
+void StereoMethodBlockMatchingGPU::computeDisparityImage (const cv::Mat &img1, const cv::Mat &img2, cv::Mat &disparity, int &numDisparities)
 {
     // Upload to GPU
     cv::gpu::GpuMat gpu_img1(img1);
@@ -53,7 +53,7 @@ void StereoMethodBlockMatchingGPU::computeDisparityImage (const cv::Mat &img1, c
 
     cv::gpu::GpuMat gpu_tmp1;
     cv::gpu::GpuMat gpu_tmp2;
-    cv::gpu::GpuMat gpu_depth;
+    cv::gpu::GpuMat gpu_disp;
 
     // Convert to grayscale
     if (gpu_img1.channels() == 3) {
@@ -69,10 +69,13 @@ void StereoMethodBlockMatchingGPU::computeDisparityImage (const cv::Mat &img1, c
     }
 
     // Compute disparity image
-    bm(gpu_tmp1, gpu_tmp2, gpu_depth);
+    bm(gpu_tmp1, gpu_tmp2, gpu_disp);
 
     // Download
-    gpu_depth.download(depth);
+    gpu_disp.download(disparity);
+
+    // Number of disparities
+    numDisparities = getNumDisparities();
 }
 
 // *********************************************************************
