@@ -69,24 +69,15 @@ void ImageDisplayWidget::paintEvent (QPaintEvent *event)
         // Display text
         painter.drawText(area, Qt::AlignCenter, text);
     } else {
-        // Display image
-        double aspect = (double)image.width() / image.height();
-
+        // Display image        
         int w = image.width();
         int h = image.height();
+        
+        double scale = qMin((double)width() / w, (double)height() / h);
 
-        // Make sure image fits horizontally
-        if (w > width()) {
-            w = width();
-            h = w / aspect;
-        }
-
-        // Make sure image fits vertically
-        if (h > height()) {
-            h = height();
-            w = h * aspect;
-        }
-
+        w *= scale;
+        h *= scale;
+            
         painter.drawImage(QRect((width() - w)/2, (height() - h)/2, w, h), image);
     }
 
