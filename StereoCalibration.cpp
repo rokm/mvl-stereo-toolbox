@@ -34,6 +34,13 @@ StereoCalibration::~StereoCalibration ()
 }
 
 
+bool StereoCalibration::getState () const
+{
+    // Return state
+    return isValid;
+}
+
+
 void StereoCalibration::loadCalibration (const QString &filename)
 {
     // Reset state

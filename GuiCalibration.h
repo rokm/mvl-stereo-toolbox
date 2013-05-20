@@ -19,7 +19,8 @@ public:
     virtual ~GuiCalibration ();
 
 protected slots:   
-    void updateImages ();
+    void updateImage ();
+    void updateState ();
 
 protected:
     // Pipeline

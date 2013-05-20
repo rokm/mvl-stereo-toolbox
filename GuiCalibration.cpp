@@ -23,15 +23,23 @@ GuiCalibration::GuiCalibration (StereoPipeline *p, StereoCalibration *c, QWidget
     displayRectified->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     layout->addWidget(displayRectified, 0, 1);
 
+    // Status bar
+    statusBar = new QStatusBar(this);
+    layout->addWidget(statusBar, 2, 0, 1, 2);
+
     // Pipeline
     connect(pipeline, SIGNAL(rectifiedImagesChanged()), this, SLOT(updateImage()));
+
+    // Calibration
+    connect(calibration, SIGNAL(stateChanged(bool)), this, SLOT(updateState()));
+    updateState();
 }
 
 GuiCalibration::~GuiCalibration ()
 {
 }
 
-void GuiCalibration::updateImages ()
+void GuiCalibration::updateImage ()
 {
     #if 0
     //const cv::Mat disparity = pipeline->getDisparityImage();
@@ -47,3 +55,13 @@ void GuiCalibration::updateImages ()
     }
     #endif
 }
+
+void GuiCalibration::updateState ()
+{
+    if (calibration->getState()) {
+        statusBar->showMessage("Calibration set; rectifying input images.");
+    } else {
+        statusBar->showMessage("Calibration not set; passing input images through.");
+    }
+}
+
