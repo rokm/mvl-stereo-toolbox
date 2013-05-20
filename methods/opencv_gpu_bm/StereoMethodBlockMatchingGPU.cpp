@@ -20,7 +20,6 @@
 
 #include <cfloat>
 #include <climits>
-#include <opencv2/gpu/gpu.hpp>
 
 
 StereoMethodBlockMatchingGPU::StereoMethodBlockMatchingGPU (QObject *parent)

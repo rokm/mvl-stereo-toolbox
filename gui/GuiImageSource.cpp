@@ -80,6 +80,11 @@ GuiImageSource::~GuiImageSource ()
 
 void GuiImageSource::setSource (int i)
 {
+    if (i < 0 || i >= sources.size()) {
+        qWarning() << "Source" << i << "does not exist!";
+        return;
+    }
+    
     pipeline->setImageSource(sources[i]);
 }
 

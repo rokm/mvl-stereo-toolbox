@@ -22,7 +22,9 @@
 
 #include "StereoPipeline.h"
 #include "StereoCalibration.h"
-
+#include "StereoMethod.h"
+#include "ImageSource.h"
+/*
 #include "ImageSourceFile.h"
 #include "ImageSourceDC1394.h"
 
@@ -35,7 +37,76 @@
 #include "StereoMethodConstantSpaceBeliefPropagationGPU.h"
 #include "StereoMethodBeliefPropagationGPU.h"
 #include "StereoMethodBlockMatchingGPU.h"
+*/
 
+void recursiveDirectoryScan (QDir dir, QStringList &files)
+{
+    // List all files in current directory
+    dir.setFilter(QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks);
+    foreach (QString fileName, dir.entryList()) {
+        files.append(dir.absoluteFilePath(fileName));
+    }
+
+    // List all directories and recursively scan them
+    dir.setFilter(QDir::AllDirs | QDir::NoDotAndDotDot | QDir::NoSymLinks);
+    foreach (QString dirName, dir.entryList()) {
+        recursiveDirectoryScan(dir.absoluteFilePath(dirName), files);
+    }
+}
+
+void loadSources (QList<ImageSource *> &sources)
+{
+    QDir pluginsDir(qApp->applicationDirPath());
+    QStringList files;
+
+    // Recursively scan "sources" directory for plugin files
+    recursiveDirectoryScan(pluginsDir.absoluteFilePath("sources"), files);
+    
+    foreach (QString fileName, files) {
+        qDebug() << "Testing:" << fileName;
+        QPluginLoader loader(fileName);
+
+        QObject *plugin = loader.instance();
+        if (plugin) {
+            qDebug() << "Plugin successfully loaded!";
+            ImageSource *source = qobject_cast<ImageSource *>(plugin);
+            if (source) {
+                sources.append(source);
+            } else {
+                qDebug() << "Failed to cast plugged object to ImageSource class!";
+            }
+        } else {
+            qDebug() << "Failed to load plugin:" << loader.errorString();            
+        }
+    }
+}
+
+void loadMethods (QList<StereoMethod *> &methods)
+{
+    QDir pluginsDir(qApp->applicationDirPath());
+    QStringList files;
+
+    // Recursively scan "methods" directory for plugin files
+    recursiveDirectoryScan(pluginsDir.absoluteFilePath("methods"), files);
+    
+    foreach (QString fileName, files) {
+        qDebug() << "Testing:" << fileName;
+        QPluginLoader loader(fileName);
+
+        QObject *plugin = loader.instance();
+        if (plugin) {
+            qDebug() << "Plugin successfully loaded!";
+            StereoMethod *method = qobject_cast<StereoMethod *>(plugin);
+            if (method) {
+                methods.append(method);
+            } else {
+                qDebug() << "Failed to cast plugged object to StereoMethod class!";
+            }
+        } else {
+            qDebug() << "Failed to load plugin:" << loader.errorString();            
+        }
+    }
+}
 
 int main (int argc, char **argv)
 {
@@ -48,9 +119,10 @@ int main (int argc, char **argv)
 
     // *** All available image sources ***
     QList<ImageSource *> sources;
-
-    sources.append(new ImageSourceFile());
-    sources.append(new ImageSourceDC1394());
+    loadSources(sources);
+    
+    /*sources.append(new ImageSourceFile());
+    sources.append(new ImageSourceDC1394());*/
 
     // *** Calibration ***
     StereoCalibration *calibration = new StereoCalibration();
@@ -58,8 +130,9 @@ int main (int argc, char **argv)
 
     // *** All available stereo methods ***
     QList<StereoMethod *> methods;
+    loadMethods(methods);
     
-    methods.append(new StereoMethodBlockMatching());
+    /*methods.append(new StereoMethodBlockMatching());
     methods.append(new StereoMethodSemiGlobalBlockMatching());
     methods.append(new StereoMethodVar());
     methods.append(new StereoMethodELAS());
@@ -70,7 +143,7 @@ int main (int argc, char **argv)
         methods.append(new StereoMethodBlockMatchingGPU());
         methods.append(new StereoMethodBeliefPropagationGPU());
         methods.append(new StereoMethodConstantSpaceBeliefPropagationGPU());
-    }
+    }*/
 
     // *** GUI ***
     GuiImageSource *guiImageSource = new GuiImageSource(pipeline, sources);

@@ -169,4 +169,3 @@ void ConfigTabFile::loadImages ()
         labelFilenameRight->setText(QString("<b>Right image: </b> %1, %2x%3, %4 ch.").arg(fileRight.fileName()).arg(source->getRightWidth()).arg(source->getRightHeight()).arg(source->getRightChannels()));
     }
 }
-

@@ -93,6 +93,11 @@ GuiStereoMethod::~GuiStereoMethod ()
 
 void GuiStereoMethod::setMethod (int i)
 {
+    if (i < 0 || i >= methods.size()) {
+        qWarning() << "Method" << i << "does not exist!";
+        return;
+    }
+    
     pipeline->setStereoMethod(methods[i]);
 }
 
