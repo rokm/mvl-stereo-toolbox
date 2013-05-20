@@ -132,9 +132,7 @@ void StereoPipeline::beginProcessing ()
 void StereoPipeline::rectifyImages ()
 {
     if (!calibration) {
-        rectifiedImageL = inputImageL;
-        rectifiedImageR = inputImageR;
-        //emit error("Stereo calibration object not set!");
+        emit error("Stereo calibration object not set!");
         return;
     }
 

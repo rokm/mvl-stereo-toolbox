@@ -21,6 +21,7 @@
 #include "GuiStereoMethod.h"
 
 #include "StereoPipeline.h"
+#include "StereoCalibration.h"
 
 #include "ImageSourceFile.h"
 #include "ImageSourceDC1394.h"
@@ -51,6 +52,10 @@ int main (int argc, char **argv)
     sources.append(new ImageSourceFile());
     sources.append(new ImageSourceDC1394());
 
+    // *** Calibration ***
+    StereoCalibration *calibration = new StereoCalibration();
+    pipeline->setCalibration(calibration);
+
     // *** All available stereo methods ***
     QList<StereoMethod *> methods;
     
@@ -70,6 +75,9 @@ int main (int argc, char **argv)
     // *** GUI ***
     GuiImageSource *guiImageSource = new GuiImageSource(pipeline, sources);
     guiImageSource->show();
+
+    GuiCalibration *guiCalibration = new GuiCalibration(pipeline, calibration);
+    guiCalibration->show();    
 
     GuiStereoMethod *guiStereoMethod = new GuiStereoMethod(pipeline, methods);
     guiStereoMethod->show();

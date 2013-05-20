@@ -92,9 +92,15 @@ void StereoCalibration::saveCalibration (const QString &filename) const
 
 void StereoCalibration::rectifyImagePair (const cv::Mat &img1, const cv::Mat &img2, cv::Mat &img1r, cv::Mat &img2r) const
 {
-    // Two simple remaps using look-up tables
-    cv::remap(img1, img1r, map11, map12, cv::INTER_LINEAR);
-    cv::remap(img2, img2r, map21, map22, cv::INTER_LINEAR);
+    if (!isValid) {
+        // Pass-through
+        img1r = img1;
+        img2r = img2;
+    } else {
+        // Two simple remaps using look-up tables
+        cv::remap(img1, img1r, map11, map12, cv::INTER_LINEAR);
+        cv::remap(img2, img2r, map21, map22, cv::INTER_LINEAR);
+    }
 }
 
 
