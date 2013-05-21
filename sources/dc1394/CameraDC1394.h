@@ -15,15 +15,18 @@ public:
     CameraDC1394 (dc1394camera_t *, QObject * = 0);
     virtual ~CameraDC1394 ();
 
+    // Camera identification
     dc1394camera_id_t getId () const;
     bool isSameCamera (const dc1394camera_id_t &) const;
     
     void setIsoSpeed (dc1394speed_t);
     dc1394speed_t getIsoSpeed () const;
-    
+
+    QVector<dc1394video_mode_t> getSupportedModes ();
     void setMode (dc1394video_mode_t);
     dc1394video_mode_t getMode () const;
-    
+
+    QVector<dc1394framerate_t> getSupportedFramerates ();
     void setFramerate (dc1394framerate_t);
     dc1394framerate_t getFramerate () const;
 

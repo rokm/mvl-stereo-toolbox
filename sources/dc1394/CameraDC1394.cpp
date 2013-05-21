@@ -37,6 +37,10 @@ bool CameraDC1394::isSameCamera (const dc1394camera_id_t &id) const
 }
 
 
+// *********************************************************************
+// *                         Basic properties                          *
+// *********************************************************************
+// ISO speed
 void CameraDC1394::setIsoSpeed (dc1394speed_t speed)
 {
     dc1394error_t ret;
@@ -62,6 +66,28 @@ dc1394speed_t CameraDC1394::getIsoSpeed () const
     return value;
 }
 
+
+// Video mode
+QVector<dc1394video_mode_t> CameraDC1394::getSupportedModes ()
+{
+    dc1394video_modes_t raw_modes;
+    dc1394error_t ret;
+
+    QVector<dc1394video_mode_t> modes; 
+    
+    ret = dc1394_video_get_supported_modes(camera, &raw_modes);
+    if (ret) {
+        qWarning() << "Failed to query supported modes!";
+        return modes;
+    }
+
+    modes.resize(raw_modes.num);
+    for (int i = 0; i < raw_modes.num; i++) {
+        modes[i] = raw_modes.modes[i];
+    }
+
+    return modes;
+}
 
 void CameraDC1394::setMode (dc1394video_mode_t mode)
 {
@@ -90,6 +116,28 @@ dc1394video_mode_t CameraDC1394::getMode () const
 }
 
 
+// Framerate
+QVector<dc1394framerate_t> CameraDC1394::getSupportedFramerates ()
+{
+    dc1394framerates_t raw_framerates;
+    dc1394error_t ret;
+
+    QVector<dc1394framerate_t> framerates; 
+    
+    ret = dc1394_video_get_supported_framerates(camera, getMode(), &raw_framerates);
+    if (ret) {
+        qWarning() << "Failed to query supported framerates!";
+        return framerates;
+    }
+
+    framerates.resize(raw_framerates.num);
+    for (int i = 0; i < raw_framerates.num; i++) {
+        framerates[i] = raw_framerates.framerates[i];
+    }
+
+    return framerates;
+}
+
 void CameraDC1394::setFramerate (dc1394framerate_t fps)
 {
     dc1394error_t ret;
@@ -117,7 +165,9 @@ dc1394framerate_t CameraDC1394::getFramerate () const
 }
 
 
-
+// *********************************************************************
+// *                         Camera start/stop                         *
+// *********************************************************************
 void CameraDC1394::startCamera ()
 {
     dc1394error_t ret;
@@ -155,7 +205,9 @@ void CameraDC1394::stopCamera ()
 }
 
 
-
+// *********************************************************************
+// *                    Advanced grabbing interface                    *
+// *********************************************************************
 void CameraDC1394::dequeueCaptureBuffer (dc1394video_frame_t *&frame, bool drainQueue)
 {
     dc1394error_t ret;
@@ -210,7 +262,9 @@ void CameraDC1394::convertToOpenCVImage (dc1394video_frame_t *frame, cv::Mat &im
 }
 
 
-// Convenience function for grabbing from single camera
+// *********************************************************************
+// *                   Simplified grabbing interface                   *
+// *********************************************************************
 void CameraDC1394::grabFrame (cv::Mat &image)
 {
     dc1394video_frame_t *frame;
