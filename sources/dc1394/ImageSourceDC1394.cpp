@@ -83,12 +83,14 @@ void ImageSourceDC1394::setLeftCamera (int c)
 {
     // Create camera
     createCamera(leftCamera, c);
+    emit leftCameraChanged();
 }
 
 void ImageSourceDC1394::setRightCamera (int c)
 {
     // Create camera
     createCamera(rightCamera, c);
+    emit rightCameraChanged();
 }
 
 void ImageSourceDC1394::createCamera (CameraDC1394 *& camera, int c)
@@ -141,6 +143,17 @@ void ImageSourceDC1394::releaseCamera (CameraDC1394 *& camera)
         // Mark camera as inactive in our list
         cameraListModel->setActive(id, false);
     }
+}
+
+
+CameraDC1394 *ImageSourceDC1394::getLeftCamera ()
+{
+    return leftCamera;
+}
+
+CameraDC1394 *ImageSourceDC1394::getRightCamera ()
+{
+    return rightCamera;
 }
 
 
@@ -217,6 +230,9 @@ void ImageSourceDC1394::captureFunction ()
 ConfigTabDC1394::ConfigTabDC1394 (ImageSourceDC1394 *s, QWidget *parent)
     : QWidget(parent), source(s)
 {
+    configLeftDevice = NULL;
+    configRightDevice = NULL;
+
     QFormLayout *layout = new QFormLayout(this);
 
     QLabel *label;
@@ -224,8 +240,6 @@ ConfigTabDC1394::ConfigTabDC1394 (ImageSourceDC1394 *s, QWidget *parent)
     QPushButton *button;
     QComboBox *comboBox;
     QString tooltip;
-
-    QHBoxLayout *box;
 
     // Name
     label = new QLabel("<b><u>DC1394 source</u></b>", this);
@@ -270,20 +284,34 @@ ConfigTabDC1394::ConfigTabDC1394 (ImageSourceDC1394 *s, QWidget *parent)
 
     layout->addRow(line);
 
-    // *** Frames ***
-    box = new QHBoxLayout(this);
-    layout->addRow(box);
-    
-    // ** Frame - Camera 1 **
+    // Cameras
+    boxCameras = new QHBoxLayout();
+    layout->addRow(boxCameras);
+
+    createLeftCameraFrame();
+    createRightCameraFrame();
+}
+
+void ConfigTabDC1394::createLeftCameraFrame ()
+{
+    QFrame *frame;
+    QLabel *label;
+    QComboBox *comboBox;
+    QString tooltip;
+
+    QFormLayout *layout;
+   
+    // Camera frame
     frame = new QFrame(this);
     frame->setFrameStyle(QFrame::Box | QFrame::Sunken);
-    frame->setLayout(new QVBoxLayout(frame));
-    box->addWidget(frame);
+    layout = new QFormLayout(frame);
+    frame->setLayout(layout);
+    boxCameras->addWidget(frame);
 
     // Label
     label = new QLabel("<b>Left device</b>", this);
     label->setAlignment(Qt::AlignCenter);
-    frame->layout()->addWidget(label);
+    layout->addRow(label);
 
     // Combo box
     tooltip = "Left DC1394 device.";
@@ -292,28 +320,56 @@ ConfigTabDC1394::ConfigTabDC1394 (ImageSourceDC1394 *s, QWidget *parent)
     comboBox->setModel(source->getCameraListModel());
     comboBox->setToolTip(tooltip);
     connect(comboBox, SIGNAL(activated(int)), this, SLOT(cameraLeftSelected(int)));
-    frame->layout()->addWidget(comboBox);
     comboBoxLeftDevice = comboBox;
+    layout->addRow(comboBox);
 
-    // ** Frame - Camera 2 **
-    frame = new QFrame(this);
+    // Camera config frame
+    frame = new QFrame();
     frame->setLayout(new QVBoxLayout(frame));
+    frame->setContentsMargins(0, 0, 0, 0);
+    frame->layout()->setContentsMargins(0, 0, 0, 0);
+    layout->addRow(frame);
+    frameLeftDevice = frame;
+}
+
+void ConfigTabDC1394::createRightCameraFrame ()
+{
+    QFrame *frame;
+    QLabel *label;
+    QComboBox *comboBox;
+    QString tooltip;
+
+    QFormLayout *layout;
+   
+    // Camera frame
+    frame = new QFrame(this);
     frame->setFrameStyle(QFrame::Box | QFrame::Sunken);
-    box->addWidget(frame);
+    layout = new QFormLayout(frame);
+    frame->setLayout(layout);
+    boxCameras->addWidget(frame);
 
     // Label
     label = new QLabel("<b>Right device</b>", this);
     label->setAlignment(Qt::AlignCenter);
-    frame->layout()->addWidget(label);
+    layout->addRow(label);
 
     // Combo box
     tooltip = "Right DC1394 device.";
     
     comboBox = new QComboBox(this);
     comboBox->setModel(source->getCameraListModel());
+    comboBox->setToolTip(tooltip);
     connect(comboBox, SIGNAL(activated(int)), this, SLOT(cameraRightSelected(int)));
-    frame->layout()->addWidget(comboBox);
     comboBoxRightDevice = comboBox;
+    layout->addRow(comboBox);
+
+    // Camera config frame
+    frame = new QFrame();
+    frame->setLayout(new QVBoxLayout(frame));
+    frame->setContentsMargins(0, 0, 0, 0);
+    frame->layout()->setContentsMargins(0, 0, 0, 0);
+    layout->addRow(frame);
+    frameRightDevice = frame;
 }
 
 ConfigTabDC1394::~ConfigTabDC1394 ()
@@ -323,13 +379,39 @@ ConfigTabDC1394::~ConfigTabDC1394 ()
 
 void ConfigTabDC1394::cameraLeftSelected (int index)
 {
+    // Remove config widget for old device
+    if (configLeftDevice) {
+        frameLeftDevice->layout()->removeWidget(configLeftDevice);
+    }
+    
+    // Set new device
     QVariant c = comboBoxLeftDevice->itemData(index);
     source->setLeftCamera(c.isValid() ? c.toInt() : -1);
+
+    // Get new device's config widget
+    CameraDC1394 *camera = source->getLeftCamera();
+    if (camera) {
+        configLeftDevice = camera->getConfigWidget();
+        frameLeftDevice->layout()->addWidget(configLeftDevice);
+    }
 }
 
 void ConfigTabDC1394::cameraRightSelected (int index)
 {
+    // Remove config widget for old device
+    if (configRightDevice) {
+        frameRightDevice->layout()->removeWidget(configRightDevice);
+    }
+    
+    // Set new device
     QVariant c = comboBoxRightDevice->itemData(index);
     source->setRightCamera(c.isValid() ? c.toInt() : -1);
+
+    // Get new device's config widget
+    CameraDC1394 *camera = source->getRightCamera();
+    if (camera) {
+        configRightDevice = camera->getConfigWidget();
+        frameRightDevice->layout()->addWidget(configRightDevice);
+    }
 }
 

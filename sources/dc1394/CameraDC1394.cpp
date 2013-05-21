@@ -12,11 +12,19 @@ CameraDC1394::CameraDC1394 (dc1394camera_t *c, QObject *parent)
 
     // Print info
     dc1394_camera_print_info(camera, stdout);
+
+    // Config widget
+    configWidget = new ConfigCameraDC1394(this);
 }
 
 CameraDC1394::~CameraDC1394 ()
 {
     stopCamera();
+}
+
+QWidget *CameraDC1394::getConfigWidget ()
+{
+    return configWidget;
 }
 
 
@@ -289,4 +297,52 @@ void CameraDC1394::grabFrame (cv::Mat &image)
 }
 
 
+// *********************************************************************
+// *                           Config widget                           *
+// *********************************************************************
+ConfigCameraDC1394::ConfigCameraDC1394 (CameraDC1394 *c, QWidget *parent)
+    : QWidget(parent), camera(c)
+{
+    QFormLayout *layout = new QFormLayout(this);
+    layout->setContentsMargins(0, 0, 0, 0);
 
+    QLabel *label;
+    QComboBox *comboBox;
+    QFrame *line;
+
+    QString tooltip;
+
+    connect(camera, SIGNAL(parameterChanged()), this, SLOT(updateParameters()));
+
+    // Separator
+    line = new QFrame(this);
+    line->setFrameStyle(QFrame::HLine | QFrame::Sunken);
+
+    layout->addRow(line);
+
+    // Vendor
+    tooltip = "Camera vendor.";
+    
+    label = new QLabel("<b>Vendor: </b>" + camera->getVendor(), this);
+    label->setToolTip(tooltip);
+
+    layout->addRow(label);
+
+    // Model
+    tooltip = "Camera model.";
+    
+    label = new QLabel("<b>Model: </b>" + camera->getModel(), this);
+    label->setToolTip(tooltip);
+
+    layout->addRow(label);
+
+    // Separator
+    line = new QFrame(this);
+    line->setFrameStyle(QFrame::HLine | QFrame::Sunken);
+
+    layout->addRow(line);
+}
+
+ConfigCameraDC1394::~ConfigCameraDC1394 ()
+{
+}

@@ -23,6 +23,9 @@ public:
     void setLeftCamera (int);
     void setRightCamera (int);
 
+    CameraDC1394 *getLeftCamera ();
+    CameraDC1394 *getRightCamera ();
+
 public slots:
     void scanBus ();
     void startStopCapture (bool);
@@ -36,6 +39,9 @@ protected slots:
 
 signals:
     void captureFunctionFinished ();
+
+    void leftCameraChanged ();
+    void rightCameraChanged ();
 
 protected:
     dc1394_t *fw;
@@ -65,11 +71,23 @@ protected slots:
     void cameraRightSelected (int);
 
 protected:
+    void createLeftCameraFrame ();
+    void createRightCameraFrame ();
+    
+protected:
     ImageSourceDC1394 *source;
 
     // GUI
     QComboBox *comboBoxLeftDevice;
     QComboBox *comboBoxRightDevice;
+
+    QHBoxLayout *boxCameras;
+    
+    QFrame *frameLeftDevice;
+    QFrame *frameRightDevice;
+
+    QWidget *configLeftDevice;
+    QWidget *configRightDevice;
 };
 
 #endif
