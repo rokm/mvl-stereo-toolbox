@@ -25,10 +25,17 @@ public:
 
 public slots:
     void scanBus ();
+    void startStopCapture (bool);
 
 protected:
     void createCamera (CameraDC1394 *&, int);
     void releaseCamera (CameraDC1394 *&);
+
+protected slots:
+    void captureFunction ();
+
+signals:
+    void captureFunctionFinished ();
 
 protected:
     dc1394_t *fw;
@@ -37,6 +44,9 @@ protected:
 
     CameraDC1394 *leftCamera;
     CameraDC1394 *rightCamera;
+
+    QThread *captureThread;
+    bool captureActive;
 };
 
 // Config widget

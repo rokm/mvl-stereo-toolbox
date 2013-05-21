@@ -6,11 +6,18 @@
 CameraDC1394::CameraDC1394 (dc1394camera_t *c, QObject *parent)
     : QObject(parent), camera(c)
 {
-    
+    //setIsoSpeed();
+    setMode(DC1394_VIDEO_MODE_1024x768_MONO8);
+    setFramerate(DC1394_FRAMERATE_7_5);
+
+    // Print info
+    dc1394_camera_print_info(camera, stdout);
 }
 
 CameraDC1394::~CameraDC1394 ()
 {
+    qDebug() << "Destroying" << this;
+    stopCamera();
 }
 
 
@@ -130,15 +137,27 @@ void CameraDC1394::startCamera ()
 
 void CameraDC1394::stopCamera ()
 {
-    dc1394_video_set_transmission(camera, DC1394_OFF);
-    dc1394_capture_stop(camera);
+    dc1394error_t ret;
+    
+    ret = dc1394_video_set_transmission(camera, DC1394_OFF);
+    if (ret) {
+        qWarning() << "Could not stop camera ISO transmission!";
+        return;
+    }
+    
+    ret = dc1394_capture_stop(camera);
+    if (ret) {
+        qWarning() << "Could not stop camera capture!";
+        return;
+    }
 }
 
 
-void CameraDC1394::grabFrame (cv::Mat &image)
+
+void CameraDC1394::dequeueCaptureBuffer (dc1394video_frame_t *&frame, bool drainQueue)
 {
     dc1394error_t ret;
-
+    
     // Dequeue
     ret = dc1394_capture_dequeue(camera, DC1394_CAPTURE_POLICY_WAIT, &frame);
     if (ret) {
@@ -146,14 +165,49 @@ void CameraDC1394::grabFrame (cv::Mat &image)
         return;
     }
 
-    // Copy to OpenCV image
-    
+    if (drainQueue) {
+        // Drain until we're no frames behind
+        while (frame->frames_behind) {
+            qDebug() << "Draining capture queue due to being" << frame->frames_behind << "frames!";
+            ret = dc1394_capture_dequeue(camera, DC1394_CAPTURE_POLICY_WAIT, &frame);
+            if (ret) {
+                qWarning() << "Could not dequeue frame!";
+                return;
+            }
+        }
+    }
+}
+
+void CameraDC1394::enqueueCaptureBuffer (dc1394video_frame_t *frame)
+{
+    dc1394error_t ret;
+
     // Enqueue
     ret = dc1394_capture_enqueue (camera, frame);
     if (ret) {
         qWarning() << "Could not enque buffer!";
         return;
     }
+}
+
+void CameraDC1394::convertToOpenCVImage (dc1394video_frame_t *frame, cv::Mat &image) const
+{
+    cv::Mat tmpImg(frame->size[1], frame->size[0], CV_8UC1, frame->image);
+    tmpImg.copyTo(image);
+}
+
+
+// Convenience function for grabbing from single camera
+void CameraDC1394::grabFrame (cv::Mat &image)
+{
+    dc1394video_frame_t *frame;
+
+    // Dequeue
+    dequeueCaptureBuffer(frame);
+    // Convert
+    convertToOpenCVImage(frame, image);
+    // Enqueue
+    enqueueCaptureBuffer(frame);
 }
 
 

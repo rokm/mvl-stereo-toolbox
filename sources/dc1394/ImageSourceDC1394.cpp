@@ -11,7 +11,13 @@ ImageSourceDC1394::ImageSourceDC1394 (QObject *parent)
     leftCamera = NULL;
     rightCamera = NULL;
 
+    // Camera list
     cameraListModel = new CameraListModel(this);
+
+    // Processing thread
+    captureThread = new QThread(this);
+    connect(captureThread, SIGNAL(started()), this, SLOT(captureFunction()), Qt::DirectConnection);
+    connect(this, SIGNAL(captureFunctionFinished()), captureThread, SLOT(quit()));
 
     scanBus();
 
@@ -36,6 +42,10 @@ CameraListModel *ImageSourceDC1394::getCameraListModel ()
 void ImageSourceDC1394::scanBus ()
 {
     dc1394error_t ret;
+
+    // Release old cameras
+    releaseCamera(leftCamera);
+    releaseCamera(rightCamera);
 
     qDebug() << "Scanning bus for DC1394 devices...";
     
@@ -134,6 +144,66 @@ void ImageSourceDC1394::releaseCamera (CameraDC1394 *& camera)
 }
 
 
+void ImageSourceDC1394::startStopCapture (bool start)
+{
+    if (start) {
+        // Start the capture threa
+        qDebug() << "Starting capture thread:" << QThread::currentThread();
+        captureThread->start();
+    } else {
+        captureActive = false;
+        // Do nothing else, the thread should finish itself
+    }
+}
+
+void ImageSourceDC1394::captureFunction ()
+{
+    qDebug() << this << "Starting capture function in thread:" << QThread::currentThread();
+
+    // Start cameras
+    if (leftCamera) leftCamera->startCamera();
+    if (rightCamera) rightCamera->startCamera();
+
+    // Frame pointers
+    dc1394video_frame_t *frameLeft, *frameRight;
+
+    // Capture loop
+    QTime time; time.start();
+    captureActive = true;
+    while (captureActive) {
+        // Dequeue frames - from both cameras, almost at once. Also, we
+        // make sure to drain the queue, as we want the latest frames
+        if (leftCamera) leftCamera->dequeueCaptureBuffer(frameLeft, true);
+        if (rightCamera) rightCamera->dequeueCaptureBuffer(frameRight, true);
+
+        // Convert to OpenCV... we copy directly into ImageSource's
+        // images, therefore we need to do it under write lock
+        QWriteLocker locker(&imagesLock);
+        if (leftCamera) leftCamera->convertToOpenCVImage(frameLeft, imageLeft);
+        if (rightCamera) rightCamera->convertToOpenCVImage(frameRight, imageRight);
+        locker.unlock();
+
+        // Signal that we have new images
+        emit imagesChanged();
+
+        // Equeue
+        if (leftCamera) leftCamera->enqueueCaptureBuffer(frameLeft);
+        if (rightCamera) rightCamera->enqueueCaptureBuffer(frameRight);
+    }
+
+    // Stop cameras
+    if (leftCamera) {
+        leftCamera->stopCamera();
+    }
+    if (rightCamera) {
+        rightCamera->stopCamera();
+    }
+
+    qDebug() << this << "Finished capture function";
+    emit captureFunctionFinished();
+}
+
+
 // *********************************************************************
 // *                           Config widget                           *
 // *********************************************************************
@@ -169,6 +239,24 @@ ConfigTabDC1394::ConfigTabDC1394 (ImageSourceDC1394 *s, QWidget *parent)
     button = new QPushButton("Rescan");
     button->setToolTip(tooltip);
     connect(button, SIGNAL(released()), source, SLOT(scanBus()));
+    layout->addWidget(button, row, 0, 1, 2);
+
+    row++;
+
+    // Separator
+    line = new QFrame(this);
+    line->setFrameStyle(QFrame::HLine | QFrame::Sunken);
+    layout->addWidget(line, row, 0, 1, 2);
+
+    row++;
+
+    // Capture
+    tooltip = "Start/stop capture.";
+    
+    button = new QPushButton("Capture");
+    button->setToolTip(tooltip);
+    button->setCheckable(true);
+    connect(button, SIGNAL(toggled(bool)), source, SLOT(startStopCapture(bool)));
     layout->addWidget(button, row, 0, 1, 2);
 
     row++;
@@ -244,3 +332,4 @@ void ConfigTabDC1394::cameraRightSelected (int index)
     QVariant c = comboBoxRightDevice->itemData(index);
     source->setRightCamera(c.isValid() ? c.toInt() : -1);
 }
+

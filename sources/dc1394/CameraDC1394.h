@@ -26,19 +26,24 @@ public:
     
     void setFramerate (dc1394framerate_t);
     dc1394framerate_t getFramerate () const;
-    
+
+    // Camera start/stop
     void startCamera ();
     void stopCamera ();
 
+    // Advanced grabbing interface
+    void dequeueCaptureBuffer (dc1394video_frame_t *&, bool = false);
+    void enqueueCaptureBuffer (dc1394video_frame_t *);
+    void convertToOpenCVImage (dc1394video_frame_t *, cv::Mat &) const;
+
+    // Simplified grabbing interface
     void grabFrame (cv::Mat &);
-    
+
 protected:
     dc1394camera_id_t id;
     
     dc1394camera_t *camera;
     dc1394featureset_t features;
-
-    dc1394video_frame_t *frame;
 };
 
 #endif
