@@ -8,6 +8,8 @@ ImageSourceDC1394::ImageSourceDC1394 (QObject *parent)
     : ImageSource(parent)
 {
     fw = NULL;
+    leftCamera = NULL;
+    rightCamera = NULL;
 
     cameraListModel = new CameraListModel(this);
 
@@ -60,12 +62,75 @@ void ImageSourceDC1394::scanBus ()
 }
 
 
+static inline bool same_camera_id (const dc1394camera_id_t &id1, const dc1394camera_id_t &id2)
+{
+    return (id1.guid == id2.guid) && (id1.unit == id2.unit);
+}
+
+
+
 void ImageSourceDC1394::setLeftCamera (int c)
 {
+    // Create camera
+    createCamera(leftCamera, c);
 }
 
 void ImageSourceDC1394::setRightCamera (int c)
 {
+    // Create camera
+    createCamera(rightCamera, c);
+}
+
+void ImageSourceDC1394::createCamera (CameraDC1394 *& camera, int c)
+{
+    // If c is -1, release camera
+    if (c == -1) {
+        releaseCamera(camera);
+        return;
+    }
+
+    // Get camera id from our list
+    const dc1394camera_id_t &newId = cameraListModel->getDeviceId(c);
+
+    // Check if it is the same as the current right camera
+    if (rightCamera && rightCamera->isSameCamera(newId)) {
+        qDebug() << "Same as current right!";
+        return;
+    }
+
+    // Check if it is the same as the current left camera
+    if (leftCamera && leftCamera->isSameCamera(newId)) {
+        qDebug() << "Same as current left!";
+        return;
+    }
+
+    // Release current camera
+    releaseCamera(camera);
+
+    // Create new camera
+    dc1394camera_t *raw_camera = dc1394_camera_new_unit(fw, newId.guid, newId.unit);
+    if (!raw_camera) {
+        qWarning() << "Failed to create camera object!";
+        return;
+    }
+    camera = new CameraDC1394(raw_camera, this);
+
+    // Mark camera as active in our list
+    cameraListModel->setActive(c, true);
+}
+
+void ImageSourceDC1394::releaseCamera (CameraDC1394 *& camera)
+{
+    if (camera) {
+        dc1394camera_id_t id = camera->getId();
+
+        // Delete camera object 
+        delete camera;
+        camera = NULL;
+
+        // Mark camera as inactive in our list
+        cameraListModel->setActive(id, false);
+    }
 }
 
 
@@ -132,8 +197,9 @@ ConfigTabDC1394::ConfigTabDC1394 (ImageSourceDC1394 *s, QWidget *parent)
     comboBox = new QComboBox(this);
     comboBox->setModel(source->getCameraListModel());
     comboBox->setToolTip(tooltip);
-    connect(comboBox, SIGNAL(currentChanged(int)), this, SLOT(cameraLeftSelected(int)));
+    connect(comboBox, SIGNAL(activated(int)), this, SLOT(cameraLeftSelected(int)));
     frame->layout()->addWidget(comboBox);
+    comboBoxLeftDevice = comboBox;
 
     // Frame - Camera 2
     frame = new QFrame(this);
@@ -151,8 +217,9 @@ ConfigTabDC1394::ConfigTabDC1394 (ImageSourceDC1394 *s, QWidget *parent)
     
     comboBox = new QComboBox(this);
     comboBox->setModel(source->getCameraListModel());
-    connect(comboBox, SIGNAL(currentChanged(int)), this, SLOT(cameraRightSelected(int)));
+    connect(comboBox, SIGNAL(activated(int)), this, SLOT(cameraRightSelected(int)));
     frame->layout()->addWidget(comboBox);
+    comboBoxRightDevice = comboBox;
 
     row++;
 

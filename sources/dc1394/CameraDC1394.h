@@ -15,6 +15,9 @@ public:
     CameraDC1394 (dc1394camera_t *, QObject * = 0);
     virtual ~CameraDC1394 ();
 
+    dc1394camera_id_t getId () const;
+    bool isSameCamera (const dc1394camera_id_t &) const;
+    
     void setIsoSpeed (dc1394speed_t);
     dc1394speed_t getIsoSpeed () const;
     
@@ -30,6 +33,8 @@ public:
     void grabFrame (cv::Mat &);
     
 protected:
+    dc1394camera_id_t id;
+    
     dc1394camera_t *camera;
     dc1394featureset_t features;
 

@@ -6,7 +6,9 @@
 #include <dc1394/dc1394.h>
 
 
+class CameraDC1394;
 class CameraListModel;
+
 
 class ImageSourceDC1394 : public ImageSource
 {
@@ -25,9 +27,16 @@ public slots:
     void scanBus ();
 
 protected:
+    void createCamera (CameraDC1394 *&, int);
+    void releaseCamera (CameraDC1394 *&);
+
+protected:
     dc1394_t *fw;
     
     CameraListModel *cameraListModel;
+
+    CameraDC1394 *leftCamera;
+    CameraDC1394 *rightCamera;
 };
 
 // Config widget

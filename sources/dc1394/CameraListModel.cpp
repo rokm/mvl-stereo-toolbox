@@ -23,6 +23,35 @@ void CameraListModel::setDeviceList (const dc1394camera_list_t *list)
     endResetModel();
 }
 
+
+const dc1394camera_id_t &CameraListModel::getDeviceId (int c) const
+{
+    return entries[c];
+}
+
+
+void CameraListModel::setActive (int c, bool value)
+{
+    active[c] = value;
+
+    // Emit data changed
+    dataChanged(index(c+1, 0), index(c+1, 0));
+}
+
+void CameraListModel::setActive (const dc1394camera_id_t &id, bool value)
+{
+    for (int i = 0; i < entries.size(); i++) {
+        const dc1394camera_id_t &storedId = entries[i];
+        if (storedId.guid == id.guid && storedId.unit == id.unit) {
+            setActive(i, value);
+        }
+    }
+}
+
+
+// *********************************************************************
+// *                               Model                               *
+// *********************************************************************
 int CameraListModel::rowCount (const QModelIndex &) const
 {
     return entries.size() + 1;

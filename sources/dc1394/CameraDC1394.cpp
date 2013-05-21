@@ -14,6 +14,20 @@ CameraDC1394::~CameraDC1394 ()
 }
 
 
+dc1394camera_id_t CameraDC1394::getId () const
+{
+    dc1394camera_id_t id;
+    id.guid = camera->guid;
+    id.unit = camera->unit;
+    return id;
+}
+
+bool CameraDC1394::isSameCamera (const dc1394camera_id_t &id) const
+{
+    return (id.guid == camera->guid) && (id.unit == camera->unit);
+}
+
+
 void CameraDC1394::setIsoSpeed (dc1394speed_t speed)
 {
     dc1394error_t ret;

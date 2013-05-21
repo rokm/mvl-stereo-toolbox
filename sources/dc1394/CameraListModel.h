@@ -16,8 +16,9 @@ public:
     void setDeviceList (const dc1394camera_list_t *);
     
     void setActive (int, bool);
+    void setActive (const dc1394camera_id_t &, bool);
 
-    const dc1394camera_id_t &getDeviceInfo (int) const;
+    const dc1394camera_id_t &getDeviceId (int) const;
 
     // Model
     virtual int rowCount (const QModelIndex &) const;
