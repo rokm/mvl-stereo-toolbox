@@ -160,6 +160,13 @@ void ImageSourceDC1394::captureFunction ()
 {
     qDebug() << this << "Starting capture function in thread:" << QThread::currentThread();
 
+    // Make sure at least one camera is valid
+    if(!leftCamera && !rightCamera) {
+        qWarning() << this << "At least one camera must be valid!";
+        emit captureFunctionFinished();
+        return;
+    }
+
     // Start cameras
     if (leftCamera) leftCamera->startCamera();
     if (rightCamera) rightCamera->startCamera();
