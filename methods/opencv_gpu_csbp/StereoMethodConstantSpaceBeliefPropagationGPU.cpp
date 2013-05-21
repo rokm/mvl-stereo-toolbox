@@ -253,8 +253,7 @@ void StereoMethodConstantSpaceBeliefPropagationGPU::setUseLocalCost (bool newVal
 ConfigTabConstantSpaceBeliefPropagationGPU::ConfigTabConstantSpaceBeliefPropagationGPU (StereoMethodConstantSpaceBeliefPropagationGPU *m, QWidget *parent)
     : QWidget(parent), method(m)
 {
-    QGridLayout *layout = new QGridLayout(this);
-    int row = 0;
+    QFormLayout *layout = new QFormLayout(this);
 
     QLabel *label;
     QComboBox *comboBox;
@@ -270,23 +269,20 @@ ConfigTabConstantSpaceBeliefPropagationGPU::ConfigTabConstantSpaceBeliefPropagat
     // Name
     label = new QLabel("<b><u>OpenCV GPU belief propagation</u></b>", this);
     label->setAlignment(Qt::AlignHCenter);
-    layout->addWidget(label, row, 0, 1, 2);
 
-    row++;
+    layout->addRow(label);
 
     // Separator
     line = new QFrame(this);
     line->setFrameStyle(QFrame::HLine | QFrame::Sunken);
-    layout->addWidget(line, row, 0, 1, 2);
 
-    row++;
+    layout->addRow(line);
 
     // Preset
     tooltip = "Presets for quick initialization.";
     
     label = new QLabel("Preset", this);
     label->setToolTip(tooltip);
-    layout->addWidget(label, row, 0);
 
     comboBox = new QComboBox(this);
     comboBox->addItem("OpenCV - init", StereoMethodConstantSpaceBeliefPropagationGPU::OpenCVInit);
@@ -294,175 +290,153 @@ ConfigTabConstantSpaceBeliefPropagationGPU::ConfigTabConstantSpaceBeliefPropagat
     comboBox->addItem("OpenCV - recommended", StereoMethodConstantSpaceBeliefPropagationGPU::OpenCVRecommended);
     comboBox->setItemData(1, "Recommended parameters estimated from image dimensions.", Qt::ToolTipRole);
     connect(comboBox, SIGNAL(activated(int)), this, SLOT(presetChanged(int)));
-    layout->addWidget(comboBox, row, 1);
     comboBoxPreset = comboBox;
 
-    row++;
+    layout->addRow(label, comboBox);
 
     // Separator
     line = new QFrame(this);
     line->setFrameStyle(QFrame::HLine | QFrame::Sunken);
-    layout->addWidget(line, row, 0, 1, 2);
 
-    row++;
+    layout->addRow(line);
 
     // Number of disparities
     tooltip = "Number of disparities.";
 
     label = new QLabel("Num. disparities", this);
     label->setToolTip(tooltip);
-    layout->addWidget(label, row, 0);
 
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
     spinBox->setRange(0, INT_MAX);
     connect(spinBox, SIGNAL(valueChanged(int)), method, SLOT(setNumDisparities(int)));
-    layout->addWidget(spinBox, row, 1);
     spinBoxNumDisparities = spinBox;
 
-    row++;
+    layout->addRow(label, spinBox);
 
     // Number of iterations
     tooltip = "Number of BP iterations on each level.";
 
     label = new QLabel("Iterations", this);
     label->setToolTip(tooltip);
-    layout->addWidget(label, row, 0);
 
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
     spinBox->setRange(1, INT_MAX);
     connect(spinBox, SIGNAL(valueChanged(int)), method, SLOT(setIterations(int)));
-    layout->addWidget(spinBox, row, 1);
     spinBoxIterations = spinBox;
 
-    row++;
+    layout->addRow(label, spinBox);
 
     // Number of levels
     tooltip = "Number of levels.";
 
     label = new QLabel("Levels", this);
     label->setToolTip(tooltip);
-    layout->addWidget(label, row, 0);
 
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
     spinBox->setRange(1, INT_MAX);
     connect(spinBox, SIGNAL(valueChanged(int)), method, SLOT(setLevels(int)));
-    layout->addWidget(spinBox, row, 1);
     spinBoxLevels = spinBox;
 
-    row++;
+    layout->addRow(label, spinBox);
 
     // Number of disparity levels on first level
     tooltip = "Number of disparity levels on the first level.";
 
     label = new QLabel("Num. plane", this);
     label->setToolTip(tooltip);
-    layout->addWidget(label, row, 0);
 
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
     spinBox->setRange(1, INT_MAX);
     connect(spinBox, SIGNAL(valueChanged(int)), method, SLOT(setNrPlane(int)));
-    layout->addWidget(spinBox, row, 1);
     spinBoxNrPlane = spinBox;
 
-    row++;
+    layout->addRow(label, spinBox);
 
     // Separator
     line = new QFrame(this);
     line->setFrameStyle(QFrame::HLine | QFrame::Sunken);
-    layout->addWidget(line, row, 0, 1, 2);
 
-    row++;
+    layout->addRow(line);
 
     // Max data term
     tooltip = "Threshold for data cost truncation.";
 
     label = new QLabel("Max. data term", this);
     label->setToolTip(tooltip);
-    layout->addWidget(label, row, 0);
 
     spinBoxD = new QDoubleSpinBox(this);
     spinBoxD->setKeyboardTracking(false);
     spinBoxD->setRange(0.0, DBL_MAX);
     connect(spinBoxD, SIGNAL(valueChanged(double)), method, SLOT(setMaxDataTerm(double)));
-    layout->addWidget(spinBoxD, row, 1);
     spinBoxMaxDataTerm = spinBoxD;
 
-    row++;
+    layout->addRow(label, spinBoxD);
 
     // Data weight
     tooltip = "Data weight.";
 
     label = new QLabel("Data weight", this);
     label->setToolTip(tooltip);
-    layout->addWidget(label, row, 0);
 
     spinBoxD = new QDoubleSpinBox(this);
     spinBoxD->setKeyboardTracking(false);
     spinBoxD->setRange(0.0, DBL_MAX);
     connect(spinBoxD, SIGNAL(valueChanged(double)), method, SLOT(setDataWeight(double)));
-    layout->addWidget(spinBoxD, row, 1);
     spinBoxDataWeight = spinBoxD;
 
-    row++;
+    layout->addRow(label, spinBoxD);
 
     // Max discontinuity term
     tooltip = "Threshold for discontinuity truncation.";
 
     label = new QLabel("Max. disc. term", this);
     label->setToolTip(tooltip);
-    layout->addWidget(label, row, 0);
 
     spinBoxD = new QDoubleSpinBox(this);
     spinBoxD->setKeyboardTracking(false);
     spinBoxD->setRange(0.0, DBL_MAX);
     connect(spinBoxD, SIGNAL(valueChanged(double)), method, SLOT(setMaxDiscTerm(double)));
-    layout->addWidget(spinBoxD, row, 1);
     spinBoxMaxDiscTerm = spinBoxD;
 
-    row++;
+    layout->addRow(label, spinBoxD);
 
     // Discontinuity single jump
     tooltip = "Discontinuity single jump.";
 
     label = new QLabel("Disc. single jump", this);
     label->setToolTip(tooltip);
-    layout->addWidget(label, row, 0);
 
     spinBoxD = new QDoubleSpinBox(this);
     spinBoxD->setKeyboardTracking(false);
     spinBoxD->setRange(0.0, DBL_MAX);
     connect(spinBoxD, SIGNAL(valueChanged(double)), method, SLOT(setDiscSingleJump(double)));
-    layout->addWidget(spinBoxD, row, 1);
     spinBoxDiscSingleJump = spinBoxD;
 
-    row++;
+    layout->addRow(label, spinBoxD);
 
     // Minimal disparity threshold
     tooltip = " Minimal disparity threshold.";
 
     label = new QLabel("Min. disp. thr.", this);
     label->setToolTip(tooltip);
-    layout->addWidget(label, row, 0);
 
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
     spinBox->setRange(1, INT_MAX);
     connect(spinBox, SIGNAL(valueChanged(int)), method, SLOT(setMinDispThreshold(int)));
-    layout->addWidget(spinBox, row, 1);
     spinBoxMinDispThreshold = spinBox;
 
-    row++;
+    layout->addRow(label, spinBox);
 
     // Separator
     line = new QFrame(this);
     line->setFrameStyle(QFrame::HLine | QFrame::Sunken);
-    layout->addWidget(line, row, 0, 1, 2);
 
-    row++;
+    layout->addRow(line);
 
     // Full DP
     tooltip = "Use local minimum data cost initialization algorithm instead of a global one.";
@@ -470,14 +444,9 @@ ConfigTabConstantSpaceBeliefPropagationGPU::ConfigTabConstantSpaceBeliefPropagat
     checkBox = new QCheckBox("Local cost", this);
     checkBox->setToolTip(tooltip);
     connect(checkBox, SIGNAL(stateChanged(int)), this, SLOT(localCostChanged(int)));
-    layout->addWidget(checkBox, row, 0, 1, 2);
     checkBoxUseLocalCost = checkBox;
 
-    row++;
-
-    // Spacer for padding
-    QSpacerItem *spacer = new QSpacerItem(1, 1, QSizePolicy::Expanding, QSizePolicy::Expanding);
-    layout->addItem(spacer, row, 0, 1, 2);
+    layout->addRow(checkBox);
 
     // Update parameters
     updateParameters();

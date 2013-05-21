@@ -290,8 +290,7 @@ void StereoMethodVar::setFlags (int newValue)
 ConfigTabVar::ConfigTabVar (StereoMethodVar *m, QWidget *parent)
     : QWidget(parent), method(m)
 {
-    QGridLayout *layout = new QGridLayout(this);
-    int row = 0;
+    QFormLayout *layout = new QFormLayout(this);
 
     QLabel *label;
     QComboBox *comboBox;
@@ -306,23 +305,20 @@ ConfigTabVar::ConfigTabVar (StereoMethodVar *m, QWidget *parent)
     // Name
     label = new QLabel("<b><u>OpenCV variational matching</u></b>", this);
     label->setAlignment(Qt::AlignHCenter);
-    layout->addWidget(label, row, 0, 1, 2);
 
-    row++;
+    layout->addRow(label);
 
     // Separator
     line = new QFrame(this);
     line->setFrameStyle(QFrame::HLine | QFrame::Sunken);
-    layout->addWidget(line, row, 0, 1, 2);
 
-    row++;
+    layout->addRow(line);
 
     // Preset
     tooltip = "Presets for quick initialization.";
     
     label = new QLabel("Preset", this);
     label->setToolTip(tooltip);
-    layout->addWidget(label, row, 0);
 
     comboBox = new QComboBox(this);
     comboBox->addItem("OpenCV", StereoMethodVar::OpenCV);
@@ -330,17 +326,15 @@ ConfigTabVar::ConfigTabVar (StereoMethodVar *m, QWidget *parent)
     comboBox->addItem("StereoMatch", StereoMethodVar::StereoMatch);
     comboBox->setItemData(1, "Settings from \"Stereo Match\" example.", Qt::ToolTipRole);
     connect(comboBox, SIGNAL(activated(int)), this, SLOT(presetChanged(int)));
-    layout->addWidget(comboBox, row, 1);
     comboBoxPreset = comboBox;
 
-    row++;
+    layout->addRow(label, comboBox);
 
     // Separator
     line = new QFrame(this);
     line->setFrameStyle(QFrame::HLine | QFrame::Sunken);
-    layout->addWidget(line, row, 0, 1, 2);
 
-    row++;
+    layout->addRow(line);
 
     // Levels
     tooltip = "The number of pyramid layers, including the initial image. levels=1 means that no extra layers are \n"
@@ -348,16 +342,14 @@ ConfigTabVar::ConfigTabVar (StereoMethodVar *m, QWidget *parent)
     
     label = new QLabel("Levels", this);
     label->setToolTip(tooltip);
-    layout->addWidget(label, row, 0);
 
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
     spinBox->setRange(1, INT_MAX);
     connect(spinBox, SIGNAL(valueChanged(int)), method, SLOT(setLevels(int)));
-    layout->addWidget(spinBox, row, 1);
     spinBoxLevels = spinBox;
 
-    row++;
+    layout->addRow(label, spinBox);
 
     // Pyramid scale
     tooltip = "Specifies the image scale (<1) to build the pyramids for each image. pyrScale=0.5 means the classical \n"
@@ -366,17 +358,15 @@ ConfigTabVar::ConfigTabVar (StereoMethodVar *m, QWidget *parent)
     
     label = new QLabel("Pyramid scale", this);
     label->setToolTip(tooltip);
-    layout->addWidget(label, row, 0);
 
     spinBoxD = new QDoubleSpinBox(this);
     spinBoxD->setKeyboardTracking(false);
     spinBoxD->setRange(0.0, 1.0);
     spinBoxD->setSingleStep(0.1);
     connect(spinBoxD, SIGNAL(valueChanged(double)), method, SLOT(setPyrScale(double)));
-    layout->addWidget(spinBoxD, row, 1);
     spinBoxPyrScale = spinBoxD;
 
-    row++;
+    layout->addRow(label, spinBoxD);
 
     // Number of iterations
     tooltip = "The number of iterations the algorithm does at each pyramid level. (If the flag USE_SMART_ID is set, the \n"
@@ -385,48 +375,42 @@ ConfigTabVar::ConfigTabVar (StereoMethodVar *m, QWidget *parent)
     
     label = new QLabel("Number of iterations", this);
     label->setToolTip(tooltip);
-    layout->addWidget(label, row, 0);
 
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
     spinBox->setRange(0, INT_MAX);
     connect(spinBox, SIGNAL(valueChanged(int)), method, SLOT(setNumIterations(int)));
-    layout->addWidget(spinBox, row, 1);
     spinBoxNumIterations = spinBox;
 
-    row++;
+    layout->addRow(label, spinBox);
 
     // Min disparity
     tooltip = "Minimum possible disparity value. Could be negative in case the left and right input images change places.";
     
     label = new QLabel("Min disparity", this);
     label->setToolTip(tooltip);
-    layout->addWidget(label, row, 0);
 
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
     spinBox->setRange(INT_MIN, INT_MAX);
     connect(spinBox, SIGNAL(valueChanged(int)), method, SLOT(setMinDisparity(int)));
-    layout->addWidget(spinBox, row, 1);
     spinBoxMinDisparity = spinBox;
 
-    row++;
+    layout->addRow(label, spinBox);
 
     // Max disparity
     tooltip = "Maximum possible disparity value.";
     
     label = new QLabel("Max disparity", this);
     label->setToolTip(tooltip);
-    layout->addWidget(label, row, 0);
 
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
     spinBox->setRange(INT_MIN, INT_MAX);
     connect(spinBox, SIGNAL(valueChanged(int)), method, SLOT(setMaxDisparity(int)));
-    layout->addWidget(spinBox, row, 1);
     spinBoxMaxDisparity = spinBox;
 
-    row++;
+    layout->addRow(label, spinBox);
 
     // PolyN
     tooltip = "Size of the pixel neighbourhood used to find polynomial expansion in each pixel. The larger values mean that \n"
@@ -435,16 +419,14 @@ ConfigTabVar::ConfigTabVar (StereoMethodVar *m, QWidget *parent)
     
     label = new QLabel("PolyN", this);
     label->setToolTip(tooltip);
-    layout->addWidget(label, row, 0);
 
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
     spinBox->setRange(0, 10);
     connect(spinBox, SIGNAL(valueChanged(int)), method, SLOT(setPolyN(int)));
-    layout->addWidget(spinBox, row, 1);
     spinBoxPolyN = spinBox;
 
-    row++;
+    layout->addRow(label, spinBox);
 
     // PolySigma
     tooltip = "Standard deviation of the Gaussian that is used to smooth derivatives that are used as a basis for the polynomial \n"
@@ -452,32 +434,28 @@ ConfigTabVar::ConfigTabVar (StereoMethodVar *m, QWidget *parent)
               
     label = new QLabel("PolySigma", this);
     label->setToolTip(tooltip);
-    layout->addWidget(label, row, 0);
 
     spinBoxD = new QDoubleSpinBox(this);
     spinBoxD->setKeyboardTracking(false);
     spinBoxD->setRange(0.0, 10.0);
     connect(spinBoxD, SIGNAL(valueChanged(double)), method, SLOT(setPolySigma(double)));
-    layout->addWidget(spinBoxD, row, 1);
     spinBoxPolySigma = spinBoxD;
 
-    row++;
+    layout->addRow(label, spinBoxD);
 
     // Fi
     tooltip = "The smoothness parameter, or the weight coefficient for the smoothness term.";
     
     label = new QLabel("Fi", this);
     label->setToolTip(tooltip);
-    layout->addWidget(label, row, 0);
 
     spinBoxD = new QDoubleSpinBox(this);
     spinBoxD->setKeyboardTracking(false);
     spinBoxD->setRange(0.0, DBL_MAX);
     connect(spinBoxD, SIGNAL(valueChanged(double)), method, SLOT(setFi(double)));
-    layout->addWidget(spinBoxD, row, 1);
     spinBoxFi = spinBoxD;
 
-    row++;
+    layout->addRow(label, spinBoxD);
 
     // Lambda
     tooltip = "The threshold parameter for edge-preserving smoothness (ignored if PENALIZATION_CHARBONNIER or \n"
@@ -485,24 +463,21 @@ ConfigTabVar::ConfigTabVar (StereoMethodVar *m, QWidget *parent)
     
     label = new QLabel("Lambda", this);
     label->setToolTip(tooltip);
-    layout->addWidget(label, row, 0);
 
     spinBoxD = new QDoubleSpinBox(this);
     spinBoxD->setKeyboardTracking(false);
     spinBoxD->setRange(0.0, DBL_MAX);
     spinBoxD->setSingleStep(0.01);
     connect(spinBoxD, SIGNAL(valueChanged(double)), method, SLOT(setLambda(double)));
-    layout->addWidget(spinBoxD, row, 1);
     spinBoxLambda = spinBoxD;
 
-    row++;
+    layout->addRow(label, spinBoxD);
 
     // Penalization
     tooltip = "Penalization option (ignored if flag USE_AUTO_PARAMS is set).";
     
     label = new QLabel("Penalization", this);
     label->setToolTip(tooltip);
-    layout->addWidget(label, row, 0);
 
     comboBox = new QComboBox(this);
     comboBox->addItem("TICHONOV", cv::StereoVar::PENALIZATION_TICHONOV);
@@ -512,17 +487,15 @@ ConfigTabVar::ConfigTabVar (StereoMethodVar *m, QWidget *parent)
     comboBox->addItem("PERONA_MALIK", cv::StereoVar::PENALIZATION_PERONA_MALIK);
     comboBox->setItemData(2, "Non-linear edge-enhancing smoothness.", Qt::ToolTipRole);
     connect(comboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(penalizationChanged(int)));
-    layout->addWidget(comboBox, row, 1);
     comboBoxPenalization = comboBox;
 
-    row++;
+    layout->addRow(label, comboBox);
 
     // Cycle
     tooltip = "Type of the multigrid cycle (ignored if flag USE_AUTO_PARAMS is set).";
     
     label = new QLabel("Cycle", this);
     label->setToolTip(tooltip);
-    layout->addWidget(label, row, 0);
 
     comboBox = new QComboBox(this);
     comboBox->addItem("Null-cycle", cv::StereoVar::CYCLE_O);
@@ -530,10 +503,9 @@ ConfigTabVar::ConfigTabVar (StereoMethodVar *m, QWidget *parent)
     comboBox->addItem("V-cycle", cv::StereoVar::CYCLE_V);
     comboBox->setItemData(1, "V-cycles.", Qt::ToolTipRole);
     connect(comboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(cycleChanged(int)));
-    layout->addWidget(comboBox, row, 1);
     comboBoxCycle = comboBox;
 
-    row++;
+    layout->addRow(label, comboBox);
 
     // Flags
     QGroupBox *group = new QGroupBox("Flags", this);
@@ -569,14 +541,7 @@ ConfigTabVar::ConfigTabVar (StereoMethodVar *m, QWidget *parent)
     group->layout()->addWidget(checkBox);
     checkBoxUseMedianFiltering = checkBox;
 
-    layout->addWidget(group, row, 0, 1, 2);
-
-    row++;
-
-    // Spacer for padding
-    QSpacerItem *spacer = new QSpacerItem(1, 1, QSizePolicy::Expanding, QSizePolicy::Expanding);
-    layout->addItem(spacer, row, 0, 1, 2);
-
+    layout->addRow(group);
 
     // Update parameters
     updateParameters();

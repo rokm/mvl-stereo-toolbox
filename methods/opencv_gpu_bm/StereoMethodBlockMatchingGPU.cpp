@@ -169,8 +169,7 @@ void StereoMethodBlockMatchingGPU::setAverageTextureThreshold (double newValue)
 ConfigTabBlockMatchingGPU::ConfigTabBlockMatchingGPU (StereoMethodBlockMatchingGPU *m, QWidget *parent)
     : QWidget(parent), method(m)
 {
-    QGridLayout *layout = new QGridLayout(this);
-    int row = 0;
+    QFormLayout *layout = new QFormLayout(this);
 
     QLabel *label;
     QPushButton *button;
@@ -186,16 +185,14 @@ ConfigTabBlockMatchingGPU::ConfigTabBlockMatchingGPU (StereoMethodBlockMatchingG
     // Name
     label = new QLabel("<b><u>OpenCV GPU block matching</u></b>", this);
     label->setAlignment(Qt::AlignHCenter);
-    layout->addWidget(label, row, 0, 1, 2);
 
-    row++;
+    layout->addRow(label);
 
     // Separator
     line = new QFrame(this);
     line->setFrameStyle(QFrame::HLine | QFrame::Sunken);
-    layout->addWidget(line, row, 0, 1, 2);
 
-    row++;
+    layout->addRow(line);
 
     // Defaults
     tooltip = "Reset to default OpenCV values.";
@@ -203,23 +200,20 @@ ConfigTabBlockMatchingGPU::ConfigTabBlockMatchingGPU (StereoMethodBlockMatchingG
     button = new QPushButton("Default values");
     button->setToolTip(tooltip);
     connect(button, SIGNAL(released()), method, SLOT(resetToDefaults()));
-    layout->addWidget(button, row, 0, 1, 2);
 
-    row++;
+    layout->addRow(button);
 
     // Separator
     line = new QFrame(this);
     line->setFrameStyle(QFrame::HLine | QFrame::Sunken);
-    layout->addWidget(line, row, 0, 1, 2);
 
-    row++;
+    layout->addRow(line);
 
     // Preset
     tooltip = "Parameter presetting.";
     
     label = new QLabel("Preset", this);
     label->setToolTip(tooltip);
-    layout->addWidget(label, row, 0);
 
     comboBox = new QComboBox(this);
     comboBox->addItem("BASIC_PRESET", cv::gpu::StereoBM_GPU::BASIC_PRESET);
@@ -227,50 +221,44 @@ ConfigTabBlockMatchingGPU::ConfigTabBlockMatchingGPU (StereoMethodBlockMatchingG
     comboBox->addItem("PREFILTER_XSOBEL", cv::gpu::StereoBM_GPU::PREFILTER_XSOBEL);
     comboBox->setItemData(1, "Sobel pre-filtering mode.", Qt::ToolTipRole);
     connect(comboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(presetChanged(int)));
-    layout->addWidget(comboBox, row, 1);
     comboBoxPreset = comboBox;
 
-    row++;
+    layout->addRow(label, comboBox);
 
     // Separator
     line = new QFrame(this);
     line->setFrameStyle(QFrame::HLine | QFrame::Sunken);
-    layout->addWidget(line, row, 0, 1, 2);
 
-    row++;
+    layout->addRow(line);
 
     // Num disparities
     tooltip = "Number of disparities. It must be a multiple of 8 and less or equal to 256.";
     
     label = new QLabel("Num. disparities", this);
     label->setToolTip(tooltip);
-    layout->addWidget(label, row, 0);
 
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
     spinBox->setRange(8, 256);
     spinBox->setSingleStep(8); // Must be divisible by 8
     connect(spinBox, SIGNAL(valueChanged(int)), method, SLOT(setNumDisparities(int)));
-    layout->addWidget(spinBox, row, 1);
     spinBoxNumDisparities = spinBox;
 
-    row++;
+    layout->addRow(label, spinBox);
 
     // Window size
     tooltip = "Block size.";
 
     label = new QLabel("Window size", this);
     label->setToolTip(tooltip);
-    layout->addWidget(label, row, 0);
 
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
     spinBox->setRange(2, INT_MAX);
     connect(spinBox, SIGNAL(valueChanged(int)), method, SLOT(setWindowSize(int)));
-    layout->addWidget(spinBox, row, 1);
     spinBoxWindowSize = spinBox;
 
-    row++;
+    layout->addRow(label, spinBox);
 
     // Average texture threshold
     tooltip = "If avergeTexThreshold != 0 then disparity is set 0 in each point (x,y) where for left image \n"
@@ -279,20 +267,14 @@ ConfigTabBlockMatchingGPU::ConfigTabBlockMatchingGPU (StereoMethodBlockMatchingG
 
     label = new QLabel("Avg. texture thr.", this);
     label->setToolTip(tooltip);
-    layout->addWidget(label, row, 0);
 
     spinBoxD = new QDoubleSpinBox(this);
     spinBoxD->setKeyboardTracking(false);
     spinBoxD->setRange(0.0, DBL_MAX);
     connect(spinBoxD, SIGNAL(valueChanged(double)), method, SLOT(setAverageTextureThreshold(double)));
-    layout->addWidget(spinBoxD, row, 1);
     spinBoxAverageTextureThreshold = spinBoxD;
 
-    row++;
-
-    // Spacer for padding
-    QSpacerItem *spacer = new QSpacerItem(1, 1, QSizePolicy::Expanding, QSizePolicy::Expanding);
-    layout->addItem(spacer, row, 0, 1, 2);
+    layout->addRow(label, spinBoxD);
 
     // Update parameters
     updateParameters();

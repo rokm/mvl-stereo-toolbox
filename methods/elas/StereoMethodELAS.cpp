@@ -468,8 +468,7 @@ void StereoMethodELAS::setReturnLeft (bool newValue)
 ConfigTabELAS::ConfigTabELAS (StereoMethodELAS *m, QWidget *parent)
     : QWidget(parent), method(m)
 {
-    QGridLayout *layout = new QGridLayout(this);
-    int row = 0;
+    QFormLayout *layout = new QFormLayout(this);
 
     QLabel *label;
     QComboBox *comboBox;
@@ -485,23 +484,20 @@ ConfigTabELAS::ConfigTabELAS (StereoMethodELAS *m, QWidget *parent)
     // Name
     label = new QLabel("<b><u>Efficient LArge-scale Stereo</u></b>", this);
     label->setAlignment(Qt::AlignHCenter);
-    layout->addWidget(label, row, 0, 1, 2);
 
-    row++;
+    layout->addRow(label);
 
     // Separator
     line = new QFrame(this);
     line->setFrameStyle(QFrame::HLine | QFrame::Sunken);
-    layout->addWidget(line, row, 0, 1, 2);
 
-    row++;
+    layout->addRow(line);
 
     // Preset
     tooltip = "Presets for quick initialization.";
     
     label = new QLabel("Preset", this);
     label->setToolTip(tooltip);
-    layout->addWidget(label, row, 0);
 
     comboBox = new QComboBox(this);
     comboBox->addItem("Robotics", StereoMethodELAS::ElasRobotics);
@@ -509,159 +505,139 @@ ConfigTabELAS::ConfigTabELAS (StereoMethodELAS *m, QWidget *parent)
     comboBox->addItem("Middlebury", StereoMethodELAS::ElasMiddlebury);
     comboBox->setItemData(1, "Default settings for Middlebury benchmark. Interpolates all missing disparities.", Qt::ToolTipRole);
     connect(comboBox, SIGNAL(activated(int)), this, SLOT(presetChanged(int)));
-    layout->addWidget(comboBox, row, 1);
     comboBoxPreset = comboBox;
 
-    row++;
+    layout->addRow(label, comboBox);
 
     // Separator
     line = new QFrame(this);
     line->setFrameStyle(QFrame::HLine | QFrame::Sunken);
-    layout->addWidget(line, row, 0, 1, 2);
 
-    row++;
+    layout->addRow(line);
 
     // Min disparity
     tooltip = "Minimum possible disparity value.";
 
     label = new QLabel("Min. disparity", this);
     label->setToolTip(tooltip);
-    layout->addWidget(label, row, 0);
 
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
     spinBox->setRange(-INT_MAX, INT_MAX);
     connect(spinBox, SIGNAL(valueChanged(int)), method, SLOT(setMinDisparity(int)));
-    layout->addWidget(spinBox, row, 1);
     spinBoxMinDisparity = spinBox;
 
-    row++;
+    layout->addRow(label, spinBox);
 
     // Max disparity
     tooltip = "Maximum possible disparity value.";
 
     label = new QLabel("Min. disparity", this);
     label->setToolTip(tooltip);
-    layout->addWidget(label, row, 0);
 
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
     spinBox->setRange(-INT_MAX, INT_MAX);
     connect(spinBox, SIGNAL(valueChanged(int)), method, SLOT(setMaxDisparity(int)));
-    layout->addWidget(spinBox, row, 1);
     spinBoxMaxDisparity = spinBox;
 
-    row++;
+    layout->addRow(label, spinBox);
 
     // Separator
     line = new QFrame(this);
     line->setFrameStyle(QFrame::HLine | QFrame::Sunken);
-    layout->addWidget(line, row, 0, 1, 2);
 
-    row++;
+    layout->addRow(line);
 
     // Support threshold
     tooltip = "Max. uniqueness ratio (best vs. second best support match).";
 
     label = new QLabel("Support threshold", this);
     label->setToolTip(tooltip);
-    layout->addWidget(label, row, 0);
 
     spinBoxD = new QDoubleSpinBox(this);
     spinBoxD->setKeyboardTracking(false);
     spinBoxD->setRange(0.0, DBL_MAX);
     connect(spinBoxD, SIGNAL(valueChanged(double)), method, SLOT(setSupportThreshold(double)));
-    layout->addWidget(spinBoxD, row, 1);
     spinBoxSupportThreshold = spinBoxD;
 
-    row++;
+    layout->addRow(label, spinBoxD);
 
     // Support texture
     tooltip = "Min. texture for support points.";
 
     label = new QLabel("Support texture", this);
     label->setToolTip(tooltip);
-    layout->addWidget(label, row, 0);
 
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
     spinBox->setRange(-INT_MAX, INT_MAX);
     connect(spinBox, SIGNAL(valueChanged(int)), method, SLOT(setSupportTexture(int)));
-    layout->addWidget(spinBox, row, 1);
     spinBoxSupportTexture = spinBox;
 
-    row++;
+    layout->addRow(label, spinBox);
 
     // Candidate step size
     tooltip = "Step size of regular grid on which support points are matched.";
 
     label = new QLabel("Candidate step size", this);
     label->setToolTip(tooltip);
-    layout->addWidget(label, row, 0);
 
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
     spinBox->setRange(-INT_MAX, INT_MAX);
     connect(spinBox, SIGNAL(valueChanged(int)), method, SLOT(setCandidateStepSize(int)));
-    layout->addWidget(spinBox, row, 1);
     spinBoxCandidateStepSize = spinBox;
 
-    row++;
+    layout->addRow(label, spinBox);
 
     // Inconsistent window size
     tooltip = "Window size of inconsistent support point check";
 
     label = new QLabel("Incon. window size", this);
     label->setToolTip(tooltip);
-    layout->addWidget(label, row, 0);
 
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
     spinBox->setRange(-INT_MAX, INT_MAX);
     connect(spinBox, SIGNAL(valueChanged(int)), method, SLOT(setInconsistentWindowSize(int)));
-    layout->addWidget(spinBox, row, 1);
     spinBoxInconsistentWindowSize = spinBox;
 
-    row++;
+    layout->addRow(label, spinBox);
 
     // Inconsistent threshold
     tooltip = "Disparity similarity threshold for support point to be considered consistent.";
 
     label = new QLabel("Incon. threshold", this);
     label->setToolTip(tooltip);
-    layout->addWidget(label, row, 0);
 
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
     spinBox->setRange(-INT_MAX, INT_MAX);
     connect(spinBox, SIGNAL(valueChanged(int)), method, SLOT(setInconsistentThreshold(int)));
-    layout->addWidget(spinBox, row, 1);
     spinBoxInconsistentThreshold = spinBox;
 
-    row++;
+    layout->addRow(label, spinBox);
 
     // Inconsistent min support
     tooltip = "Minimum number of consistent support points.";
 
     label = new QLabel("Incon. min. support", this);
     label->setToolTip(tooltip);
-    layout->addWidget(label, row, 0);
 
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
     spinBox->setRange(-INT_MAX, INT_MAX);
     connect(spinBox, SIGNAL(valueChanged(int)), method, SLOT(setInconsistentMinSupport(int)));
-    layout->addWidget(spinBox, row, 1);
     spinBoxInconsistentMinSupport = spinBox;
 
-    row++;
+    layout->addRow(label, spinBox);
 
     // Separator
     line = new QFrame(this);
     line->setFrameStyle(QFrame::HLine | QFrame::Sunken);
-    layout->addWidget(line, row, 0, 1, 2);
 
-    row++;
+    layout->addRow(line);
 
     // Add corners
     tooltip = "Add support points at image corners with nearest neighbor disparities.";
@@ -669,198 +645,173 @@ ConfigTabELAS::ConfigTabELAS (StereoMethodELAS *m, QWidget *parent)
     checkBox = new QCheckBox("Add corners", this);
     checkBox->setToolTip(tooltip);
     connect(checkBox, SIGNAL(stateChanged(int)), this, SLOT(addCornersChanged(int)));
-    layout->addWidget(checkBox, row, 0, 1, 2);
     checkBoxAddCorners = checkBox;
 
-    row++;
+    layout->addRow(checkBox);
 
     // Grid size
     tooltip = "Size of neighborhood for additional support point extrapolation.";
 
     label = new QLabel("Grid size", this);
     label->setToolTip(tooltip);
-    layout->addWidget(label, row, 0);
 
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
     spinBox->setRange(1, INT_MAX);
     connect(spinBox, SIGNAL(valueChanged(int)), method, SLOT(setGridSize(int)));
-    layout->addWidget(spinBox, row, 1);
     spinBoxGridSize = spinBox;
 
-    row++;
+    layout->addRow(label, spinBox);
 
     // Separator
     line = new QFrame(this);
     line->setFrameStyle(QFrame::HLine | QFrame::Sunken);
-    layout->addWidget(line, row, 0, 1, 2);
 
-    row++;
+    layout->addRow(line);
     
     // Beta
     tooltip = "Image likelihood parameter.";
 
     label = new QLabel("Beta", this);
     label->setToolTip(tooltip);
-    layout->addWidget(label, row, 0);
 
     spinBoxD = new QDoubleSpinBox(this);
     spinBoxD->setKeyboardTracking(false);
     spinBoxD->setRange(0.0, DBL_MAX);
     connect(spinBoxD, SIGNAL(valueChanged(double)), method, SLOT(setBeta(double)));
-    layout->addWidget(spinBoxD, row, 1);
     spinBoxBeta = spinBoxD;
 
-    row++;
+    layout->addRow(label, spinBoxD);
     
     // Gamma
     tooltip = "Prior constant.";
 
     label = new QLabel("Gamma", this);
     label->setToolTip(tooltip);
-    layout->addWidget(label, row, 0);
 
     spinBoxD = new QDoubleSpinBox(this);
     spinBoxD->setKeyboardTracking(false);
     spinBoxD->setRange(0.0, DBL_MAX);
     connect(spinBoxD, SIGNAL(valueChanged(double)), method, SLOT(setGamma(double)));
-    layout->addWidget(spinBoxD, row, 1);
     spinBoxGamma = spinBoxD;
 
-    row++;
+    layout->addRow(label, spinBoxD);
 
     // Sigma
     tooltip = "Prior sigma.";
 
     label = new QLabel("Sigma", this);
     label->setToolTip(tooltip);
-    layout->addWidget(label, row, 0);
 
     spinBoxD = new QDoubleSpinBox(this);
     spinBoxD->setKeyboardTracking(false);
     spinBoxD->setRange(0.0, DBL_MAX);
     connect(spinBoxD, SIGNAL(valueChanged(double)), method, SLOT(setSigma(double)));
-    layout->addWidget(spinBoxD, row, 1);
     spinBoxSigma = spinBoxD;
 
-    row++;
+    layout->addRow(label, spinBoxD);
 
     // Sigma radius
     tooltip = "Prior sigma radius.";
 
     label = new QLabel("Sigma radius", this);
     label->setToolTip(tooltip);
-    layout->addWidget(label, row, 0);
 
     spinBoxD = new QDoubleSpinBox(this);
     spinBoxD->setKeyboardTracking(false);
     spinBoxD->setRange(0.0, DBL_MAX);
     connect(spinBoxD, SIGNAL(valueChanged(double)), method, SLOT(setSigmaRadius(double)));
-    layout->addWidget(spinBoxD, row, 1);
     spinBoxSigmaRadius = spinBoxD;
 
-    row++;
+    layout->addRow(label, spinBoxD);
 
     // Separator
     line = new QFrame(this);
     line->setFrameStyle(QFrame::HLine | QFrame::Sunken);
-    layout->addWidget(line, row, 0, 1, 2);
 
-    row++;
+    layout->addRow(line);
 
     // Match texture
     tooltip = "Min texture for dense matching.";
 
     label = new QLabel("Match texture", this);
     label->setToolTip(tooltip);
-    layout->addWidget(label, row, 0);
 
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
     spinBox->setRange(0, INT_MAX);
     connect(spinBox, SIGNAL(valueChanged(int)), method, SLOT(setMatchTexture(int)));
-    layout->addWidget(spinBox, row, 1);
     spinBoxMatchTexture = spinBox;
 
-    row++;
+    layout->addRow(label, spinBox);
 
     // Left/right threshold
     tooltip = "Disparity threshold for left/right consistency check.";
 
     label = new QLabel("Left/right thr.", this);
     label->setToolTip(tooltip);
-    layout->addWidget(label, row, 0);
 
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
     spinBox->setRange(0, INT_MAX);
     connect(spinBox, SIGNAL(valueChanged(int)), method, SLOT(setLRThreshold(int)));
-    layout->addWidget(spinBox, row, 1);
     spinBoxLRThreshold = spinBox;
 
-    row++;
+    layout->addRow(label, spinBox);
 
     // Separator
     line = new QFrame(this);
     line->setFrameStyle(QFrame::HLine | QFrame::Sunken);
-    layout->addWidget(line, row, 0, 1, 2);
 
-    row++;
+    layout->addRow(line);
 
     // Speckle simimarity threshold
     tooltip = "Similarity threshold for speckle segmentation.";
 
     label = new QLabel("Speckle sim. thr.", this);
     label->setToolTip(tooltip);
-    layout->addWidget(label, row, 0);
 
     spinBoxD = new QDoubleSpinBox(this);
     spinBoxD->setKeyboardTracking(false);
     spinBoxD->setRange(0.0, DBL_MAX);
     connect(spinBoxD, SIGNAL(valueChanged(double)), method, SLOT(setSpeckleSimThreshold(double)));
-    layout->addWidget(spinBoxD, row, 1);
     spinBoxSpeckleSimThreshold = spinBoxD;
 
-    row++;
+    layout->addRow(label, spinBoxD);
 
     // Speckle size
     tooltip = "Maximal size of a speckle (small speckles are removed).";
 
     label = new QLabel("Speckle size", this);
     label->setToolTip(tooltip);
-    layout->addWidget(label, row, 0);
 
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
     spinBox->setRange(0, INT_MAX);
     connect(spinBox, SIGNAL(valueChanged(int)), method, SLOT(setSpeckleSize(int)));
-    layout->addWidget(spinBox, row, 1);
     spinBoxSpeckleSize = spinBox;
 
-    row++;
+    layout->addRow(label, spinBox);
 
     // Interpolation gap width
     tooltip = "Interpolate small gaps (left<->right, top<->bottom).";
 
     label = new QLabel("Interp. gap width", this);
     label->setToolTip(tooltip);
-    layout->addWidget(label, row, 0);
 
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
     spinBox->setRange(0, INT_MAX);
     connect(spinBox, SIGNAL(valueChanged(int)), method, SLOT(setInterpolationGapWidth(int)));
-    layout->addWidget(spinBox, row, 1);
     spinBoxInterpolationGapWidth = spinBox;
 
-    row++;
+    layout->addRow(label, spinBox);
 
     // Separator
     line = new QFrame(this);
     line->setFrameStyle(QFrame::HLine | QFrame::Sunken);
-    layout->addWidget(line, row, 0, 1, 2);
 
-    row++;
+    layout->addRow(line);
 
     // Median filter
     tooltip = "Optional median filter (approximated).";
@@ -868,10 +819,9 @@ ConfigTabELAS::ConfigTabELAS (StereoMethodELAS *m, QWidget *parent)
     checkBox = new QCheckBox("Median filter", this);
     checkBox->setToolTip(tooltip);
     connect(checkBox, SIGNAL(stateChanged(int)), this, SLOT(medianFilterChanged(int)));
-    layout->addWidget(checkBox, row, 0, 1, 2);
     checkBoxFilterMedian = checkBox;
 
-    row++;
+    layout->addRow(checkBox);
 
     // Adaptive mean filter
     tooltip = "Optional adaptive mean filter (approximated).";
@@ -879,10 +829,9 @@ ConfigTabELAS::ConfigTabELAS (StereoMethodELAS *m, QWidget *parent)
     checkBox = new QCheckBox("Adaptive mean filter", this);
     checkBox->setToolTip(tooltip);
     connect(checkBox, SIGNAL(stateChanged(int)), this, SLOT(adaptiveMeanFilterChanged(int)));
-    layout->addWidget(checkBox, row, 0, 1, 2);
     checkBoxFilterAdaptiveMean = checkBox;
 
-    row++;
+    layout->addRow(checkBox);
 
     // Postprocess only left
     tooltip = "Save time by not post-processing the right disparity image.";
@@ -890,10 +839,9 @@ ConfigTabELAS::ConfigTabELAS (StereoMethodELAS *m, QWidget *parent)
     checkBox = new QCheckBox("Post-process only left", this);
     checkBox->setToolTip(tooltip);
     connect(checkBox, SIGNAL(stateChanged(int)), this, SLOT(postProcessOnlyLeftChanged(int)));
-    layout->addWidget(checkBox, row, 0, 1, 2);
     checkBoxPostProcessOnlyLeft = checkBox;
 
-    row++;
+    layout->addRow(checkBox);
 
     // Subsampling
     tooltip = "Save time by only computing disparities for each 2nd pixel.";
@@ -901,17 +849,15 @@ ConfigTabELAS::ConfigTabELAS (StereoMethodELAS *m, QWidget *parent)
     checkBox = new QCheckBox("Subsampling", this);
     checkBox->setToolTip(tooltip);
     connect(checkBox, SIGNAL(stateChanged(int)), this, SLOT(subsamplingChanged(int)));
-    layout->addWidget(checkBox, row, 0, 1, 2);
     checkBoxSubsampling = checkBox;
 
-    row++;
+    layout->addRow(checkBox);
 
     // Separator
     line = new QFrame(this);
     line->setFrameStyle(QFrame::HLine | QFrame::Sunken);
-    layout->addWidget(line, row, 0, 1, 2);
 
-    row++;
+    layout->addRow(line);
 
     // Return left
     tooltip = "If checked, method returns left disparity image. If unchecked, right disparity image is returned.";
@@ -919,14 +865,9 @@ ConfigTabELAS::ConfigTabELAS (StereoMethodELAS *m, QWidget *parent)
     checkBox = new QCheckBox("Return left disp. image", this);
     checkBox->setToolTip(tooltip);
     connect(checkBox, SIGNAL(stateChanged(int)), this, SLOT(returnLeftChanged(int)));
-    layout->addWidget(checkBox, row, 0, 1, 2);
     checkBoxReturnLeft = checkBox;
 
-    row++;
-    
-    // Spacer for padding
-    QSpacerItem *spacer = new QSpacerItem(1, 1, QSizePolicy::Expanding, QSizePolicy::Expanding);
-    layout->addItem(spacer, row, 0, 1, 2);
+    layout->addRow(checkBox);
 
     // Update parameters
     updateParameters();

@@ -282,8 +282,7 @@ void StereoMethodSemiGlobalBlockMatching::setFullDP (bool newValue)
 ConfigTabSemiGlobalBlockMatching::ConfigTabSemiGlobalBlockMatching (StereoMethodSemiGlobalBlockMatching *m, QWidget *parent)
     : QWidget(parent), method(m)
 {
-    QGridLayout *layout = new QGridLayout(this);
-    int row = 0;
+    QFormLayout *layout = new QFormLayout(this);
 
     QLabel *label;
     QComboBox *comboBox;
@@ -297,23 +296,20 @@ ConfigTabSemiGlobalBlockMatching::ConfigTabSemiGlobalBlockMatching (StereoMethod
     // Name
     label = new QLabel("<b><u>OpenCV semi-global block matching</u></b>", this);
     label->setAlignment(Qt::AlignHCenter);
-    layout->addWidget(label, row, 0, 1, 2);
 
-    row++;
+    layout->addRow(label);
 
     // Separator
     line = new QFrame(this);
     line->setFrameStyle(QFrame::HLine | QFrame::Sunken);
-    layout->addWidget(line, row, 0, 1, 2);
 
-    row++;
+    layout->addRow(line);
 
     // Preset
     tooltip = "Presets for quick initialization.";
     
     label = new QLabel("Preset", this);
     label->setToolTip(tooltip);
-    layout->addWidget(label, row, 0);
 
     comboBox = new QComboBox(this);
     comboBox->addItem("OpenCV", StereoMethodSemiGlobalBlockMatching::OpenCV);
@@ -321,10 +317,9 @@ ConfigTabSemiGlobalBlockMatching::ConfigTabSemiGlobalBlockMatching (StereoMethod
     comboBox->addItem("StereoMatch", StereoMethodSemiGlobalBlockMatching::StereoMatch);
     comboBox->setItemData(1, "Settings from \"Stereo Match\" example.", Qt::ToolTipRole);
     connect(comboBox, SIGNAL(activated(int)), this, SLOT(presetChanged(int)));
-    layout->addWidget(comboBox, row, 1);
     comboBoxPreset = comboBox;
 
-    row++;
+    layout->addRow(label, comboBox);
 
     // Min disparity
     tooltip = "Minimum possible disparity value. Normally, it is zero but sometimes rectification algorithms \n"
@@ -332,16 +327,14 @@ ConfigTabSemiGlobalBlockMatching::ConfigTabSemiGlobalBlockMatching (StereoMethod
               
     label = new QLabel("Min. disparity", this);
     label->setToolTip(tooltip);
-    layout->addWidget(label, row, 0);
 
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
     spinBox->setRange(-INT_MAX, INT_MAX);
     connect(spinBox, SIGNAL(valueChanged(int)), method, SLOT(setMinDisparity(int)));
-    layout->addWidget(spinBox, row, 1);
     spinBoxMinDisparity = spinBox;
 
-    row++;
+    layout->addRow(label, spinBox);
 
     // Num disparities
     tooltip = "Maximum disparity minus minimum disparity. The value is always greater than zero. In the current \n"
@@ -349,41 +342,36 @@ ConfigTabSemiGlobalBlockMatching::ConfigTabSemiGlobalBlockMatching (StereoMethod
               
     label = new QLabel("Num. disparities", this);
     label->setToolTip(tooltip);
-    layout->addWidget(label, row, 0);
 
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
     spinBox->setRange(16, 16*1000);
     spinBox->setSingleStep(16); // Must be divisible by 16
     connect(spinBox, SIGNAL(valueChanged(int)), method, SLOT(setNumDisparities(int)));
-    layout->addWidget(spinBox, row, 1);
     spinBoxNumDisparities = spinBox;
 
-    row++;
+    layout->addRow(label, spinBox);
 
     // SAD window size
     tooltip = "Matched block size. It must be an odd number >=1. Normally, it should be somewhere in the 3-11 range.";
     
     label = new QLabel("SAD window size", this);
     label->setToolTip(tooltip);
-    layout->addWidget(label, row, 0);
 
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
     spinBox->setRange(1, 255);
     spinBox->setSingleStep(1); // Always odd values
     connect(spinBox, SIGNAL(valueChanged(int)), method, SLOT(setSADWindowSize(int)));
-    layout->addWidget(spinBox, row, 1);
     spinBoxSADWindowSize = spinBox;
 
-    row++;
+    layout->addRow(label, spinBox);
 
     // Separator
     line = new QFrame(this);
     line->setFrameStyle(QFrame::HLine | QFrame::Sunken);
-    layout->addWidget(line, row, 0, 1, 2);
 
-    row++;
+    layout->addRow(line);
 
     // Pre-filter cap
     tooltip = "Truncation value for the prefiltered image pixels. The algorithm first computes x-derivative at each pixel \n"
@@ -392,16 +380,14 @@ ConfigTabSemiGlobalBlockMatching::ConfigTabSemiGlobalBlockMatching (StereoMethod
               
     label = new QLabel("Pre-filter cap", this);
     label->setToolTip(tooltip);
-    layout->addWidget(label, row, 0);
 
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
     spinBox->setRange(1, 63);
     connect(spinBox, SIGNAL(valueChanged(int)), method, SLOT(setPreFilterCap(int)));
-    layout->addWidget(spinBox, row, 1);
     spinBoxPreFilterCap = spinBox;
 
-    row++;
+    layout->addRow(label, spinBox);
 
     // Uniqueness ratio
     tooltip = "Margin in percentage by which the best (minimum) computed cost function value should \"win\" the second best \n"
@@ -409,23 +395,20 @@ ConfigTabSemiGlobalBlockMatching::ConfigTabSemiGlobalBlockMatching (StereoMethod
     
     label = new QLabel("Uniqueness ratio", this);
     label->setToolTip(tooltip);
-    layout->addWidget(label, row, 0);
 
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
     spinBox->setRange(0, 255);
     connect(spinBox, SIGNAL(valueChanged(int)), method, SLOT(setUniquenessRatio(int)));
-    layout->addWidget(spinBox, row, 1);
     spinBoxUniquenessRatio = spinBox;
 
-    row++;
+    layout->addRow(label, spinBox);
 
     // Separator
     line = new QFrame(this);
     line->setFrameStyle(QFrame::HLine | QFrame::Sunken);
-    layout->addWidget(line, row, 0, 1, 2);
 
-    row++;
+    layout->addRow(line);
 
     // P1
     tooltip = "The first parameter controlling the disparity smoothness. The larger the \n"
@@ -435,16 +418,14 @@ ConfigTabSemiGlobalBlockMatching::ConfigTabSemiGlobalBlockMatching (StereoMethod
               
     label = new QLabel("P1", this);
     label->setToolTip(tooltip);
-    layout->addWidget(label, row, 0);
 
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
     spinBox->setRange(0, INT_MAX);
     connect(spinBox, SIGNAL(valueChanged(int)), method, SLOT(setP1(int)));
-    layout->addWidget(spinBox, row, 1);
     spinBoxP1 = spinBox;
 
-    row++;
+    layout->addRow(label, spinBox);
 
     // P2
     tooltip = "The second parameter controlling the disparity smoothness. The larger the \n"
@@ -454,23 +435,20 @@ ConfigTabSemiGlobalBlockMatching::ConfigTabSemiGlobalBlockMatching (StereoMethod
               
     label = new QLabel("P2", this);
     label->setToolTip(tooltip);
-    layout->addWidget(label, row, 0);
 
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
     spinBox->setRange(0, INT_MAX);
     connect(spinBox, SIGNAL(valueChanged(int)), method, SLOT(setP2(int)));
-    layout->addWidget(spinBox, row, 1);
     spinBoxP2 = spinBox;
 
-    row++;
+    layout->addRow(label, spinBox);
 
     // Separator
     line = new QFrame(this);
     line->setFrameStyle(QFrame::HLine | QFrame::Sunken);
-    layout->addWidget(line, row, 0, 1, 2);
 
-    row++;
+    layout->addRow(line);
 
     // Speckle window size
     tooltip = "Maximum size of smooth disparity regions to consider their noise speckles and invalidate. \n"
@@ -478,16 +456,14 @@ ConfigTabSemiGlobalBlockMatching::ConfigTabSemiGlobalBlockMatching (StereoMethod
               
     label = new QLabel("Speckle window size", this);
     label->setToolTip(tooltip);
-    layout->addWidget(label, row, 0);
 
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
     spinBox->setRange(0, 100);
     connect(spinBox, SIGNAL(valueChanged(int)), method, SLOT(setSpeckleWindowSize(int)));
-    layout->addWidget(spinBox, row, 1);
     spinBoxSpeckleWindowSize = spinBox;
 
-    row++;
+    layout->addRow(label, spinBox);
 
     // Speckle range
     tooltip = "Maximum disparity variation within each connected component. If you do speckle filtering, set \n"
@@ -496,23 +472,20 @@ ConfigTabSemiGlobalBlockMatching::ConfigTabSemiGlobalBlockMatching (StereoMethod
               
     label = new QLabel("Speckle range", this);
     label->setToolTip(tooltip);
-    layout->addWidget(label, row, 0);
 
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
     spinBox->setRange(0, 200);
     connect(spinBox, SIGNAL(valueChanged(int)), method, SLOT(setSpeckleRange(int)));
-    layout->addWidget(spinBox, row, 1);
     spinBoxSpeckleRange = spinBox;
 
-    row++;
+    layout->addRow(label, spinBox);
 
     // Separator
     line = new QFrame(this);
     line->setFrameStyle(QFrame::HLine | QFrame::Sunken);
-    layout->addWidget(line, row, 0, 1, 2);
 
-    row++;
+    layout->addRow(line);
 
     // Disp12MaxDiff
     tooltip = "Maximum allowed difference (in integer pixel units) in the left-right disparity check. \n"
@@ -520,22 +493,19 @@ ConfigTabSemiGlobalBlockMatching::ConfigTabSemiGlobalBlockMatching (StereoMethod
     
     label = new QLabel("Disp12MaxDiff", this);
     label->setToolTip(tooltip);
-    layout->addWidget(label, row, 0);
 
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
     connect(spinBox, SIGNAL(valueChanged(int)), method, SLOT(setDisp12MaxDiff(int)));
-    layout->addWidget(spinBox, row, 1);
     spinBoxDisp12MaxDiff = spinBox;
 
-    row++;
+    layout->addRow(label, spinBox);
 
     // Separator
     line = new QFrame(this);
     line->setFrameStyle(QFrame::HLine | QFrame::Sunken);
-    layout->addWidget(line, row, 0, 1, 2);
 
-    row++;
+    layout->addRow(line);
 
     // Full DP
     tooltip = "Set it to true to run the full-scale two-pass dynamic programming algorithm. It will consume \n"
@@ -544,14 +514,9 @@ ConfigTabSemiGlobalBlockMatching::ConfigTabSemiGlobalBlockMatching (StereoMethod
     checkBox = new QCheckBox("Full DP", this);
     checkBox->setToolTip(tooltip);
     connect(checkBox, SIGNAL(stateChanged(int)), this, SLOT(fullDPChanged(int)));
-    layout->addWidget(checkBox, row, 0, 1, 2);
     checkBoxFullDP = checkBox;
 
-    row++;
-
-    // Spacer for padding
-    QSpacerItem *spacer = new QSpacerItem(1, 1, QSizePolicy::Expanding, QSizePolicy::Expanding);
-    layout->addItem(spacer, row, 0, 1, 2);
+    layout->addRow(checkBox);
 
     // Update parameters
     updateParameters();

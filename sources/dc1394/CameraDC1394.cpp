@@ -37,6 +37,17 @@ bool CameraDC1394::isSameCamera (const dc1394camera_id_t &id) const
 }
 
 
+QString CameraDC1394::getVendor () const
+{
+    return QString(camera->vendor);
+}
+
+QString CameraDC1394::getModel () const
+{
+    return QString(camera->model);
+}
+
+
 // *********************************************************************
 // *                         Basic properties                          *
 // *********************************************************************

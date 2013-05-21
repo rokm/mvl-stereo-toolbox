@@ -18,7 +18,11 @@ public:
     // Camera identification
     dc1394camera_id_t getId () const;
     bool isSameCamera (const dc1394camera_id_t &) const;
-    
+
+    QString getVendor () const;
+    QString getModel () const;
+
+    // Basic parameters    
     void setIsoSpeed (dc1394speed_t);
     dc1394speed_t getIsoSpeed () const;
 
