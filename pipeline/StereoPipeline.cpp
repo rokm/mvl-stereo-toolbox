@@ -149,6 +149,11 @@ const cv::Mat &StereoPipeline::getRightRectifiedImage () const
     return rectifiedImageR;
 }
 
+int StereoPipeline::getRectificationTime () const
+{
+    return rectificationTime;
+}
+
 
 // Processing
 void StereoPipeline::rectifyImages ()
@@ -164,7 +169,10 @@ void StereoPipeline::rectifyImages ()
         return;
     }
 
+    QTime timer; timer.start();
     calibration->rectifyImagePair(inputImageL, inputImageR, rectifiedImageL, rectifiedImageR);
+    rectificationTime = timer.elapsed();
+
     emit rectifiedImagesChanged();
 }
 

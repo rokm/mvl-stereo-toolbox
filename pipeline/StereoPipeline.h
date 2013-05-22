@@ -50,6 +50,8 @@ public:
     void setCalibrationState (bool);
     bool getCalibrationState () const;
 
+    int getRectificationTime () const;
+
     const cv::Mat &getLeftRectifiedImage () const;
     const cv::Mat &getRightRectifiedImage () const;
         
@@ -96,7 +98,8 @@ protected:
     // Cached rectified input images
     cv::Mat rectifiedImageL;
     cv::Mat rectifiedImageR;
-    
+    int rectificationTime;
+
 
     // Stereo method
     bool stereoMethodActive;
