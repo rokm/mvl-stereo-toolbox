@@ -35,15 +35,29 @@ public:
     StereoPipeline (QObject * = 0);
     virtual ~StereoPipeline ();
 
+    // Image source
     void setImageSource (ImageSource *);
-    void setCalibration (StereoCalibration *);
-    void setStereoMethod (StereoMethod *);
-    
+
+    void setImageSourceState (bool);
+    bool getImageSourceState () const;
+
     const cv::Mat &getLeftImage () const;
     const cv::Mat &getRightImage () const;
     
+    // Calibration
+    void setCalibration (StereoCalibration *);
+
+    void setCalibrationState (bool);
+    bool getCalibrationState () const;
+
     const cv::Mat &getLeftRectifiedImage () const;
     const cv::Mat &getRightRectifiedImage () const;
+        
+    // Stereo method
+    void setStereoMethod (StereoMethod *);
+
+    void setStereoMethodState (bool);
+    bool getStereoMethodState () const;
     
     const cv::Mat &getDisparityImage () const;
     int getNumberOfDisparityLevels () const;
@@ -51,14 +65,15 @@ public:
 
 protected slots:
     void beginProcessing ();
-
     void rectifyImages ();
     void computeDisparityImage ();
-
-    void methodParameterChanged ();
-
+    
 signals:
     void error (const QString &);
+
+    void imageSourceStateChanged (bool);
+    void calibrationStateChanged (bool);
+    void stereoMethodStateChanged (bool);
 
     void inputImagesChanged ();
     void rectifiedImagesChanged ();
@@ -66,22 +81,27 @@ signals:
 
 protected:
     // Image source
+    bool imageSourceActive;
     ImageSource *imageSource;
 
-    // Stereo calibration & rectification
-    StereoCalibration *calibration;
-    
-    // Stereo method
-    StereoMethod *method;
-    
     // Cached input images
     cv::Mat inputImageL;
     cv::Mat inputImageR;
 
+
+    // Stereo calibration & rectification
+    bool calibrationActive;
+    StereoCalibration *calibration;
+
     // Cached rectified input images
     cv::Mat rectifiedImageL;
     cv::Mat rectifiedImageR;
+    
 
+    // Stereo method
+    bool stereoMethodActive;
+    StereoMethod *stereoMethod;
+    
     // Cached disparity image
     cv::Mat disparityImage;
     int disparityLevels;

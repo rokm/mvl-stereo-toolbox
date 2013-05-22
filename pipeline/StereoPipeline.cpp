@@ -28,10 +28,14 @@ StereoPipeline::StereoPipeline (QObject *parent)
 {
     imageSource = NULL;
     calibration = NULL;
-    method = NULL;
+    stereoMethod = NULL;
 
     connect(this, SIGNAL(inputImagesChanged()), this, SLOT(rectifyImages()));
     connect(this, SIGNAL(rectifiedImagesChanged()), this, SLOT(computeDisparityImage()));
+
+    connect(this, SIGNAL(imageSourceStateChanged(bool)), this, SLOT(beginProcessing()));
+    connect(this, SIGNAL(calibrationStateChanged(bool)), this, SLOT(rectifyImages()));
+    connect(this, SIGNAL(stereoMethodStateChanged(bool)), this, SLOT(computeDisparityImage()));
 }
 
 StereoPipeline::~StereoPipeline ()
@@ -39,46 +43,10 @@ StereoPipeline::~StereoPipeline ()
 }
 
 
-const cv::Mat &StereoPipeline::getDisparityImage () const
-{
-    return disparityImage;
-}
-
-int StereoPipeline::getNumberOfDisparityLevels () const
-{
-    return disparityLevels;
-}
-
-int StereoPipeline::getDisparityImageComputationTime () const
-{
-    return disparityImageComputationTime;
-}
-
-
-const cv::Mat &StereoPipeline::getLeftImage () const
-{
-    return inputImageL;
-}
-
-const cv::Mat &StereoPipeline::getRightImage () const
-{
-    return inputImageR;
-}
-    
-const cv::Mat &StereoPipeline::getLeftRectifiedImage () const
-{
-    return rectifiedImageL;
-}
-
-const cv::Mat &StereoPipeline::getRightRectifiedImage () const
-{
-    return rectifiedImageR;
-}
-
-
 // *********************************************************************
-// *                         Image source object                       *
+// *                            Image source                           *
 // *********************************************************************
+// Source setting
 void StereoPipeline::setImageSource (ImageSource *newSource)
 {
     // Change source
@@ -95,9 +63,51 @@ void StereoPipeline::setImageSource (ImageSource *newSource)
 }
 
 
+// Source state
+void StereoPipeline::setImageSourceState (bool newState)
+{
+    if (newState != imageSourceActive) {
+        imageSourceActive = newState;
+        emit imageSourceStateChanged(newState);
+    }
+}
+
+bool StereoPipeline::getImageSourceState () const
+{
+    return imageSourceActive;
+}
+
+
+// Image retrieval
+const cv::Mat &StereoPipeline::getLeftImage () const
+{
+    return inputImageL;
+}
+
+const cv::Mat &StereoPipeline::getRightImage () const
+{
+    return inputImageR;
+}
+
+
+// Processing
+void StereoPipeline::beginProcessing ()
+{
+    // Make sure image source is marked as active
+    if (!imageSourceActive) {
+        return;
+    }
+    
+    // Get images from source
+    imageSource->getImages(inputImageL, inputImageR);
+    emit inputImagesChanged();
+}
+
+
 // *********************************************************************
-// *                         Calibration object                        *
+// *                            Calibration                            *
 // *********************************************************************
+// Calibration setting
 void StereoPipeline::setCalibration (StereoCalibration *newCalibration)
 {
     // Change calibration
@@ -113,36 +123,42 @@ void StereoPipeline::setCalibration (StereoCalibration *newCalibration)
 }
 
 
-// *********************************************************************
-// *                        Stereo method object                       *
-// *********************************************************************
-void StereoPipeline::setStereoMethod (StereoMethod *newMethod)
+// Calibration state
+void StereoPipeline::setCalibrationState (bool newState)
 {
-    // Change method
-    if (method) {
-        disconnect(method, SIGNAL(parameterChanged()), this, SLOT(methodParameterChanged()));
+    if (newState != calibrationActive) {
+        calibrationActive = newState;
+        emit calibrationStateChanged(newState);
     }
-    
-    method = newMethod;
-    connect(method, SIGNAL(parameterChanged()), this, SLOT(methodParameterChanged()));
-
-    // Compute new disparity image
-    computeDisparityImage();
 }
 
-
-// *********************************************************************
-// *                             Processing                            *
-// *********************************************************************
-void StereoPipeline::beginProcessing ()
+bool StereoPipeline::getCalibrationState () const
 {
-    // Get images from source
-    imageSource->getImages(inputImageL, inputImageR);
-    emit inputImagesChanged();
+    return calibrationActive;
 }
 
+
+// Image retrieval
+const cv::Mat &StereoPipeline::getLeftRectifiedImage () const
+{
+    return rectifiedImageL;
+}
+
+const cv::Mat &StereoPipeline::getRightRectifiedImage () const
+{
+    return rectifiedImageR;
+}
+
+
+// Processing
 void StereoPipeline::rectifyImages ()
 {
+    // Make sure calibration is marked as active
+    if (!calibrationActive) {
+        return;
+    }
+    
+    // Make sure we have calibration object set
     if (!calibration) {
         emit error("Stereo calibration object not set!");
         return;
@@ -152,9 +168,68 @@ void StereoPipeline::rectifyImages ()
     emit rectifiedImagesChanged();
 }
 
+
+// *********************************************************************
+// *                           Stereo method                           *
+// *********************************************************************
+// Method setting
+void StereoPipeline::setStereoMethod (StereoMethod *newMethod)
+{
+    // Change method
+    if (stereoMethod) {
+        disconnect(stereoMethod, SIGNAL(parameterChanged()), this, SLOT(computeDisparityImage()));
+    }
+    
+    stereoMethod = newMethod;
+    connect(stereoMethod, SIGNAL(parameterChanged()), this, SLOT(computeDisparityImage()));
+
+    // Compute new disparity image
+    computeDisparityImage();
+}
+
+
+// Method state
+void StereoPipeline::setStereoMethodState (bool newState)
+{
+    if (newState != stereoMethodActive) {
+        stereoMethodActive = newState;
+        emit stereoMethodStateChanged(newState);
+    }
+}
+
+bool StereoPipeline::getStereoMethodState () const
+{
+    return stereoMethodActive;
+}
+
+
+// Image retrieval
+const cv::Mat &StereoPipeline::getDisparityImage () const
+{
+    return disparityImage;
+}
+
+int StereoPipeline::getNumberOfDisparityLevels () const
+{
+    return disparityLevels;
+}
+
+int StereoPipeline::getDisparityImageComputationTime () const
+{
+    return disparityImageComputationTime;
+}
+
+
+// Processing
 void StereoPipeline::computeDisparityImage ()
 {
-    if (!method) {
+    // Make sure stereo method is marked as active
+    if (!stereoMethodActive) {
+        return;
+    }
+    
+    // Make sure we have stereo method set
+    if (!stereoMethod) {
         emit error("Stereo method not set!");
         return;
     }
@@ -166,7 +241,7 @@ void StereoPipeline::computeDisparityImage ()
     } else {
         try {
             QTime timer; timer.start();
-            method->computeDisparityImage(rectifiedImageL, rectifiedImageR, disparityImage, disparityLevels);
+            stereoMethod->computeDisparityImage(rectifiedImageL, rectifiedImageR, disparityImage, disparityLevels);
             disparityImageComputationTime = timer.elapsed();
         } catch (std::exception &e) {
             disparityImage = cv::Mat(); // Clear
@@ -177,8 +252,3 @@ void StereoPipeline::computeDisparityImage ()
     emit disparityImageChanged();
 }
 
-void StereoPipeline::methodParameterChanged ()
-{
-    // Recompute disparity image using cached (rectified) input images
-    computeDisparityImage();
-}
