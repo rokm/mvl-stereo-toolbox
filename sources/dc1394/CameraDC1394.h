@@ -71,8 +71,15 @@ public:
     ConfigCameraDC1394 (CameraDC1394 *, QWidget * = 0);
     virtual ~ConfigCameraDC1394 ();
 
+protected slots:
+    void modeChanged (int);
+    void framerateChanged (int);
+
 protected:
     CameraDC1394 *camera;
+
+    QComboBox *comboBoxMode;
+    QComboBox *comboBoxFramerate;
 };
 
 

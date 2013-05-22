@@ -1,6 +1,6 @@
 #include "CameraDC1394.h"
 
-#define NUM_BUFFERS 8
+#define NUM_BUFFERS 32
 
 
 CameraDC1394::CameraDC1394 (dc1394camera_t *c, QObject *parent)
@@ -304,6 +304,61 @@ void CameraDC1394::grabFrame (cv::Mat &image)
 // *********************************************************************
 // *                           Config widget                           *
 // *********************************************************************
+#define CASE_ENTRY(X) case X: return #X;
+
+static const QString videoModeToString (dc1394video_mode_t mode)
+{
+    switch (mode) {
+        CASE_ENTRY(DC1394_VIDEO_MODE_160x120_YUV444)
+        CASE_ENTRY(DC1394_VIDEO_MODE_320x240_YUV422)
+        CASE_ENTRY(DC1394_VIDEO_MODE_640x480_YUV411)
+        CASE_ENTRY(DC1394_VIDEO_MODE_640x480_YUV422)
+        CASE_ENTRY(DC1394_VIDEO_MODE_640x480_RGB8)
+        CASE_ENTRY(DC1394_VIDEO_MODE_640x480_MONO8)
+        CASE_ENTRY(DC1394_VIDEO_MODE_640x480_MONO16)
+        CASE_ENTRY(DC1394_VIDEO_MODE_800x600_YUV422)
+        CASE_ENTRY(DC1394_VIDEO_MODE_800x600_RGB8)
+        CASE_ENTRY(DC1394_VIDEO_MODE_800x600_MONO8)
+        CASE_ENTRY(DC1394_VIDEO_MODE_1024x768_YUV422)
+        CASE_ENTRY(DC1394_VIDEO_MODE_1024x768_RGB8)
+        CASE_ENTRY(DC1394_VIDEO_MODE_1024x768_MONO8)
+        CASE_ENTRY(DC1394_VIDEO_MODE_800x600_MONO16)
+        CASE_ENTRY(DC1394_VIDEO_MODE_1024x768_MONO16)
+        CASE_ENTRY(DC1394_VIDEO_MODE_1280x960_YUV422)
+        CASE_ENTRY(DC1394_VIDEO_MODE_1280x960_RGB8)
+        CASE_ENTRY(DC1394_VIDEO_MODE_1280x960_MONO8)
+        CASE_ENTRY(DC1394_VIDEO_MODE_1600x1200_YUV422)
+        CASE_ENTRY(DC1394_VIDEO_MODE_1600x1200_RGB8)
+        CASE_ENTRY(DC1394_VIDEO_MODE_1600x1200_MONO8)
+        CASE_ENTRY(DC1394_VIDEO_MODE_1280x960_MONO16)
+        CASE_ENTRY(DC1394_VIDEO_MODE_1600x1200_MONO16)
+        CASE_ENTRY(DC1394_VIDEO_MODE_EXIF)
+        CASE_ENTRY(DC1394_VIDEO_MODE_FORMAT7_0)
+        CASE_ENTRY(DC1394_VIDEO_MODE_FORMAT7_1)
+        CASE_ENTRY(DC1394_VIDEO_MODE_FORMAT7_2)
+        CASE_ENTRY(DC1394_VIDEO_MODE_FORMAT7_3)
+        CASE_ENTRY(DC1394_VIDEO_MODE_FORMAT7_4)
+        CASE_ENTRY(DC1394_VIDEO_MODE_FORMAT7_5)
+        CASE_ENTRY(DC1394_VIDEO_MODE_FORMAT7_6)
+        CASE_ENTRY(DC1394_VIDEO_MODE_FORMAT7_7)
+    }
+}
+
+static const QString framerateToString (dc1394framerate_t framerate)
+{
+    switch (framerate) {
+        CASE_ENTRY(DC1394_FRAMERATE_1_875)
+        CASE_ENTRY(DC1394_FRAMERATE_3_75)
+        CASE_ENTRY(DC1394_FRAMERATE_7_5)
+        CASE_ENTRY(DC1394_FRAMERATE_15)
+        CASE_ENTRY(DC1394_FRAMERATE_30)
+        CASE_ENTRY(DC1394_FRAMERATE_60)
+        CASE_ENTRY(DC1394_FRAMERATE_120)
+        CASE_ENTRY(DC1394_FRAMERATE_240)
+    }
+}
+
+
 ConfigCameraDC1394::ConfigCameraDC1394 (CameraDC1394 *c, QWidget *parent)
     : QWidget(parent), camera(c)
 {
@@ -345,8 +400,58 @@ ConfigCameraDC1394::ConfigCameraDC1394 (CameraDC1394 *c, QWidget *parent)
     line->setFrameStyle(QFrame::HLine | QFrame::Sunken);
 
     layout->addRow(line);
+
+    // Mode
+    tooltip = "Camera resolution and color mode.";
+    
+    label = new QLabel("Mode", this);
+    label->setToolTip(tooltip);
+
+    comboBox = new QComboBox(this);
+    connect(comboBox, SIGNAL(activated(int)), this, SLOT(modeChanged(int)));
+    comboBoxMode = comboBox;
+    
+    layout->addRow(label, comboBox);
+    
+    foreach (dc1394video_mode_t mode, camera->getSupportedModes()) {
+        comboBoxMode->addItem(videoModeToString(mode), mode);
+    }
+
+    // Framerate
+    tooltip = "Framerate.";
+    
+    label = new QLabel("Framerate", this);
+    label->setToolTip(tooltip);
+
+    comboBox = new QComboBox(this);
+    connect(comboBox, SIGNAL(activated(int)), this, SLOT(framerateChanged(int)));
+    comboBoxFramerate = comboBox;
+    
+    layout->addRow(label, comboBox);
+    
+    foreach (dc1394framerate_t framerate, camera->getSupportedFramerates()) {
+        comboBoxFramerate->addItem(framerateToString(framerate), framerate);
+    }
 }
 
 ConfigCameraDC1394::~ConfigCameraDC1394 ()
 {
+}
+
+
+void ConfigCameraDC1394::modeChanged (int index)
+{
+    camera->setMode((dc1394video_mode_t)comboBoxMode->itemData(index).toInt());
+
+    // Mode change requires re-enumeration of framerates
+    comboBoxFramerate->clear();
+    foreach (dc1394framerate_t framerate, camera->getSupportedFramerates()) {
+        comboBoxFramerate->addItem(framerateToString(framerate), framerate);
+    }
+}
+
+
+void ConfigCameraDC1394::framerateChanged (int index)
+{
+    camera->setFramerate((dc1394framerate_t)comboBoxFramerate->itemData(index).toInt());
 }
