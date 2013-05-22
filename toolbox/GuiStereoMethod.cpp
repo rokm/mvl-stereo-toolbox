@@ -12,7 +12,7 @@
 
 
 GuiStereoMethod::GuiStereoMethod (StereoPipeline *p, QList<StereoMethod *> &m, QWidget *parent)
-    : QWidget(parent), pipeline(p), methods(m)
+    : QWidget(parent, Qt::Window), pipeline(p), methods(m)
 {
     setWindowTitle("Stereo method");
     resize(800, 600);
@@ -158,6 +158,13 @@ void GuiStereoMethod::updateImage ()
 // *********************************************************************
 void GuiStereoMethod::saveImage ()
 {
+    // Make snapshot of image - because it can take a while to get
+    // the filename...
+    cv::Mat tmpImg;
+
+    pipeline->getDisparityImage().copyTo(tmpImg);
+
+    // Get filename
     QString fileName = QFileDialog::getSaveFileName(this, "Save disparity image");
     if (!fileName.isNull()) {
         QFileInfo tmpFileName(fileName);
@@ -170,7 +177,7 @@ void GuiStereoMethod::saveImage ()
 
         // Create filename
         try {
-            cv::imwrite(fileName.toStdString(), pipeline->getDisparityImage());
+            cv::imwrite(fileName.toStdString(), tmpImg);
         } catch (cv::Exception e) {
             qWarning() << "Failed to save image:" << QString::fromStdString(e.what());
         }

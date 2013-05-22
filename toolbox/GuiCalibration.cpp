@@ -87,7 +87,7 @@ protected:
 
 
 GuiCalibration::GuiCalibration (StereoPipeline *p, StereoCalibration *c, QWidget *parent)
-    : QWidget(parent), pipeline(p), calibration(c)
+    : QWidget(parent, Qt::Window), pipeline(p), calibration(c)
 {
     setWindowTitle("Stereo calibration");
     resize(800, 600);
@@ -266,6 +266,14 @@ void GuiCalibration::clearCalibration ()
 // *********************************************************************
 void GuiCalibration::saveImages ()
 {
+    // Make snapshot of images - because it can take a while to get
+    // the filename...
+    cv::Mat tmpImg1, tmpImg2;
+
+    pipeline->getLeftRectifiedImage().copyTo(tmpImg1);
+    pipeline->getRightRectifiedImage().copyTo(tmpImg2);
+    
+    // Get filename
     QString fileName = QFileDialog::getSaveFileName(this, "Save rectified images");
     if (!fileName.isNull()) {
         QFileInfo tmpFileName(fileName);
@@ -281,8 +289,8 @@ void GuiCalibration::saveImages ()
         QString fileNameRight = tmpFileName.absolutePath() + "/" + tmpFileName.baseName() + "R" + "." + ext;
 
         try {
-            cv::imwrite(fileNameLeft.toStdString(), pipeline->getLeftRectifiedImage());
-            cv::imwrite(fileNameRight.toStdString(), pipeline->getRightRectifiedImage());
+            cv::imwrite(fileNameLeft.toStdString(), tmpImg1);
+            cv::imwrite(fileNameRight.toStdString(), tmpImg2);
         } catch (cv::Exception e) {
             qWarning() << "Failed to save images:" << QString::fromStdString(e.what());
         }

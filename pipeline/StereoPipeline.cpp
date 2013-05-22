@@ -30,6 +30,10 @@ StereoPipeline::StereoPipeline (QObject *parent)
     calibration = NULL;
     stereoMethod = NULL;
 
+    imageSourceActive = true;
+    calibrationActive = true;
+    stereoMethodActive = true;
+
     connect(this, SIGNAL(inputImagesChanged()), this, SLOT(rectifyImages()));
     connect(this, SIGNAL(rectifiedImagesChanged()), this, SLOT(computeDisparityImage()));
 

@@ -10,7 +10,7 @@
 
 
 GuiImageSource::GuiImageSource (StereoPipeline *p, QList<ImageSource *> &s, QWidget *parent)
-    : QWidget(parent), pipeline(p), sources(s)
+    : QWidget(parent, Qt::Window), pipeline(p), sources(s)
 {
     setWindowTitle("Image source");
     resize(800, 600);
@@ -101,6 +101,14 @@ void GuiImageSource::updateImages ()
 // *********************************************************************
 void GuiImageSource::saveImages ()
 {
+    // Make snapshot of images - because it can take a while to get
+    // the filename...
+    cv::Mat tmpImg1, tmpImg2;
+
+    pipeline->getLeftImage().copyTo(tmpImg1);
+    pipeline->getRightImage().copyTo(tmpImg2);
+    
+    // Get filename
     QString fileName = QFileDialog::getSaveFileName(this, "Save rectified images");
     if (!fileName.isNull()) {
         QFileInfo tmpFileName(fileName);
@@ -116,8 +124,8 @@ void GuiImageSource::saveImages ()
         QString fileNameRight = tmpFileName.absolutePath() + "/" + tmpFileName.baseName() + "R" + "." + ext;
 
         try {
-            cv::imwrite(fileNameLeft.toStdString(), pipeline->getLeftImage());
-            cv::imwrite(fileNameRight.toStdString(), pipeline->getRightImage());
+            cv::imwrite(fileNameLeft.toStdString(), tmpImg1);
+            cv::imwrite(fileNameRight.toStdString(), tmpImg2);
         } catch (cv::Exception e) {
             qWarning() << "Failed to save images:" << QString::fromStdString(e.what());
         }

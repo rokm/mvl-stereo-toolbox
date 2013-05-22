@@ -13,17 +13,19 @@ set(toolbox_SOURCES
     main.cpp
     GuiImageSource.cpp
     GuiCalibration.cpp
-    ImageDisplayWidget.cpp
     GuiStereoMethod.cpp
+    ImageDisplayWidget.cpp
     ImagePairDisplayWidget.cpp
+    Toolbox.cpp
 )
 
 set(toolbox_HEADERS
     GuiImageSource.h
     GuiCalibration.h
-    ImageDisplayWidget.h
     GuiStereoMethod.h
+    ImageDisplayWidget.h
     ImagePairDisplayWidget.h
+    Toolbox.h
 )
 
 QT4_WRAP_CPP(toolbox_HEADERS_MOC ${toolbox_HEADERS})

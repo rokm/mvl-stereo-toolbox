@@ -38,7 +38,6 @@ public:
     // Image source
     void setImageSource (ImageSource *);
 
-    void setImageSourceState (bool);
     bool getImageSourceState () const;
 
     const cv::Mat &getLeftImage () const;
@@ -47,23 +46,25 @@ public:
     // Calibration
     void setCalibration (StereoCalibration *);
 
-    void setCalibrationState (bool);
     bool getCalibrationState () const;
-
-    int getRectificationTime () const;
 
     const cv::Mat &getLeftRectifiedImage () const;
     const cv::Mat &getRightRectifiedImage () const;
+    int getRectificationTime () const;
         
     // Stereo method
     void setStereoMethod (StereoMethod *);
 
-    void setStereoMethodState (bool);
     bool getStereoMethodState () const;
     
     const cv::Mat &getDisparityImage () const;
     int getNumberOfDisparityLevels () const;
     int getDisparityImageComputationTime () const;
+
+public slots:
+    void setImageSourceState (bool);
+    void setCalibrationState (bool);
+    void setStereoMethodState (bool);
 
 protected slots:
     void beginProcessing ();
