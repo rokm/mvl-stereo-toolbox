@@ -20,11 +20,18 @@ Toolbox::Toolbox ()
     calibration = new StereoCalibration(pipeline);
     pipeline->setCalibration(calibration);
 
-    // Load image source and method plugins
-    QDir appDir(qApp->applicationDirPath());
+    // Load image source and method plugins; look for path stored in
+    // MVL_STEREO_TOOLBOX_PLUGIN_DIR, otherwise use application path
+    QDir pluginRoot;
+    QByteArray pluginEnvVariable = qgetenv ("MVL_STEREO_TOOLBOX_PLUGIN_DIR");
+    if (!pluginEnvVariable.isEmpty()) {
+        pluginRoot = QDir(pluginEnvVariable);
+    } else {
+        pluginRoot = QDir(qApp->applicationDirPath());
+    }
 
-    loadSources(appDir, imageSources);
-    loadMethods(appDir, stereoMethods);
+    loadSources(pluginRoot, imageSources);
+    loadMethods(pluginRoot, stereoMethods);
 
     // Create windows
     windowImageSource = new GuiImageSource(pipeline, imageSources, this);
