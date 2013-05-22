@@ -32,7 +32,9 @@ StereoMethodBlockMatching::StereoMethodBlockMatching (QObject *parent)
 
 StereoMethodBlockMatching::~StereoMethodBlockMatching ()
 {
-    //delete configWidget;
+    // Unparent the config widget and destroy it
+    configWidget->setParent(0);
+    delete configWidget;
 }
 
 

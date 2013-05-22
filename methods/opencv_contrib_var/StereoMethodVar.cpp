@@ -34,7 +34,9 @@ StereoMethodVar::StereoMethodVar (QObject *parent)
 
 StereoMethodVar::~StereoMethodVar ()
 {
-    //delete configWidget;
+    // Unparent the config widget and destroy it
+    configWidget->setParent(0);
+    delete configWidget;
 }
 
 void StereoMethodVar::usePreset (int type)

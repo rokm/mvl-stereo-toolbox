@@ -12,6 +12,9 @@ ImageSourceFile::ImageSourceFile (QObject *parent)
 
 ImageSourceFile::~ImageSourceFile ()
 {
+    // Unparent the config widget and destroy it
+    configWidget->setParent(0);
+    delete configWidget;
 }
 
 

@@ -20,6 +20,10 @@ CameraDC1394::CameraDC1394 (dc1394camera_t *c, QObject *parent)
 CameraDC1394::~CameraDC1394 ()
 {
     stopCamera();
+
+    // Unparent the config widget and destroy it
+    configWidget->setParent(0);
+    delete configWidget;
 }
 
 QWidget *CameraDC1394::getConfigWidget ()

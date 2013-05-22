@@ -32,7 +32,9 @@ StereoMethodELAS::StereoMethodELAS (QObject *parent)
 
 StereoMethodELAS::~StereoMethodELAS ()
 {
-    //delete configWidget;
+    // Unparent the config widget and destroy it
+    configWidget->setParent(0);
+    delete configWidget;
 }
 
 

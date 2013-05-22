@@ -31,7 +31,9 @@ StereoMethodBeliefPropagationGPU::StereoMethodBeliefPropagationGPU (QObject *par
 
 StereoMethodBeliefPropagationGPU::~StereoMethodBeliefPropagationGPU ()
 {
-    //delete configWidget;
+    // Unparent the config widget and destroy it
+    configWidget->setParent(0);
+    delete configWidget;
 }
 
 void StereoMethodBeliefPropagationGPU::usePreset (int type)

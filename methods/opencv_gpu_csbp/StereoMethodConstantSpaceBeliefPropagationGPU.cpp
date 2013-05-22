@@ -33,7 +33,9 @@ StereoMethodConstantSpaceBeliefPropagationGPU::StereoMethodConstantSpaceBeliefPr
 
 StereoMethodConstantSpaceBeliefPropagationGPU::~StereoMethodConstantSpaceBeliefPropagationGPU ()
 {
-    //delete configWidget;
+    // Unparent the config widget and destroy it
+    configWidget->setParent(0);
+    delete configWidget;
 }
 
 void StereoMethodConstantSpaceBeliefPropagationGPU::usePreset (int type)

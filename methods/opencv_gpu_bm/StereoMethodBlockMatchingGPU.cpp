@@ -31,7 +31,9 @@ StereoMethodBlockMatchingGPU::StereoMethodBlockMatchingGPU (QObject *parent)
 
 StereoMethodBlockMatchingGPU::~StereoMethodBlockMatchingGPU ()
 {
-    //delete configWidget;
+    // Unparent the config widget and destroy it
+    configWidget->setParent(0);
+    delete configWidget;
 }
 
 void StereoMethodBlockMatchingGPU::resetToDefaults ()
