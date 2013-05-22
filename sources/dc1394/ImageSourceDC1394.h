@@ -35,11 +35,9 @@ protected:
     void releaseCamera (CameraDC1394 *&);
 
 protected slots:
-    void captureFunction ();
+    void frameAggregator ();
 
 signals:
-    void captureFunctionFinished ();
-
     void leftCameraChanged ();
     void rightCameraChanged ();
 
@@ -51,8 +49,7 @@ protected:
     CameraDC1394 *leftCamera;
     CameraDC1394 *rightCamera;
 
-    QThread *captureThread;
-    bool captureActive;
+    bool leftFrameReady, rightFrameReady;
 };
 
 // Config widget

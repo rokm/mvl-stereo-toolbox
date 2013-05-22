@@ -14,11 +14,7 @@ ImageSourceDC1394::ImageSourceDC1394 (QObject *parent)
     // Camera list
     cameraListModel = new CameraListModel(this);
 
-    // Processing thread
-    captureThread = new QThread(this);
-    connect(captureThread, SIGNAL(started()), this, SLOT(captureFunction()), Qt::DirectConnection);
-    connect(this, SIGNAL(captureFunctionFinished()), captureThread, SLOT(quit()));
-
+    // Perform initial scan
     scanBus();
 
     // Config widget
@@ -72,13 +68,6 @@ void ImageSourceDC1394::scanBus ()
 }
 
 
-static inline bool same_camera_id (const dc1394camera_id_t &id1, const dc1394camera_id_t &id2)
-{
-    return (id1.guid == id2.guid) && (id1.unit == id2.unit);
-}
-
-
-
 void ImageSourceDC1394::setLeftCamera (int c)
 {
     // Create camera
@@ -127,6 +116,9 @@ void ImageSourceDC1394::createCamera (CameraDC1394 *& camera, int c)
     }
     camera = new CameraDC1394(raw_camera, this);
 
+    // Connect
+    connect(camera, SIGNAL(frameReady()), this, SLOT(frameAggregator()));
+
     // Mark camera as active in our list
     cameraListModel->setActive(c, true);
 }
@@ -135,6 +127,9 @@ void ImageSourceDC1394::releaseCamera (CameraDC1394 *& camera)
 {
     if (camera) {
         dc1394camera_id_t id = camera->getId();
+
+        // Disconnect
+        disconnect(camera, SIGNAL(frameReady()), this, SLOT(frameAggregator()));
 
         // Delete camera object 
         delete camera;
@@ -160,67 +155,40 @@ CameraDC1394 *ImageSourceDC1394::getRightCamera ()
 void ImageSourceDC1394::startStopCapture (bool start)
 {
     if (start) {
-        // Start the capture threa
-        qDebug() << "Starting capture thread:" << QThread::currentThread();
-        captureThread->start();
+        leftFrameReady = rightFrameReady = false;
+        if (leftCamera) leftCamera->startCapture();
+        if (rightCamera) rightCamera->startCapture();
     } else {
-        captureActive = false;
-        // Do nothing else, the thread should finish itself
+        if (leftCamera) leftCamera->stopCapture();
+        if (rightCamera) rightCamera->stopCapture();
     }
 }
 
-void ImageSourceDC1394::captureFunction ()
+
+#include <opencv2/highgui/highgui.hpp>
+void ImageSourceDC1394::frameAggregator ()
 {
-    qDebug() << this << "Starting capture function in thread:" << QThread::currentThread();
-
-    // Make sure at least one camera is valid
-    if(!leftCamera && !rightCamera) {
-        qWarning() << this << "At least one camera must be valid!";
-        emit captureFunctionFinished();
-        return;
+    if (QObject::sender() == leftCamera) {
+        leftFrameReady = true;
+    } else if (QObject::sender() == rightCamera) {
+        rightFrameReady = true;
     }
+    
+    bool requireLeft = (leftCamera && leftCamera->getCaptureState());
+    bool requireRight = (rightCamera && rightCamera->getCaptureState());
 
-    // Start cameras
-    if (leftCamera) leftCamera->startCamera();
-    if (rightCamera) rightCamera->startCamera();
+    if ((!requireLeft || leftFrameReady) && (!requireRight || rightFrameReady)) {
+        if (requireLeft) {
+            leftCamera->copyFrame(imageLeft);
+        }
+        if (requireRight) {
+            rightCamera->copyFrame(imageRight);
+        }
+        leftFrameReady = false;
+        rightFrameReady = false;
 
-    // Frame pointers
-    dc1394video_frame_t *frameLeft, *frameRight;
-
-    // Capture loop
-    QTime time; time.start();
-    captureActive = true;
-    while (captureActive) {
-        // Dequeue frames - from both cameras, almost at once. Also, we
-        // make sure to drain the queue, as we want the latest frames
-        if (leftCamera) leftCamera->dequeueCaptureBuffer(frameLeft, true);
-        if (rightCamera) rightCamera->dequeueCaptureBuffer(frameRight, true);
-
-        // Convert to OpenCV... we copy directly into ImageSource's
-        // images, therefore we need to do it under write lock
-        QWriteLocker locker(&imagesLock);
-        if (leftCamera) leftCamera->convertToOpenCVImage(frameLeft, imageLeft);
-        if (rightCamera) rightCamera->convertToOpenCVImage(frameRight, imageRight);
-        locker.unlock();
-
-        // Signal that we have new images
         emit imagesChanged();
-
-        // Equeue
-        if (leftCamera) leftCamera->enqueueCaptureBuffer(frameLeft);
-        if (rightCamera) rightCamera->enqueueCaptureBuffer(frameRight);
     }
-
-    // Stop cameras
-    if (leftCamera) {
-        leftCamera->stopCamera();
-    }
-    if (rightCamera) {
-        rightCamera->stopCamera();
-    }
-
-    qDebug() << this << "Finished capture function";
-    emit captureFunctionFinished();
 }
 
 

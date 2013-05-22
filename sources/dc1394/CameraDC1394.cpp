@@ -13,13 +13,18 @@ CameraDC1394::CameraDC1394 (dc1394camera_t *c, QObject *parent)
     // Print info
     dc1394_camera_print_info(camera, stdout);
 
+    captureThread = new QThread(this);
+    connect(captureThread, SIGNAL(started()), this, SLOT(captureFunction()), Qt::DirectConnection);
+    connect(this, SIGNAL(captureFinished()), captureThread, SLOT(quit()), Qt::DirectConnection);
+
     // Config widget
     configWidget = new ConfigCameraDC1394(this);
 }
 
 CameraDC1394::~CameraDC1394 ()
 {
-    stopCamera();
+    // Make sure capture is stopped
+    stopCapture();
 
     // Unparent the config widget and destroy it
     configWidget->setParent(0);
@@ -45,7 +50,7 @@ dc1394camera_id_t CameraDC1394::getId () const
 
 bool CameraDC1394::isSameCamera (const dc1394camera_id_t &id) const
 {
-    return (id.guid == camera->guid) && (id.unit == camera->unit);
+    return dc1394_is_same_camera(getId(), id) == DC1394_TRUE;
 }
 
 
@@ -189,16 +194,19 @@ dc1394framerate_t CameraDC1394::getFramerate () const
 
 
 // *********************************************************************
-// *                         Camera start/stop                         *
+// *                         Capture start/stop                        *
 // *********************************************************************
-void CameraDC1394::startCamera ()
+void CameraDC1394::captureFunction ()
 {
     dc1394error_t ret;
+
+    qDebug() << this << "Starting capture function...";
 
     // Setup capture
     ret = dc1394_capture_setup(camera, NUM_BUFFERS, DC1394_CAPTURE_FLAGS_DEFAULT);
     if (ret) {
         qWarning() << "Could not setup camera! Make sure that the video mode and framerate are supported by the camera!";
+        emit captureFinished();
         return;
     }
 
@@ -206,25 +214,62 @@ void CameraDC1394::startCamera ()
     ret = dc1394_video_set_transmission(camera, DC1394_ON);
     if (ret) {
         qWarning() << "Could not start camera ISO transmission!";
+        emit captureFinished();
         return;
     }
-}
 
-void CameraDC1394::stopCamera ()
-{
-    dc1394error_t ret;
+    captureActive = true;
+    dc1394video_frame_t *frame;
+
+    while (captureActive) {
+        dequeueCaptureBuffer(frame, true);
+
+        frameBufferLock.lockForWrite();
+        convertToOpenCVImage(frame, frameBuffer);
+        frameBufferLock.unlock();
+        emit frameReady();
+
+        enqueueCaptureBuffer(frame);
+    }
     
+
+    // Cleanup
     ret = dc1394_video_set_transmission(camera, DC1394_OFF);
     if (ret) {
         qWarning() << "Could not stop camera ISO transmission!";
-        return;
     }
     
     ret = dc1394_capture_stop(camera);
     if (ret) {
         qWarning() << "Could not stop camera capture!";
-        return;
+
     }
+
+    qDebug() << this << "Capture function ended!";
+    emit captureFinished();
+}
+
+void CameraDC1394::startCapture ()
+{
+    if (!captureThread->isRunning()) {
+        // Start capture thread
+        captureThread->start();
+    }
+}
+
+void CameraDC1394::stopCapture ()
+{
+    if (captureThread->isRunning()) {
+        captureActive = false;
+
+        // Make sure capture thread finishes
+        captureThread->wait();
+    }
+}
+
+bool CameraDC1394::getCaptureState () const
+{
+    return captureActive;
 }
 
 
@@ -284,20 +329,14 @@ void CameraDC1394::convertToOpenCVImage (dc1394video_frame_t *frame, cv::Mat &im
     }
 }
 
-
 // *********************************************************************
-// *                   Simplified grabbing interface                   *
+// *                           Frame access                            *
 // *********************************************************************
-void CameraDC1394::grabFrame (cv::Mat &image)
+void CameraDC1394::copyFrame (cv::Mat &frame)
 {
-    dc1394video_frame_t *frame;
-
-    // Dequeue
-    dequeueCaptureBuffer(frame);
-    // Convert
-    convertToOpenCVImage(frame, image);
-    // Enqueue
-    enqueueCaptureBuffer(frame);
+    // Copy under lock
+    QReadLocker lock(&frameBufferLock);
+    frameBuffer.copyTo(frame);
 }
 
 

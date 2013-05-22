@@ -41,22 +41,40 @@ public:
     dc1394framerate_t getFramerate () const;
 
     // Camera start/stop
-    void startCamera ();
-    void stopCamera ();
+    void startCapture ();
+    void stopCapture ();
 
-    // Advanced grabbing interface
-    void dequeueCaptureBuffer (dc1394video_frame_t *&, bool = false);
+    bool getCaptureState () const;
+
+    float getEffectiveCaptureFramerate () const;
+
+    // Frame
+    void copyFrame (cv::Mat &);
+
+protected slots:
+    void captureFunction ();
+
+protected:
+    void dequeueCaptureBuffer (dc1394video_frame_t *&, bool);
     void enqueueCaptureBuffer (dc1394video_frame_t *);
-    void convertToOpenCVImage (dc1394video_frame_t *, cv::Mat &) const;
+    void convertToOpenCVImage (dc1394video_frame_t *, cv::Mat &image) const;
 
-    // Simplified grabbing interface
-    void grabFrame (cv::Mat &);
+signals:
+    void captureStarted ();
+    void captureFinished ();
+    void frameReady ();
 
 protected:
     dc1394camera_id_t id;
     
     dc1394camera_t *camera;
     dc1394featureset_t features;
+
+    // Frame buffer
+    QThread *captureThread;
+    bool captureActive;
+    cv::Mat frameBuffer;
+    QReadWriteLock frameBufferLock;
 
     // Config widget
     ConfigCameraDC1394 *configWidget;
