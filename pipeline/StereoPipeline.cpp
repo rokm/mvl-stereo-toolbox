@@ -30,6 +30,9 @@ StereoPipeline::StereoPipeline (QObject *parent)
     calibration = NULL;
     stereoMethod = NULL;
 
+    useStereoMethodThread = false;
+    stereoMethodThread = new QThread(this);
+
     imageSourceActive = true;
     calibrationActive = true;
     stereoMethodActive = true;
@@ -246,6 +249,22 @@ void StereoPipeline::computeDisparityImage ()
         return;
     }
 
+    if (useStereoMethodThread) {
+        // Start processing not processing already; otherwise drop
+        if (!stereoMethodThread->isRunning()) {
+            stereoMethodThread->start();
+        } else {
+            qDebug() << "Dropping frame";
+        }
+    } else {
+        // Direct call
+        computeDisparityImageInThread();
+    }
+}
+
+
+void StereoPipeline::computeDisparityImageInThread ()
+{
     // If input images are not set, clear disparity image; otherwise,
     // compute new disparity image
     if (rectifiedImageL.empty() || rectifiedImageR.empty()) {
@@ -264,3 +283,26 @@ void StereoPipeline::computeDisparityImage ()
     emit disparityImageChanged();
 }
 
+
+void StereoPipeline::setUseStereoMethodThread (bool enable)
+{
+    // No-op if already set
+    if (enable == useStereoMethodThread) {
+        return;
+    }
+
+    useStereoMethodThread = enable;
+    
+    if (enable) {
+        connect(stereoMethodThread, SIGNAL(started()), this, SLOT(computeDisparityImageInThread()), Qt::DirectConnection);
+        connect(this, SIGNAL(disparityImageChanged()), stereoMethodThread, SLOT(quit()), Qt::DirectConnection);
+    } else {
+        disconnect(stereoMethodThread, SIGNAL(started()), this, SLOT(computeDisparityImageInThread()));
+        disconnect(this, SIGNAL(disparityImageChanged()), stereoMethodThread, SLOT(quit()));
+    }
+}
+
+bool StereoPipeline::getUseStereoMethodThread () const
+{
+    return useStereoMethodThread;
+}

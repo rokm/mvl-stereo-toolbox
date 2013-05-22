@@ -15,6 +15,7 @@ Toolbox::Toolbox ()
 {
     // Create pipeline
     pipeline = new StereoPipeline(this);
+    pipeline->setUseStereoMethodThread(true);
 
     calibration = new StereoCalibration(pipeline);
     pipeline->setCalibration(calibration);

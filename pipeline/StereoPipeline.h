@@ -61,6 +61,10 @@ public:
     int getNumberOfDisparityLevels () const;
     int getDisparityImageComputationTime () const;
 
+    // Stereo method thread
+    void setUseStereoMethodThread (bool);
+    bool getUseStereoMethodThread () const;
+
 public slots:
     void setImageSourceState (bool);
     void setCalibrationState (bool);
@@ -70,6 +74,8 @@ protected slots:
     void beginProcessing ();
     void rectifyImages ();
     void computeDisparityImage ();
+
+    void computeDisparityImageInThread ();
     
 signals:
     void error (const QString &);
@@ -105,6 +111,9 @@ protected:
     // Stereo method
     bool stereoMethodActive;
     StereoMethod *stereoMethod;
+
+    bool useStereoMethodThread;
+    QThread *stereoMethodThread;
     
     // Cached disparity image
     cv::Mat disparityImage;
