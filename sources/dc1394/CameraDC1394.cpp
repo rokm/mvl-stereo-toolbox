@@ -8,7 +8,7 @@ CameraDC1394::CameraDC1394 (dc1394camera_t *c, QObject *parent)
 {
     //setIsoSpeed();
     setMode(DC1394_VIDEO_MODE_1024x768_MONO8);
-    setFramerate(DC1394_FRAMERATE_7_5);
+    setFramerate(DC1394_FRAMERATE_15);
 
     // Print info
     dc1394_camera_print_info(camera, stdout);
