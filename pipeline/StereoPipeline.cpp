@@ -32,6 +32,7 @@ StereoPipeline::StereoPipeline (QObject *parent)
 
     useStereoMethodThread = false;
     stereoMethodThread = new QThread(this);
+    stereoDroppedFramesCounter = 0;
 
     imageSourceActive = true;
     calibrationActive = true;
@@ -252,9 +253,10 @@ void StereoPipeline::computeDisparityImage ()
     if (useStereoMethodThread) {
         // Start processing not processing already; otherwise drop
         if (!stereoMethodThread->isRunning()) {
+            stereoDroppedFramesCounter = 0;
             stereoMethodThread->start();
         } else {
-            qDebug() << "Dropping frame";
+            stereoDroppedFramesCounter++;
         }
     } else {
         // Direct call
@@ -305,4 +307,9 @@ void StereoPipeline::setUseStereoMethodThread (bool enable)
 bool StereoPipeline::getUseStereoMethodThread () const
 {
     return useStereoMethodThread;
+}
+
+int StereoPipeline::getStereoDroppedFrames () const
+{
+    return stereoDroppedFramesCounter;
 }

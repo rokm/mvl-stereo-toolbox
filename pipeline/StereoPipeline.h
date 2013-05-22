@@ -65,6 +65,8 @@ public:
     void setUseStereoMethodThread (bool);
     bool getUseStereoMethodThread () const;
 
+    int getStereoDroppedFrames () const;
+
 public slots:
     void setImageSourceState (bool);
     void setCalibrationState (bool);
@@ -114,6 +116,7 @@ protected:
 
     bool useStereoMethodThread;
     QThread *stereoMethodThread;
+    int stereoDroppedFramesCounter;
     
     // Cached disparity image
     cv::Mat disparityImage;
