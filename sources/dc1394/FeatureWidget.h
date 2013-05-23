@@ -1,5 +1,5 @@
 /*
- * DC1394 Camera: config widget
+ * DC1394 Camera: generic feature config widget
  * Copyright (C) 2013 Rok Mandeljc
  *
  * This program is free software; you can redistribute it and/or modify
@@ -19,36 +19,38 @@
  * 
  */
 
-#ifndef CAMERA_DC1394_CONFIG_WIDGET_H
-#define CAMERA_DC1394_CONFIG_WIDGET_H
+#ifndef FEATURE_WIDGET_H
+#define FEATURE_WIDGET_H
 
+#include <QtCore>
 #include <QtGui>
+
+#include <dc1394/dc1394.h>
 
 
 class CameraDC1394;
 
-class CameraDC1394ConfigWidget : public QWidget
+class FeatureWidget : public QWidget
 {
     Q_OBJECT
-    
+
 public:
-    CameraDC1394ConfigWidget (CameraDC1394 *, QWidget * = 0);
-    virtual ~CameraDC1394ConfigWidget ();
+    FeatureWidget (CameraDC1394 *, const dc1394feature_info_t &, QWidget * = 0);
+    virtual ~FeatureWidget ();
 
 protected slots:
+    void setValue (int);
     void modeChanged (int);
-    void framerateChanged (int);
 
     void updateParameters ();
 
-protected:
-    void addFeatureWidgets ();
 
 protected:
     CameraDC1394 *camera;
+    dc1394feature_info_t feature;
 
+    QSpinBox *spinBoxValue;
     QComboBox *comboBoxMode;
-    QComboBox *comboBoxFramerate;
 };
 
 #endif

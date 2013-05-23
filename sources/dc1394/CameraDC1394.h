@@ -61,6 +61,16 @@ public:
     void setFramerate (dc1394framerate_t);
     dc1394framerate_t getFramerate () const;
 
+    // Camera features
+    const dc1394featureset_t &getFeatureSet () const;
+
+    void setFeatureValue (dc1394feature_t, int);
+    int getFeatureValue (dc1394feature_t);
+
+    QList<dc1394feature_mode_t> getFeatureModes (dc1394feature_t);
+    void setFeatureMode (dc1394feature_t, dc1394feature_mode_t);
+    dc1394feature_mode_t getFeatureMode (dc1394feature_t);
+
     // Camera start/stop
     void startCapture ();
     void stopCapture ();
@@ -84,6 +94,10 @@ signals:
     void captureStarted ();
     void captureFinished ();
     void frameReady ();
+
+    void error (const QString);
+
+    void parameterChanged ();
 
 protected:
     dc1394camera_id_t id;

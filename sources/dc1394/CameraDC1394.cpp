@@ -30,13 +30,15 @@
 CameraDC1394::CameraDC1394 (dc1394camera_t *c, QObject *parent)
     : QObject(parent), camera(c)
 {
-    //setIsoSpeed();
-    setMode(DC1394_VIDEO_MODE_1024x768_MONO8);
-    setFramerate(DC1394_FRAMERATE_15);
-
     // Print info
     dc1394_camera_print_info(camera, stdout);
 
+    // Print features
+    dc1394_feature_get_all(camera, &features);
+    dc1394_feature_print_all(&features, stdout);
+
+    // Create capture thread
+    captureActive = false;
     captureThread = new QThread(this);
     connect(captureThread, SIGNAL(started()), this, SLOT(captureFunction()), Qt::DirectConnection);
     connect(this, SIGNAL(captureFinished()), captureThread, SLOT(quit()), Qt::DirectConnection);
@@ -99,9 +101,11 @@ void CameraDC1394::setIsoSpeed (dc1394speed_t speed)
 
     ret = dc1394_video_set_iso_speed(camera, speed);
     if (ret) {
-        qWarning() << "Could not set ISO speed!";
+        emit error("Failed to set ISO speed!");
         return;
     }
+
+    emit parameterChanged();
 }
 
 dc1394speed_t CameraDC1394::getIsoSpeed () const
@@ -112,7 +116,7 @@ dc1394speed_t CameraDC1394::getIsoSpeed () const
     // Set mode
     ret = dc1394_video_get_iso_speed(camera, &value);
     if (ret) {
-        qWarning() << "Could not get ISO speed!";
+        qWarning() << "Failed to get ISO speed!";
     }
     
     return value;
@@ -129,7 +133,7 @@ QVector<dc1394video_mode_t> CameraDC1394::getSupportedModes ()
     
     ret = dc1394_video_get_supported_modes(camera, &raw_modes);
     if (ret) {
-        qWarning() << "Failed to query supported modes!";
+        emit error("Failed to query supported modes!");
         return modes;
     }
 
@@ -148,9 +152,11 @@ void CameraDC1394::setMode (dc1394video_mode_t mode)
     // Set mode
     ret = dc1394_video_set_mode(camera, mode);
     if (ret) {
-        qWarning() << "Could not set mode!";
+        emit error("Failed to set mode!");
         return;
     }
+
+    emit parameterChanged();
 }
 
 dc1394video_mode_t CameraDC1394::getMode () const
@@ -161,7 +167,7 @@ dc1394video_mode_t CameraDC1394::getMode () const
     // Set mode
     ret = dc1394_video_get_mode(camera, &value);
     if (ret) {
-        qWarning() << "Could not get mode!";
+        qWarning() << "Failed to get mode!";
     }
     
     return value;
@@ -178,7 +184,7 @@ QVector<dc1394framerate_t> CameraDC1394::getSupportedFramerates ()
     
     ret = dc1394_video_get_supported_framerates(camera, getMode(), &raw_framerates);
     if (ret) {
-        qWarning() << "Failed to query supported framerates!";
+        emit error("Failed to query supported framerates");
         return framerates;
     }
 
@@ -197,9 +203,11 @@ void CameraDC1394::setFramerate (dc1394framerate_t fps)
     // Set framerate
     ret = dc1394_video_set_framerate(camera, fps);
     if (ret) {
-        qWarning() << "Could not set framerate!";
+        emit error("Failed to set framerate");
         return;
     }
+
+    emit parameterChanged();
 }
 
 dc1394framerate_t CameraDC1394::getFramerate () const
@@ -210,10 +218,87 @@ dc1394framerate_t CameraDC1394::getFramerate () const
     // Set mode
     ret = dc1394_video_get_framerate(camera, &value);
     if (ret) {
-        qWarning() << "Could not get framerate!";
+        qWarning() << "Failed to get framerate!";
     }
     
     return value;
+}
+
+
+// *********************************************************************
+// *                         Camera features                           *
+// *********************************************************************
+const dc1394featureset_t &CameraDC1394::getFeatureSet () const
+{
+    return features;
+}
+
+
+void CameraDC1394::setFeatureValue (dc1394feature_t feature, int newValue)
+{
+    dc1394error_t ret;
+
+    ret = dc1394_feature_set_value(camera, feature, newValue);
+    if (ret) {
+        qDebug() << "Failed to set feature value!";
+    }
+}
+
+int CameraDC1394::getFeatureValue (dc1394feature_t feature)
+{
+    quint32 value;
+    dc1394error_t ret;
+    
+    ret = dc1394_feature_get_value(camera, feature, &value);
+    if (ret) {
+        qDebug() << "Failed to get feature value!";
+    }
+
+    return value;
+}
+
+
+QList<dc1394feature_mode_t> CameraDC1394::getFeatureModes (dc1394feature_t feature)
+{
+    dc1394error_t ret;
+    dc1394feature_modes_t raw_modes;
+
+    QList<dc1394feature_mode_t> modes;
+
+    ret = dc1394_feature_get_modes(camera, feature, &raw_modes);
+    if (ret) {
+        qDebug() << "Failed to set feature value!";
+        return modes;
+    }
+
+    for (int i = 0; i < raw_modes.num; i++) {
+        modes.append(raw_modes.modes[i]);
+    }
+
+    return modes;
+}
+
+void CameraDC1394::setFeatureMode (dc1394feature_t feature, dc1394feature_mode_t mode)
+{
+    dc1394error_t ret;
+    
+    ret = dc1394_feature_set_mode(camera, feature, mode);
+    if (ret) {
+        qDebug() << "Failed to set feature mode!";
+    }
+}
+
+dc1394feature_mode_t CameraDC1394::getFeatureMode (dc1394feature_t feature)
+{
+    dc1394feature_mode_t mode;
+    dc1394error_t ret;
+    
+    ret = dc1394_feature_get_mode(camera, feature, &mode);
+    if (ret) {
+        qDebug() << "Failed to get feature mode!";
+    }
+
+    return mode;
 }
 
 
