@@ -164,8 +164,6 @@ void ImageSourceDC1394::startStopCapture (bool start)
     }
 }
 
-
-#include <opencv2/highgui/highgui.hpp>
 void ImageSourceDC1394::frameAggregator ()
 {
     if (QObject::sender() == leftCamera) {
@@ -180,9 +178,13 @@ void ImageSourceDC1394::frameAggregator ()
     if ((!requireLeft || leftFrameReady) && (!requireRight || rightFrameReady)) {
         if (requireLeft) {
             leftCamera->copyFrame(imageLeft);
+        } else {
+            imageLeft = cv::Mat();
         }
         if (requireRight) {
             rightCamera->copyFrame(imageRight);
+        } else {
+            imageRight = cv::Mat();
         }
         leftFrameReady = false;
         rightFrameReady = false;
@@ -236,108 +238,84 @@ ConfigTabDC1394::ConfigTabDC1394 (ImageSourceDC1394 *s, QWidget *parent)
 
     layout->addRow(line);
 
+    // Devices
+    boxDevices = new QHBoxLayout();
+    layout->addRow(boxDevices);
+
+    boxDevices->addWidget(createDeviceFrame(true)); // Left device frame
+    boxDevices->addWidget(createDeviceFrame(false)); // Right device frame
+}
+
+QWidget *ConfigTabDC1394::createDeviceFrame (bool left)
+{
+    QFrame *deviceFrame, *frame;
+    QLabel *label;
+    QComboBox *comboBox;
+    QPushButton *button;
+    QFrame *line;
+    QString tooltip;
+
+    QFormLayout *layout;
+   
+    // Camera frame
+    deviceFrame = new QFrame(this);
+    deviceFrame->setFrameStyle(QFrame::Box | QFrame::Sunken);
+    layout = new QFormLayout(deviceFrame);
+    deviceFrame->setLayout(layout);
+
+    // Label
+    label = new QLabel(left ? "<b>Left device</b>" : "<b>Right device</b>", deviceFrame);
+    label->setAlignment(Qt::AlignCenter);
+    layout->addRow(label);
+
+    // Combo box
+    tooltip = left ? "Left DC1394 device." : "Right DC1394 device.";
+    
+    comboBox = new QComboBox(deviceFrame);
+    comboBox->setModel(source->getCameraListModel());
+    comboBox->setToolTip(tooltip);
+    connect(comboBox, SIGNAL(activated(int)), this, SLOT(deviceSelected(int)));
+    if (left) {
+        comboBoxLeftDevice = comboBox;
+    } else {
+        comboBoxRightDevice = comboBox;
+    }
+    layout->addRow(comboBox);
+
     // Capture
     tooltip = "Start/stop capture.";
     
-    button = new QPushButton("Capture");
+    button = new QPushButton("Capture", deviceFrame);
     button->setToolTip(tooltip);
     button->setCheckable(true);
-    connect(button, SIGNAL(toggled(bool)), source, SLOT(startStopCapture(bool)));
+    connect(button, SIGNAL(toggled(bool)), this, SLOT(startStopCapture(bool)));
+    if (left) {
+        pushButtonCaptureLeftDevice = button;
+    } else {
+        pushButtonCaptureRightDevice = button;
+    }
 
     layout->addRow(button);
 
     // Separator
-    line = new QFrame(this);
+    line = new QFrame(deviceFrame);
     line->setFrameStyle(QFrame::HLine | QFrame::Sunken);
 
     layout->addRow(line);
 
-    // Cameras
-    boxCameras = new QHBoxLayout();
-    layout->addRow(boxCameras);
-
-    createLeftCameraFrame();
-    createRightCameraFrame();
-}
-
-void ConfigTabDC1394::createLeftCameraFrame ()
-{
-    QFrame *frame;
-    QLabel *label;
-    QComboBox *comboBox;
-    QString tooltip;
-
-    QFormLayout *layout;
-   
-    // Camera frame
-    frame = new QFrame(this);
-    frame->setFrameStyle(QFrame::Box | QFrame::Sunken);
-    layout = new QFormLayout(frame);
-    frame->setLayout(layout);
-    boxCameras->addWidget(frame);
-
-    // Label
-    label = new QLabel("<b>Left device</b>", this);
-    label->setAlignment(Qt::AlignCenter);
-    layout->addRow(label);
-
-    // Combo box
-    tooltip = "Left DC1394 device.";
-    
-    comboBox = new QComboBox(this);
-    comboBox->setModel(source->getCameraListModel());
-    comboBox->setToolTip(tooltip);
-    connect(comboBox, SIGNAL(activated(int)), this, SLOT(cameraLeftSelected(int)));
-    comboBoxLeftDevice = comboBox;
-    layout->addRow(comboBox);
-
     // Camera config frame
-    frame = new QFrame();
+    frame = new QFrame(deviceFrame);
     frame->setLayout(new QVBoxLayout(frame));
     frame->setContentsMargins(0, 0, 0, 0);
     frame->layout()->setContentsMargins(0, 0, 0, 0);
     layout->addRow(frame);
-    frameLeftDevice = frame;
-}
+    if (left) {
+        frameLeftDevice = frame;
+    } else {
+        frameRightDevice = frame;
+    }
 
-void ConfigTabDC1394::createRightCameraFrame ()
-{
-    QFrame *frame;
-    QLabel *label;
-    QComboBox *comboBox;
-    QString tooltip;
-
-    QFormLayout *layout;
-   
-    // Camera frame
-    frame = new QFrame(this);
-    frame->setFrameStyle(QFrame::Box | QFrame::Sunken);
-    layout = new QFormLayout(frame);
-    frame->setLayout(layout);
-    boxCameras->addWidget(frame);
-
-    // Label
-    label = new QLabel("<b>Right device</b>", this);
-    label->setAlignment(Qt::AlignCenter);
-    layout->addRow(label);
-
-    // Combo box
-    tooltip = "Right DC1394 device.";
-    
-    comboBox = new QComboBox(this);
-    comboBox->setModel(source->getCameraListModel());
-    comboBox->setToolTip(tooltip);
-    connect(comboBox, SIGNAL(activated(int)), this, SLOT(cameraRightSelected(int)));
-    comboBoxRightDevice = comboBox;
-    layout->addRow(comboBox);
-
-    // Camera config frame
-    frame = new QFrame();
-    frame->setLayout(new QVBoxLayout(frame));
-    frame->setContentsMargins(0, 0, 0, 0);
-    frame->layout()->setContentsMargins(0, 0, 0, 0);
-    layout->addRow(frame);
-    frameRightDevice = frame;
+    return deviceFrame;
 }
 
 ConfigTabDC1394::~ConfigTabDC1394 ()
@@ -345,41 +323,66 @@ ConfigTabDC1394::~ConfigTabDC1394 ()
 }
 
 
-void ConfigTabDC1394::cameraLeftSelected (int index)
+void ConfigTabDC1394::deviceSelected (int index)
 {
-    // Remove config widget for old device
-    if (configLeftDevice) {
-        frameLeftDevice->layout()->removeWidget(configLeftDevice);
-    }
-    
-    // Set new device
-    QVariant c = comboBoxLeftDevice->itemData(index);
-    source->setLeftCamera(c.isValid() ? c.toInt() : -1);
+    QWidget **deviceConfig;
+    QFrame **frame;
+    QComboBox **comboBox;
 
-    // Get new device's config widget
-    CameraDC1394 *camera = source->getLeftCamera();
-    if (camera) {
-        configLeftDevice = camera->getConfigWidget();
-        frameLeftDevice->layout()->addWidget(configLeftDevice);
+    if (QObject::sender() == comboBoxLeftDevice) {
+        deviceSelected(configLeftDevice, frameLeftDevice, comboBoxLeftDevice, index);
+    } else if (QObject::sender() == comboBoxRightDevice) {
+        deviceSelected(configRightDevice, frameRightDevice, comboBoxRightDevice, index);
+    } else {
+        qFatal("Invalid sender!");
     }
 }
 
-void ConfigTabDC1394::cameraRightSelected (int index)
+void ConfigTabDC1394::deviceSelected (QWidget *&deviceConfig, QFrame *&deviceFrame, QComboBox *&deviceComboBox, int index)
 {
+    
     // Remove config widget for old device
-    if (configRightDevice) {
-        frameRightDevice->layout()->removeWidget(configRightDevice);
+    if (deviceConfig) {
+        deviceFrame->layout()->removeWidget(deviceConfig);
     }
     
     // Set new device
-    QVariant c = comboBoxRightDevice->itemData(index);
-    source->setRightCamera(c.isValid() ? c.toInt() : -1);
+    CameraDC1394 *newDevice;
+    QVariant c = deviceComboBox->itemData(index);
+    
+    if (deviceComboBox == comboBoxLeftDevice) {
+        source->setLeftCamera(c.isValid() ? c.toInt() : -1);
+        newDevice = source->getLeftCamera();
+    } else {
+        source->setRightCamera(c.isValid() ? c.toInt() : -1);
+        newDevice = source->getRightCamera();
+    }
 
     // Get new device's config widget
-    CameraDC1394 *camera = source->getRightCamera();
-    if (camera) {
-        configRightDevice = camera->getConfigWidget();
-        frameRightDevice->layout()->addWidget(configRightDevice);
+    if (newDevice) {
+        deviceConfig = newDevice->getConfigWidget();
+        deviceFrame->layout()->addWidget(deviceConfig);
     }
 }
 
+void ConfigTabDC1394::startStopCapture (bool start)
+{
+    if (QObject::sender() == pushButtonCaptureLeftDevice) {
+        startStopCapture(source->getLeftCamera(), start);        
+    } else {
+        startStopCapture(source->getRightCamera(), start);
+    }
+}
+
+void ConfigTabDC1394::startStopCapture (CameraDC1394 *device, bool start)
+{
+    if (!device) {
+        return;
+    }
+    
+    if (start) {
+        device->startCapture();
+    } else {
+        device->stopCapture();
+    }
+}

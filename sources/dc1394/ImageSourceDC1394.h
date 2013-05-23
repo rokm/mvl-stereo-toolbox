@@ -64,13 +64,15 @@ public:
     virtual ~ConfigTabDC1394 ();
 
 protected slots:
-    void cameraLeftSelected (int);
-    void cameraRightSelected (int);
-
-protected:
-    void createLeftCameraFrame ();
-    void createRightCameraFrame ();
+    void deviceSelected (int);
+    void startStopCapture (bool);
     
+protected:
+    QWidget *createDeviceFrame (bool);
+
+    void deviceSelected (QWidget *&, QFrame *&, QComboBox *&, int);
+    void startStopCapture (CameraDC1394 *, bool);
+
 protected:
     ImageSourceDC1394 *source;
 
@@ -78,7 +80,10 @@ protected:
     QComboBox *comboBoxLeftDevice;
     QComboBox *comboBoxRightDevice;
 
-    QHBoxLayout *boxCameras;
+    QPushButton *pushButtonCaptureLeftDevice;
+    QPushButton *pushButtonCaptureRightDevice;
+
+    QHBoxLayout *boxDevices;
     
     QFrame *frameLeftDevice;
     QFrame *frameRightDevice;
