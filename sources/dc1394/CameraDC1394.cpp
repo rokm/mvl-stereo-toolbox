@@ -1,5 +1,7 @@
 #include "CameraDC1394.h"
 
+#include <opencv2/imgproc/imgproc.hpp>
+
 #define NUM_BUFFERS 32
 
 
@@ -319,9 +321,12 @@ void CameraDC1394::convertToOpenCVImage (dc1394video_frame_t *frame, cv::Mat &im
     dc1394_is_color(frame->color_coding, &isColor);
 
     if (isColor == DC1394_TRUE) {
-        // Convert into RGB8
-        image.create(frame->size[1], frame->size[0], CV_8UC3); // (Re)allocate, if necessary
-        dc1394_convert_to_RGB8(frame->image, image.ptr<uint8_t>(), frame->size[0], frame->size[1], frame->yuv_byte_order, frame->color_coding, frame->data_depth);
+        // Convert into RGB8...
+        cv::Mat tmpImg(frame->size[1], frame->size[0], CV_8UC3);
+        dc1394_convert_to_RGB8(frame->image, tmpImg.ptr<uint8_t>(), frame->size[0], frame->size[1], frame->yuv_byte_order, frame->color_coding, frame->data_depth);
+
+        // ... and then RGB to BGR, which is what OpenCV needs
+        cv::cvtColor(tmpImg, image, CV_RGB2BGR);
     } else {
         // Convert into Mono8
         image.create(frame->size[1], frame->size[0], CV_8UC1); // (Re)allocate, if necessary

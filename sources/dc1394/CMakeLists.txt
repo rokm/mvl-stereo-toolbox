@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.8)
 project(source_dc1394 CXX)
 
 find_package(PkgConfig REQUIRED)
-find_package(OpenCV REQUIRED core)
+find_package(OpenCV REQUIRED core imgproc)
 find_package(Qt4 REQUIRED)
 
 pkg_check_modules(DC1394 REQUIRED libdc1394-2)

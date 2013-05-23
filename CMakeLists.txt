@@ -7,11 +7,11 @@ add_subdirectory(pipeline)
 # Toolbox
 add_subdirectory(toolbox)
 
-# Sources
+# Plugins - image sources
 add_subdirectory(sources/dc1394)
 add_subdirectory(sources/file)
 
-# Methods
+# Plugins - stereo methods
 add_subdirectory(${PROJECT_SOURCE_DIR}/methods/elas)
 add_subdirectory(${PROJECT_SOURCE_DIR}/methods/opencv_bm)
 add_subdirectory(${PROJECT_SOURCE_DIR}/methods/opencv_contrib_var)
