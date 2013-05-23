@@ -1,4 +1,7 @@
 /*
+ * Efficient LArge-scale Stereo: method
+ * Copyright (C) 2013 Rok Mandeljc
+ * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -16,8 +19,8 @@
  * 
  */
  
-#ifndef STEREO_METHOD_ELAS
-#define STEREO_METHOD_ELAS
+#ifndef STEREO_METHOD_ELAS_H
+#define STEREO_METHOD_ELAS_H
 
 #include "StereoMethod.h"
 
@@ -133,65 +136,5 @@ protected:
 
     cv::Mat tmpImg1, tmpImg2, tmpDisp1, tmpDisp2;
 };
-
-
-class ConfigTabELAS : public QWidget
-{
-    Q_OBJECT
-    
-public:
-    ConfigTabELAS (StereoMethodELAS *, QWidget * = 0);
-    virtual ~ConfigTabELAS ();
-
-protected slots:
-    void presetChanged (int);
-
-    void addCornersChanged (int);
-    void medianFilterChanged (int);
-    void adaptiveMeanFilterChanged (int);
-    void postProcessOnlyLeftChanged (int);
-    void subsamplingChanged (int);
-    void returnLeftChanged (int);
-    
-    void updateParameters ();
-
-protected:
-    StereoMethodELAS *method;
-
-    QComboBox *comboBoxPreset;
-
-    QSpinBox *spinBoxMinDisparity;
-    QSpinBox *spinBoxMaxDisparity;
-
-    QDoubleSpinBox *spinBoxSupportThreshold;
-    QSpinBox *spinBoxSupportTexture;
-    QSpinBox *spinBoxCandidateStepSize;
-    QSpinBox *spinBoxInconsistentWindowSize;
-    QSpinBox *spinBoxInconsistentThreshold;
-    QSpinBox *spinBoxInconsistentMinSupport;
-
-    QCheckBox *checkBoxAddCorners;
-    QSpinBox *spinBoxGridSize;
-    
-    QDoubleSpinBox *spinBoxBeta;
-    QDoubleSpinBox *spinBoxGamma;
-    QDoubleSpinBox *spinBoxSigma;
-    QDoubleSpinBox *spinBoxSigmaRadius;
-
-    QSpinBox *spinBoxMatchTexture;
-    QSpinBox *spinBoxLRThreshold;
-
-    QDoubleSpinBox *spinBoxSpeckleSimThreshold;
-    QSpinBox *spinBoxSpeckleSize;
-    QSpinBox *spinBoxInterpolationGapWidth;
-
-    QCheckBox *checkBoxFilterMedian;
-    QCheckBox *checkBoxFilterAdaptiveMean;
-    QCheckBox *checkBoxPostProcessOnlyLeft;
-    QCheckBox *checkBoxSubsampling;
-
-    QCheckBox *checkBoxReturnLeft;
-};
-
 
 #endif

@@ -1,4 +1,7 @@
 /*
+ * OpenCV Variational Matching: method
+ * Copyright (C) 2013 Rok Mandeljc
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -16,8 +19,8 @@
  * 
  */
  
-#ifndef STEREO_METHOD_VAR
-#define STEREO_METHOD_VAR
+#ifndef STEREO_METHOD_VAR_H
+#define STEREO_METHOD_VAR_H
 
 #include <QtCore>
 #include <opencv2/contrib/contrib.hpp>
@@ -80,51 +83,5 @@ protected:
 
     cv::Mat tmpDisparity;
 };
-
-
-class ConfigTabVar : public QWidget
-{
-    Q_OBJECT
-    
-public:
-    ConfigTabVar (StereoMethodVar *, QWidget * = 0);
-    virtual ~ConfigTabVar ();
-
-protected slots:
-    void presetChanged (int);
-
-    void penalizationChanged (int);
-    void cycleChanged (int);
-    void flagsChanged ();
-
-    void updateParameters ();
-
-protected:
-    StereoMethodVar *method;
-
-    QComboBox *comboBoxPreset;
-
-    QSpinBox *spinBoxLevels;
-    QDoubleSpinBox *spinBoxPyrScale;
-    QSpinBox *spinBoxNumIterations;
-    QSpinBox *spinBoxMinDisparity;
-    QSpinBox *spinBoxMaxDisparity;
-    QSpinBox *spinBoxPolyN;
-    QDoubleSpinBox *spinBoxPolySigma;
-    QDoubleSpinBox *spinBoxFi;
-    QDoubleSpinBox *spinBoxLambda;
-
-    QComboBox *comboBoxPenalization;
-
-    QComboBox *comboBoxCycle;
-    
-    QCheckBox *checkBoxUseInitialDisparity;
-    QCheckBox *checkBoxUseEqualizeHist;
-    QCheckBox *checkBoxUseSmartId;
-    QCheckBox *checkBoxUseAutoParams;
-    QCheckBox *checkBoxUseMedianFiltering;
-};
-
-
 
 #endif

@@ -1,4 +1,7 @@
 /*
+ * OpenCV GPU Belief Propagation: method
+ * Copyright (C) 2013 Rok Mandeljc
+ * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -16,8 +19,8 @@
  * 
  */
  
-#ifndef STEREO_METHOD_BELIEF_PROPAGATION_GPU
-#define STEREO_METHOD_BELIEF_PROPAGATION_GPU
+#ifndef STEREO_METHOD_BELIEF_PROPAGATION_GPU_H
+#define STEREO_METHOD_BELIEF_PROPAGATION_GPU_H
 
 #include "StereoMethod.h"
 
@@ -72,33 +75,5 @@ protected:
     // Block matcher
     cv::gpu::StereoBeliefPropagation bp;
 };
-
-
-class ConfigTabBeliefPropagationGPU : public QWidget
-{
-    Q_OBJECT
-    
-public:
-    ConfigTabBeliefPropagationGPU (StereoMethodBeliefPropagationGPU *, QWidget * = 0);
-    virtual ~ConfigTabBeliefPropagationGPU ();
-
-protected slots:
-    void presetChanged (int);
-
-    void updateParameters ();
-
-protected:
-    StereoMethodBeliefPropagationGPU *method;
-
-    QComboBox *comboBoxPreset;
-    QSpinBox *spinBoxNumDisparities;
-    QSpinBox *spinBoxIterations;
-    QSpinBox *spinBoxLevels;
-    QDoubleSpinBox *spinBoxMaxDataTerm;
-    QDoubleSpinBox *spinBoxDataWeight;
-    QDoubleSpinBox *spinBoxMaxDiscTerm;
-    QDoubleSpinBox *spinBoxDiscSingleJump;
-};
-
 
 #endif

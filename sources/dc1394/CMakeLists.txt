@@ -13,15 +13,19 @@ set(plugin_name ${PROJECT_NAME})
 
 set(plugin_SOURCES
     CameraDC1394.cpp
+    CameraDC1394ConfigWidget.cpp
     CameraListModel.cpp
     ImageSourceDC1394.cpp
+    ImageSourceDC1394ConfigWidget.cpp
     plugin.cpp
 )
     
 set(plugin_HEADERS
     CameraDC1394.h
+    CameraDC1394ConfigWidget.h
     CameraListModel.h
     ImageSourceDC1394.h
+    ImageSourceDC1394ConfigWidget.h
 )
 
 QT4_WRAP_CPP(plugin_HEADERS_MOC ${plugin_HEADERS})

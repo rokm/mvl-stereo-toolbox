@@ -6,8 +6,17 @@ find_package(Qt4 REQUIRED)
 
 set(plugin_name ${PROJECT_NAME})
 
-set(plugin_SOURCES StereoMethodVar.cpp plugin.cpp)
-set(plugin_HEADERS StereoMethodVar.h)
+set(plugin_SOURCES
+    StereoMethodVar.cpp
+    StereoMethodVarConfigWidget.cpp
+    plugin.cpp
+)
+
+set(plugin_HEADERS
+    StereoMethodVar.h
+    StereoMethodVarConfigWidget.h
+)
+
 QT4_WRAP_CPP(plugin_HEADERS_MOC ${plugin_HEADERS})
 
 include_directories(${PROJECT_SOURCE_DIR}/../../pipeline)

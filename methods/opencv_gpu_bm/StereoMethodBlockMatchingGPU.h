@@ -1,4 +1,7 @@
 /*
+ * OpenCV GPU Block Matching: method
+ * Copyright (C) 2013 Rok Mandeljc
+ * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -16,8 +19,8 @@
  * 
  */
  
-#ifndef STEREO_METHOD_BLOCK_MATCHING_GPU
-#define STEREO_METHOD_BLOCK_MATCHING_GPU
+#ifndef STEREO_METHOD_BLOCK_MATCHING_GPU_H
+#define STEREO_METHOD_BLOCK_MATCHING_GPU_H
 
 #include "StereoMethod.h"
 
@@ -59,30 +62,5 @@ protected:
     // Block matcher
     cv::gpu::StereoBM_GPU bm;
 };
-
-
-class ConfigTabBlockMatchingGPU : public QWidget
-{
-    Q_OBJECT
-    
-public:
-    ConfigTabBlockMatchingGPU (StereoMethodBlockMatchingGPU *, QWidget * = 0);
-    virtual ~ConfigTabBlockMatchingGPU ();
-
-protected slots:
-    void presetChanged (int);
-
-    void updateParameters ();
-
-protected:
-    StereoMethodBlockMatchingGPU *method;
-
-    QPushButton *buttonDefaults;
-    QComboBox *comboBoxPreset;
-    QSpinBox *spinBoxNumDisparities;
-    QSpinBox *spinBoxWindowSize;
-    QDoubleSpinBox *spinBoxAverageTextureThreshold;
-};
-
 
 #endif

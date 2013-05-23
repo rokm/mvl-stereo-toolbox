@@ -1,4 +1,7 @@
 /*
+ * OpenCV Semi-Global Block Matching: method
+ * Copyright (C) 2013 Rok Mandeljc
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -16,13 +19,14 @@
  * 
  */
  
-#ifndef STEREO_METHOD_SEMI_GLOBAL_BLOCK_MATCHING
-#define STEREO_METHOD_SEMI_GLOBAL_BLOCK_MATCHING
+#ifndef STEREO_METHOD_SEMI_GLOBAL_BLOCK_MATCHING_H
+#define STEREO_METHOD_SEMI_GLOBAL_BLOCK_MATCHING_H
 
 #include <QtCore>
 #include <opencv2/calib3d/calib3d.hpp>
 
 #include "StereoMethod.h"
+
 
 class StereoMethodSemiGlobalBlockMatching : public StereoMethod
 {
@@ -88,40 +92,5 @@ protected:
 
     cv::Mat tmpDisparity;
 };
-
-
-class ConfigTabSemiGlobalBlockMatching : public QWidget
-{
-    Q_OBJECT
-    
-public:
-    ConfigTabSemiGlobalBlockMatching (StereoMethodSemiGlobalBlockMatching *, QWidget * = 0);
-    virtual ~ConfigTabSemiGlobalBlockMatching ();
-
-protected slots:
-    void presetChanged (int);
-
-    void fullDPChanged (int);
-    
-    void updateParameters ();
-
-protected:
-    StereoMethodSemiGlobalBlockMatching *method;
-
-    QComboBox *comboBoxPreset;
-    QSpinBox *spinBoxMinDisparity;
-    QSpinBox *spinBoxNumDisparities;
-    QSpinBox *spinBoxSADWindowSize;
-    QSpinBox *spinBoxPreFilterCap;
-    QSpinBox *spinBoxUniquenessRatio;
-    QSpinBox *spinBoxP1;
-    QSpinBox *spinBoxP2;
-    QSpinBox *spinBoxSpeckleWindowSize;
-    QSpinBox *spinBoxSpeckleRange;
-    QSpinBox *spinBoxDisp12MaxDiff;
-    QCheckBox *checkBoxFullDP;
-};
-
-
 
 #endif

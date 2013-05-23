@@ -1,4 +1,7 @@
 /*
+ * Stereo Pipeline: stereo method
+ * Copyright (C) 2013 Rok Mandeljc
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -16,14 +19,15 @@
  * 
  */
 
-#ifndef STEREO_METHOD
-#define STEREO_METHOD
+#ifndef STEREO_METHOD_H
+#define STEREO_METHOD_H
 
 #include <QtCore>
-#include <QtGui>
 
 #include <opencv2/core/core.hpp>
 
+
+class QWidget;
 
 class StereoMethod : public QObject
 {

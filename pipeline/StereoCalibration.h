@@ -1,4 +1,7 @@
 /*
+ * Stereo Pipeline: calibration
+ * Copyright (C) 2013 Rok Mandeljc
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -15,9 +18,9 @@
  * MA 02110-1301, USA.
  * 
  */
- 
-#ifndef STEREO_CALIBRATION
-#define STEREO_CALIBRATION
+
+#ifndef STEREO_CALIBRATION_H
+#define STEREO_CALIBRATION_H
 
 #include <QtCore>
 
@@ -39,7 +42,6 @@ public:
     void calibrateFromImages (const QStringList &, int, int, float);
 
     void rectifyImagePair (const cv::Mat &, const cv::Mat &, cv::Mat &, cv::Mat &) const;
-
 
     bool getState () const;
     const cv::Rect &getLeftROI () const;
@@ -73,6 +75,5 @@ protected:
     // Rectification maps
     cv::Mat map11, map12, map21, map22;
 };
-
 
 #endif

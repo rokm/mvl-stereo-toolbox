@@ -1,4 +1,7 @@
 /*
+ * OpenCV GPU Constant Space Belief Propagation: method
+ * Copyright (C) 2013 Rok Mandeljc
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -16,8 +19,8 @@
  * 
  */
  
-#ifndef STEREO_METHOD_CONSTANT_SPACE_BELIEF_PROPAGATION_GPU
-#define STEREO_METHOD_CONSTANT_SPACE_BELIEF_PROPAGATION_GPU
+#ifndef STEREO_METHOD_CONSTANT_SPACE_BELIEF_PROPAGATION_GPU_H
+#define STEREO_METHOD_CONSTANT_SPACE_BELIEF_PROPAGATION_GPU_H
 
 #include "StereoMethod.h"
 
@@ -80,38 +83,5 @@ protected:
     // Block matcher
     cv::gpu::StereoConstantSpaceBP bp;
 };
-
-
-class ConfigTabConstantSpaceBeliefPropagationGPU : public QWidget
-{
-    Q_OBJECT
-    
-public:
-    ConfigTabConstantSpaceBeliefPropagationGPU (StereoMethodConstantSpaceBeliefPropagationGPU *, QWidget * = 0);
-    virtual ~ConfigTabConstantSpaceBeliefPropagationGPU ();
-
-protected slots:
-    void presetChanged (int);
-
-    void localCostChanged (int);
-
-    void updateParameters ();
-
-protected:
-    StereoMethodConstantSpaceBeliefPropagationGPU *method;
-
-    QComboBox *comboBoxPreset;
-    QSpinBox *spinBoxNumDisparities;
-    QSpinBox *spinBoxIterations;
-    QSpinBox *spinBoxLevels;
-    QSpinBox *spinBoxNrPlane;
-    QDoubleSpinBox *spinBoxMaxDataTerm;
-    QDoubleSpinBox *spinBoxDataWeight;
-    QDoubleSpinBox *spinBoxMaxDiscTerm;
-    QDoubleSpinBox *spinBoxDiscSingleJump;
-    QSpinBox *spinBoxMinDispThreshold;
-    QCheckBox *checkBoxUseLocalCost;
-};
-
 
 #endif

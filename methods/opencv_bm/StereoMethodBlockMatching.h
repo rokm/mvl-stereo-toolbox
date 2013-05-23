@@ -1,4 +1,7 @@
 /*
+ * OpenCV Block Matching: method
+ * Copyright (C) 2013 Rok Mandeljc
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -16,8 +19,8 @@
  * 
  */
  
-#ifndef STEREO_METHOD_BLOCK_MATCHING
-#define STEREO_METHOD_BLOCK_MATCHING
+#ifndef STEREO_METHOD_BLOCK_MATCHING_H
+#define STEREO_METHOD_BLOCK_MATCHING_H
 
 #include "StereoMethod.h"
 
@@ -92,41 +95,5 @@ protected:
     cv::Mat tmpImg1, tmpImg2;
     cv::Mat tmpDisparity;
 };
-
-
-class ConfigTabBlockMatching : public QWidget
-{
-    Q_OBJECT
-    
-public:
-    ConfigTabBlockMatching (StereoMethodBlockMatching *, QWidget * = 0);
-    virtual ~ConfigTabBlockMatching ();
-
-protected slots:
-    void presetChanged (int);
-
-    void preFilterTypeChanged (int);
-    void trySmallerWindowsChanged (int);
-
-    void updateParameters ();
-
-protected:
-    StereoMethodBlockMatching *method;
-
-    QComboBox *comboBoxPreset;
-    QComboBox *comboBoxPreFilterType;
-    QSpinBox *spinBoxPreFilterSize;
-    QSpinBox *spinBoxPreFilterCap;
-    QSpinBox *spinBoxSADWindowSize;
-    QSpinBox *spinBoxMinDisparity;
-    QSpinBox *spinBoxNumDisparities;
-    QSpinBox *spinBoxTextureThreshold;
-    QSpinBox *spinBoxUniquenessRatio;
-    QSpinBox *spinBoxSpeckleWindowSize;
-    QSpinBox *spinBoxSpeckleRange;
-    QCheckBox *checkBoxTrySmallerWindow;
-    QSpinBox *spinBoxDisp12MaxDiff;
-};
-
 
 #endif

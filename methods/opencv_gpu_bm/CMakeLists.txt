@@ -6,8 +6,17 @@ find_package(Qt4 REQUIRED)
 
 set(plugin_name ${PROJECT_NAME})
 
-set(plugin_SOURCES StereoMethodBlockMatchingGPU.cpp plugin.cpp)
-set(plugin_HEADERS StereoMethodBlockMatchingGPU.h)
+set(plugin_SOURCES
+    StereoMethodBlockMatchingGPU.cpp
+    StereoMethodBlockMatchingGPUConfigWidget.cpp
+    plugin.cpp
+)
+
+set(plugin_HEADERS
+    StereoMethodBlockMatchingGPU.h
+    StereoMethodBlockMatchingGPUConfigWidget.h
+)
+
 QT4_WRAP_CPP(plugin_HEADERS_MOC ${plugin_HEADERS})
 
 include_directories(${PROJECT_SOURCE_DIR}/../../pipeline)
