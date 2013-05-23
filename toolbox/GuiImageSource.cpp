@@ -15,7 +15,7 @@ GuiImageSource::GuiImageSource (StereoPipeline *p, QList<ImageSource *> &s, QWid
     setWindowTitle("Image source");
     resize(800, 600);
 
-    QGridLayout *layout = new QGridLayout(this);
+    QVBoxLayout *layout = new QVBoxLayout(this);
     layout->setContentsMargins(2, 2, 2, 2);
     setLayout(layout);
 
@@ -23,7 +23,7 @@ GuiImageSource::GuiImageSource (StereoPipeline *p, QList<ImageSource *> &s, QWid
     QHBoxLayout *buttonsLayout = new QHBoxLayout();
     QPushButton *pushButton;
     
-    layout->addLayout(buttonsLayout, 0, 0, 1, 2);
+    layout->addLayout(buttonsLayout);
 
     buttonsLayout->addStretch();
 
@@ -35,20 +35,33 @@ GuiImageSource::GuiImageSource (StereoPipeline *p, QList<ImageSource *> &s, QWid
 
     buttonsLayout->addStretch();
 
-    // Left image
+    // Splitter - image pair and sources selection
+    QSplitter *splitter = new QSplitter(this);
+    splitter->setOrientation(Qt::Vertical);
+    layout->addWidget(splitter);
+
+    // Images
+    QWidget *imagesWidget = new QWidget(this);
+    splitter->addWidget(imagesWidget);
+
+    QHBoxLayout *imagesLayout = new QHBoxLayout(imagesWidget);
+    imagesWidget->setLayout(imagesLayout);
+    imagesWidget->resize(800, 300); // Make sure image widget has some space
+    imagesWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    
     displayImageLeft = new ImageDisplayWidget("Left image", this);
     displayImageLeft->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    layout->addWidget(displayImageLeft, 1, 0);
+    imagesLayout->addWidget(displayImageLeft);
 
-    // Right image
     displayImageRight = new ImageDisplayWidget("Right image", this);
     displayImageRight->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    layout->addWidget(displayImageRight, 1, 1);
+    imagesLayout->addWidget(displayImageRight);
 
     // Sources tab widget
     QScrollArea *scrollArea = new QScrollArea(this);
     scrollArea->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    layout->addWidget(scrollArea, 2, 0, 1, 2);
+    splitter->addWidget(scrollArea);
+    splitter->setCollapsible(1, true);
     
     QTabWidget *tabWidget = new QTabWidget(scrollArea);
     tabWidget->setTabPosition(QTabWidget::West);
@@ -56,9 +69,10 @@ GuiImageSource::GuiImageSource (StereoPipeline *p, QList<ImageSource *> &s, QWid
     scrollArea->setWidget(tabWidget);
     scrollArea->setWidgetResizable(true);
 
+
     // Status bar
     statusBar = new QStatusBar(this);
-    layout->addWidget(statusBar, 3, 0, 1, 2);
+    layout->addWidget(statusBar);
 
 
     // Create config tabs
