@@ -162,6 +162,52 @@ void StereoCalibration::initializeRectification ()
 // *********************************************************************
 // *                            Calibration                            * 
 // *********************************************************************
+bool StereoCalibration::multiScaleCornerSearch (const cv::Mat &img, const cv::Size &boardSize, int maxScale, std::vector<cv::Point2f> &corners, bool showResults) const
+{
+    bool found = false;
+    
+    // Multi-scale search
+    for (int scale = 1; scale <= maxScale; scale++) {                
+        cv::Mat scaledImg;
+
+        // Rescale image, if necessary
+        if (scale == 1) {
+            scaledImg = img;
+        } else {
+            cv::resize(img, scaledImg, cv::Size(), scale, scale, cv::INTER_CUBIC);
+        }
+
+        // Find corners
+        found = cv::findChessboardCorners(scaledImg, boardSize, corners, cv::CALIB_CB_ADAPTIVE_THRESH | cv::CALIB_CB_NORMALIZE_IMAGE /*| cv::CALIB_CB_FAST_CHECK*/);
+
+        if (found) {
+            // If corners were found at higher scale, scale them back
+            if (scale > 1) {
+                cv::Mat cornersMat(corners); // Construct matrix with shared data...
+                cornersMat *= 1.0/scale;
+            }
+
+            // Improve accuracy by interpolating corners to their sub-pixel poitions
+            cv::cornerSubPix(img, corners, cv::Size(11,11), cv::Size(-1,-1), cv::TermCriteria(cv::TermCriteria::COUNT + cv::TermCriteria::EPS, 30, 0.01));
+        
+            break;
+        }
+    }
+
+    // Display results
+    if (showResults) {
+        cv::Mat cimg;
+        cv::cvtColor(img, cimg, CV_GRAY2BGR);
+                    
+        cv::drawChessboardCorners(cimg, boardSize, corners, found);
+
+        cv::imshow("Corners", cimg);
+        cv::waitKey(500);
+    }
+
+    return found;
+}
+
 void StereoCalibration::calibrateFromImages (const QStringList &images, int boardWidth, int boardHeight, float squareSize)
 {
     std::vector<std::vector<cv::Point2f> > imagePoints[2];
@@ -214,60 +260,19 @@ void StereoCalibration::calibrateFromImages (const QStringList &images, int boar
                 break;
             }
 
-            bool found = false;
-            std::vector<cv::Point2f> &corners = imagePoints[k][j];
-
-            // Multi-scale search
-            for (int scale = 1; scale <= maxScale; scale++) {                
-                cv::Mat scaledImg;
-
-                // Rescale image, if necessary
-                if (scale == 1) {
-                    scaledImg = img;
-                } else {
-                    cv::resize(img, scaledImg, cv::Size(), scale, scale, cv::INTER_CUBIC);
-                }
-
-                // Find corners
-                found = cv::findChessboardCorners(scaledImg, boardSize, corners, cv::CALIB_CB_ADAPTIVE_THRESH | cv::CALIB_CB_NORMALIZE_IMAGE /*| cv::CALIB_CB_FAST_CHECK*/);
-
-                if (found) {
-                    // If corners were found at higher scale, scale them back
-                    if (scale > 1) {
-                        cv::Mat cornersMat(corners); // Construct matrix with shared data...
-                        cornersMat *= 1.0/scale;
-                    }
-
-                    break;
-                }
-            }
-
-            // DEBUG
-            if (1) {
-                cv::Mat cimg;
-                cv::cvtColor(img, cimg, CV_GRAY2BGR);
-                    
-                cv::drawChessboardCorners(cimg, boardSize, corners, found);
-
-                cv::imshow("Corners", cimg);
-                cv::waitKey(500);
-            }
+            // Multi-scale corner search
+            bool found = multiScaleCornerSearch(img, boardSize, maxScale, imagePoints[k][j], true);
 
             // If not found, break the loop (so that if this was the first
             // image of the pair, we do not try the other)
             if (!found) {
                 break;
             }
-
-            // Improve accuracy by interpolating corners to their sub-pixel poitions
-            cv::cornerSubPix(img, corners, cv::Size(11,11), cv::Size(-1,-1), cv::TermCriteria(cv::TermCriteria::COUNT + cv::TermCriteria::EPS, 30, 0.01));
-        }
+         }
 
         // If whole image pair was successfully processed, add them to
         // list
         if (k == 2) {
-            //goodImagesList.push_back(images_list[i*2]);
-            //goodImagesList.push_back(images_list[i*2+1]);
             j++;
         }
     }
