@@ -27,6 +27,8 @@
 #include <opencv2/core/core.hpp>
 
 
+class CalibrationPattern;
+
 class StereoCalibration : public QObject
 {
     Q_OBJECT
@@ -35,11 +37,11 @@ public:
     StereoCalibration (QObject * = 0);
     virtual ~StereoCalibration ();
 
-    void loadCalibration (const QString &);
-    void saveCalibration (const QString &) const;
-    void clearCalibration ();
+    void loadStereoCalibration (const QString &);
+    void saveStereoCalibration (const QString &) const;
+    void clearStereoCalibration ();
 
-    void calibrateFromImages (const QStringList &, int, int, float);
+    void calibrateFromImages (const QStringList &, CalibrationPattern &);
 
     void rectifyImagePair (const cv::Mat &, const cv::Mat &, cv::Mat &, cv::Mat &) const;
 
@@ -48,10 +50,7 @@ public:
     const cv::Rect &getRightROI () const;
 
 protected:
-    void initializeRectification ();
-
-    bool multiScaleCornerSearch (const cv::Mat &, const cv::Size &, int, float, std::vector<cv::Point2f> &, bool) const;
-
+    void initializeStereoRectification ();
 
 signals:
     void stateChanged (bool);
@@ -77,6 +76,37 @@ protected:
 
     // Rectification maps
     cv::Mat map11, map12, map21, map22;
+};
+
+
+class CalibrationPattern
+{
+public:
+    enum PatternType {
+        Chessboard,
+        Circles,
+        AsymmetricCircles,
+    };
+
+    CalibrationPattern (int, int, float, PatternType, int = 0, float = 0.25);
+
+    void computePatternCoordinates (std::vector<cv::Point3f> &) const;
+
+    bool findInImage (const cv::Mat &, std::vector<cv::Point2f> &) const;
+
+    const cv::Size getPatternSize () const;
+    
+protected:
+    int patternWidth;
+    int patternHeight;
+    cv::Size patternSize;
+
+    float elementSize;
+    
+    PatternType patternType;
+
+    int maxScaleLevel;
+    float scaleIncrement;
 };
 
 #endif

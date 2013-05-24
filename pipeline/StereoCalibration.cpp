@@ -59,7 +59,7 @@ const cv::Rect &StereoCalibration::getRightROI () const
 // *********************************************************************
 // *                     Calibration import/export                     * 
 // *********************************************************************
-void StereoCalibration::loadCalibration (const QString &filename)
+void StereoCalibration::loadStereoCalibration (const QString &filename)
 {
     // Reset state
     isValid = false;
@@ -87,10 +87,10 @@ void StereoCalibration::loadCalibration (const QString &filename)
     }
 
     // Initialize rectification from loaded calibration
-    initializeRectification();
+    initializeStereoRectification();
 }
 
-void StereoCalibration::saveCalibration (const QString &filename) const
+void StereoCalibration::saveStereoCalibration (const QString &filename) const
 {
     // NOTE: we store "raw" parameters, i.e. the ones from which
     // rectification is yet to be computed...
@@ -113,7 +113,7 @@ void StereoCalibration::saveCalibration (const QString &filename) const
     }
 }
 
-void StereoCalibration::clearCalibration ()
+void StereoCalibration::clearStereoCalibration ()
 {
     isValid = false;
 
@@ -144,7 +144,7 @@ void StereoCalibration::rectifyImagePair (const cv::Mat &img1, const cv::Mat &im
     }
 }
 
-void StereoCalibration::initializeRectification ()
+void StereoCalibration::initializeStereoRectification ()
 {
     cv::stereoRectify(M1, D1, M2, D2, imageSize, R, T, R1, R2, P1, P2, Q, cv::CALIB_ZERO_DISPARITY, 1, imageSize, &validRoi1, &validRoi2);
 
@@ -162,80 +162,14 @@ void StereoCalibration::initializeRectification ()
 // *********************************************************************
 // *                            Calibration                            * 
 // *********************************************************************
-bool StereoCalibration::multiScaleCornerSearch (const cv::Mat &img, const cv::Size &boardSize, int maxScaleLevel, float scaleIncrement, std::vector<cv::Point2f> &corners, bool showResults) const
-{
-    bool found = false;
-    
-    // Multi-scale search
-    for (int scaleLevel = 0; scaleLevel <= maxScaleLevel; scaleLevel++) {
-        float scale = 1.0 + scaleLevel*scaleIncrement;
-        cv::Mat scaledImg;
-
-        // Rescale image, if necessary
-        if (scaleLevel == 0) {
-            scaledImg = img;
-        } else {
-            cv::resize(img, scaledImg, cv::Size(), scale, scale, cv::INTER_CUBIC);
-        }
-
-        // Find corners
-        found = cv::findChessboardCorners(scaledImg, boardSize, corners, cv::CALIB_CB_ADAPTIVE_THRESH | cv::CALIB_CB_NORMALIZE_IMAGE /*| cv::CALIB_CB_FAST_CHECK*/);
-
-        if (found) {
-                if (showResults) {
-                    cv::Mat cimg;
-                    cv::cvtColor(scaledImg, cimg, CV_GRAY2BGR);
-                                
-                    cv::drawChessboardCorners(cimg, boardSize, corners, found);
-
-                    cv::imshow("Scaled Corners", cimg);
-                    cv::waitKey(-1);
-                }
-            
-            // If corners were found at higher scale, scale them back
-            if (scaleLevel) {
-                qDebug() << "Scaling down!";
-                cv::Mat cornersMat(corners); // Construct matrix with shared data...
-                cornersMat *= 1.0/scale;
-            }            
-
-            // Improve accuracy by interpolating corners to their sub-pixel poitions
-            cv::cornerSubPix(img, corners, cv::Size(11,11), cv::Size(-1,-1), cv::TermCriteria(cv::TermCriteria::COUNT + cv::TermCriteria::EPS, 30, 0.01));
-        
-            break;
-        }
-    }
-
-    // Display results
-    if (showResults) {
-        cv::Mat cimg;
-        cv::cvtColor(img, cimg, CV_GRAY2BGR);
-                    
-        cv::drawChessboardCorners(cimg, boardSize, corners, found);
-
-        cv::imshow("Corners", cimg);
-        cv::waitKey(-1);
-    }
-
-    return found;
-}
-
-void StereoCalibration::calibrateFromImages (const QStringList &images, int boardWidth, int boardHeight, float squareSize)
+void StereoCalibration::calibrateFromImages (const QStringList &images, CalibrationPattern &pattern)
 {
     std::vector<std::vector<cv::Point2f> > imagePoints[2];
     std::vector<std::vector<cv::Point3f> > objectPoints;
 
     int i, j, k;
     int numImages = images.size() / 2;
-
-    const int maxScale = 1;
-
-    cv::Size boardSize(boardWidth, boardHeight);
-
-    qDebug() << "Calibration:";
-    qDebug() << "Board dimensions:" << boardWidth << "x" << boardHeight << "," << squareSize << "mm";
-    qDebug() << "Image pairs: " << numImages;
-
+    
     // Reset state
     isValid = false;
     emit stateChanged(isValid);
@@ -248,7 +182,7 @@ void StereoCalibration::calibrateFromImages (const QStringList &images, int boar
 
     // Go over all images
     for (i = j = 0; i < numImages; i++) {
-        qDebug() << "Processing pair Nr." << i;
+        qDebug() << "Processing pair" << i;
         
         // Left-right pair
         for (k = 0; k < 2; k++) {
@@ -272,8 +206,18 @@ void StereoCalibration::calibrateFromImages (const QStringList &images, int boar
                 break;
             }
 
-            // Multi-scale corner search
-            bool found = multiScaleCornerSearch(img, boardSize, 4, 0.25, imagePoints[k][j], true);
+            // Find calibration pattern in image
+            bool found = pattern.findInImage(img, imagePoints[k][j]);
+
+            if (true) {
+                cv::Mat cimg;
+                cv::cvtColor(img, cimg, CV_GRAY2BGR);
+
+                cv::drawChessboardCorners(cimg, pattern.getPatternSize(), imagePoints[k][j], found);
+
+                cv::imshow("Corners", cimg);
+                cv::waitKey(-1);
+    }
 
             // If not found, break the loop (so that if this was the first
             // image of the pair, we do not try the other)
@@ -301,16 +245,14 @@ void StereoCalibration::calibrateFromImages (const QStringList &images, int boar
     imagePoints[0].resize(numImages);
     imagePoints[1].resize(numImages);
 
-    // Create corresponding object points; these are coordinates on
-    // the checkboard, and therefore are identical for all views
-    objectPoints.resize(numImages);
+    // Fill in the world coordinates of pattern points; these are same
+    // for all views
+    std::vector<cv::Point3f> tmpCoordinates;
+    pattern.computePatternCoordinates(tmpCoordinates);
 
+    objectPoints.resize(numImages);
     for (i = 0; i < numImages; i++) {
-        for (j = 0; j < boardSize.height; j++) {
-            for (k = 0; k < boardSize.width; k++) {
-                objectPoints[i].push_back(cv::Point3f(j*squareSize, k*squareSize, 0));
-            }
-        }
+        objectPoints[i] = tmpCoordinates;
     }
 
     // *** Calibrate ***
@@ -361,5 +303,107 @@ void StereoCalibration::calibrateFromImages (const QStringList &images, int boar
     qDebug() << "Average reprojection error =" <<  err/num_points << "pixels";
 
     // Initialize rectification from obtained calibration
-    initializeRectification();
+    initializeStereoRectification();
 }
+
+
+// *********************************************************************
+// *                        Calibration pattern                        *
+// *********************************************************************
+CalibrationPattern::CalibrationPattern (int width, int height, float size, PatternType type, int levels, float increment)
+    : patternWidth(width), patternHeight(height), patternSize(width, height),
+      elementSize(size), patternType(type),
+      maxScaleLevel(levels), scaleIncrement(increment)
+{
+}
+
+const cv::Size CalibrationPattern::getPatternSize () const
+{
+    return patternSize;
+}
+
+
+void CalibrationPattern::computePatternCoordinates (std::vector<cv::Point3f> &coordinates) const
+{
+    coordinates.clear();
+    
+    switch (patternType) {
+        case Chessboard:
+        case Circles: {
+            // Regular grid
+            for (int i = 0; i < patternHeight; i++) {
+                for (int j = 0; j < patternWidth; j++) {
+                    coordinates.push_back(cv::Point3f(j*elementSize, i*elementSize, 0));
+                }
+            }
+            break;
+        }
+        case AsymmetricCircles: {
+            // Asymmetric grid
+            for (int i = 0; i < patternHeight; i++) {
+                for (int j = 0; j < patternWidth; j++) {
+                    coordinates.push_back(cv::Point3f((2*j + i % 2)*elementSize, i*elementSize, 0));
+                }
+            }
+            break;
+        }
+    }
+}
+
+bool CalibrationPattern::findInImage (const cv::Mat &img, std::vector<cv::Point2f> &points) const
+{
+    bool found = false;
+    
+    // Multi-scale search
+    for (int scaleLevel = 0; scaleLevel <= maxScaleLevel; scaleLevel++) {
+        float scale = 1.0 + scaleLevel*scaleIncrement;
+        cv::Mat scaledImg;
+
+        // Rescale image, if necessary
+        if (scaleLevel) {
+            cv::resize(img, scaledImg, cv::Size(), scale, scale, cv::INTER_CUBIC);
+        } else {
+            scaledImg = img;
+        }
+
+        // Find pattern using OpenCV methods
+        switch (patternType) {
+            case Chessboard: {
+                found = cv::findChessboardCorners(scaledImg, patternSize, points, cv::CALIB_CB_ADAPTIVE_THRESH | cv::CALIB_CB_NORMALIZE_IMAGE /*| cv::CALIB_CB_FAST_CHECK*/);
+                break;
+            }
+            case Circles: {
+                found = cv::findCirclesGrid(scaledImg, patternSize, points);
+                break;
+            }
+            case AsymmetricCircles: {
+                found = cv::findCirclesGrid(scaledImg, patternSize, points, cv::CALIB_CB_ASYMMETRIC_GRID);
+                break;
+            }
+        }
+        
+        if (found) {
+            // Improve localization of corners on chessboard by doing
+            // sub-pixel interpolation
+            if (patternType == Chessboard) {
+                cv::cornerSubPix(img, points, cv::Size(11,11), cv::Size(-1,-1), cv::TermCriteria(cv::TermCriteria::COUNT + cv::TermCriteria::EPS, 30, 0.01));
+            }
+            
+            // If points were found at higher scale, scale them back to
+            // the original image... We do this after sub-pixel localization
+            // (in case of chessboard), because sub-pixel localization can
+            // fail miserably at original image size (where checkboard was
+            // not detected in first place!)
+            if (scaleLevel) {
+                cv::Mat pointsMat(points); // Construct matrix with shared data...
+                pointsMat *= 1.0/scale;
+            }
+            
+            break;
+        }
+    }
+
+    return found;
+}
+
+

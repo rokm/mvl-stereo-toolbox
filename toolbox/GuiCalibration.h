@@ -31,7 +31,7 @@ class StereoCalibration;
 
 class ImagePairDisplayWidget;
 
-class BoardParametersDialog;
+class CalibrationPatternDialog;
 
 class GuiCalibration : public QWidget
 {
@@ -68,7 +68,33 @@ protected:
 
     QStatusBar *statusBar;
 
-    BoardParametersDialog *patternDialog;
+    CalibrationPatternDialog *patternDialog;
 };
+
+
+class CalibrationPattern;
+
+class CalibrationPatternDialog : public QDialog
+{
+public:
+    CalibrationPatternDialog (QWidget * = 0);
+    virtual ~CalibrationPatternDialog ();
+
+    CalibrationPattern getPattern () const;
+    bool getShowResult () const;
+
+protected:
+    QSpinBox *spinBoxPatternWidth;
+    QSpinBox *spinBoxPatternHeight;
+    QDoubleSpinBox *spinBoxElementSize;
+
+    QComboBox *comboBoxPatternType;
+
+    QSpinBox *spinBoxScaleLevels;
+    QDoubleSpinBox *spinBoxScaleIncrement;
+
+    QCheckBox *checkBoxShowResult;
+};
+
 
 #endif

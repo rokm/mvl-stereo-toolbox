@@ -30,83 +30,6 @@
 #include <opencv2/highgui/highgui.hpp>
 
 
-class BoardParametersDialog : public QDialog
-{
-public:
-    BoardParametersDialog (QWidget *parent = 0)
-        : QDialog(parent)
-    {
-        QFormLayout *layout = new QFormLayout(this);
-        setLayout(layout);
-
-        setWindowTitle("Calibration pattern");
-
-        QLabel *label;
-        QFrame *separator;
-        QDialogButtonBox *buttonBox;
-
-        // Board width
-        label = new QLabel("Board width", this);
-        label->setToolTip("Checkboard width (number of inside corners in horizontal direction)");
-
-        spinBoxBoardWidth = new QSpinBox(this);
-        spinBoxBoardWidth->setRange(1, 1000);
-        spinBoxBoardWidth->setValue(19);
-        layout->addRow(label, spinBoxBoardWidth);
-
-        // Board height
-        label = new QLabel("Board height", this);
-        label->setToolTip("Checkboard height (number of inside corners in horizontal direction)");
-
-        spinBoxBoardHeight = new QSpinBox(this);
-        spinBoxBoardHeight->setRange(1, 1000);
-        spinBoxBoardHeight->setValue(12);
-        layout->addRow(label, spinBoxBoardHeight);
-
-        // Square size
-        label = new QLabel("Square size", this);
-        label->setToolTip("Size of checkboard square");
-
-        spinBoxSquareSize = new QDoubleSpinBox(this);
-        spinBoxSquareSize->setRange(1.0, 1000.0);
-        spinBoxSquareSize->setValue(25.0);
-        spinBoxSquareSize->setSuffix(" mm");
-        layout->addRow(label, spinBoxSquareSize);
-
-        // Separator
-        separator = new QFrame(this);
-        separator->setFrameStyle(QFrame::HLine | QFrame::Sunken);
-        layout->addRow(separator);
-
-        // Button box
-        buttonBox = new QDialogButtonBox(this);
-        connect(buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
-        connect(buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
-        layout->addRow(buttonBox);
-
-        buttonBox->addButton(QDialogButtonBox::Ok);
-        buttonBox->addButton(QDialogButtonBox::Cancel);
-    }
-    
-    virtual ~BoardParametersDialog ()
-    {
-    }
-
-    void getParameters (int &boardWidth, int &boardHeight, float &squareSize)
-    {
-        boardWidth = spinBoxBoardWidth->value();
-        boardHeight = spinBoxBoardHeight->value();
-        squareSize = spinBoxSquareSize->value();
-    }
-
-protected:
-    QSpinBox *spinBoxBoardWidth;
-    QSpinBox *spinBoxBoardHeight;
-    QDoubleSpinBox *spinBoxSquareSize;    
-};
-
-
-
 GuiCalibration::GuiCalibration (StereoPipeline *p, StereoCalibration *c, QWidget *parent)
     : QWidget(parent, Qt::Window), pipeline(p), calibration(c)
 {
@@ -174,7 +97,7 @@ GuiCalibration::GuiCalibration (StereoPipeline *p, StereoCalibration *c, QWidget
     updateState();
 
     // Pattern dialog
-    patternDialog = new BoardParametersDialog(this);
+    patternDialog = new CalibrationPatternDialog(this);
 }
 
 GuiCalibration::~GuiCalibration ()
@@ -251,21 +174,18 @@ void GuiCalibration::doCalibration ()
     if (patternDialog->exec() != QDialog::Accepted) {
         return;
     }
-    
-    int boardWidth;
-    int boardHeight;
-    float squareSize;
-    patternDialog->getParameters(boardWidth, boardHeight, squareSize);
+
+    CalibrationPattern pattern = patternDialog->getPattern();
 
     // Finally, do calibration
-    calibration->calibrateFromImages(fileNames, boardWidth, boardHeight, squareSize);
+    calibration->calibrateFromImages(fileNames, pattern);
 }
 
 void GuiCalibration::importCalibration ()
 {
     QString fileName = QFileDialog::getOpenFileName(this, "Load calibration from file", QString(), "OpenCV storage file (*.xml *.yml *.yaml)");
     if (!fileName.isNull()) {
-        calibration->loadCalibration(fileName);
+        calibration->loadStereoCalibration(fileName);
     }
 }
 
@@ -273,14 +193,15 @@ void GuiCalibration::exportCalibration ()
 {
     QString fileName = QFileDialog::getSaveFileName(this, "Save calibration to file", QString(), "OpenCV storage file (*.xml *.yml *.yaml)");
     if (!fileName.isNull()) {
-        calibration->saveCalibration(fileName);
+        calibration->saveStereoCalibration(fileName);
     }
 }
 
 void GuiCalibration::clearCalibration ()
 {
-    calibration->clearCalibration();
+    calibration->clearStereoCalibration();
 }
+
 
 // *********************************************************************
 // *                            Image saving                           *
@@ -316,4 +237,146 @@ void GuiCalibration::saveImages ()
             qWarning() << "Failed to save images:" << QString::fromStdString(e.what());
         }
     }
+}
+
+
+
+//
+//
+//
+
+CalibrationPatternDialog::CalibrationPatternDialog (QWidget *parent)
+    : QDialog(parent)
+{
+    QFormLayout *layout = new QFormLayout(this);
+    setLayout(layout);
+
+    setWindowTitle("Calibration pattern");
+
+    QLabel *label;
+    QFrame *separator;
+    QDialogButtonBox *buttonBox;
+
+    // Pattern width
+    label = new QLabel("Pattern width", this);
+    label->setToolTip("Pattern width:\n"
+                      " - chessboard: number of inside corners in horizontal direction\n"
+                      " - circle grid: number of circles in horizontal direction\n"
+                      " - asymmetric circle grid: number of circles in first column (*vertical* direction!)");
+    
+    spinBoxPatternWidth = new QSpinBox(this);
+    spinBoxPatternWidth->setRange(1, 1000);
+    spinBoxPatternWidth->setValue(19);
+    layout->addRow(label, spinBoxPatternWidth);
+
+    // Pattern height
+    label = new QLabel("Pattern height", this);
+    label->setToolTip("Pattern width:\n"
+                      " - chessboard: number of inside corners in vertical direction\n"
+                      " - circle grid: number of circles in vertical direction\n"
+                      " - asymmetric circle grid: total number of circles in first *two* rows (*horizontal* direction!)");
+    
+    spinBoxPatternHeight = new QSpinBox(this);
+    spinBoxPatternHeight->setRange(1, 1000);
+    spinBoxPatternHeight->setValue(12);
+    layout->addRow(label, spinBoxPatternHeight);
+
+    // Element size
+    label = new QLabel("Element size", this);
+    label->setToolTip("Size of pattern elements:\n"
+                      " - chessboard: square size (distance between two corners)"
+                      " - circle grid: distance between circle centers"
+                      " - asymmetric circle grid: distance between circle centers");
+
+    spinBoxElementSize = new QDoubleSpinBox(this);
+    spinBoxElementSize->setRange(1.0, 1000.0);
+    spinBoxElementSize->setValue(25.0);
+    spinBoxElementSize->setSuffix(" mm");
+    layout->addRow(label, spinBoxElementSize);
+
+    // Pattern type
+    label = new QLabel("Pattern type", this);
+    label->setToolTip("Calibration pattern type");
+
+    comboBoxPatternType = new QComboBox(this);
+    comboBoxPatternType->addItem("Chessboard", CalibrationPattern::Chessboard);
+    comboBoxPatternType->addItem("Circle grid", CalibrationPattern::Circles);
+    comboBoxPatternType->addItem("Asymmetric circle grid", CalibrationPattern::AsymmetricCircles);
+    comboBoxPatternType->setCurrentIndex(0);
+    layout->addRow(label, comboBoxPatternType);
+
+    // Separator
+    separator = new QFrame(this);
+    separator->setFrameStyle(QFrame::HLine | QFrame::Sunken);
+    layout->addRow(separator);
+
+    // Max image scale level
+    label = new QLabel("Image scale levels", this);
+    label->setToolTip("Maximum image scale level. If pattern is not found at original image size,\n"
+                      "image is upsampled and search is repeated. The image scale is 1.0 + level*scaleIncrement,\n"
+                      "where level goes from 0 to imageScaleLevels. Set this variable to 0 to disable\n"
+                      "multi-scale search.");
+
+    spinBoxScaleLevels = new QSpinBox(this);
+    spinBoxScaleLevels->setRange(0, 100);
+    spinBoxScaleLevels->setValue(0);
+    layout->addRow(label, spinBoxScaleLevels);
+
+    // Max image scale level
+    label = new QLabel("Scale increment", this);
+    label->setToolTip("Scale increment for multi-scale pattern search. For details, see description of \n"
+                      "image scale levels.");
+
+    spinBoxScaleIncrement = new QDoubleSpinBox(this);
+    spinBoxScaleIncrement->setRange(0.0, 2.0);
+    spinBoxScaleIncrement->setSingleStep(0.05);
+    spinBoxScaleIncrement->setValue(0.25);
+    layout->addRow(label, spinBoxScaleIncrement);
+
+    // Separator
+    separator = new QFrame(this);
+    separator->setFrameStyle(QFrame::HLine | QFrame::Sunken);
+    layout->addRow(separator);
+
+    // Show results
+    checkBoxShowResult = new QCheckBox("Show results", this);
+    checkBoxShowResult->setToolTip("Show detection results and allow user to discard them.");
+    checkBoxShowResult->setChecked(true);
+    layout->addRow(checkBoxShowResult);
+
+    // Separator
+    separator = new QFrame(this);
+    separator->setFrameStyle(QFrame::HLine | QFrame::Sunken);
+    layout->addRow(separator);
+
+    // Button box
+    buttonBox = new QDialogButtonBox(this);
+    connect(buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
+    connect(buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
+    layout->addRow(buttonBox);
+    
+    buttonBox->addButton(QDialogButtonBox::Ok);
+    buttonBox->addButton(QDialogButtonBox::Cancel);
+}
+    
+CalibrationPatternDialog::~CalibrationPatternDialog ()
+{
+}
+
+
+CalibrationPattern CalibrationPatternDialog::getPattern () const
+{
+    return CalibrationPattern(
+        spinBoxPatternWidth->value(),
+        spinBoxPatternHeight->value(),
+        spinBoxElementSize->value(),
+        (CalibrationPattern::PatternType)comboBoxPatternType->itemData(comboBoxPatternType->currentIndex()).toInt(),
+        spinBoxScaleLevels->value(),
+        spinBoxScaleIncrement->value()
+    );
+}
+
+bool CalibrationPatternDialog::getShowResult () const
+{
+    return checkBoxShowResult->checkState() == Qt::Checked;
 }
