@@ -229,7 +229,7 @@ void StereoCalibration::calibrateFromImages (const QStringList &images, int boar
                 }
 
                 // Find corners
-                found = cv::findChessboardCorners(scaledImg, boardSize, corners, cv::CALIB_CB_ADAPTIVE_THRESH | cv::CALIB_CB_NORMALIZE_IMAGE | cv::CALIB_CB_FAST_CHECK);
+                found = cv::findChessboardCorners(scaledImg, boardSize, corners, cv::CALIB_CB_ADAPTIVE_THRESH | cv::CALIB_CB_NORMALIZE_IMAGE /*| cv::CALIB_CB_FAST_CHECK*/);
 
                 if (found) {
                     // If corners were found at higher scale, scale them back
