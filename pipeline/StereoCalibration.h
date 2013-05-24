@@ -50,7 +50,7 @@ public:
 protected:
     void initializeRectification ();
 
-    bool multiScaleCornerSearch (const cv::Mat &, const cv::Size &, int, std::vector<cv::Point2f> &, bool = false) const;
+    bool multiScaleCornerSearch (const cv::Mat &, const cv::Size &, int, float, std::vector<cv::Point2f> &, bool) const;
 
 
 signals:

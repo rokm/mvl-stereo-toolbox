@@ -162,16 +162,17 @@ void StereoCalibration::initializeRectification ()
 // *********************************************************************
 // *                            Calibration                            * 
 // *********************************************************************
-bool StereoCalibration::multiScaleCornerSearch (const cv::Mat &img, const cv::Size &boardSize, int maxScale, std::vector<cv::Point2f> &corners, bool showResults) const
+bool StereoCalibration::multiScaleCornerSearch (const cv::Mat &img, const cv::Size &boardSize, int maxScaleLevel, float scaleIncrement, std::vector<cv::Point2f> &corners, bool showResults) const
 {
     bool found = false;
     
     // Multi-scale search
-    for (int scale = 1; scale <= maxScale; scale++) {                
+    for (int scaleLevel = 0; scaleLevel <= maxScaleLevel; scaleLevel++) {
+        float scale = 1.0 + scaleLevel*scaleIncrement;
         cv::Mat scaledImg;
 
         // Rescale image, if necessary
-        if (scale == 1) {
+        if (scaleLevel == 0) {
             scaledImg = img;
         } else {
             cv::resize(img, scaledImg, cv::Size(), scale, scale, cv::INTER_CUBIC);
@@ -181,11 +182,22 @@ bool StereoCalibration::multiScaleCornerSearch (const cv::Mat &img, const cv::Si
         found = cv::findChessboardCorners(scaledImg, boardSize, corners, cv::CALIB_CB_ADAPTIVE_THRESH | cv::CALIB_CB_NORMALIZE_IMAGE /*| cv::CALIB_CB_FAST_CHECK*/);
 
         if (found) {
+                if (showResults) {
+                    cv::Mat cimg;
+                    cv::cvtColor(scaledImg, cimg, CV_GRAY2BGR);
+                                
+                    cv::drawChessboardCorners(cimg, boardSize, corners, found);
+
+                    cv::imshow("Scaled Corners", cimg);
+                    cv::waitKey(-1);
+                }
+            
             // If corners were found at higher scale, scale them back
-            if (scale > 1) {
+            if (scaleLevel) {
+                qDebug() << "Scaling down!";
                 cv::Mat cornersMat(corners); // Construct matrix with shared data...
                 cornersMat *= 1.0/scale;
-            }
+            }            
 
             // Improve accuracy by interpolating corners to their sub-pixel poitions
             cv::cornerSubPix(img, corners, cv::Size(11,11), cv::Size(-1,-1), cv::TermCriteria(cv::TermCriteria::COUNT + cv::TermCriteria::EPS, 30, 0.01));
@@ -202,7 +214,7 @@ bool StereoCalibration::multiScaleCornerSearch (const cv::Mat &img, const cv::Si
         cv::drawChessboardCorners(cimg, boardSize, corners, found);
 
         cv::imshow("Corners", cimg);
-        cv::waitKey(500);
+        cv::waitKey(-1);
     }
 
     return found;
@@ -261,7 +273,7 @@ void StereoCalibration::calibrateFromImages (const QStringList &images, int boar
             }
 
             // Multi-scale corner search
-            bool found = multiScaleCornerSearch(img, boardSize, maxScale, imagePoints[k][j], true);
+            bool found = multiScaleCornerSearch(img, boardSize, 4, 0.25, imagePoints[k][j], true);
 
             // If not found, break the loop (so that if this was the first
             // image of the pair, we do not try the other)
