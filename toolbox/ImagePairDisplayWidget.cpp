@@ -42,7 +42,6 @@ void ImagePairDisplayWidget::setImagePairROI (const cv::Rect &left, const cv::Re
     update();
 }
 
-#include <opencv2/highgui/highgui.hpp>
 void ImagePairDisplayWidget::setImagePair (const cv::Mat &left, const cv::Mat &right)
 {
     // Convert cv::Mat to QImage

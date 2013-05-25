@@ -25,21 +25,24 @@
 #include <QtCore>
 #include <QtGui>
 
+#include "StereoCalibration.h"
 
 class StereoPipeline;
-class StereoCalibration;
 
 class ImagePairDisplayWidget;
 
-class CalibrationPatternDialog;
+class CalibrationPatternSettingsDialog;
+class CalibrationPatternDetectionDialog;
 
-class GuiCalibration : public QWidget
+class GuiCalibration : public QWidget, public PatternDetectionValidator
 {
     Q_OBJECT
 
 public:
     GuiCalibration (StereoPipeline *, StereoCalibration *, QWidget * = 0);
     virtual ~GuiCalibration ();
+
+    virtual bool validatePatternDetection (cv::Mat &, bool, std::vector<cv::Point2f> &, const cv::Size &) const;
 
 protected slots:
     void doCalibration ();
@@ -68,33 +71,8 @@ protected:
 
     QStatusBar *statusBar;
 
-    CalibrationPatternDialog *patternDialog;
+    CalibrationPatternSettingsDialog *patternSettingsDialog;
+    CalibrationPatternDetectionDialog *patternDetectionDialog;
 };
-
-
-class CalibrationPattern;
-
-class CalibrationPatternDialog : public QDialog
-{
-public:
-    CalibrationPatternDialog (QWidget * = 0);
-    virtual ~CalibrationPatternDialog ();
-
-    CalibrationPattern getPattern () const;
-    bool getShowResult () const;
-
-protected:
-    QSpinBox *spinBoxPatternWidth;
-    QSpinBox *spinBoxPatternHeight;
-    QDoubleSpinBox *spinBoxElementSize;
-
-    QComboBox *comboBoxPatternType;
-
-    QSpinBox *spinBoxScaleLevels;
-    QDoubleSpinBox *spinBoxScaleIncrement;
-
-    QCheckBox *checkBoxShowResult;
-};
-
 
 #endif

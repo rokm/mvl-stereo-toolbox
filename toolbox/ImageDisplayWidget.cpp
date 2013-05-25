@@ -107,8 +107,9 @@ void ImageDisplayWidget::paintEvent (QPaintEvent *event)
 
         w *= scale;
         h *= scale;
-            
-        painter.drawImage(QRect((width() - w)/2, (height() - h)/2, w, h), image);
+        
+        painter.translate((width() - w)/2, (height() - h)/2);
+        painter.drawImage(QRect(0, 0, w, h), image);
     }
 
     // Draw frame on top of it all

@@ -212,7 +212,7 @@ void StereoCalibration::calibrateFromImages (const QStringList &images, Calibrat
             // Allow user to validate the results, and drop them if
             // necessary
             if (validator) {
-                found &= validator->validatePatternDetection(img, imagePoints[k][j]);
+                found &= validator->validatePatternDetection(img, found, imagePoints[k][j], pattern.getPatternSize());
             }
             
             // If not found, break the loop (so that if this was the first

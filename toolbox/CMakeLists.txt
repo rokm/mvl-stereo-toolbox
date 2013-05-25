@@ -11,6 +11,9 @@ add_definitions(${QT_DEFINITIONS})
 
 set(toolbox_SOURCES
     main.cpp
+    CalibrationPatternDetectionDialog.cpp
+    CalibrationPatternDisplayWidget.cpp
+    CalibrationPatternSettingsDialog.cpp
     GuiImageSource.cpp
     GuiCalibration.cpp
     GuiStereoMethod.cpp
@@ -20,6 +23,9 @@ set(toolbox_SOURCES
 )
 
 set(toolbox_HEADERS
+    CalibrationPatternDetectionDialog.h
+    CalibrationPatternDisplayWidget.h
+    CalibrationPatternSettingsDialog.h
     GuiImageSource.h
     GuiCalibration.h
     GuiStereoMethod.h

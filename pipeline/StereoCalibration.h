@@ -113,7 +113,7 @@ protected:
 class PatternDetectionValidator
 {
 public:
-    virtual bool validatePatternDetection (cv::Mat &, std::vector<cv::Point2f> &) const = 0;
+    virtual bool validatePatternDetection (cv::Mat &, bool, std::vector<cv::Point2f> &, const cv::Size &) const = 0;
 };
 
 #endif
