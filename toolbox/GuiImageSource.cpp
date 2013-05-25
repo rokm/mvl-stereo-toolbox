@@ -49,10 +49,16 @@ GuiImageSource::GuiImageSource (StereoPipeline *p, QList<ImageSource *> &s, QWid
     buttonsLayout->addStretch();
 
     pushButton = new QPushButton("Save images", this);
-    pushButton->setToolTip("Save image pair.");
+    pushButton->setToolTip("Save image pair by asking for filename each time.");
     connect(pushButton, SIGNAL(released()), this, SLOT(saveImages()));
     buttonsLayout->addWidget(pushButton);
     pushButtonSaveImages = pushButton;
+
+    pushButton = new QPushButton("Snap images", this);
+    pushButton->setToolTip("Save image pair by asking for filename only once and then appending counter number for each new snapshot.");
+    connect(pushButton, SIGNAL(released()), this, SLOT(snapshotImages()));
+    buttonsLayout->addWidget(pushButton);
+    pushButtonSnapshotImages = pushButton;
 
     buttonsLayout->addStretch();
 
@@ -145,25 +151,78 @@ void GuiImageSource::saveImages ()
     
     // Get filename
     QString fileName = QFileDialog::getSaveFileName(this, "Save rectified images");
-    if (!fileName.isNull()) {
-        QFileInfo tmpFileName(fileName);
+    if (fileName.isNull()) {
+        return;
+    }
 
-        // Extension
-        QString ext = tmpFileName.completeSuffix();
-        if (ext.isEmpty()) {
-            ext = "jpg";
+    // Get filename components
+    QFileInfo tmpFileName(fileName);
+    QDir dir = tmpFileName.absoluteDir();
+    QString base = tmpFileName.baseName();
+    QString ext = tmpFileName.completeSuffix();
+
+    if (ext.isEmpty()) {
+        ext = "ppm";
+    }
+
+    // Create filenames
+    QString fileNameLeft = QString("%1L.%2").arg(base).arg(ext);
+    QString fileNameRight = QString("%1R.%2").arg(base).arg(ext);
+
+    try {
+        cv::imwrite(dir.absoluteFilePath(fileNameLeft).toStdString(), tmpImg1);
+        cv::imwrite(dir.absoluteFilePath(fileNameRight).toStdString(), tmpImg2);
+    } catch (cv::Exception e) {
+        qWarning() << "Failed to save images:" << QString::fromStdString(e.what());
+    }
+}
+
+void GuiImageSource::snapshotImages ()
+{
+    // Make snapshot of images - because it can take a while to get
+    // the filename...
+    cv::Mat tmpImg1, tmpImg2;
+
+    pipeline->getLeftRectifiedImage().copyTo(tmpImg1);
+    pipeline->getRightRectifiedImage().copyTo(tmpImg2);
+    
+    // Get basename if not already set
+    if (snapshotBaseName.isEmpty()) {
+        snapshotBaseName = QFileDialog::getSaveFileName(this, "Select basename for images snapshots", "rectified.ppm");
+        if (snapshotBaseName.isNull()) {
+            return;
         }
+    }
 
-        // Create filename
-        QString fileNameLeft = tmpFileName.absolutePath() + "/" + tmpFileName.baseName() + "L" + "." + ext;
-        QString fileNameRight = tmpFileName.absolutePath() + "/" + tmpFileName.baseName() + "R" + "." + ext;
+    // Get filename components
+    QFileInfo tmpFileName(snapshotBaseName);
+    QDir dir = tmpFileName.absoluteDir();
+    QString base = tmpFileName.baseName();
+    QString ext = tmpFileName.completeSuffix();
+
+    if (ext.isEmpty()) {
+        ext = "ppm";
+    }
+    
+    // Now, construct filename, and find unoccupied counter value
+    QString fileNameLeft, fileNameRight;
+    for (int c = 1; ; c++) {
+        fileNameLeft = QString("%1-%2L.%3").arg(base).arg(c).arg(ext);
+        fileNameRight = QString("%1-%2R.%3").arg(base).arg(c).arg(ext);
+
+        if (dir.exists(fileNameLeft) || dir.exists(fileNameRight)) {
+            continue;
+        }
 
         try {
-            cv::imwrite(fileNameLeft.toStdString(), tmpImg1);
-            cv::imwrite(fileNameRight.toStdString(), tmpImg2);
+            cv::imwrite(dir.absoluteFilePath(fileNameLeft).toStdString(), tmpImg1);
+            cv::imwrite(dir.absoluteFilePath(fileNameRight).toStdString(), tmpImg2);
         } catch (cv::Exception e) {
             qWarning() << "Failed to save images:" << QString::fromStdString(e.what());
+            snapshotBaseName = QString(); // Clear the image basename
         }
+
+        break;
     }
 }
 
