@@ -28,6 +28,7 @@
 
 
 class CalibrationPattern;
+class PatternDetectionValidator;
 
 class StereoCalibration : public QObject
 {
@@ -41,7 +42,7 @@ public:
     void saveStereoCalibration (const QString &) const;
     void clearStereoCalibration ();
 
-    void calibrateFromImages (const QStringList &, CalibrationPattern &);
+    void calibrateFromImages (const QStringList &, CalibrationPattern &, PatternDetectionValidator * = 0);
 
     void rectifyImagePair (const cv::Mat &, const cv::Mat &, cv::Mat &, cv::Mat &) const;
 
@@ -107,6 +108,12 @@ protected:
 
     int maxScaleLevel;
     float scaleIncrement;
+};
+
+class PatternDetectionValidator
+{
+public:
+    virtual bool validatePatternDetection (cv::Mat &, std::vector<cv::Point2f> &) const = 0;
 };
 
 #endif

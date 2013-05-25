@@ -162,7 +162,7 @@ void StereoCalibration::initializeStereoRectification ()
 // *********************************************************************
 // *                            Calibration                            * 
 // *********************************************************************
-void StereoCalibration::calibrateFromImages (const QStringList &images, CalibrationPattern &pattern)
+void StereoCalibration::calibrateFromImages (const QStringList &images, CalibrationPattern &pattern, PatternDetectionValidator *validator)
 {
     std::vector<std::vector<cv::Point2f> > imagePoints[2];
     std::vector<std::vector<cv::Point3f> > objectPoints;
@@ -209,16 +209,12 @@ void StereoCalibration::calibrateFromImages (const QStringList &images, Calibrat
             // Find calibration pattern in image
             bool found = pattern.findInImage(img, imagePoints[k][j]);
 
-            if (true) {
-                cv::Mat cimg;
-                cv::cvtColor(img, cimg, CV_GRAY2BGR);
-
-                cv::drawChessboardCorners(cimg, pattern.getPatternSize(), imagePoints[k][j], found);
-
-                cv::imshow("Corners", cimg);
-                cv::waitKey(-1);
-    }
-
+            // Allow user to validate the results, and drop them if
+            // necessary
+            if (validator) {
+                found &= validator->validatePatternDetection(img, imagePoints[k][j]);
+            }
+            
             // If not found, break the loop (so that if this was the first
             // image of the pair, we do not try the other)
             if (!found) {
