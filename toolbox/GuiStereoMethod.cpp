@@ -46,19 +46,43 @@ GuiStereoMethod::GuiStereoMethod (StereoPipeline *p, QList<StereoMethod *> &m, Q
     QHBoxLayout *buttonsLayout = new QHBoxLayout();
     QPushButton *pushButton;
     QComboBox *comboBox;
+    QLabel *label;
+    QDoubleSpinBox *spinBoxD;
+    QHBoxLayout *box;    
     
     layout->addLayout(buttonsLayout, 0, 0, 1, 2);
 
     buttonsLayout->addStretch();
 
-    pushButton = new QPushButton("Save disparity image", this);
-    pushButton->setToolTip("Save disparity image.");
-    connect(pushButton, SIGNAL(released()), this, SLOT(saveImage()));
-    buttonsLayout->addWidget(pushButton);
-    pushButtonSaveImage = pushButton;
+    // Input image scaling
+    box = new QHBoxLayout();
+    box->setContentsMargins(0, 0, 0, 0);
+    buttonsLayout->addLayout(box);
 
+    label = new QLabel("Input scaling", this);
+    label->setToolTip("Input image scaling to speed up method or accomodate memory constraints.");
+    box->addWidget(label);
+    
+    spinBoxD = new QDoubleSpinBox(this);
+    spinBoxD->setKeyboardTracking(false);
+    spinBoxD->setSingleStep(0.10);
+    spinBoxD->setRange(0.01, 1.0);
+    spinBoxD->setValue(pipeline->getStereoInputScaling());
+    connect(spinBoxD, SIGNAL(valueChanged(double)), pipeline, SLOT(setStereoInputScaling(double)));
+    connect(pipeline, SIGNAL(stereoInputScalingChanged(double)), spinBoxD, SLOT(setValue(double)));
+    box->addWidget(spinBoxD);
+    spinBoxInputScaling = spinBoxD;
+
+    // Disparity image display type
+    box = new QHBoxLayout();
+    box->setContentsMargins(0, 0, 0, 0);
+    buttonsLayout->addLayout(box);
+
+    label = new QLabel("Display type", this);
+    label->setToolTip("Disparity image display type");
+    box->addWidget(label);
+    
     comboBox = new QComboBox(this);
-    comboBox->setToolTip("Disparity image display type");
     comboBox->addItem("Raw", DisplayRawDisparity);
     comboBox->setItemData(0, "Raw grayscale disparity.", Qt::ToolTipRole);
     comboBox->addItem("Dynamic range", DisplayDynamicDisparity);
@@ -69,8 +93,15 @@ GuiStereoMethod::GuiStereoMethod (StereoPipeline *p, QList<StereoMethod *> &m, Q
         comboBox->setItemData(2, "HSV disparity (computed on GPU).", Qt::ToolTipRole);
     }    
     connect(comboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(updateImage()));
-    buttonsLayout->addWidget(comboBox);
+    box->addWidget(comboBox);
     comboBoxDisplayType = comboBox;
+
+    // Save
+    pushButton = new QPushButton("Save disp.", this);
+    pushButton->setToolTip("Save disparity image.");
+    connect(pushButton, SIGNAL(released()), this, SLOT(saveImage()));
+    buttonsLayout->addWidget(pushButton);
+    pushButtonSaveImage = pushButton;
 
     buttonsLayout->addStretch();
 

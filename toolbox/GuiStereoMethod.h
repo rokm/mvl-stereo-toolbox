@@ -58,8 +58,9 @@ protected:
     QList<StereoMethod *> methods;
 
     // GUI
-    QPushButton *pushButtonSaveImage;
     QComboBox *comboBoxDisplayType;
+    QDoubleSpinBox *spinBoxInputScaling;
+    QPushButton *pushButtonSaveImage;
     
     ImageDisplayWidget *displayDisparityImage;
 

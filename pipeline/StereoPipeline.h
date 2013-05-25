@@ -65,6 +65,8 @@ public:
     int getNumberOfDisparityLevels () const;
     int getDisparityImageComputationTime () const;
 
+    double getStereoInputScaling () const;
+
     // Stereo method thread
     void setUseStereoMethodThread (bool);
     bool getUseStereoMethodThread () const;
@@ -75,6 +77,8 @@ public slots:
     void setImageSourceState (bool);
     void setCalibrationState (bool);
     void setStereoMethodState (bool);
+
+    void setStereoInputScaling (double);
 
 protected slots:
     void beginProcessing ();
@@ -93,6 +97,8 @@ signals:
     void inputImagesChanged ();
     void rectifiedImagesChanged ();
     void disparityImageChanged ();
+
+    void stereoInputScalingChanged (double);
 
 protected:
     // Image source
@@ -115,6 +121,8 @@ protected:
 
 
     // Stereo method
+    double stereoInputScaling;
+    
     bool stereoMethodActive;
     StereoMethod *stereoMethod;
 
