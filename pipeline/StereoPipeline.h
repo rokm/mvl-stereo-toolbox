@@ -28,7 +28,7 @@
 
 
 class ImageSource;
-class StereoCalibration;
+class StereoRectification;
 class StereoMethod;
 
 class StereoPipeline : public QObject
@@ -47,10 +47,10 @@ public:
     const cv::Mat &getLeftImage () const;
     const cv::Mat &getRightImage () const;
     
-    // Calibration
-    void setCalibration (StereoCalibration *);
+    // Rectification
+    void setRectification (StereoRectification *);
 
-    bool getCalibrationState () const;
+    bool getRectificationState () const;
 
     const cv::Mat &getLeftRectifiedImage () const;
     const cv::Mat &getRightRectifiedImage () const;
@@ -75,7 +75,7 @@ public:
 
 public slots:
     void setImageSourceState (bool);
-    void setCalibrationState (bool);
+    void setRectificationState (bool);
     void setStereoMethodState (bool);
 
     void setStereoInputScaling (double);
@@ -91,7 +91,7 @@ signals:
     void error (const QString &);
 
     void imageSourceStateChanged (bool);
-    void calibrationStateChanged (bool);
+    void rectificationStateChanged (bool);
     void stereoMethodStateChanged (bool);
 
     void inputImagesChanged ();
@@ -110,9 +110,9 @@ protected:
     cv::Mat inputImageR;
 
 
-    // Stereo calibration & rectification
-    bool calibrationActive;
-    StereoCalibration *calibration;
+    // Stereo rectification
+    bool rectificationActive;
+    StereoRectification *rectification;
 
     // Cached rectified input images
     cv::Mat rectifiedImageL;

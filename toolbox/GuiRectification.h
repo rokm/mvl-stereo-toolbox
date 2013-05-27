@@ -1,5 +1,5 @@
 /*
- * MVL Stereo Toolbox: calibration GUI
+ * MVL Stereo Toolbox: rectification GUI
  * Copyright (C) 2013 Rok Mandeljc
  *
  * This program is free software; you can redistribute it and/or modify
@@ -19,31 +19,26 @@
  * 
  */
 
-#ifndef GUI_CALIBRATION_H
-#define GUI_CALIBRATION_H
+#ifndef GUI_RECTIFICATION_H
+#define GUI_RECTIFICATION_H
 
 #include <QtCore>
 #include <QtGui>
 
-#include "StereoCalibration.h"
+#include "StereoRectification.h"
 
+
+class CalibrationWizard;
+class ImagePairDisplayWidget;
 class StereoPipeline;
 
-class ImagePairDisplayWidget;
-
-class CalibrationPatternSettingsDialog;
-class CalibrationPatternDetectionDialog;
-class CalibrationWizard;
-
-class GuiCalibration : public QWidget, public PatternDetectionValidator
+class GuiRectification : public QWidget
 {
     Q_OBJECT
 
 public:
-    GuiCalibration (StereoPipeline *, StereoCalibration *, QWidget * = 0);
-    virtual ~GuiCalibration ();
-
-    virtual bool validatePatternDetection (cv::Mat &, bool, std::vector<cv::Point2f> &, const cv::Size &) const;
+    GuiRectification (StereoPipeline *, StereoRectification *, QWidget * = 0);
+    virtual ~GuiRectification ();
 
 protected slots:
     void runCalibrationWizard ();
@@ -59,10 +54,10 @@ protected slots:
 protected:
     // Pipeline
     StereoPipeline *pipeline;
-    StereoCalibration *calibration;
+    StereoRectification *rectification;
 
     // GUI
-    QPushButton *pushButtonCalibrate;
+    QPushButton *pushButtonWizard;
     QPushButton *pushButtonImport;
     QPushButton *pushButtonExport;
     QPushButton *pushButtonClear;
@@ -71,9 +66,6 @@ protected:
     ImagePairDisplayWidget *displayPair;
 
     QStatusBar *statusBar;
-
-    CalibrationPatternSettingsDialog *patternSettingsDialog;
-    CalibrationPatternDetectionDialog *patternDetectionDialog;
 
     // Wizard
     CalibrationWizard *wizard;

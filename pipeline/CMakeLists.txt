@@ -6,16 +6,18 @@ find_package(Qt4 REQUIRED)
 
 set(pipeline_SOURCES
     ImageSource.cpp
-    StereoCalibration.cpp
+    StereoCalibrationPattern.cpp
     StereoMethod.cpp
     StereoPipeline.cpp
+    StereoRectification.cpp
 )
 
 set(pipeline_HEADERS
     ImageSource.h
-    StereoCalibration.h
+    StereoCalibrationPattern.h
     StereoMethod.h
     StereoPipeline.h
+    StereoRectification.h
 )
 
 QT4_WRAP_CPP(pipeline_HEADERS_MOC ${pipeline_HEADERS})

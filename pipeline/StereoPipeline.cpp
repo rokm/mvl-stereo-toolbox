@@ -22,7 +22,7 @@
 #include "StereoPipeline.h"
 
 #include "ImageSource.h"
-#include "StereoCalibration.h"
+#include "StereoRectification.h"
 #include "StereoMethod.h"
 
 #include <opencv2/imgproc/imgproc.hpp>
@@ -32,7 +32,7 @@ StereoPipeline::StereoPipeline (QObject *parent)
     : QObject(parent)
 {
     imageSource = NULL;
-    calibration = NULL;
+    rectification = NULL;
     stereoMethod = NULL;
 
     useStereoMethodThread = false;
@@ -42,14 +42,14 @@ StereoPipeline::StereoPipeline (QObject *parent)
     stereoInputScaling = 1.0;
 
     imageSourceActive = true;
-    calibrationActive = true;
+    rectificationActive = true;
     stereoMethodActive = true;
 
     connect(this, SIGNAL(inputImagesChanged()), this, SLOT(rectifyImages()));
     connect(this, SIGNAL(rectifiedImagesChanged()), this, SLOT(computeDisparityImage()));
 
     connect(this, SIGNAL(imageSourceStateChanged(bool)), this, SLOT(beginProcessing()));
-    connect(this, SIGNAL(calibrationStateChanged(bool)), this, SLOT(rectifyImages()));
+    connect(this, SIGNAL(rectificationStateChanged(bool)), this, SLOT(rectifyImages()));
     connect(this, SIGNAL(stereoMethodStateChanged(bool)), this, SLOT(computeDisparityImage()));
 
     connect(this, SIGNAL(stereoInputScalingChanged(double)), this, SLOT(computeDisparityImage()));
@@ -122,36 +122,36 @@ void StereoPipeline::beginProcessing ()
 
 
 // *********************************************************************
-// *                            Calibration                            *
+// *                           Rectification                           *
 // *********************************************************************
-// Calibration setting
-void StereoPipeline::setCalibration (StereoCalibration *newCalibration)
+// Rectification setting
+void StereoPipeline::setRectification (StereoRectification *newRectification)
 {
-    // Change calibration
-    if (calibration) {
-        disconnect(calibration, SIGNAL(stateChanged(bool)), this, SLOT(rectifyImages()));
+    // Change rectification
+    if (rectification) {
+        disconnect(rectification, SIGNAL(stateChanged(bool)), this, SLOT(rectifyImages()));
     }
     
-    calibration = newCalibration;
-    connect(calibration, SIGNAL(stateChanged(bool)), this, SLOT(rectifyImages()));
+    rectification = newRectification;
+    connect(rectification, SIGNAL(stateChanged(bool)), this, SLOT(rectifyImages()));
 
     // Rectify images
     rectifyImages();
 }
 
 
-// Calibration state
-void StereoPipeline::setCalibrationState (bool newState)
+// Rectification state
+void StereoPipeline::setRectificationState (bool newState)
 {
-    if (newState != calibrationActive) {
-        calibrationActive = newState;
-        emit calibrationStateChanged(newState);
+    if (newState != rectificationActive) {
+        rectificationActive = newState;
+        emit rectificationStateChanged(newState);
     }
 }
 
-bool StereoPipeline::getCalibrationState () const
+bool StereoPipeline::getRectificationState () const
 {
-    return calibrationActive;
+    return rectificationActive;
 }
 
 
@@ -175,19 +175,19 @@ int StereoPipeline::getRectificationTime () const
 // Processing
 void StereoPipeline::rectifyImages ()
 {
-    // Make sure calibration is marked as active
-    if (!calibrationActive) {
+    // Make sure rectification is marked as active
+    if (!rectificationActive) {
         return;
     }
     
-    // Make sure we have calibration object set
-    if (!calibration) {
-        emit error("Stereo calibration object not set!");
+    // Make sure we have rectification object set
+    if (!rectification) {
+        emit error("Stereo rectification object not set!");
         return;
     }
 
     QTime timer; timer.start();
-    calibration->rectifyImagePair(inputImageL, inputImageR, rectifiedImageL, rectifiedImageR);
+    rectification->rectifyImagePair(inputImageL, inputImageR, rectifiedImageL, rectifiedImageR);
     rectificationTime = timer.elapsed();
 
     emit rectifiedImagesChanged();

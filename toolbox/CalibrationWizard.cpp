@@ -21,11 +21,12 @@
 
 #include "CalibrationWizard.h"
 
+#include "CalibrationPatternDisplayWidget.h"
+#include "ImagePairDisplayWidget.h"
+
 #include <opencv2/calib3d/calib3d.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 
-#include "CalibrationPatternDisplayWidget.h"
-#include "ImagePairDisplayWidget.h"
 
 // *********************************************************************
 // *                               Wizard                              *
@@ -35,6 +36,8 @@ CalibrationWizard::CalibrationWizard (QWidget *parent)
 {
     setWindowTitle("Calibration Wizard");
     setWizardStyle(ModernStyle);
+    
+    setOption(QWizard::NoBackButtonOnStartPage, true);
 
     setPixmap(QWizard::LogoPixmap, QPixmap(":/images/calibration.png"));
 
@@ -236,9 +239,9 @@ CalibrationWizardPageImages::CalibrationWizardPageImages (const QString &fieldPr
     label->setToolTip("Calibration pattern type");
 
     comboBoxPatternType = new QComboBox(this);
-    comboBoxPatternType->addItem("Chessboard", CalibrationPattern::Chessboard);
-    comboBoxPatternType->addItem("Circle grid", CalibrationPattern::Circles);
-    comboBoxPatternType->addItem("Asymmetric circle grid", CalibrationPattern::AsymmetricCircles);
+    comboBoxPatternType->addItem("Chessboard", StereoCalibrationPattern::Chessboard);
+    comboBoxPatternType->addItem("Circle grid", StereoCalibrationPattern::Circles);
+    comboBoxPatternType->addItem("Asymmetric circle grid", StereoCalibrationPattern::AsymmetricCircles);
     comboBoxPatternType->setCurrentIndex(0);
     patternLayout->addRow(label, comboBoxPatternType);
 
@@ -583,7 +586,7 @@ void CalibrationWizardPageDetection::initializePage ()
         field(fieldPrefix + "PatternWidth").toInt(),
         field(fieldPrefix + "PatternHeight").toInt(),
         field(fieldPrefix + "ElementSize").toDouble(),
-        (CalibrationPattern::PatternType)field(fieldPrefix + "PatternType").toInt(),
+        (StereoCalibrationPattern::PatternType)field(fieldPrefix + "PatternType").toInt(),
         field(fieldPrefix + "ScaleLevels").toInt(),
         field(fieldPrefix + "ScaleIncrement").toDouble()
     ); 
@@ -859,7 +862,7 @@ bool CalibrationWizardPageCalibration::validatePage ()
     // the pipeline's stereo calibration function, so that calibration
     // can be cancelled at any point without affecting the pipeline...
 
-    int flags = 0;
+    int flags = cv::CALIB_RATIONAL_MODEL;
     double err;
 
     cameraMatrix = cv::Mat::eye(3, 3, CV_64F);
@@ -997,6 +1000,7 @@ void CalibrationWizardPageStereoCalibration::cleanupPage ()
     wizard()->setButtonText(QWizard::NextButton, oldNextButtonText);
 }
 
+#include <iostream>
 bool CalibrationWizardPageStereoCalibration::validatePage ()
 {
     std::vector<std::vector<cv::Point2f> > imagePoints = field(fieldPrefix + "PatternImagePoints").value< std::vector<std::vector<cv::Point2f> > >();
@@ -1015,8 +1019,6 @@ bool CalibrationWizardPageStereoCalibration::validatePage ()
         imagePoints1.push_back(imagePoints[i]);
         imagePoints2.push_back(imagePoints[i+1]);
     }
-
-    qDebug() << "Calibration: got" << objectPoints.size() << imagePoints.size() << "WORLD:" << imagePoints1.size() << imagePoints2.size();
 
     int flags = cv::CALIB_RATIONAL_MODEL;
     double err;
@@ -1040,7 +1042,7 @@ bool CalibrationWizardPageStereoCalibration::validatePage ()
         cameraMatrix2 = field("RightCameraCameraMatrix").value<cv::Mat>();
         distCoeffs2 = field("RightCameraDistCoeffs").value<cv::Mat>();
 
-        flags |= cv::CALIB_FIX_INTRINSIC; // Estimate only R and T
+        flags |= cv::CALIB_USE_INTRINSIC_GUESS; // Estimate only R and T
     }
    
     try {

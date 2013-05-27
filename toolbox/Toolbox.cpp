@@ -22,12 +22,12 @@
 #include "Toolbox.h"
 
 #include "ImageSource.h"
-#include "StereoCalibration.h"
+#include "StereoRectification.h"
 #include "StereoMethod.h"
 #include "StereoPipeline.h"
 
 #include "GuiImageSource.h"
-#include "GuiCalibration.h"
+#include "GuiRectification.h"
 #include "GuiStereoMethod.h"
 
 
@@ -38,8 +38,8 @@ Toolbox::Toolbox ()
     pipeline = new StereoPipeline(this);
     pipeline->setUseStereoMethodThread(true);
 
-    calibration = new StereoCalibration(pipeline);
-    pipeline->setCalibration(calibration);
+    rectification = new StereoRectification(pipeline);
+    pipeline->setRectification(rectification);
 
     // Load image source and method plugins; look for path stored in
     // MVL_STEREO_TOOLBOX_PLUGIN_DIR, otherwise use application path
@@ -56,7 +56,7 @@ Toolbox::Toolbox ()
 
     // Create windows
     windowImageSource = new GuiImageSource(pipeline, imageSources, this);
-    windowCalibration = new GuiCalibration(pipeline, calibration, this);
+    windowRectification = new GuiRectification(pipeline, rectification, this);
     windowStereoMethod = new GuiStereoMethod(pipeline, stereoMethods, this);
 
     // Create GUI
@@ -86,19 +86,19 @@ void Toolbox::createGui ()
     layout->addWidget(pushButtonImageSource, 0, 0);
     layout->addWidget(pushButtonImageSourceActive, 0, 1);
 
-    // Calibration
-    pushButtonCalibration = new QPushButton("Calibration", this);
-    connect(pushButtonCalibration, SIGNAL(released()), this, SLOT(showWindowCalibration()));
+    // Rectification
+    pushButtonRectification = new QPushButton("Rectification", this);
+    connect(pushButtonRectification, SIGNAL(released()), this, SLOT(showWindowRectification()));
 
-    pushButtonCalibrationActive = new QPushButton("Active", this);
-    pushButtonCalibrationActive->setCheckable(true);
+    pushButtonRectificationActive = new QPushButton("Active", this);
+    pushButtonRectificationActive->setCheckable(true);
 
-    pushButtonCalibrationActive->setChecked(pipeline->getCalibrationState());
-    connect(pushButtonCalibrationActive, SIGNAL(toggled(bool)), pipeline, SLOT(setCalibrationState(bool)));
-    connect(pipeline, SIGNAL(calibrationStateChanged(bool)), this, SLOT(setPushButtonCalibrationActiveState(bool)));
+    pushButtonRectificationActive->setChecked(pipeline->getRectificationState());
+    connect(pushButtonRectificationActive, SIGNAL(toggled(bool)), pipeline, SLOT(setRectificationState(bool)));
+    connect(pipeline, SIGNAL(rectificationStateChanged(bool)), this, SLOT(setPushButtonRectificationActiveState(bool)));
         
-    layout->addWidget(pushButtonCalibration, 1, 0);
-    layout->addWidget(pushButtonCalibrationActive, 1, 1);
+    layout->addWidget(pushButtonRectification, 1, 0);
+    layout->addWidget(pushButtonRectificationActive, 1, 1);
 
     // Stereo method
     pushButtonStereoMethod = new QPushButton("Stereo method", this);
@@ -143,9 +143,9 @@ void Toolbox::showWindowImageSource ()
     showWindowOnTop(windowImageSource);
 }
 
-void Toolbox::showWindowCalibration ()
+void Toolbox::showWindowRectification ()
 {
-    showWindowOnTop(windowCalibration);
+    showWindowOnTop(windowRectification);
 
 }
 
@@ -172,9 +172,9 @@ void Toolbox::setPushButtonImageSourceActiveState (bool active)
     setActiveButtonState(pushButtonImageSourceActive, active);
 }
 
-void Toolbox::setPushButtonCalibrationActiveState (bool active)
+void Toolbox::setPushButtonRectificationActiveState (bool active)
 {
-    setActiveButtonState(pushButtonCalibrationActive, active);
+    setActiveButtonState(pushButtonRectificationActive, active);
 }
 
 void Toolbox::setPushButtonStereomethodActiveState (bool active)

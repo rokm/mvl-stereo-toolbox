@@ -19,12 +19,8 @@
  * 
  */
 
-#include "StereoPipeline.h"
-#include "StereoCalibration.h"
-#include "StereoMethod.h"
-#include "ImageSource.h"
-
 #include "Toolbox.h"
+
 
 int main (int argc, char **argv)
 {

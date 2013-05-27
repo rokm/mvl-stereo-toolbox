@@ -1,5 +1,5 @@
 /*
- * MVL Stereo Toolbox: calibration GUI: calibration pattern detection dialog
+ * Stereo Pipeline: calibration pattern
  * Copyright (C) 2013 Rok Mandeljc
  *
  * This program is free software; you can redistribute it and/or modify
@@ -19,27 +19,43 @@
  * 
  */
 
-#ifndef CALIBRATION_PATTERN_DETECTION_DIALOG_H
-#define CALIBRATION_PATTERN_DETECTION_DIALOG_H
+#ifndef STEREO_CALIBRATION_PATTERN_H
+#define STEREO_CALIBRATION_PATTERN_H
 
-#include <QtGui>
 #include <opencv2/core/core.hpp>
 
 
-class CalibrationPatternDisplayWidget;
-
-class CalibrationPatternDetectionDialog : public QDialog
+class StereoCalibrationPattern
 {
 public:
-    CalibrationPatternDetectionDialog (QWidget * = 0);
-    virtual ~CalibrationPatternDetectionDialog ();
+    enum PatternType {
+        Chessboard,
+        Circles,
+        AsymmetricCircles,
+    };
 
-    void setImage (const cv::Mat &, bool, const std::vector<cv::Point2f> &, const cv::Size &);
+    StereoCalibrationPattern ();
+    StereoCalibrationPattern (int, int, float, PatternType, int = 0, float = 0.25);
 
+    void setParameters (int, int, float, PatternType, int = 0, float = 0.25);
+
+    const cv::Size getPatternSize () const;
+
+    std::vector<cv::Point3f> computePlanarCoordinates () const;
+
+    bool findInImage (const cv::Mat &, std::vector<cv::Point2f> &) const;
+    
 protected:
-    CalibrationPatternDisplayWidget *displayImage;
-    QPushButton *pushButtonAccept;
-    QPushButton *pushButtonDiscard;
+    int patternWidth;
+    int patternHeight;
+    cv::Size patternSize;
+
+    float elementSize;
+    
+    PatternType patternType;
+
+    int maxScaleLevel;
+    float scaleIncrement;
 };
 
 #endif

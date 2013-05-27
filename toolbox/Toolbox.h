@@ -27,12 +27,12 @@
 
 
 class ImageSource;
-class StereoCalibration;
+class StereoRectification;
 class StereoMethod;
 class StereoPipeline;
 
 class GuiImageSource;
-class GuiCalibration;
+class GuiRectification;
 class GuiStereoMethod;
 
 class Toolbox : public QWidget
@@ -45,11 +45,11 @@ public:
 
 protected slots:
     void showWindowImageSource ();
-    void showWindowCalibration ();
+    void showWindowRectification ();
     void showWindowStereoMethod ();
 
     void setPushButtonImageSourceActiveState (bool);
-    void setPushButtonCalibrationActiveState (bool);
+    void setPushButtonRectificationActiveState (bool);
     void setPushButtonStereomethodActiveState (bool);
 
 protected:
@@ -60,18 +60,18 @@ protected:
 
 protected:
     GuiImageSource *windowImageSource;
-    GuiCalibration *windowCalibration;
+    GuiRectification *windowRectification;
     GuiStereoMethod *windowStereoMethod;
 
     QPushButton *pushButtonImageSource;
     QPushButton *pushButtonImageSourceActive;
-    QPushButton *pushButtonCalibration;
-    QPushButton *pushButtonCalibrationActive;
+    QPushButton *pushButtonRectification;
+    QPushButton *pushButtonRectificationActive;
     QPushButton *pushButtonStereoMethod;
     QPushButton *pushButtonStereoMethodActive;
     
     StereoPipeline *pipeline;
-    StereoCalibration *calibration;
+    StereoRectification *rectification;
 
     QList<ImageSource *> imageSources;
     QList<StereoMethod *> stereoMethods;

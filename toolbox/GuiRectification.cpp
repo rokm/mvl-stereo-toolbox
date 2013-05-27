@@ -1,5 +1,5 @@
 /*
- * MVL Stereo Toolbox: calibration GUI
+ * MVL Stereo Toolbox: rectification GUI
  * Copyright (C) 2013 Rok Mandeljc
  *
  * This program is free software; you can redistribute it and/or modify
@@ -19,24 +19,18 @@
  * 
  */
 
-#include "GuiCalibration.h"
-
-#include "ImagePairDisplayWidget.h"
-
-#include "StereoPipeline.h"
-#include "StereoCalibration.h"
-
-#include "CalibrationPatternDetectionDialog.h"
-#include "CalibrationPatternSettingsDialog.h"
+#include "GuiRectification.h"
 
 #include "CalibrationWizard.h"
+#include "ImagePairDisplayWidget.h"
+#include "StereoPipeline.h"
+#include "StereoRectification.h"
 
-#include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
 
 
-GuiCalibration::GuiCalibration (StereoPipeline *p, StereoCalibration *c, QWidget *parent)
-    : QWidget(parent, Qt::Window), pipeline(p), calibration(c)
+GuiRectification::GuiRectification (StereoPipeline *p, StereoRectification *r, QWidget *parent)
+    : QWidget(parent, Qt::Window), pipeline(p), rectification(r)
 {
     setWindowTitle("Stereo calibration");
     resize(800, 600);
@@ -57,7 +51,7 @@ GuiCalibration::GuiCalibration (StereoPipeline *p, StereoCalibration *c, QWidget
     pushButton->setToolTip("Run calibration wizard.");
     connect(pushButton, SIGNAL(released()), this, SLOT(runCalibrationWizard()));
     buttonsLayout->addWidget(pushButton);
-    pushButtonCalibrate = pushButton;
+    pushButtonWizard = pushButton;
 
     pushButton = new QPushButton("Import calib.");
     pushButton->setToolTip("Import calibration from file.");
@@ -97,35 +91,29 @@ GuiCalibration::GuiCalibration (StereoPipeline *p, StereoCalibration *c, QWidget
     // Pipeline
     connect(pipeline, SIGNAL(rectifiedImagesChanged()), this, SLOT(updateImage()));
 
-    // Calibration
-    connect(calibration, SIGNAL(stateChanged(bool)), this, SLOT(updateState()));
+    // Rectification
+    connect(rectification, SIGNAL(stateChanged(bool)), this, SLOT(updateState()));
     updateState();
 
-    // Pattern settings dialog
-    patternSettingsDialog = new CalibrationPatternSettingsDialog(this);
-
-    // Pattern detection dialog
-    patternDetectionDialog = new CalibrationPatternDetectionDialog(this);
-
-    // Wizard
+    // Calibration wizard
     wizard = new CalibrationWizard(this);
 }
 
-GuiCalibration::~GuiCalibration ()
+GuiRectification::~GuiRectification ()
 {
 }
 
-void GuiCalibration::updateImage ()
+void GuiRectification::updateImage ()
 {
     displayPair->setImagePair(pipeline->getLeftRectifiedImage(), pipeline->getRightRectifiedImage());
 }
 
-void GuiCalibration::updateState ()
+void GuiRectification::updateState ()
 {
-    if (calibration->getState()) {
+    if (rectification->getState()) {
         statusBar->showMessage("Calibration set; rectifying input images.");
 
-        displayPair->setImagePairROI(calibration->getLeftROI(), calibration->getRightROI());
+        displayPair->setImagePairROI(rectification->getLeftROI(), rectification->getRightROI());
 
         pushButtonClear->setEnabled(true);
         pushButtonExport->setEnabled(true);
@@ -145,82 +133,59 @@ void GuiCalibration::updateState ()
 // *********************************************************************
 // *                            Calibration                            *
 // *********************************************************************
-void GuiCalibration::runCalibrationWizard ()
+void GuiRectification::runCalibrationWizard ()
 {
-    wizard->show();
-#if 0
-    QStringList fileNames = QFileDialog::getOpenFileNames(this, "Select calibration images or list file", QString(), "Images (*.jpg *.png *.bmp *.tif *.ppm *.pgm);; Text file (*.txt)");
-
-    // If no files are chosen, stop
-    if (!fileNames.size()) {
-        return;
+    // Run calibration wizard
+    wizard->restart();
+    if (wizard->exec() == QDialog::Accepted) {
+        QString fieldPrefix = "Stereo";
+        // Get parameters and set them to rectification object
+        rectification->setStereoCalibration(
+            wizard->field(fieldPrefix + "CameraMatrix1").value<cv::Mat>(),
+            wizard->field(fieldPrefix + "DistCoeffs1").value<cv::Mat>(),
+            wizard->field(fieldPrefix + "CameraMatrix2").value<cv::Mat>(),
+            wizard->field(fieldPrefix + "DistCoeffs2").value<cv::Mat>(),
+            wizard->field(fieldPrefix + "R").value<cv::Mat>(),
+            wizard->field(fieldPrefix + "T").value<cv::Mat>(),
+            wizard->field(fieldPrefix + "ImageSize").value<cv::Size>()
+        );        
     }
-
-    // If we are given a single file, assume it is a file list
-    if (fileNames.size() == 1) {
-        QFile listFile(fileNames[0]);
-        if (listFile.open(QIODevice::ReadOnly)) {
-            QTextStream stream(&listFile);
-            QString line;
-            
-            // Clear file names
-            fileNames.clear();
-
-            while (1) {
-                line = stream.readLine();
-                if (line.isNull()) {
-                    break;
-                } else {
-                    fileNames << line;
-                }
-            }
-
-            if (!fileNames.size()) {
-                throw QString("Image list is empty!");
-            }
-        } else {
-            throw QString("Failed to open image list file \"%1\"!").arg(fileNames[0]);
-        }
-    }
-
-    // Run pattern settings dialog
-    if (patternSettingsDialog->exec() != QDialog::Accepted) {
-        return;
-    }
-
-    CalibrationPattern pattern = patternSettingsDialog->getPattern();
-
-    // Finally, do calibration
-    calibration->calibrateFromImages(fileNames, pattern, patternSettingsDialog->getShowResult() ? this : 0);
-#endif
 }
 
-void GuiCalibration::importCalibration ()
+void GuiRectification::importCalibration ()
 {
     QString fileName = QFileDialog::getOpenFileName(this, "Load calibration from file", QString(), "OpenCV storage file (*.xml *.yml *.yaml)");
     if (!fileName.isNull()) {
-        calibration->loadStereoCalibration(fileName);
+        try {
+            rectification->loadStereoCalibration(fileName);
+        } catch (QString e) {
+            QMessageBox::warning(this, "Error", "Failed to import calibration: " + e);
+        }
     }
 }
 
-void GuiCalibration::exportCalibration ()
+void GuiRectification::exportCalibration ()
 {
     QString fileName = QFileDialog::getSaveFileName(this, "Save calibration to file", QString(), "OpenCV storage file (*.xml *.yml *.yaml)");
     if (!fileName.isNull()) {
-        calibration->saveStereoCalibration(fileName);
+        try {
+            rectification->saveStereoCalibration(fileName);
+        } catch (QString e) {
+            QMessageBox::warning(this, "Error", "Failed to export calibration: " + e);
+        }
     }
 }
 
-void GuiCalibration::clearCalibration ()
+void GuiRectification::clearCalibration ()
 {
-    calibration->clearStereoCalibration();
+    rectification->clearStereoCalibration();
 }
 
 
 // *********************************************************************
 // *                            Image saving                           *
 // *********************************************************************
-void GuiCalibration::saveImages ()
+void GuiRectification::saveImages ()
 {
     // Make snapshot of images - because it can take a while to get
     // the filename...
@@ -248,17 +213,7 @@ void GuiCalibration::saveImages ()
             cv::imwrite(fileNameLeft.toStdString(), tmpImg1);
             cv::imwrite(fileNameRight.toStdString(), tmpImg2);
         } catch (cv::Exception e) {
-            qWarning() << "Failed to save images:" << QString::fromStdString(e.what());
+            QMessageBox::warning(this, "Error", "Failed to save images: " + QString::fromStdString(e.what()));
         }
     }
-}
-
-
-// *********************************************************************
-// *            Validation of calibration pattern detection            *
-// *********************************************************************
-bool GuiCalibration::validatePatternDetection (cv::Mat &img, bool found, std::vector<cv::Point2f> &points, const cv::Size &patternSize) const
-{
-    patternDetectionDialog->setImage(img, found, points, patternSize);
-    return patternDetectionDialog->exec() == QDialog::Accepted;
 }

@@ -24,9 +24,9 @@
 
 #include <QtGui>
 
-#include <opencv2/highgui/highgui.hpp>
+#include "StereoCalibrationPattern.h"
 
-#include "StereoCalibration.h"
+#include <opencv2/highgui/highgui.hpp>
 
 
 class CalibrationPattern;
@@ -210,7 +210,7 @@ protected:
     QStringList images;
     int imageCounter;
 
-    CalibrationPattern calibrationPattern;
+    StereoCalibrationPattern calibrationPattern;
     std::vector<cv::Point2f> currentImagePoints;
 
     // These are what we will pass on...

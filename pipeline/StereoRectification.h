@@ -1,5 +1,5 @@
 /*
- * Stereo Pipeline: calibration
+ * Stereo Pipeline: stereo rectification
  * Copyright (C) 2013 Rok Mandeljc
  *
  * This program is free software; you can redistribute it and/or modify
@@ -19,30 +19,26 @@
  * 
  */
 
-#ifndef STEREO_CALIBRATION_H
-#define STEREO_CALIBRATION_H
+#ifndef STEREO_RECTIFICATION_H
+#define STEREO_RECTIFICATION_H
 
 #include <QtCore>
 
 #include <opencv2/core/core.hpp>
 
 
-class CalibrationPattern;
-class PatternDetectionValidator;
-
-class StereoCalibration : public QObject
+class StereoRectification : public QObject
 {
     Q_OBJECT
 
 public:
-    StereoCalibration (QObject * = 0);
-    virtual ~StereoCalibration ();
+    StereoRectification (QObject * = 0);
+    virtual ~StereoRectification ();
 
+    void setStereoCalibration (const cv::Mat &, const cv::Mat &, const cv::Mat &, const cv::Mat &, const cv::Mat &, const cv::Mat &, const cv::Size &);
     void loadStereoCalibration (const QString &);
     void saveStereoCalibration (const QString &) const;
     void clearStereoCalibration ();
-
-    void calibrateFromImages (const QStringList &, CalibrationPattern &, PatternDetectionValidator * = 0);
 
     void rectifyImagePair (const cv::Mat &, const cv::Mat &, cv::Mat &, cv::Mat &) const;
 
@@ -77,47 +73,6 @@ protected:
 
     // Rectification maps
     cv::Mat map11, map12, map21, map22;
-};
-
-
-class CalibrationPattern
-{
-public:
-    enum PatternType {
-        Chessboard,
-        Circles,
-        AsymmetricCircles,
-    };
-
-    CalibrationPattern ();
-    CalibrationPattern (int, int, float, PatternType, int = 0, float = 0.25);
-
-    void setParameters (int, int, float, PatternType, int = 0, float = 0.25);
-
-    void computePatternCoordinates (std::vector<cv::Point3f> &) const;
-    std::vector<cv::Point3f> computePlanarCoordinates () const;
-
-    bool findInImage (const cv::Mat &, std::vector<cv::Point2f> &) const;
-
-    const cv::Size getPatternSize () const;
-    
-protected:
-    int patternWidth;
-    int patternHeight;
-    cv::Size patternSize;
-
-    float elementSize;
-    
-    PatternType patternType;
-
-    int maxScaleLevel;
-    float scaleIncrement;
-};
-
-class PatternDetectionValidator
-{
-public:
-    virtual bool validatePatternDetection (cv::Mat &, bool, std::vector<cv::Point2f> &, const cv::Size &) const = 0;
 };
 
 #endif

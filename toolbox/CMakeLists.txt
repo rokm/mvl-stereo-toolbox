@@ -11,12 +11,10 @@ add_definitions(${QT_DEFINITIONS})
 
 set(toolbox_SOURCES
     main.cpp
-    CalibrationPatternDetectionDialog.cpp
     CalibrationPatternDisplayWidget.cpp
-    CalibrationPatternSettingsDialog.cpp
     CalibrationWizard.cpp
     GuiImageSource.cpp
-    GuiCalibration.cpp
+    GuiRectification.cpp
     GuiStereoMethod.cpp
     ImageDisplayWidget.cpp
     ImagePairDisplayWidget.cpp
@@ -24,12 +22,10 @@ set(toolbox_SOURCES
 )
 
 set(toolbox_HEADERS
-    CalibrationPatternDetectionDialog.h
     CalibrationPatternDisplayWidget.h
-    CalibrationPatternSettingsDialog.h
     CalibrationWizard.h
     GuiImageSource.h
-    GuiCalibration.h
+    GuiRectification.h
     GuiStereoMethod.h
     ImageDisplayWidget.h
     ImagePairDisplayWidget.h
