@@ -306,12 +306,29 @@ void StereoCalibration::calibrateFromImages (const QStringList &images, Calibrat
 // *********************************************************************
 // *                        Calibration pattern                        *
 // *********************************************************************
-CalibrationPattern::CalibrationPattern (int width, int height, float size, PatternType type, int levels, float increment)
-    : patternWidth(width), patternHeight(height), patternSize(width, height),
-      elementSize(size), patternType(type),
-      maxScaleLevel(levels), scaleIncrement(increment)
+CalibrationPattern::CalibrationPattern ()
 {
 }
+
+CalibrationPattern::CalibrationPattern (int width, int height, float size, PatternType type, int levels, float increment)
+{
+    setParameters(width, height, size, type, levels, increment);
+}
+
+void CalibrationPattern::setParameters (int newPatternWidth, int newPatternHeight, float newElementSize, PatternType newPatternType, int newMaxScaleLevel, float newScaleIncrement)
+{
+    patternWidth = newPatternWidth;
+    patternHeight = newPatternHeight;
+    patternSize = cv::Size(patternWidth, patternHeight);
+
+    elementSize = newElementSize;
+    
+    patternType = newPatternType;
+
+    maxScaleLevel = newMaxScaleLevel;
+    scaleIncrement = newScaleIncrement;
+}
+
 
 const cv::Size CalibrationPattern::getPatternSize () const
 {
@@ -319,6 +336,36 @@ const cv::Size CalibrationPattern::getPatternSize () const
 }
 
 
+std::vector<cv::Point3f> CalibrationPattern::computePlanarCoordinates () const
+{
+    std::vector<cv::Point3f> coordinates;
+    
+    switch (patternType) {
+        case Chessboard:
+        case Circles: {
+            // Regular grid
+            for (int i = 0; i < patternHeight; i++) {
+                for (int j = 0; j < patternWidth; j++) {
+                    coordinates.push_back(cv::Point3f(j*elementSize, i*elementSize, 0));
+                }
+            }
+            break;
+        }
+        case AsymmetricCircles: {
+            // Asymmetric grid
+            for (int i = 0; i < patternHeight; i++) {
+                for (int j = 0; j < patternWidth; j++) {
+                    coordinates.push_back(cv::Point3f((2*j + i % 2)*elementSize, i*elementSize, 0));
+                }
+            }
+            break;
+        }
+    }
+
+    return coordinates;
+}
+
+// FIXME:: REMOVE THIS
 void CalibrationPattern::computePatternCoordinates (std::vector<cv::Point3f> &coordinates) const
 {
     coordinates.clear();
@@ -345,6 +392,7 @@ void CalibrationPattern::computePatternCoordinates (std::vector<cv::Point3f> &co
         }
     }
 }
+//
 
 bool CalibrationPattern::findInImage (const cv::Mat &img, std::vector<cv::Point2f> &points) const
 {
@@ -382,7 +430,14 @@ bool CalibrationPattern::findInImage (const cv::Mat &img, std::vector<cv::Point2
             // Improve localization of corners on chessboard by doing
             // sub-pixel interpolation
             if (patternType == Chessboard) {
-                cv::cornerSubPix(img, points, cv::Size(11,11), cv::Size(-1,-1), cv::TermCriteria(cv::TermCriteria::COUNT + cv::TermCriteria::EPS, 30, 0.01));
+                cv::Mat scaledImgGray;
+                if (scaledImg.channels() == 1) {
+                    scaledImgGray = scaledImg;
+                } else {
+                    cv::cvtColor(scaledImg, scaledImgGray, CV_RGB2GRAY);
+                }
+                
+                cv::cornerSubPix(scaledImgGray, points, cv::Size(11,11), cv::Size(-1,-1), cv::TermCriteria(cv::TermCriteria::COUNT + cv::TermCriteria::EPS, 30, 0.01));
             }
             
             // If points were found at higher scale, scale them back to

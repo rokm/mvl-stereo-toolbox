@@ -89,9 +89,13 @@ public:
         AsymmetricCircles,
     };
 
+    CalibrationPattern ();
     CalibrationPattern (int, int, float, PatternType, int = 0, float = 0.25);
 
+    void setParameters (int, int, float, PatternType, int = 0, float = 0.25);
+
     void computePatternCoordinates (std::vector<cv::Point3f> &) const;
+    std::vector<cv::Point3f> computePlanarCoordinates () const;
 
     bool findInImage (const cv::Mat &, std::vector<cv::Point2f> &) const;
 

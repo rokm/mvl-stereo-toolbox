@@ -31,16 +31,13 @@ CalibrationPatternDisplayWidget::~CalibrationPatternDisplayWidget ()
 {
 }
 
-void CalibrationPatternDisplayWidget::setImage (const cv::Mat &img, bool found, const std::vector<cv::Point2f> &points, const cv::Size &size)
+void CalibrationPatternDisplayWidget::setPattern (bool found, const std::vector<cv::Point2f> &points, const cv::Size &size)
 {
     // Store pattern
     patternSize = size;
     patternFound = found;
     patternPoints = points;
 
-    // Store image via parent's method
-    ImageDisplayWidget::setImage(img);
-    
     // Refresh
     update();
 }

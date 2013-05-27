@@ -68,5 +68,6 @@ CalibrationPatternDetectionDialog::~CalibrationPatternDetectionDialog ()
 void CalibrationPatternDetectionDialog::setImage (const cv::Mat &img, bool found, const std::vector<cv::Point2f> &points, const cv::Size &patternSize)
 {
     pushButtonAccept->setEnabled(found); // Disable "accept" if pattern has not been found
-    displayImage->setImage(img, found, points, patternSize);
+    displayImage->setImage(img);
+    displayImage->setPattern(found, points, patternSize);
 }

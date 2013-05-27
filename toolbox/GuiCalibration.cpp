@@ -29,6 +29,8 @@
 #include "CalibrationPatternDetectionDialog.h"
 #include "CalibrationPatternSettingsDialog.h"
 
+#include "CalibrationWizard.h"
+
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
 
@@ -52,8 +54,8 @@ GuiCalibration::GuiCalibration (StereoPipeline *p, StereoCalibration *c, QWidget
     buttonsLayout->addStretch();
 
     pushButton = new QPushButton("Calibrate");
-    pushButton->setToolTip("Calibrate from list of images.");
-    connect(pushButton, SIGNAL(released()), this, SLOT(doCalibration()));
+    pushButton->setToolTip("Run calibration wizard.");
+    connect(pushButton, SIGNAL(released()), this, SLOT(runCalibrationWizard()));
     buttonsLayout->addWidget(pushButton);
     pushButtonCalibrate = pushButton;
 
@@ -104,6 +106,9 @@ GuiCalibration::GuiCalibration (StereoPipeline *p, StereoCalibration *c, QWidget
 
     // Pattern detection dialog
     patternDetectionDialog = new CalibrationPatternDetectionDialog(this);
+
+    // Wizard
+    wizard = new CalibrationWizard(this);
 }
 
 GuiCalibration::~GuiCalibration ()
@@ -140,8 +145,10 @@ void GuiCalibration::updateState ()
 // *********************************************************************
 // *                            Calibration                            *
 // *********************************************************************
-void GuiCalibration::doCalibration ()
+void GuiCalibration::runCalibrationWizard ()
 {
+    wizard->show();
+#if 0
     QStringList fileNames = QFileDialog::getOpenFileNames(this, "Select calibration images or list file", QString(), "Images (*.jpg *.png *.bmp *.tif *.ppm *.pgm);; Text file (*.txt)");
 
     // If no files are chosen, stop
@@ -185,6 +192,7 @@ void GuiCalibration::doCalibration ()
 
     // Finally, do calibration
     calibration->calibrateFromImages(fileNames, pattern, patternSettingsDialog->getShowResult() ? this : 0);
+#endif
 }
 
 void GuiCalibration::importCalibration ()

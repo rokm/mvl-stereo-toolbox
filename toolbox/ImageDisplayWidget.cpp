@@ -85,6 +85,17 @@ void ImageDisplayWidget::setImage (const cv::Mat &img)
     update();
 }
 
+void ImageDisplayWidget::setText (const QString &newText)
+{
+    // Store new text
+    text = newText;
+    setToolTip(text);
+
+    // Refresh
+    update();
+}
+
+
 void ImageDisplayWidget::paintEvent (QPaintEvent *event)
 {    
     QPainter painter(this);

@@ -12,7 +12,7 @@ public:
     CalibrationPatternDisplayWidget (const QString & = QString(), QWidget * = 0);
     virtual ~CalibrationPatternDisplayWidget ();
 
-    void setImage (const cv::Mat &, bool, const std::vector<cv::Point2f> &, const cv::Size &);
+    void setPattern (bool, const std::vector<cv::Point2f> &, const cv::Size &);
 
 protected:
     virtual void paintEvent (QPaintEvent *);

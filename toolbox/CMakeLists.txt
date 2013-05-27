@@ -14,6 +14,7 @@ set(toolbox_SOURCES
     CalibrationPatternDetectionDialog.cpp
     CalibrationPatternDisplayWidget.cpp
     CalibrationPatternSettingsDialog.cpp
+    CalibrationWizard.cpp
     GuiImageSource.cpp
     GuiCalibration.cpp
     GuiStereoMethod.cpp
@@ -26,6 +27,7 @@ set(toolbox_HEADERS
     CalibrationPatternDetectionDialog.h
     CalibrationPatternDisplayWidget.h
     CalibrationPatternSettingsDialog.h
+    CalibrationWizard.h
     GuiImageSource.h
     GuiCalibration.h
     GuiStereoMethod.h

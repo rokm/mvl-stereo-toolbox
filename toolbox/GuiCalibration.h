@@ -33,6 +33,7 @@ class ImagePairDisplayWidget;
 
 class CalibrationPatternSettingsDialog;
 class CalibrationPatternDetectionDialog;
+class CalibrationWizard;
 
 class GuiCalibration : public QWidget, public PatternDetectionValidator
 {
@@ -45,7 +46,7 @@ public:
     virtual bool validatePatternDetection (cv::Mat &, bool, std::vector<cv::Point2f> &, const cv::Size &) const;
 
 protected slots:
-    void doCalibration ();
+    void runCalibrationWizard ();
     void importCalibration ();
     void exportCalibration ();
     void clearCalibration ();
@@ -73,6 +74,9 @@ protected:
 
     CalibrationPatternSettingsDialog *patternSettingsDialog;
     CalibrationPatternDetectionDialog *patternDetectionDialog;
+
+    // Wizard
+    CalibrationWizard *wizard;
 };
 
 #endif

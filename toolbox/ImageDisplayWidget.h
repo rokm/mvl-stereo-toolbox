@@ -36,6 +36,7 @@ public:
     virtual ~ImageDisplayWidget ();
 
     void setImage (const cv::Mat &);
+    void setText (const QString &);
 
     static QImage convertCvMatToQImage (const cv::Mat &src);
 
