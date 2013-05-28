@@ -800,6 +800,532 @@ int CalibrationWizardPageRightCameraDetection::nextId () const
 
 
 // *********************************************************************
+// *                     Calibration flags widget                      *
+// *********************************************************************
+CalibrationFlagsWidget::CalibrationFlagsWidget (const QString &title, QWidget *parent)
+    : QGroupBox(title, parent)
+{
+    QFormLayout *groupBoxLayout = new QFormLayout(this);
+    QCheckBox *checkBox;
+
+    // CALIB_USE_INTRINSIC_GUESS
+    checkBox = new QCheckBox("CALIB_USE_INTRINSIC_GUESS", this);
+    checkBox->setToolTip("The input values for fx, fy, cx and cy are considered an initial guess \n"
+                         "and are optimized further. Otherwise, (cx, cy) is initially set to the \n"
+                         "image center and focal distances are computed in a least-squares fashion.");
+    checkBoxUseIntrinsicGuess = checkBox;
+    groupBoxLayout->addRow(checkBox);
+
+    // CALIB_FIX_PRINCIPAL_POINT
+    checkBox = new QCheckBox("CALIB_FIX_PRINCIPAL_POINT", this);
+    checkBox->setToolTip("The principal point is not changed during the global optimization.\n"
+                         "It stays at the center or, if CALIB_USE_INTRINSIC_GUESS is set, at \n"
+                         "the specified location.");
+    checkBoxFixPrincipalPoint = checkBox;
+    groupBoxLayout->addRow(checkBox);
+
+    // CALIB_FIX_ASPECT_RATIO
+    checkBox = new QCheckBox("CALIB_FIX_ASPECT_RATIO", this);
+    checkBox->setToolTip("The function considers only fy as a free parameter. The ratio fx/fy\n"
+                         "stays the same as defined by the input values. If CALIB_USE_INTRINSIC_GUESS \n"
+                         "is not set, the actual input values of fx and fy are ignored, and only their \n"
+                         "ratio is computed and used further.");
+    checkBoxFixAspectRatio = checkBox;
+    groupBoxLayout->addRow(checkBox);
+
+    // CALIB_ZERO_TANGENT_DIST
+    checkBox = new QCheckBox("CALIB_ZERO_TANGENT_DIST", this);
+    checkBox->setToolTip("Tangential distortion coefficients (p1, p2) are set to zeros and stay zero.");
+    checkBoxZeroTangentDist = checkBox;
+    groupBoxLayout->addRow(checkBox);
+
+    // CALIB_RATIONAL_MODEL
+    checkBox = new QCheckBox("CALIB_RATIONAL_MODEL", this);
+    checkBox->setToolTip("Coefficients k4, k5, and k6 are enabled, totally amounting to 8 distortion coefficients.\n"
+                         "If the flag is not set, the function computes and returns only 5 distortion coefficients.");
+    checkBoxRationalModel = checkBox;
+    groupBoxLayout->addRow(checkBox);
+
+    // CALIB_FIX_K1
+    checkBox = new QCheckBox("CALIB_FIX_K1", this);
+    checkBox->setToolTip("The corresponding radial distortion coefficient is not changed during the optimization.\n"
+                         "If CALIB_USE_INTRINSIC_GUESS is set, the supplied coefficient value is used. Otherwise, \n"
+                         "it is set to zero.");
+    checkBoxFixK1 = checkBox;
+    groupBoxLayout->addRow(checkBox);
+
+    // CALIB_FIX_K2
+    checkBox = new QCheckBox("CALIB_FIX_K2", this);
+    checkBox->setToolTip("The corresponding radial distortion coefficient is not changed during the optimization.\n"
+                         "If CALIB_USE_INTRINSIC_GUESS is set, the supplied coefficient value is used. Otherwise, \n"
+                         "it is set to zero.");
+    checkBoxFixK2 = checkBox;
+    groupBoxLayout->addRow(checkBox);
+
+    // CALIB_FIX_K3
+    checkBox = new QCheckBox("CALIB_FIX_K3", this);
+    checkBox->setToolTip("The corresponding radial distortion coefficient is not changed during the optimization.\n"
+                         "If CALIB_USE_INTRINSIC_GUESS is set, the supplied coefficient value is used. Otherwise, \n"
+                         "it is set to zero.");
+    checkBoxFixK3 = checkBox;
+    groupBoxLayout->addRow(checkBox);
+
+    // CALIB_FIX_K4
+    checkBox = new QCheckBox("CALIB_FIX_K4", this);
+    checkBox->setToolTip("The corresponding radial distortion coefficient is not changed during the optimization.\n"
+                         "If CALIB_USE_INTRINSIC_GUESS is set, the supplied coefficient value is used. Otherwise, \n"
+                         "it is set to zero.");
+    checkBoxFixK4 = checkBox;
+    groupBoxLayout->addRow(checkBox);
+
+    // CALIB_FIX_K5
+    checkBox = new QCheckBox("CALIB_FIX_K5", this);
+    checkBox->setToolTip("The corresponding radial distortion coefficient is not changed during the optimization.\n"
+                         "If CALIB_USE_INTRINSIC_GUESS is set, the supplied coefficient value is used. Otherwise, \n"
+                         "it is set to zero.");
+    checkBoxFixK5 = checkBox;
+    groupBoxLayout->addRow(checkBox);
+
+    // CALIB_FIX_K6
+    checkBox = new QCheckBox("CALIB_FIX_K6", this);
+    checkBox->setToolTip("The corresponding radial distortion coefficient is not changed during the optimization.\n"
+                         "If CALIB_USE_INTRINSIC_GUESS is set, the supplied coefficient value is used. Otherwise, \n"
+                         "it is set to zero.");
+    checkBoxFixK6 = checkBox;
+    groupBoxLayout->addRow(checkBox);
+}
+
+CalibrationFlagsWidget::~CalibrationFlagsWidget ()
+{
+}
+
+
+int CalibrationFlagsWidget::getFlags () const
+{
+    int flags = 0;
+
+    flags |= (checkBoxUseIntrinsicGuess->checkState() == Qt::Checked) * cv::CALIB_USE_INTRINSIC_GUESS;
+    flags |= (checkBoxFixPrincipalPoint->checkState() == Qt::Checked) * cv::CALIB_FIX_PRINCIPAL_POINT;
+    flags |= (checkBoxFixAspectRatio->checkState() == Qt::Checked) * cv::CALIB_FIX_ASPECT_RATIO;
+    flags |= (checkBoxZeroTangentDist->checkState() == Qt::Checked) * cv::CALIB_ZERO_TANGENT_DIST;
+    flags |= (checkBoxRationalModel->checkState() == Qt::Checked) * cv::CALIB_RATIONAL_MODEL;
+    flags |= (checkBoxFixK1->checkState() == Qt::Checked) * cv::CALIB_FIX_K1;
+    flags |= (checkBoxFixK2->checkState() == Qt::Checked) * cv::CALIB_FIX_K2;
+    flags |= (checkBoxFixK3->checkState() == Qt::Checked) * cv::CALIB_FIX_K3;
+    flags |= (checkBoxFixK4->checkState() == Qt::Checked) * cv::CALIB_FIX_K4;
+    flags |= (checkBoxFixK5->checkState() == Qt::Checked) * cv::CALIB_FIX_K5;
+    flags |= (checkBoxFixK6->checkState() == Qt::Checked) * cv::CALIB_FIX_K6;
+
+    return flags;
+}
+
+void CalibrationFlagsWidget::setFlags (int flags)
+{
+    checkBoxUseIntrinsicGuess->setChecked(flags & cv::CALIB_USE_INTRINSIC_GUESS);
+    checkBoxFixPrincipalPoint->setChecked(flags & cv::CALIB_FIX_PRINCIPAL_POINT);
+    checkBoxFixAspectRatio->setChecked(flags & cv::CALIB_FIX_ASPECT_RATIO);
+    checkBoxZeroTangentDist->setChecked(flags & cv::CALIB_ZERO_TANGENT_DIST);
+    checkBoxRationalModel->setChecked(flags & cv::CALIB_RATIONAL_MODEL);
+    checkBoxFixK1->setChecked(flags & cv::CALIB_FIX_K1);
+    checkBoxFixK2->setChecked(flags & cv::CALIB_FIX_K2);
+    checkBoxFixK3->setChecked(flags & cv::CALIB_FIX_K3);
+    checkBoxFixK4->setChecked(flags & cv::CALIB_FIX_K4);
+    checkBoxFixK5->setChecked(flags & cv::CALIB_FIX_K5);
+    checkBoxFixK6->setChecked(flags & cv::CALIB_FIX_K6);
+}
+
+
+// *********************************************************************
+// *                     Camera parameters widget                      *
+// *********************************************************************
+CameraParametersWidget::CameraParametersWidget (const QString &title, QWidget *parent)
+    : QGroupBox(title, parent)
+{   
+    QFormLayout *groupBoxLayout = new QFormLayout(this);
+    QLabel *label;
+    QDoubleSpinBox *spinBoxD;
+
+    // Fx
+    label = new QLabel("fx", this);
+    label->setToolTip("Focal length (horizontal) in pixel units");
+
+    spinBoxD = new QDoubleSpinBox(this);
+    spinBoxD->setRange(-DBL_MAX, DBL_MAX);
+    spinBoxD->setValue(0);
+    spinBoxD->setDecimals(2);
+    spinBoxD->setSuffix(" px");
+    spinBoxFx = spinBoxD;
+
+    groupBoxLayout->addRow(label, spinBoxD);
+
+    // Fy
+    label = new QLabel("fy", this);
+    label->setToolTip("Focal length (vertical) in pixel units");
+
+    spinBoxD = new QDoubleSpinBox(this);
+    spinBoxD->setRange(-DBL_MAX, DBL_MAX);
+    spinBoxD->setValue(0);
+    spinBoxD->setDecimals(2);
+    spinBoxD->setSuffix(" px");
+    spinBoxFy = spinBoxD;
+
+    groupBoxLayout->addRow(label, spinBoxD);
+
+    // Cx
+    label = new QLabel("cx", this);
+    label->setToolTip("Horizontal coordinate of principal point");
+
+    spinBoxD = new QDoubleSpinBox(this);
+    spinBoxD->setRange(-DBL_MAX, DBL_MAX);
+    spinBoxD->setValue(0);
+    spinBoxD->setDecimals(2);
+    spinBoxD->setSuffix(" px");
+    spinBoxCx = spinBoxD;
+
+    groupBoxLayout->addRow(label, spinBoxD);
+
+    // Cy
+    label = new QLabel("cy", this);
+    label->setToolTip("Vertical coordinate of principal point");
+
+    spinBoxD = new QDoubleSpinBox(this);
+    spinBoxD->setRange(-DBL_MAX, DBL_MAX);
+    spinBoxD->setValue(0);
+    spinBoxD->setDecimals(2);
+    spinBoxD->setSuffix(" px");
+    spinBoxCy = spinBoxD;
+
+    groupBoxLayout->addRow(label, spinBoxD);
+
+    // K1
+    label = new QLabel("k1", this);
+    label->setToolTip("Radial distortion coefficient");
+
+    spinBoxD = new QDoubleSpinBox(this);
+    spinBoxD->setRange(-DBL_MAX, DBL_MAX);
+    spinBoxD->setValue(0);
+    spinBoxD->setDecimals(4);
+    spinBoxK1 = spinBoxD;
+
+    groupBoxLayout->addRow(label, spinBoxD);
+
+    // K2
+    label = new QLabel("k2", this);
+    label->setToolTip("Radial distortion coefficient");
+
+    spinBoxD = new QDoubleSpinBox(this);
+    spinBoxD->setRange(-DBL_MAX, DBL_MAX);
+    spinBoxD->setValue(0);
+    spinBoxD->setDecimals(4);
+    spinBoxK2 = spinBoxD;
+
+    groupBoxLayout->addRow(label, spinBoxD);
+
+    // P1
+    label = new QLabel("p1", this);
+    label->setToolTip("Radial distortion coefficient");
+
+    spinBoxD = new QDoubleSpinBox(this);
+    spinBoxD->setRange(-DBL_MAX, DBL_MAX);
+    spinBoxD->setValue(0);
+    spinBoxD->setDecimals(4);
+    spinBoxP1 = spinBoxD;
+
+    groupBoxLayout->addRow(label, spinBoxD);
+
+
+    // P2
+    label = new QLabel("p2", this);
+    label->setToolTip("Tangential distortion coefficient");
+
+    spinBoxD = new QDoubleSpinBox(this);
+    spinBoxD->setRange(-DBL_MAX, DBL_MAX);
+    spinBoxD->setValue(0);
+    spinBoxD->setDecimals(4);
+    spinBoxP2 = spinBoxD;
+
+    groupBoxLayout->addRow(label, spinBoxD);
+
+
+    // K3
+    label = new QLabel("k3", this);
+    label->setToolTip("Radial distortion coefficient");
+
+    spinBoxD = new QDoubleSpinBox(this);
+    spinBoxD->setRange(-DBL_MAX, DBL_MAX);
+    spinBoxD->setValue(0);
+    spinBoxD->setDecimals(4);
+    spinBoxK3 = spinBoxD;
+
+    groupBoxLayout->addRow(label, spinBoxD);
+
+    // K4
+    label = new QLabel("k4", this);
+    label->setToolTip("Radial distortion coefficient");
+
+    spinBoxD = new QDoubleSpinBox(this);
+    spinBoxD->setRange(-DBL_MAX, DBL_MAX);
+    spinBoxD->setValue(0);
+    spinBoxD->setDecimals(4);
+    spinBoxK4 = spinBoxD;
+
+    groupBoxLayout->addRow(label, spinBoxD);
+
+    // K5
+    label = new QLabel("k5", this);
+    label->setToolTip("Radial distortion coefficient");
+
+    spinBoxD = new QDoubleSpinBox(this);
+    spinBoxD->setRange(-DBL_MAX, DBL_MAX);
+    spinBoxD->setValue(0);
+    spinBoxD->setDecimals(4);
+    spinBoxK5 = spinBoxD;
+
+    groupBoxLayout->addRow(label, spinBoxD);
+
+    // K6
+    label = new QLabel("k6", this);
+    label->setToolTip("Radial distortion coefficient");
+
+    spinBoxD = new QDoubleSpinBox(this);
+    spinBoxD->setRange(-DBL_MAX, DBL_MAX);
+    spinBoxD->setValue(0);
+    spinBoxD->setDecimals(4);
+    spinBoxK6 = spinBoxD;
+
+    groupBoxLayout->addRow(label, spinBoxD);
+
+}
+
+CameraParametersWidget::~CameraParametersWidget ()
+{
+}
+
+double CameraParametersWidget::getFocalLengthX () const
+{
+    return spinBoxFx->value();
+}
+
+void CameraParametersWidget::setFocalLengthX (double newValue)
+{
+    spinBoxFx->setValue(newValue);
+}
+
+double CameraParametersWidget::getFocalLengthY () const
+{
+    return spinBoxFy->value();
+}
+
+void CameraParametersWidget::setFocalLengthY (double newValue)
+{
+    spinBoxFy->setValue(newValue);
+}
+
+
+double CameraParametersWidget::getPrincipalPointX () const
+{
+    return spinBoxCx->value();
+}
+
+void CameraParametersWidget::setPrincipalPointX (double newValue)
+{
+    spinBoxCx->setValue(newValue);
+}
+
+
+double CameraParametersWidget::getPrincipalPointY () const
+{
+    return spinBoxCy->value();
+}
+
+void CameraParametersWidget::setPrincipalPointY (double newValue)
+{
+    spinBoxCy->setValue(newValue);
+}
+
+
+double CameraParametersWidget::getDistortionK1 () const
+{
+    return spinBoxK1->value();
+}
+
+void CameraParametersWidget::setDistortionK1 (double newValue)
+{
+    spinBoxK1->setValue(newValue);
+}
+
+
+double CameraParametersWidget::getDistortionK2 () const
+{
+    return spinBoxK2->value();
+}
+
+void CameraParametersWidget::setDistortionK2 (double newValue)
+{
+    spinBoxK2->setValue(newValue);
+}
+
+
+double CameraParametersWidget::getDistortionK3 () const
+{
+    return spinBoxK3->value();
+}
+
+void CameraParametersWidget::setDistortionK3 (double newValue)
+{
+    spinBoxK3->setValue(newValue);
+}
+
+
+double CameraParametersWidget::getDistortionP1 () const
+{
+    return spinBoxP1->value();
+}
+
+void CameraParametersWidget::setDistortionP1 (double newValue)
+{
+    spinBoxP1->setValue(newValue);
+}
+
+
+double CameraParametersWidget::getDistortionP2 () const
+{
+    return spinBoxP2->value();
+}
+
+void CameraParametersWidget::setDistortionP2 (double newValue)
+{
+    spinBoxP2->setValue(newValue);
+}
+
+
+double CameraParametersWidget::getDistortionK4 () const
+{
+    return spinBoxK4->value();
+}
+
+void CameraParametersWidget::setDistortionK4 (double newValue)
+{
+    spinBoxK4->setValue(newValue);
+}
+
+
+double CameraParametersWidget::getDistortionK5 () const
+{
+    return spinBoxK5->value();
+}
+
+void CameraParametersWidget::setDistortionK5 (double newValue)
+{
+    spinBoxK5->setValue(newValue);
+}
+
+
+double CameraParametersWidget::getDistortionK6 () const
+{
+    return spinBoxK6->value();
+}
+
+void CameraParametersWidget::setDistortionK6 (double newValue)
+{
+    spinBoxK6->setValue(newValue);
+}
+
+void CameraParametersWidget::setCameraMatrix (const cv::Mat &cameraMatrix, const std::vector<double> &distCoeffs)
+{
+    // Read values of interest from camera matrix
+    setFocalLengthX(cameraMatrix.at<double>(0, 0));
+    setFocalLengthY(cameraMatrix.at<double>(1, 1));
+    setPrincipalPointX(cameraMatrix.at<double>(0, 2));
+    setPrincipalPointY(cameraMatrix.at<double>(1, 2));
+
+    // K1, K2, P1 and P2 are always present
+    setDistortionK1(distCoeffs[0]);
+    setDistortionK2(distCoeffs[1]);
+    setDistortionP1(distCoeffs[2]);
+    setDistortionP2(distCoeffs[3]);
+
+    // K3 is optional
+    if (distCoeffs.size() > 4) {
+        setDistortionK3(distCoeffs[4]);
+    } else {
+        setDistortionK3(0);
+    }
+
+    // K4, K5 and K6 are present only for rational models
+    if (distCoeffs.size() > 5) {
+        setDistortionK4(distCoeffs[5]);
+        setDistortionK5(distCoeffs[6]);
+        setDistortionK6(distCoeffs[7]);
+    } else {
+        setDistortionK4(0);
+        setDistortionK5(0);
+        setDistortionK6(0);
+    }
+}
+
+cv::Mat CameraParametersWidget::getCameraMatrix () const
+{
+    cv::Mat M = cv::Mat::eye(3, 3, CV_64F);
+
+    M.at<double>(0, 0) = getFocalLengthX();
+    M.at<double>(1, 1) = getFocalLengthX();
+    M.at<double>(0, 2) = getPrincipalPointX();
+    M.at<double>(1, 2) = getPrincipalPointY();
+
+    return M;
+}
+
+std::vector<double> CameraParametersWidget::getDistCoeffs () const
+{
+    std::vector<double> D(8);
+
+    D[0] = getDistortionK1();
+    D[1] = getDistortionK2();
+    D[2] = getDistortionP1();
+    D[3] = getDistortionP2();
+    D[4] = getDistortionK3();
+    D[5] = getDistortionK4();
+    D[6] = getDistortionK5();
+    D[7] = getDistortionK6();
+
+    return D;
+}
+
+
+void CameraParametersWidget::setDisplayMode (bool displayMode)
+{
+    if (displayMode) {
+        spinBoxFx->setEnabled(false);
+        spinBoxFy->setEnabled(false);
+        spinBoxCx->setEnabled(false);
+        spinBoxCy->setEnabled(false);
+        spinBoxK1->setEnabled(false);
+        spinBoxK2->setEnabled(false);
+        spinBoxP1->setEnabled(false);
+        spinBoxP2->setEnabled(false);
+        spinBoxK3->setEnabled(false);
+        spinBoxK4->setEnabled(false);
+        spinBoxK5->setEnabled(false);
+        spinBoxK6->setEnabled(false);
+    } else {
+        spinBoxFx->setEnabled(true);
+        spinBoxFy->setEnabled(true);
+        spinBoxCx->setEnabled(true);
+        spinBoxCy->setEnabled(true);
+        spinBoxK1->setEnabled(true);
+        spinBoxK2->setEnabled(true);
+        spinBoxP1->setEnabled(true);
+        spinBoxP2->setEnabled(true);
+        spinBoxK3->setEnabled(true);
+        spinBoxK4->setEnabled(true);
+        spinBoxK5->setEnabled(true);
+        spinBoxK6->setEnabled(true);
+    }
+}
+
+
+// *********************************************************************
 // *       Page: calibration: common class for left/right camera       *
 // *********************************************************************
 CalibrationWizardPageCalibration::CalibrationWizardPageCalibration (const QString &fieldPrefixString, QWidget *parent)
@@ -810,7 +1336,7 @@ CalibrationWizardPageCalibration::CalibrationWizardPageCalibration (const QStrin
     QLabel *label;
 
     // Layout
-    QVBoxLayout *layout = new QVBoxLayout(this);
+    QGridLayout *layout = new QGridLayout(this);
     layout->setSpacing(10);
 
     // Label
@@ -819,8 +1345,18 @@ CalibrationWizardPageCalibration::CalibrationWizardPageCalibration (const QStrin
     label->setAlignment(Qt::AlignVCenter | Qt::AlignJustify);
     label->setWordWrap(true);
 
-    layout->addWidget(label);
+    layout->addWidget(label, 0, 0, 1, 2);
 
+    // Camera parameters
+    boxCameraParameters = new CameraParametersWidget("Parameters", this);
+    layout->addWidget(boxCameraParameters, 1, 0, 1, 1);
+    
+    // Calibration Flags
+    boxCalibrationFlags = new CalibrationFlagsWidget("Flags", this);
+    layout->addWidget(boxCalibrationFlags, 1, 1, 1, 1);
+
+    boxCalibrationFlags->setFlags(cv::CALIB_RATIONAL_MODEL); // Default flags
+    
     // Fields
     registerField(fieldPrefix + "CameraMatrix", this, "cameraMatrix");
     registerField(fieldPrefix + "DistCoeffs", this, "distCoeffs");
@@ -845,6 +1381,11 @@ void CalibrationWizardPageCalibration::initializePage ()
 {
     oldNextButtonText = wizard()->buttonText(QWizard::NextButton);
     wizard()->setButtonText(QWizard::NextButton, "Calibrate");
+
+    // Initialize principal point in the camera parameters widget
+    cv::Size imageSize = field(fieldPrefix + "ImageSize").value<cv::Size>();
+    boxCameraParameters->setPrincipalPointX(imageSize.width/2);
+    boxCameraParameters->setPrincipalPointY(imageSize.height/2);
 }
 
 void CalibrationWizardPageCalibration::cleanupPage ()
@@ -852,21 +1393,19 @@ void CalibrationWizardPageCalibration::cleanupPage ()
     wizard()->setButtonText(QWizard::NextButton, oldNextButtonText);
 }
 
+
 bool CalibrationWizardPageCalibration::validatePage ()
 {
     std::vector<std::vector<cv::Point2f> > imagePoints = field(fieldPrefix + "PatternImagePoints").value< std::vector<std::vector<cv::Point2f> > >();
     std::vector<std::vector<cv::Point3f> > worldPoints = field(fieldPrefix + "PatternWorldPoints").value< std::vector<std::vector<cv::Point3f> > >();
     cv::Size imageSize = field(fieldPrefix + "ImageSize").value<cv::Size>();
     
-    // Perform calibration here - we use OpenCV directly and bypass
-    // the pipeline's stereo calibration function, so that calibration
-    // can be cancelled at any point without affecting the pipeline...
-
-    int flags = cv::CALIB_RATIONAL_MODEL;
     double err;
 
-    cameraMatrix = cv::Mat::eye(3, 3, CV_64F);
-    distCoeffs = cv::Mat();
+    // Get values from the config widgets
+    int flags = boxCalibrationFlags->getFlags();
+    cameraMatrix = boxCameraParameters->getCameraMatrix();
+    distCoeffs = cv::Mat(boxCameraParameters->getDistCoeffs()).clone();
    
     try {
         err = cv::calibrateCamera(worldPoints, imagePoints, imageSize, cameraMatrix, distCoeffs, cv::noArray(), cv::noArray(), flags);
@@ -1000,7 +1539,6 @@ void CalibrationWizardPageStereoCalibration::cleanupPage ()
     wizard()->setButtonText(QWizard::NextButton, oldNextButtonText);
 }
 
-#include <iostream>
 bool CalibrationWizardPageStereoCalibration::validatePage ()
 {
     std::vector<std::vector<cv::Point2f> > imagePoints = field(fieldPrefix + "PatternImagePoints").value< std::vector<std::vector<cv::Point2f> > >();
@@ -1042,7 +1580,7 @@ bool CalibrationWizardPageStereoCalibration::validatePage ()
         cameraMatrix2 = field("RightCameraCameraMatrix").value<cv::Mat>();
         distCoeffs2 = field("RightCameraDistCoeffs").value<cv::Mat>();
 
-        flags |= cv::CALIB_USE_INTRINSIC_GUESS; // Estimate only R and T
+        flags |= cv::CALIB_FIX_INTRINSIC;//cv::CALIB_USE_INTRINSIC_GUESS; // Estimate only R and T
     }
    
     try {
@@ -1077,7 +1615,7 @@ CalibrationWizardPageResult::CalibrationWizardPageResult (const QString &fieldPr
     QLabel *label;
 
     // Layout
-    QVBoxLayout *layout = new QVBoxLayout(this);
+    QGridLayout *layout = new QGridLayout(this);
     layout->setSpacing(10);
 
     // Label
@@ -1085,12 +1623,17 @@ CalibrationWizardPageResult::CalibrationWizardPageResult (const QString &fieldPr
     label->setAlignment(Qt::AlignVCenter | Qt::AlignJustify);
     label->setWordWrap(true);
 
-    layout->addWidget(label);
+    layout->addWidget(label, 0, 0, 1, 2);
+
+    // Camera parameters
+    boxCameraParameters = new CameraParametersWidget("Parameters", this);
+    boxCameraParameters->setDisplayMode(true);
+    layout->addWidget(boxCameraParameters, 1, 0, 1, 1);
 
     // Undistorted image
     displayImage = new ImageDisplayWidget("Undistorted image", this);
     displayImage->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    layout->addWidget(displayImage);
+    layout->addWidget(displayImage, 1, 1, 1, 1);
 }
 
 CalibrationWizardPageResult::~CalibrationWizardPageResult ()
@@ -1102,6 +1645,9 @@ void CalibrationWizardPageResult::initializePage ()
     // Get camera calibration
     cv::Mat M = field(fieldPrefix + "CameraMatrix").value<cv::Mat>();
     cv::Mat D = field(fieldPrefix + "DistCoeffs").value<cv::Mat>();
+
+    // Display parameters
+    boxCameraParameters->setCameraMatrix(M, D);
 
     // Load and undistort first image
     QStringList images = field(fieldPrefix + "Images").toStringList();

@@ -252,6 +252,98 @@ public:
 // *********************************************************************
 // *                         Page: calibration                         *
 // *********************************************************************
+// Camera parameters widget
+class CameraParametersWidget : public QGroupBox
+{
+    Q_OBJECT
+
+public:
+    CameraParametersWidget (const QString & = "Parameters", QWidget * = 0);
+    virtual ~CameraParametersWidget ();
+
+    double getFocalLengthX () const;
+    void setFocalLengthX (double);
+
+    double getFocalLengthY () const;
+    void setFocalLengthY (double);
+
+    double getPrincipalPointX () const;
+    void setPrincipalPointX (double);
+
+    double getPrincipalPointY () const;
+    void setPrincipalPointY (double);
+
+    double getDistortionK1 () const;
+    void setDistortionK1 (double);
+
+    double getDistortionK2 () const;
+    void setDistortionK2 (double);
+
+    double getDistortionK3 () const;
+    void setDistortionK3 (double);
+
+    double getDistortionP1 () const;
+    void setDistortionP1 (double);
+
+    double getDistortionP2 () const;
+    void setDistortionP2 (double);
+
+    double getDistortionK4 () const;
+    void setDistortionK4 (double);
+
+    double getDistortionK5 () const;
+    void setDistortionK5 (double);
+
+    double getDistortionK6 () const;
+    void setDistortionK6 (double);
+
+    void setCameraMatrix (const cv::Mat &, const std::vector<double> &);
+    cv::Mat getCameraMatrix () const;
+    std::vector<double> getDistCoeffs () const;
+
+    void setDisplayMode (bool);
+
+protected:
+    QDoubleSpinBox *spinBoxFx;
+    QDoubleSpinBox *spinBoxFy;
+    QDoubleSpinBox *spinBoxCx;
+    QDoubleSpinBox *spinBoxCy;
+    QDoubleSpinBox *spinBoxK1;
+    QDoubleSpinBox *spinBoxK2;
+    QDoubleSpinBox *spinBoxP1;
+    QDoubleSpinBox *spinBoxP2;
+    QDoubleSpinBox *spinBoxK3;
+    QDoubleSpinBox *spinBoxK4;
+    QDoubleSpinBox *spinBoxK5;
+    QDoubleSpinBox *spinBoxK6;
+};
+
+// Calibration flags widget
+class CalibrationFlagsWidget : public QGroupBox
+{
+    Q_OBJECT
+    
+public:
+    CalibrationFlagsWidget (const QString & = "Flags", QWidget * = 0);
+    ~CalibrationFlagsWidget ();
+
+    int getFlags () const;
+    void setFlags (int);
+    
+protected:
+    QCheckBox *checkBoxUseIntrinsicGuess;
+    QCheckBox *checkBoxFixPrincipalPoint;
+    QCheckBox *checkBoxFixAspectRatio;
+    QCheckBox *checkBoxZeroTangentDist;
+    QCheckBox *checkBoxRationalModel;
+    QCheckBox *checkBoxFixK1;
+    QCheckBox *checkBoxFixK2;
+    QCheckBox *checkBoxFixK3;
+    QCheckBox *checkBoxFixK4;
+    QCheckBox *checkBoxFixK5;
+    QCheckBox *checkBoxFixK6;
+};
+
 // Common class for left/right camera
 class CalibrationWizardPageCalibration : public QWizardPage
 {
@@ -272,10 +364,15 @@ public:
     cv::Mat getCameraMatrix () const;
     cv::Mat getDistCoeffs () const;
 
+    int getCalibrationFlags () const;
+
 protected:
     QString fieldPrefix;
 
     QString oldNextButtonText;
+
+    CameraParametersWidget *boxCameraParameters;
+    CalibrationFlagsWidget *boxCalibrationFlags;
 
     // Data
     cv::Mat cameraMatrix;
@@ -363,6 +460,7 @@ public:
 protected:
     QString fieldPrefix;
 
+    CameraParametersWidget *boxCameraParameters;
     ImageDisplayWidget *displayImage;
 };
 
