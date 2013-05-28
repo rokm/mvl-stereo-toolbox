@@ -142,7 +142,7 @@ void StereoRectification::clearStereoCalibration ()
 void StereoRectification::initializeStereoRectification ()
 {
     try {
-        cv::stereoRectify(M1, D1, M2, D2, imageSize, R, T, R1, R2, P1, P2, Q, cv::CALIB_ZERO_DISPARITY, 1, imageSize, &validRoi1, &validRoi2);
+        cv::stereoRectify(M1, D1, M2, D2, imageSize, R, T, R1, R2, P1, P2, Q, cv::CALIB_ZERO_DISPARITY, 0, imageSize, &validRoi1, &validRoi2);
     } catch (...) {
         isValid = false;
         emit stateChanged(isValid);

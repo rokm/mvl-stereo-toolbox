@@ -327,8 +327,8 @@ public:
     CalibrationFlagsWidget (const QString & = "Flags", QWidget * = 0);
     ~CalibrationFlagsWidget ();
 
-    int getFlags () const;
-    void setFlags (int);
+    virtual int getFlags () const;
+    virtual void setFlags (int);
     
 protected:
     QCheckBox *checkBoxUseIntrinsicGuess;
@@ -343,6 +343,26 @@ protected:
     QCheckBox *checkBoxFixK5;
     QCheckBox *checkBoxFixK6;
 };
+
+// Stereo calibration flags widget
+class StereoCalibrationFlagsWidget : public CalibrationFlagsWidget
+{
+    Q_OBJECT
+
+public:
+    StereoCalibrationFlagsWidget (const QString & = "Flags", QWidget * = 0);
+    ~StereoCalibrationFlagsWidget ();
+
+    virtual int getFlags () const;
+    virtual void setFlags (int);
+    
+protected:
+    QCheckBox *checkBoxFixIntrinsic;
+    QCheckBox *checkBoxFixFocalLength;
+    QCheckBox *checkBoxSameFocalLength;
+};
+
+
 
 // Common class for left/right camera
 class CalibrationWizardPageCalibration : public QWizardPage
@@ -433,6 +453,10 @@ protected:
 
     QString oldNextButtonText;
 
+    CameraParametersWidget *boxLeftCameraParameters;
+    CameraParametersWidget *boxRightCameraParameters;
+    StereoCalibrationFlagsWidget *boxCalibrationFlags;
+
     // Data
     cv::Mat cameraMatrix1;
     cv::Mat distCoeffs1;
@@ -498,6 +522,9 @@ public:
 protected:
     QString fieldPrefix;
 
+    CameraParametersWidget *boxLeftCameraParameters;
+    CameraParametersWidget *boxRightCameraParameters;
+    
     ImagePairDisplayWidget *displayImage;
 };
 

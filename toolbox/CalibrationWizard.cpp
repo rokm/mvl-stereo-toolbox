@@ -936,6 +936,62 @@ void CalibrationFlagsWidget::setFlags (int flags)
 
 
 // *********************************************************************
+// *                  Stereo calibration flags widget                  *
+// *********************************************************************
+StereoCalibrationFlagsWidget::StereoCalibrationFlagsWidget (const QString &title, QWidget *parent)
+    : CalibrationFlagsWidget(title, parent)
+{
+    QFormLayout *groupBoxLayout = qobject_cast<QFormLayout *>(layout());
+    QCheckBox *checkBox;
+
+    // CALIB_FIX_INTRINSIC
+    checkBox = new QCheckBox("CALIB_FIX_INTRINSIC", this);
+    checkBox->setToolTip("Fix camera matrices and distortion coefficients, so that only inter-camera rotation and \n"
+                         "translation matrices (R and T) are estimated.");
+    checkBoxFixIntrinsic = checkBox;
+    groupBoxLayout->insertRow(0, checkBox);
+
+    // CALIB_FIX_FOCAL_LENGTH
+    checkBox = new QCheckBox("CALIB_FIX_FOCAL_LENGTH", this);
+    checkBox->setToolTip("Fix values of fx and fy on both cameras.");
+    checkBoxFixFocalLength = checkBox;
+    groupBoxLayout->insertRow(3, checkBox);
+
+    // CALIB_SAME_FOCAL_LENGTH
+    checkBox = new QCheckBox("CALIB_SAME_FOCAL_LENGTH", this);
+    checkBox->setToolTip("Enforce same focal length on both cameras.");
+    checkBoxSameFocalLength = checkBox;
+    groupBoxLayout->insertRow(6, checkBox);
+}
+
+StereoCalibrationFlagsWidget::~StereoCalibrationFlagsWidget ()
+{
+}
+
+
+int StereoCalibrationFlagsWidget::getFlags () const
+{
+    int flags = CalibrationFlagsWidget::getFlags();
+
+    flags |= (checkBoxFixIntrinsic->checkState() == Qt::Checked) * cv::CALIB_FIX_INTRINSIC;
+    flags |= (checkBoxFixFocalLength->checkState() == Qt::Checked) * cv::CALIB_FIX_FOCAL_LENGTH;
+    flags |= (checkBoxSameFocalLength->checkState() == Qt::Checked) * cv::CALIB_SAME_FOCAL_LENGTH;
+    
+    return flags;
+}
+
+void StereoCalibrationFlagsWidget::setFlags (int flags)
+{
+    CalibrationFlagsWidget::setFlags(flags);
+    
+    checkBoxFixIntrinsic->setChecked(flags & cv::CALIB_FIX_INTRINSIC);
+    checkBoxFixFocalLength->setChecked(flags & cv::CALIB_FIX_FOCAL_LENGTH);
+    checkBoxSameFocalLength->setChecked(flags & cv::CALIB_SAME_FOCAL_LENGTH);
+}
+
+
+
+// *********************************************************************
 // *                     Camera parameters widget                      *
 // *********************************************************************
 CameraParametersWidget::CameraParametersWidget (const QString &title, QWidget *parent)
@@ -1467,7 +1523,7 @@ CalibrationWizardPageStereoCalibration::CalibrationWizardPageStereoCalibration (
     QLabel *label;
 
     // Layout
-    QVBoxLayout *layout = new QVBoxLayout(this);
+    QGridLayout *layout = new QGridLayout(this);
     layout->setSpacing(10);
 
     // Label
@@ -1476,7 +1532,19 @@ CalibrationWizardPageStereoCalibration::CalibrationWizardPageStereoCalibration (
     label->setAlignment(Qt::AlignVCenter | Qt::AlignJustify);
     label->setWordWrap(true);
 
-    layout->addWidget(label);
+    layout->addWidget(label, 0, 0, 1, 3);
+
+    // Left camera parameters
+    boxLeftCameraParameters = new CameraParametersWidget("Left camera", this);
+    layout->addWidget(boxLeftCameraParameters, 1, 0, 1, 1);
+
+    // Right camera parameters
+    boxRightCameraParameters = new CameraParametersWidget("Right camera", this);
+    layout->addWidget(boxRightCameraParameters, 1, 1, 1, 1);
+
+    // Calibration flags
+    boxCalibrationFlags = new StereoCalibrationFlagsWidget("Flags", this);
+    layout->addWidget(boxCalibrationFlags, 1, 2, 1, 1);
 
     // Fields
     registerField(fieldPrefix + "CameraMatrix1", this, "cameraMatrix1");
@@ -1532,6 +1600,30 @@ void CalibrationWizardPageStereoCalibration::initializePage ()
 {
     oldNextButtonText = wizard()->buttonText(QWizard::NextButton);
     wizard()->setButtonText(QWizard::NextButton, "Calibrate");
+
+    if (field("JointCalibration").toBool()) {
+        // Initialize principal point in the camera parameters widget
+        cv::Size imageSize = field(fieldPrefix + "ImageSize").value<cv::Size>();
+        boxLeftCameraParameters->setPrincipalPointX(imageSize.width/2);
+        boxLeftCameraParameters->setPrincipalPointY(imageSize.height/2);
+
+        boxRightCameraParameters->setPrincipalPointX(imageSize.width/2);
+        boxRightCameraParameters->setPrincipalPointY(imageSize.height/2);
+
+        boxCalibrationFlags->setFlags(cv::CALIB_RATIONAL_MODEL); // Default flags
+    } else {
+        // Disjoint calibration; load camera matrices and distortion
+        // coefficients, and set CALIB_FIX_INTRINSIC by default
+        cv::Mat M1 = field("LeftCameraCameraMatrix").value<cv::Mat>();
+        cv::Mat D1 = field("LeftCameraDistCoeffs").value<cv::Mat>();
+        boxLeftCameraParameters->setCameraMatrix(M1, D1);
+
+        cv::Mat M2 = field("RightCameraCameraMatrix").value<cv::Mat>();
+        cv::Mat D2 = field("RightCameraDistCoeffs").value<cv::Mat>();
+        boxRightCameraParameters->setCameraMatrix(M2, D2);
+
+        boxCalibrationFlags->setFlags(cv::CALIB_RATIONAL_MODEL | cv::CALIB_FIX_INTRINSIC); // Default flags
+    }
 }
 
 void CalibrationWizardPageStereoCalibration::cleanupPage ()
@@ -1558,30 +1650,14 @@ bool CalibrationWizardPageStereoCalibration::validatePage ()
         imagePoints2.push_back(imagePoints[i+1]);
     }
 
-    int flags = cv::CALIB_RATIONAL_MODEL;
     double err;
 
-    if (field("JointCalibration").toBool()) {
-        // Join calibration
-        qDebug() << "Calibrating all";
-        
-        cameraMatrix1 = cv::Mat::eye(3, 3, CV_64F);
-        distCoeffs1 = cv::Mat();
-
-        cameraMatrix2 = cv::Mat::eye(3, 3, CV_64F);
-        distCoeffs2 = cv::Mat();
-    } else {
-        qDebug() << "Fixing intrinsics";
-        
-        // Decoupled calibration, which means we already have camera
-        // matrices and distortion coefficients
-        cameraMatrix1 = field("LeftCameraCameraMatrix").value<cv::Mat>();
-        distCoeffs1 = field("LeftCameraDistCoeffs").value<cv::Mat>();
-        cameraMatrix2 = field("RightCameraCameraMatrix").value<cv::Mat>();
-        distCoeffs2 = field("RightCameraDistCoeffs").value<cv::Mat>();
-
-        flags |= cv::CALIB_FIX_INTRINSIC;//cv::CALIB_USE_INTRINSIC_GUESS; // Estimate only R and T
-    }
+    // Get values from the config widgets
+    int flags = boxCalibrationFlags->getFlags();
+    cameraMatrix1 = boxLeftCameraParameters->getCameraMatrix();
+    distCoeffs1 = cv::Mat(boxLeftCameraParameters->getDistCoeffs()).clone();
+    cameraMatrix2 = boxRightCameraParameters->getCameraMatrix();
+    distCoeffs2 = cv::Mat(boxRightCameraParameters->getDistCoeffs()).clone();
    
     try {
         err = cv::stereoCalibrate(objectPoints, imagePoints1, imagePoints2,
@@ -1711,7 +1787,7 @@ CalibrationWizardPageStereoResult::CalibrationWizardPageStereoResult (QWidget *p
     QLabel *label;
 
     // Layout
-    QVBoxLayout *layout = new QVBoxLayout(this);
+    QGridLayout *layout = new QGridLayout(this);
     layout->setSpacing(10);
 
     // Label
@@ -1719,12 +1795,22 @@ CalibrationWizardPageStereoResult::CalibrationWizardPageStereoResult (QWidget *p
     label->setAlignment(Qt::AlignVCenter | Qt::AlignJustify);
     label->setWordWrap(true);
 
-    layout->addWidget(label);
+    layout->addWidget(label, 0, 0, 1, 3);
+
+    // Left camera parameters
+    boxLeftCameraParameters = new CameraParametersWidget("Left camera", this);
+    boxLeftCameraParameters->setDisplayMode(true);
+    layout->addWidget(boxLeftCameraParameters, 1, 0, 1, 1);
+
+    // Right camera parameters
+    boxRightCameraParameters = new CameraParametersWidget("Right camera", this);
+    boxRightCameraParameters->setDisplayMode(true);
+    layout->addWidget(boxRightCameraParameters, 1, 1, 1, 1);
 
     // Undistorted image
     displayImage = new ImagePairDisplayWidget("Rectified image pair", this);
     displayImage->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    layout->addWidget(displayImage);
+    layout->addWidget(displayImage, 1, 2, 1, 1);
 }
 
 CalibrationWizardPageStereoResult::~CalibrationWizardPageStereoResult ()
@@ -1742,6 +1828,10 @@ void CalibrationWizardPageStereoResult::initializePage ()
     cv::Mat R = field(fieldPrefix + "R").value<cv::Mat>();
     cv::Size imageSize = field(fieldPrefix + "ImageSize").value<cv::Size>();
 
+    // Display parameters
+    boxLeftCameraParameters->setCameraMatrix(M1, D1);
+    boxRightCameraParameters->setCameraMatrix(M2, D2);
+
     // Initialize stereo rectification
     cv::Mat R1, R2;
     cv::Mat P1, P2;
@@ -1749,7 +1839,7 @@ void CalibrationWizardPageStereoResult::initializePage ()
     cv::Rect validRoi1, validRoi2;
     cv::Mat map11, map12, map21, map22;
 
-    cv::stereoRectify(M1, D1, M2, D2, imageSize, R, T, R1, R2, P1, P2, Q, cv::CALIB_ZERO_DISPARITY, 1, imageSize, &validRoi1, &validRoi2);
+    cv::stereoRectify(M1, D1, M2, D2, imageSize, R, T, R1, R2, P1, P2, Q, cv::CALIB_ZERO_DISPARITY, 0, imageSize, &validRoi1, &validRoi2);
 
     cv::initUndistortRectifyMap(M1, D1, R1, P1, imageSize, CV_16SC2, map11, map12);
     cv::initUndistortRectifyMap(M2, D2, R2, P2, imageSize, CV_16SC2, map21, map22);
