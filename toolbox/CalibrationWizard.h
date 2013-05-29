@@ -377,22 +377,32 @@ public:
     virtual ~CalibrationWizardPageCalibration ();
 
     virtual void initializePage ();
-    virtual void cleanupPage ();
-
-    virtual bool validatePage ();
+    virtual bool isComplete () const;
 
     cv::Mat getCameraMatrix () const;
     cv::Mat getDistCoeffs () const;
 
-    int getCalibrationFlags () const;
+private slots:
+    void setVisible (bool);
+
+protected slots:
+    void calibrationClicked ();
+    void calibrationFunction ();
+
+signals:
+    void error (QString);
+    void calibrationFinished ();
 
 protected:
     QString fieldPrefix;
 
-    QString oldNextButtonText;
-
     CameraParametersWidget *boxCameraParameters;
     CalibrationFlagsWidget *boxCalibrationFlags;
+
+    // Worker thread
+    bool calibrationComplete;
+    QThread *workerThread;
+    QDialog *dialogBusy;
 
     // Data
     cv::Mat cameraMatrix;
@@ -436,9 +446,7 @@ public:
     virtual ~CalibrationWizardPageStereoCalibration ();
 
     virtual void initializePage ();
-    virtual void cleanupPage ();
-
-    virtual bool validatePage ();
+    virtual bool isComplete () const;
 
     const cv::Mat &getCameraMatrix1 () const;
     const cv::Mat &getDistCoeffs1 () const;
@@ -447,16 +455,30 @@ public:
     const cv::Mat &getR () const;
     const cv::Mat &getT () const;
     const cv::Size &getImageSize () const;
+    
+private slots:
+    void setVisible (bool);
 
+protected slots:
+    void calibrationClicked ();
+    void calibrationFunction ();
+
+signals:
+    void error (QString);
+    void calibrationFinished ();
+    
 protected:
     QString fieldPrefix;
-
-    QString oldNextButtonText;
 
     CameraParametersWidget *boxLeftCameraParameters;
     CameraParametersWidget *boxRightCameraParameters;
     StereoCalibrationFlagsWidget *boxCalibrationFlags;
 
+    // Worker thread
+    bool calibrationComplete;
+    QThread *workerThread;
+    QDialog *dialogBusy;
+    
     // Data
     cv::Mat cameraMatrix1;
     cv::Mat distCoeffs1;

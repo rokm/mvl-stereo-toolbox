@@ -1389,6 +1389,22 @@ CalibrationWizardPageCalibration::CalibrationWizardPageCalibration (const QStrin
 {
     setSubTitle("Calibration parameters");
 
+    // Busy dialog
+    dialogBusy = new QProgressDialog("Calibrating", "Abort", 0, 0, this);
+    dialogBusy->setModal(true);
+    
+    // Worker thread
+    calibrationComplete = false;
+    workerThread = new QThread(this);
+    connect(workerThread, SIGNAL(started()), this, SLOT(calibrationFunction()), Qt::DirectConnection);
+    connect(this, SIGNAL(calibrationFinished()), workerThread, SLOT(quit()));
+
+    connect(workerThread, SIGNAL(finished()), dialogBusy, SLOT(hide()));
+    connect(workerThread, SIGNAL(terminated()), dialogBusy, SLOT(terminated()));
+
+    connect(workerThread, SIGNAL(finished()), this, SIGNAL(completeChanged()));
+    connect(workerThread, SIGNAL(terminated()), this, SIGNAL(completeChanged()));
+
     QLabel *label;
 
     // Layout
@@ -1397,7 +1413,7 @@ CalibrationWizardPageCalibration::CalibrationWizardPageCalibration (const QStrin
 
     // Label
     label = new QLabel("Please enter parameters for calibration method, and press \"Calibrate\" to perform calibration. Depending on "
-                       "number of images and hardware, the operation might take some time, during which the GUI will appear to be frozen.");
+                       "number of images and hardware, the operation might take some time.");
     label->setAlignment(Qt::AlignVCenter | Qt::AlignJustify);
     label->setWordWrap(true);
 
@@ -1422,6 +1438,7 @@ CalibrationWizardPageCalibration::~CalibrationWizardPageCalibration ()
 {
 }
 
+
 cv::Mat CalibrationWizardPageCalibration::getCameraMatrix () const
 {
     return cameraMatrix;
@@ -1433,30 +1450,57 @@ cv::Mat CalibrationWizardPageCalibration::getDistCoeffs () const
 }
 
 
+void CalibrationWizardPageCalibration::setVisible (bool visible)
+{
+    QWizardPage::setVisible(visible);
+
+    if (visible) {
+        wizard()->setButtonText(QWizard::CustomButton1, tr("&Calibrate"));
+        wizard()->setOption(QWizard::HaveCustomButton1, true);
+        connect(wizard(), SIGNAL(customButtonClicked(int)), this, SLOT(calibrationClicked()));
+    } else {
+        wizard()->setOption(QWizard::HaveCustomButton1, false);
+        disconnect(wizard(), SIGNAL(customButtonClicked(int)), this, SLOT(calibrationClicked()));
+    }
+}
+
 void CalibrationWizardPageCalibration::initializePage ()
 {
-    oldNextButtonText = wizard()->buttonText(QWizard::NextButton);
-    wizard()->setButtonText(QWizard::NextButton, "Calibrate");
-
     // Initialize principal point in the camera parameters widget
     cv::Size imageSize = field(fieldPrefix + "ImageSize").value<cv::Size>();
     boxCameraParameters->setPrincipalPointX(imageSize.width/2);
     boxCameraParameters->setPrincipalPointY(imageSize.height/2);
 }
 
-void CalibrationWizardPageCalibration::cleanupPage ()
+bool CalibrationWizardPageCalibration::isComplete () const
 {
-    wizard()->setButtonText(QWizard::NextButton, oldNextButtonText);
+    // Ready when calibration has been computed
+    return calibrationComplete;
 }
 
 
-bool CalibrationWizardPageCalibration::validatePage ()
+void CalibrationWizardPageCalibration::calibrationClicked ()
 {
+    if (workerThread->isRunning()) {
+        QMessageBox::warning(this, "Error", "Calibration process is already running!");
+        return;
+    }
+    
+    // Start worker thread
+    dialogBusy->show();
+    workerThread->start();
+}
+
+void CalibrationWizardPageCalibration::calibrationFunction ()
+{
+    // Reset calibration
+    calibrationComplete = false;
+
     std::vector<std::vector<cv::Point2f> > imagePoints = field(fieldPrefix + "PatternImagePoints").value< std::vector<std::vector<cv::Point2f> > >();
     std::vector<std::vector<cv::Point3f> > worldPoints = field(fieldPrefix + "PatternWorldPoints").value< std::vector<std::vector<cv::Point3f> > >();
     cv::Size imageSize = field(fieldPrefix + "ImageSize").value<cv::Size>();
     
-    double err;
+    double rmse;
 
     // Get values from the config widgets
     int flags = boxCalibrationFlags->getFlags();
@@ -1464,16 +1508,15 @@ bool CalibrationWizardPageCalibration::validatePage ()
     distCoeffs = cv::Mat(boxCameraParameters->getDistCoeffs()).clone();
    
     try {
-        err = cv::calibrateCamera(worldPoints, imagePoints, imageSize, cameraMatrix, distCoeffs, cv::noArray(), cv::noArray(), flags);
+        rmse = cv::calibrateCamera(worldPoints, imagePoints, imageSize, cameraMatrix, distCoeffs, cv::noArray(), cv::noArray(), flags);
+        calibrationComplete = true;
+        qDebug() << "Calibration finished; RMSE:" << rmse;
     } catch (cv::Exception e) {
-        QMessageBox::warning(this, "Error", "Calibration failed: " + QString::fromStdString(e.what()));
-        return false;
+        emit error("Calibration failed: " + QString::fromStdString(e.what()));
     }
 
-    wizard()->setButtonText(QWizard::NextButton, oldNextButtonText);
-    return true;
+    emit calibrationFinished();
 }
-
 
 
 // *********************************************************************
@@ -1520,6 +1563,22 @@ CalibrationWizardPageStereoCalibration::CalibrationWizardPageStereoCalibration (
 {
     setSubTitle("Calibration parameters");
 
+    // Busy dialog
+    dialogBusy = new QProgressDialog("Calibrating... please wait", QString(), 0, 0, this);
+    dialogBusy->setModal(true);
+    
+    // Worker thread
+    calibrationComplete = false;
+    workerThread = new QThread(this);
+    connect(workerThread, SIGNAL(started()), this, SLOT(calibrationFunction()), Qt::DirectConnection);
+    connect(this, SIGNAL(calibrationFinished()), workerThread, SLOT(quit()));
+
+    connect(workerThread, SIGNAL(finished()), dialogBusy, SLOT(hide()));
+    connect(workerThread, SIGNAL(terminated()), dialogBusy, SLOT(terminated()));
+
+    connect(workerThread, SIGNAL(finished()), this, SIGNAL(completeChanged()));
+    connect(workerThread, SIGNAL(terminated()), this, SIGNAL(completeChanged()));
+    
     QLabel *label;
 
     // Layout
@@ -1559,7 +1618,6 @@ CalibrationWizardPageStereoCalibration::~CalibrationWizardPageStereoCalibration 
 {
 }
 
-
 const cv::Mat &CalibrationWizardPageStereoCalibration::getCameraMatrix1 () const
 {
     return cameraMatrix1;
@@ -1596,11 +1654,23 @@ const cv::Size &CalibrationWizardPageStereoCalibration::getImageSize () const
 }
 
 
+void CalibrationWizardPageStereoCalibration::setVisible (bool visible)
+{
+    QWizardPage::setVisible(visible);
+
+    if (visible) {
+        wizard()->setButtonText(QWizard::CustomButton1, tr("&Calibrate"));
+        wizard()->setOption(QWizard::HaveCustomButton1, true);
+        connect(wizard(), SIGNAL(customButtonClicked(int)), this, SLOT(calibrationClicked()));
+    } else {
+        wizard()->setOption(QWizard::HaveCustomButton1, false);
+        disconnect(wizard(), SIGNAL(customButtonClicked(int)), this, SLOT(calibrationClicked()));
+    }
+}
+
+
 void CalibrationWizardPageStereoCalibration::initializePage ()
 {
-    oldNextButtonText = wizard()->buttonText(QWizard::NextButton);
-    wizard()->setButtonText(QWizard::NextButton, "Calibrate");
-
     if (field("JointCalibration").toBool()) {
         // Initialize principal point in the camera parameters widget
         cv::Size imageSize = field(fieldPrefix + "ImageSize").value<cv::Size>();
@@ -1626,13 +1696,32 @@ void CalibrationWizardPageStereoCalibration::initializePage ()
     }
 }
 
-void CalibrationWizardPageStereoCalibration::cleanupPage ()
+bool CalibrationWizardPageStereoCalibration::isComplete () const
 {
-    wizard()->setButtonText(QWizard::NextButton, oldNextButtonText);
+    // Ready when calibration has been computed
+    return calibrationComplete;
 }
 
-bool CalibrationWizardPageStereoCalibration::validatePage ()
+
+void CalibrationWizardPageStereoCalibration::calibrationClicked ()
 {
+    if (workerThread->isRunning()) {
+        QMessageBox::warning(this, "Error", "Calibration process is already running!");
+        return;
+    }
+
+    dialogBusy->show();
+    
+    // Start worker thread
+    workerThread->start();
+}
+
+
+void CalibrationWizardPageStereoCalibration::calibrationFunction ()
+{
+    // Reset calibration
+    calibrationComplete = false;
+
     std::vector<std::vector<cv::Point2f> > imagePoints = field(fieldPrefix + "PatternImagePoints").value< std::vector<std::vector<cv::Point2f> > >();
     std::vector<std::vector<cv::Point3f> > objectPoints = field(fieldPrefix + "PatternWorldPoints").value< std::vector<std::vector<cv::Point3f> > >();
     cv::Size imageSize = field(fieldPrefix + "ImageSize").value<cv::Size>();
@@ -1650,7 +1739,7 @@ bool CalibrationWizardPageStereoCalibration::validatePage ()
         imagePoints2.push_back(imagePoints[i+1]);
     }
 
-    double err;
+    double rmse;
 
     // Get values from the config widgets
     int flags = boxCalibrationFlags->getFlags();
@@ -1660,24 +1749,20 @@ bool CalibrationWizardPageStereoCalibration::validatePage ()
     distCoeffs2 = cv::Mat(boxRightCameraParameters->getDistCoeffs()).clone();
    
     try {
-        err = cv::stereoCalibrate(objectPoints, imagePoints1, imagePoints2,
+        rmse = cv::stereoCalibrate(objectPoints, imagePoints1, imagePoints2,
                                   cameraMatrix1, distCoeffs1,
                                   cameraMatrix2, distCoeffs2,
                                   imageSize, R, T, cv::noArray(), cv::noArray(),
                                   cv::TermCriteria(cv::TermCriteria::COUNT + cv::TermCriteria::EPS, 100, 1e-6),
                                   flags);
+        calibrationComplete = true;
+        qDebug() << "Calibration finished; RMSE:" << rmse;
     } catch (cv::Exception e) {
-        QMessageBox::warning(this, "Error", "Calibration failed: " + QString::fromStdString(e.what()));
-        return false;
-    }
+        emit error("Calibration failed: " + QString::fromStdString(e.what()));
+    }   
 
-    qDebug() << "RMS:" << err;
-
-    wizard()->setButtonText(QWizard::NextButton, oldNextButtonText);
-    return true;
+    emit calibrationFinished();
 }
-
-
 
 
 // *********************************************************************
