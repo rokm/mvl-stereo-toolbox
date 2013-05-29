@@ -36,6 +36,8 @@ CalibrationWizard::CalibrationWizard (QWidget *parent)
 {
     setWindowTitle("Calibration Wizard");
     setWizardStyle(ModernStyle);
+
+    resize(800, 600);
     
     setOption(QWizard::NoBackButtonOnStartPage, true);
 
@@ -173,14 +175,14 @@ CalibrationWizardPageImages::CalibrationWizardPageImages (const QString &fieldPr
     // Add images button
     pushButtonAddImages = new QPushButton("Add");
     pushButtonAddImages->setToolTip("Add images");
-    connect(pushButtonAddImages, SIGNAL(released()), this, SLOT(addImages()));
+    connect(pushButtonAddImages, SIGNAL(clicked()), this, SLOT(addImages()));
 
     imagesLayout->addWidget(pushButtonAddImages, 0, 0, 1, 1);
 
     // Clear images button
     pushButtonClearImages = new QPushButton("Clear");
     pushButtonClearImages->setToolTip("Clear images");
-    connect(pushButtonClearImages, SIGNAL(released()), this, SLOT(clearImages()));
+    connect(pushButtonClearImages, SIGNAL(clicked()), this, SLOT(clearImages()));
 
     imagesLayout->addWidget(pushButtonClearImages, 0, 1, 1, 1);
 
@@ -517,17 +519,23 @@ CalibrationWizardPageDetection::CalibrationWizardPageDetection (const QString &f
     layout->addWidget(labelStatus, 3, 0, 1, 1);
 
     // Button box
-    buttonBox = new QDialogButtonBox(this);
-    layout->addWidget(buttonBox, 3, 1, 1, 1);
+    QHBoxLayout *buttonBox = new QHBoxLayout();
+    layout->addLayout(buttonBox, 3, 1, 1, 1);
 
-    connect(buttonBox, SIGNAL(accepted()), this, SLOT(acceptPattern()));
-    connect(buttonBox, SIGNAL(rejected()), this, SLOT(discardPattern()));
+    buttonBox->addStretch();
+
+    pushButtonAuto = new QPushButton("Auto", this);
+    pushButtonAuto->setCheckable(true);
+    connect(pushButtonAuto, SIGNAL(toggled(bool)), this, SLOT(autoPatternToggled(bool)));
+    buttonBox->addWidget(pushButtonAuto);
+    
+    pushButtonDiscard = new QPushButton("Discard", this);
+    connect(pushButtonDiscard, SIGNAL(clicked()), this, SLOT(discardPatternClicked()));
+    buttonBox->addWidget(pushButtonDiscard);
 
     pushButtonAccept = new QPushButton("Accept", this);
-    buttonBox->addButton(pushButtonAccept, QDialogButtonBox::AcceptRole);
-
-    pushButtonDiscard = new QPushButton("Discard", this);
-    buttonBox->addButton(pushButtonDiscard, QDialogButtonBox::RejectRole);
+    connect(pushButtonAccept, SIGNAL(clicked()), this, SLOT(acceptPatternClicked()));
+    buttonBox->addWidget(pushButtonAccept);
 
     // Fields
     registerField(fieldPrefix + "PatternImagePoints", this, "patternImagePoints");
@@ -578,6 +586,9 @@ void CalibrationWizardPageDetection::initializePage ()
     pushButtonAccept->show();
     pushButtonAccept->setEnabled(true);
 
+    patternFound = false;
+    pushButtonAuto->setChecked(false);
+
     // ... and disable "Discard" button
     pushButtonDiscard->setEnabled(false);
 
@@ -600,43 +611,67 @@ bool CalibrationWizardPageDetection::isComplete () const
 }
 
 
+void CalibrationWizardPageDetection::startProcessing ()
+{
+    pushButtonAccept->setText("Accept");
+    pushButtonAccept->setEnabled(true);
+    pushButtonDiscard->setEnabled(true);
+        
+    imageCounter = 0;
+    patternFound = false;
+
+    // Process next
+    processImage();
+}
+
+void CalibrationWizardPageDetection::doAutomaticProcessing ()
+{
+    // Make sure auto processing is still enabled
+    if (!autoProcess) {
+        return;
+    }
+    
+    // Auto accept / discard
+    if (patternFound) {
+        acceptPattern();
+    } else {
+        discardPattern();
+    }
+}
+
 void CalibrationWizardPageDetection::acceptPattern ()
 {
     if (imageCounter == -1) {
-        // Start
-        pushButtonAccept->setText("Accept");
-        pushButtonAccept->setEnabled(true);
-        pushButtonDiscard->setEnabled(true);
-        
-        imageCounter++;
-    } else {
-        // Accept
-        if (processImagePairs) {
-            // Always append image coordinates vector; for odd counter
-            // numbers (second) images this is always safe, since if
-            // first image was discarded, we would be skipping the second
-            // one automatically. If first image is accepted, and second
-            // is rejected, then the first image's points will have to
-            // be removed from the list by the discard function.
-            patternImagePoints.push_back(currentImagePoints);
-            
-            // For pairs, we append world coordinates vector only on odd
-            // counter numbers (so when second image of the pair is accepted)
-            if (imageCounter % 2) {
-                patternWorldPoints.push_back(calibrationPattern.computePlanarCoordinates());
-            }
-        } else {
-            // Append image coordinates
-            patternImagePoints.push_back(currentImagePoints);
-            // Append world coordinates
-            patternWorldPoints.push_back(calibrationPattern.computePlanarCoordinates());
-        }
-        
-        imageCounter++;
+        // Start processing
+        startProcessing();
+        return;
     }
 
+    // Accept
+    if (processImagePairs) {
+        // Always append image coordinates vector; for odd counter
+        // numbers (second) images this is always safe, since if
+        // first image was discarded, we would be skipping the second
+        // one automatically. If first image is accepted, and second
+        // is rejected, then the first image's points will have to
+        // be removed from the list by the discard function.
+        patternImagePoints.push_back(currentImagePoints);
+            
+        // For pairs, we append world coordinates vector only on odd
+        // counter numbers (so when second image of the pair is accepted)
+        if (imageCounter % 2) {
+            patternWorldPoints.push_back(calibrationPattern.computePlanarCoordinates());
+        }
+    } else {
+        // Append image coordinates
+        patternImagePoints.push_back(currentImagePoints);
+        // Append world coordinates
+        patternWorldPoints.push_back(calibrationPattern.computePlanarCoordinates());
+    }
+    
     // Process next
-    processNextImage();
+    imageCounter++;
+    processImage();
 }
 
 void CalibrationWizardPageDetection::discardPattern ()
@@ -661,19 +696,18 @@ void CalibrationWizardPageDetection::discardPattern ()
     }
     
     // Process next
-    processNextImage();
+    processImage();
 }
 
-void CalibrationWizardPageDetection::processNextImage ()
+void CalibrationWizardPageDetection::processImage ()
 {
-    // We might be ready to go on...
-    emit completeChanged();
-
     // Make sure we aren't at the end already
     if (imageCounter >= images.size()) {
         // We are at the end of list; disable everything
         pushButtonAccept->setEnabled(false);
         pushButtonDiscard->setEnabled(false);
+        pushButtonAuto->setEnabled(false);
+        pushButtonAuto->setChecked(false);
 
         // Update status
         if (processImagePairs) {
@@ -710,8 +744,6 @@ void CalibrationWizardPageDetection::processNextImage ()
             
             pushButtonAccept->hide();
             pushButtonAccept->setEnabled(false);
-
-            imageCounter++;
             return;
         }
 
@@ -725,22 +757,63 @@ void CalibrationWizardPageDetection::processNextImage ()
             QMessageBox::warning(this, "Invalid size", "Image size does not match the size of first image!");
             pushButtonAccept->hide();
             pushButtonAccept->setEnabled(false);
-
-            imageCounter++;
             return;
         }
 
         // Find pattern
         std::vector<cv::Point2f> points;
-        bool found = calibrationPattern.findInImage(image, currentImagePoints);
+        patternFound = calibrationPattern.findInImage(image, currentImagePoints);
 
-        if (!found) {
+        if (!patternFound) {
             pushButtonAccept->hide();
             pushButtonAccept->setEnabled(false);
         }
 
-        displayImage->setPattern(found, currentImagePoints, calibrationPattern.getPatternSize());
+        displayImage->setPattern(patternFound, currentImagePoints, calibrationPattern.getPatternSize());
     }
+
+    // We might be ready to go on...
+    emit completeChanged();
+
+    // Auto process
+    if (autoProcess) {
+        QTimer::singleShot(500, this, SLOT(doAutomaticProcessing()));
+    }
+}
+
+
+void CalibrationWizardPageDetection::autoPatternToggled (bool enable)
+{
+    // Enable/disable auto processing
+    autoProcess = enable;
+
+    if (enable) {
+        if (imageCounter == -1) {
+            // Start processing
+            startProcessing();
+        } else {
+            // Automatically process current frame
+            doAutomaticProcessing();
+        }
+    }
+}
+
+void CalibrationWizardPageDetection::acceptPatternClicked ()
+{
+    // Disable auto processing
+    pushButtonAuto->setChecked(false);
+
+    // Manual accept
+    acceptPattern();
+}
+
+void CalibrationWizardPageDetection::discardPatternClicked ()
+{
+    // Disable auto processing
+    pushButtonAuto->setChecked(false);
+
+    // Manual discard
+    discardPattern();
 }
 
 
@@ -1390,7 +1463,7 @@ CalibrationWizardPageCalibration::CalibrationWizardPageCalibration (const QStrin
     setSubTitle("Calibration parameters");
 
     // Busy dialog
-    dialogBusy = new QProgressDialog("Calibrating", "Abort", 0, 0, this);
+    dialogBusy = new QProgressDialog("Calibrating... please wait", QString(), 0, 0, this);
     dialogBusy->setModal(true);
     
     // Worker thread

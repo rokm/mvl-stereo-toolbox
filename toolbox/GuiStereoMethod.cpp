@@ -99,7 +99,7 @@ GuiStereoMethod::GuiStereoMethod (StereoPipeline *p, QList<StereoMethod *> &m, Q
     // Save
     pushButton = new QPushButton("Save disp.", this);
     pushButton->setToolTip("Save disparity image.");
-    connect(pushButton, SIGNAL(released()), this, SLOT(saveImage()));
+    connect(pushButton, SIGNAL(clicked()), this, SLOT(saveImage()));
     buttonsLayout->addWidget(pushButton);
     pushButtonSaveImage = pushButton;
 

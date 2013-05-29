@@ -49,31 +49,31 @@ GuiRectification::GuiRectification (StereoPipeline *p, StereoRectification *r, Q
 
     pushButton = new QPushButton("Calibrate");
     pushButton->setToolTip("Run calibration wizard.");
-    connect(pushButton, SIGNAL(released()), this, SLOT(runCalibrationWizard()));
+    connect(pushButton, SIGNAL(clicked()), this, SLOT(runCalibrationWizard()));
     buttonsLayout->addWidget(pushButton);
     pushButtonWizard = pushButton;
 
     pushButton = new QPushButton("Import calib.");
     pushButton->setToolTip("Import calibration from file.");
-    connect(pushButton, SIGNAL(released()), this, SLOT(importCalibration()));
+    connect(pushButton, SIGNAL(clicked()), this, SLOT(importCalibration()));
     buttonsLayout->addWidget(pushButton);
     pushButtonImport = pushButton;
 
     pushButton = new QPushButton("Export calib.");
     pushButton->setToolTip("Export current calibration to file.");
-    connect(pushButton, SIGNAL(released()), this, SLOT(exportCalibration()));
+    connect(pushButton, SIGNAL(clicked()), this, SLOT(exportCalibration()));
     buttonsLayout->addWidget(pushButton);
     pushButtonExport = pushButton;
 
     pushButton = new QPushButton("Clear calib.");
     pushButton->setToolTip("Clear current calibration.");
-    connect(pushButton, SIGNAL(released()), this, SLOT(clearCalibration()));
+    connect(pushButton, SIGNAL(clicked()), this, SLOT(clearCalibration()));
     buttonsLayout->addWidget(pushButton);
     pushButtonClear = pushButton;
 
     pushButton = new QPushButton("Save rectified images");
     pushButton->setToolTip("Save rectified image pair.");
-    connect(pushButton, SIGNAL(released()), this, SLOT(saveImages()));
+    connect(pushButton, SIGNAL(clicked()), this, SLOT(saveImages()));
     buttonsLayout->addWidget(pushButton);
     pushButtonSaveImages = pushButton;
 

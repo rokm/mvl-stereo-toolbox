@@ -188,10 +188,17 @@ public:
     const std::vector<std::vector<cv::Point3f> > &getPatternWorldPoints () const;
     const cv::Size &getImageSize () const;
 
-protected slots:
+protected:
+    void startProcessing ();
     void acceptPattern ();
     void discardPattern ();
-    void processNextImage ();
+    void processImage ();
+
+protected slots:
+    void doAutomaticProcessing ();
+    void acceptPatternClicked ();
+    void discardPatternClicked ();
+    void autoPatternToggled (bool);
 
 protected:
     QString fieldPrefix;
@@ -200,15 +207,18 @@ protected:
 
     QLabel *labelStatus;
 
-    QDialogButtonBox *buttonBox;
+    QPushButton *pushButtonAuto;
     QPushButton *pushButtonAccept;
     QPushButton *pushButtonDiscard;
 
     // Processing part
     bool processImagePairs;
-    
+
+    //
     QStringList images;
     int imageCounter;
+    bool patternFound;
+    bool autoProcess;
 
     StereoCalibrationPattern calibrationPattern;
     std::vector<cv::Point2f> currentImagePoints;

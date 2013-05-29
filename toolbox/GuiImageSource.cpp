@@ -50,13 +50,13 @@ GuiImageSource::GuiImageSource (StereoPipeline *p, QList<ImageSource *> &s, QWid
 
     pushButton = new QPushButton("Save images", this);
     pushButton->setToolTip("Save image pair by asking for filename each time.");
-    connect(pushButton, SIGNAL(released()), this, SLOT(saveImages()));
+    connect(pushButton, SIGNAL(clicked()), this, SLOT(saveImages()));
     buttonsLayout->addWidget(pushButton);
     pushButtonSaveImages = pushButton;
 
     pushButton = new QPushButton("Snap images", this);
     pushButton->setToolTip("Save image pair by asking for filename only once and then appending counter number for each new snapshot.");
-    connect(pushButton, SIGNAL(released()), this, SLOT(snapshotImages()));
+    connect(pushButton, SIGNAL(clicked()), this, SLOT(snapshotImages()));
     buttonsLayout->addWidget(pushButton);
     pushButtonSnapshotImages = pushButton;
 
@@ -188,7 +188,7 @@ void GuiImageSource::snapshotImages ()
     
     // Get basename if not already set
     if (snapshotBaseName.isEmpty()) {
-        snapshotBaseName = QFileDialog::getSaveFileName(this, "Select basename for images snapshots", "rectified.ppm");
+        snapshotBaseName = QFileDialog::getSaveFileName(this, "Select basename for images snapshots", "image.ppm");
         if (snapshotBaseName.isNull()) {
             return;
         }

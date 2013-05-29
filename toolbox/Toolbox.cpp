@@ -74,7 +74,7 @@ void Toolbox::createGui ()
 
     // Image source
     pushButtonImageSource = new QPushButton("Image source", this);
-    connect(pushButtonImageSource, SIGNAL(released()), this, SLOT(showWindowImageSource()));
+    connect(pushButtonImageSource, SIGNAL(clicked()), this, SLOT(showWindowImageSource()));
     
     pushButtonImageSourceActive = new QPushButton("Active", this);
     pushButtonImageSourceActive->setCheckable(true);
@@ -88,7 +88,7 @@ void Toolbox::createGui ()
 
     // Rectification
     pushButtonRectification = new QPushButton("Rectification", this);
-    connect(pushButtonRectification, SIGNAL(released()), this, SLOT(showWindowRectification()));
+    connect(pushButtonRectification, SIGNAL(clicked()), this, SLOT(showWindowRectification()));
 
     pushButtonRectificationActive = new QPushButton("Active", this);
     pushButtonRectificationActive->setCheckable(true);
@@ -102,7 +102,7 @@ void Toolbox::createGui ()
 
     // Stereo method
     pushButtonStereoMethod = new QPushButton("Stereo method", this);
-    connect(pushButtonStereoMethod, SIGNAL(released()), this, SLOT(showWindowStereoMethod()));
+    connect(pushButtonStereoMethod, SIGNAL(clicked()), this, SLOT(showWindowStereoMethod()));
 
     pushButtonStereoMethodActive = new QPushButton("Active", this);
     pushButtonStereoMethodActive->setCheckable(true);
@@ -122,7 +122,7 @@ void Toolbox::createGui ()
 
     // Exit
     QPushButton *pushButtonExit = new QPushButton("Exit", this);
-    connect(pushButtonExit, SIGNAL(released()), qApp, SLOT(quit()));
+    connect(pushButtonExit, SIGNAL(clicked()), qApp, SLOT(quit()));
 
     layout->addWidget(pushButtonExit, 4, 0, 1, 2);
 }

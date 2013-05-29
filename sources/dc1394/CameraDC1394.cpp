@@ -31,11 +31,11 @@ CameraDC1394::CameraDC1394 (dc1394camera_t *c, QObject *parent)
     : QObject(parent), camera(c)
 {
     // Print info
-    dc1394_camera_print_info(camera, stdout);
+    //dc1394_camera_print_info(camera, stdout);
 
     // Print features
     dc1394_feature_get_all(camera, &features);
-    dc1394_feature_print_all(&features, stdout);
+    //dc1394_feature_print_all(&features, stdout);
 
     // Create capture thread
     captureActive = false;

@@ -59,7 +59,7 @@ StereoMethodBlockMatchingGPUConfigWidget::StereoMethodBlockMatchingGPUConfigWidg
 
     button = new QPushButton("Default values");
     button->setToolTip(tooltip);
-    connect(button, SIGNAL(released()), method, SLOT(resetToDefaults()));
+    connect(button, SIGNAL(clicked()), method, SLOT(resetToDefaults()));
 
     layout->addRow(button);
 
