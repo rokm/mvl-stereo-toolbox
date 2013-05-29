@@ -127,7 +127,7 @@ protected:
     StereoMethod *stereoMethod;
 
     bool useStereoMethodThread;
-    QThread *stereoMethodThread;
+    QFutureWatcher<void> stereoMethodWatcher;
     int stereoDroppedFramesCounter;
     
     // Cached disparity image

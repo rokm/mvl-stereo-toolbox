@@ -36,7 +36,6 @@ StereoPipeline::StereoPipeline (QObject *parent)
     stereoMethod = NULL;
 
     useStereoMethodThread = false;
-    stereoMethodThread = new QThread(this);
     stereoDroppedFramesCounter = 0;
 
     stereoInputScaling = 1.0;
@@ -276,9 +275,10 @@ void StereoPipeline::computeDisparityImage ()
 
     if (useStereoMethodThread) {
         // Start processing not processing already; otherwise drop
-        if (!stereoMethodThread->isRunning()) {
+        if (!stereoMethodWatcher.isRunning()) {
             stereoDroppedFramesCounter = 0;
-            stereoMethodThread->start();
+            QFuture<void> future = QtConcurrent::run(this, &StereoPipeline::computeDisparityImageInThread);
+            stereoMethodWatcher.setFuture(future);
         } else {
             stereoDroppedFramesCounter++;
         }
@@ -330,14 +330,6 @@ void StereoPipeline::setUseStereoMethodThread (bool enable)
     }
 
     useStereoMethodThread = enable;
-    
-    if (enable) {
-        connect(stereoMethodThread, SIGNAL(started()), this, SLOT(computeDisparityImageInThread()), Qt::DirectConnection);
-        connect(this, SIGNAL(disparityImageChanged()), stereoMethodThread, SLOT(quit()), Qt::DirectConnection);
-    } else {
-        disconnect(stereoMethodThread, SIGNAL(started()), this, SLOT(computeDisparityImageInThread()));
-        disconnect(this, SIGNAL(disparityImageChanged()), stereoMethodThread, SLOT(quit()));
-    }
 }
 
 bool StereoPipeline::getUseStereoMethodThread () const
