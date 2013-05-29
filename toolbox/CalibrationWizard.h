@@ -387,11 +387,12 @@ private slots:
 
 protected slots:
     void calibrationClicked ();
-    void calibrationFunction ();
+    void calibrationFinished ();
+
+    bool calibrationFunction ();
 
 signals:
     void error (QString);
-    void calibrationFinished ();
 
 protected:
     QString fieldPrefix;
@@ -399,9 +400,9 @@ protected:
     CameraParametersWidget *boxCameraParameters;
     CalibrationFlagsWidget *boxCalibrationFlags;
 
-    // Worker thread
+    // Worker
     bool calibrationComplete;
-    QThread *workerThread;
+    QFutureWatcher<bool> calibrationWatcher;
     QDialog *dialogBusy;
 
     // Data
@@ -461,11 +462,12 @@ private slots:
 
 protected slots:
     void calibrationClicked ();
-    void calibrationFunction ();
+    void calibrationFinished ();
+
+    bool calibrationFunction ();
 
 signals:
     void error (QString);
-    void calibrationFinished ();
     
 protected:
     QString fieldPrefix;
@@ -474,9 +476,9 @@ protected:
     CameraParametersWidget *boxRightCameraParameters;
     StereoCalibrationFlagsWidget *boxCalibrationFlags;
 
-    // Worker thread
+    // Worker
     bool calibrationComplete;
-    QThread *workerThread;
+    QFutureWatcher<bool> calibrationWatcher;
     QDialog *dialogBusy;
     
     // Data

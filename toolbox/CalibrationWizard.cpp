@@ -1395,16 +1395,8 @@ CalibrationWizardPageCalibration::CalibrationWizardPageCalibration (const QStrin
     
     // Worker thread
     calibrationComplete = false;
-    workerThread = new QThread(this);
-    connect(workerThread, SIGNAL(started()), this, SLOT(calibrationFunction()), Qt::DirectConnection);
-    connect(this, SIGNAL(calibrationFinished()), workerThread, SLOT(quit()));
-
-    connect(workerThread, SIGNAL(finished()), dialogBusy, SLOT(hide()));
-    connect(workerThread, SIGNAL(terminated()), dialogBusy, SLOT(terminated()));
-
-    connect(workerThread, SIGNAL(finished()), this, SIGNAL(completeChanged()));
-    connect(workerThread, SIGNAL(terminated()), this, SIGNAL(completeChanged()));
-
+    connect(&calibrationWatcher, SIGNAL(finished()), this, SLOT(calibrationFinished()));
+    
     QLabel *label;
 
     // Layout
@@ -1481,17 +1473,26 @@ bool CalibrationWizardPageCalibration::isComplete () const
 
 void CalibrationWizardPageCalibration::calibrationClicked ()
 {
-    if (workerThread->isRunning()) {
-        QMessageBox::warning(this, "Error", "Calibration process is already running!");
-        return;
-    }
-    
-    // Start worker thread
+    // Show busy dialog
     dialogBusy->show();
-    workerThread->start();
+
+    // Start calibration function
+    QFuture<bool> future = QtConcurrent::run(this, &CalibrationWizardPageCalibration::calibrationFunction);
+    calibrationWatcher.setFuture(future);
 }
 
-void CalibrationWizardPageCalibration::calibrationFunction ()
+void CalibrationWizardPageCalibration::calibrationFinished ()
+{
+    dialogBusy->hide();
+
+    // Read result
+    calibrationComplete = calibrationWatcher.result();
+
+    // We might be ready
+    emit completeChanged();
+}
+
+bool CalibrationWizardPageCalibration::calibrationFunction ()
 {
     // Reset calibration
     calibrationComplete = false;
@@ -1509,13 +1510,13 @@ void CalibrationWizardPageCalibration::calibrationFunction ()
    
     try {
         rmse = cv::calibrateCamera(worldPoints, imagePoints, imageSize, cameraMatrix, distCoeffs, cv::noArray(), cv::noArray(), flags);
-        calibrationComplete = true;
         qDebug() << "Calibration finished; RMSE:" << rmse;
     } catch (cv::Exception e) {
         emit error("Calibration failed: " + QString::fromStdString(e.what()));
+        return false;
     }
 
-    emit calibrationFinished();
+    return true;
 }
 
 
@@ -1569,15 +1570,7 @@ CalibrationWizardPageStereoCalibration::CalibrationWizardPageStereoCalibration (
     
     // Worker thread
     calibrationComplete = false;
-    workerThread = new QThread(this);
-    connect(workerThread, SIGNAL(started()), this, SLOT(calibrationFunction()), Qt::DirectConnection);
-    connect(this, SIGNAL(calibrationFinished()), workerThread, SLOT(quit()));
-
-    connect(workerThread, SIGNAL(finished()), dialogBusy, SLOT(hide()));
-    connect(workerThread, SIGNAL(terminated()), dialogBusy, SLOT(terminated()));
-
-    connect(workerThread, SIGNAL(finished()), this, SIGNAL(completeChanged()));
-    connect(workerThread, SIGNAL(terminated()), this, SIGNAL(completeChanged()));
+    connect(&calibrationWatcher, SIGNAL(finished()), this, SLOT(calibrationFinished()));
     
     QLabel *label;
 
@@ -1705,19 +1698,27 @@ bool CalibrationWizardPageStereoCalibration::isComplete () const
 
 void CalibrationWizardPageStereoCalibration::calibrationClicked ()
 {
-    if (workerThread->isRunning()) {
-        QMessageBox::warning(this, "Error", "Calibration process is already running!");
-        return;
-    }
-
+    // Show busy dialog
     dialogBusy->show();
-    
-    // Start worker thread
-    workerThread->start();
+
+    // Start calibration function
+    QFuture<bool> future = QtConcurrent::run(this, &CalibrationWizardPageStereoCalibration::calibrationFunction);
+    calibrationWatcher.setFuture(future);
+}
+
+void CalibrationWizardPageStereoCalibration::calibrationFinished ()
+{
+    dialogBusy->hide();
+
+    // Read result
+    calibrationComplete = calibrationWatcher.result();
+
+    // We might be ready
+    emit completeChanged();
 }
 
 
-void CalibrationWizardPageStereoCalibration::calibrationFunction ()
+bool CalibrationWizardPageStereoCalibration::calibrationFunction ()
 {
     // Reset calibration
     calibrationComplete = false;
@@ -1755,13 +1756,13 @@ void CalibrationWizardPageStereoCalibration::calibrationFunction ()
                                   imageSize, R, T, cv::noArray(), cv::noArray(),
                                   cv::TermCriteria(cv::TermCriteria::COUNT + cv::TermCriteria::EPS, 100, 1e-6),
                                   flags);
-        calibrationComplete = true;
         qDebug() << "Calibration finished; RMSE:" << rmse;
     } catch (cv::Exception e) {
         emit error("Calibration failed: " + QString::fromStdString(e.what()));
-    }   
+        return false;
+    }
 
-    emit calibrationFinished();
+    return true;
 }
 
 
