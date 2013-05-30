@@ -37,11 +37,8 @@ CameraDC1394::CameraDC1394 (dc1394camera_t *c, QObject *parent)
     dc1394_feature_get_all(camera, &features);
     //dc1394_feature_print_all(&features, stdout);
 
-    // Create capture thread
+    // Capture thread
     captureActive = false;
-    captureThread = new QThread(this);
-    connect(captureThread, SIGNAL(started()), this, SLOT(captureFunction()), Qt::DirectConnection);
-    connect(this, SIGNAL(captureFinished()), captureThread, SLOT(quit()), Qt::DirectConnection);
 
     // Config widget
     configWidget = new CameraDC1394ConfigWidget(this);
@@ -355,24 +352,28 @@ void CameraDC1394::captureFunction ()
     }
 
     qDebug() << this << "Capture function ended!";
-    emit captureFinished();
 }
 
 void CameraDC1394::startCapture ()
 {
-    if (!captureThread->isRunning()) {
-        // Start capture thread
-        captureThread->start();
+    if (!captureWatcher.isRunning()) {
+        // Start capture function
+        QFuture<void> future = QtConcurrent::run(this, &CameraDC1394::captureFunction);
+        captureWatcher.setFuture(future);
+    } else {
+        qWarning() << this << "Capture already running!";
     }
 }
 
 void CameraDC1394::stopCapture ()
 {
-    if (captureThread->isRunning()) {
+    if (captureWatcher.isRunning()) {
         captureActive = false;
 
         // Make sure capture thread finishes
-        captureThread->wait();
+        captureWatcher.waitForFinished();
+    } else {
+        qWarning() << this << "Capture not running!";
     }
 }
 

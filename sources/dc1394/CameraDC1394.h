@@ -106,7 +106,7 @@ protected:
     dc1394featureset_t features;
 
     // Frame buffer
-    QThread *captureThread;
+    QFutureWatcher<void> captureWatcher;
     bool captureActive;
     cv::Mat frameBuffer;
     QReadWriteLock frameBufferLock;
