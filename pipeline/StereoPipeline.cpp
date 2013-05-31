@@ -38,8 +38,6 @@ StereoPipeline::StereoPipeline (QObject *parent)
     useStereoMethodThread = false;
     stereoDroppedFramesCounter = 0;
 
-    stereoInputScaling = 1.0;
-
     imageSourceActive = true;
     rectificationActive = true;
     stereoMethodActive = true;
@@ -50,8 +48,6 @@ StereoPipeline::StereoPipeline (QObject *parent)
     connect(this, SIGNAL(imageSourceStateChanged(bool)), this, SLOT(beginProcessing()));
     connect(this, SIGNAL(rectificationStateChanged(bool)), this, SLOT(rectifyImages()));
     connect(this, SIGNAL(stereoMethodStateChanged(bool)), this, SLOT(computeDisparityImage()));
-
-    connect(this, SIGNAL(stereoInputScalingChanged(double)), this, SLOT(computeDisparityImage()));
 }
 
 StereoPipeline::~StereoPipeline ()
@@ -244,21 +240,6 @@ int StereoPipeline::getDisparityImageComputationTime () const
 }
 
 
-// Input scaling
-double StereoPipeline::getStereoInputScaling () const
-{
-    return stereoInputScaling;
-}
-
-void StereoPipeline::setStereoInputScaling (double newValue)
-{
-    if (stereoInputScaling != newValue) {
-        stereoInputScaling = newValue;
-        emit stereoInputScalingChanged(newValue);
-    }
-}
-
-
 // Processing
 void StereoPipeline::computeDisparityImage ()
 {
@@ -298,19 +279,7 @@ void StereoPipeline::computeDisparityImageInThread ()
     } else {
         try {
             QTime timer; timer.start();
-            if (stereoInputScaling == 1.0) {
-                stereoMethod->computeDisparityImage(rectifiedImageL, rectifiedImageR, disparityImage, disparityLevels);
-            } else {
-                cv::Mat scaledRectifiedImageL, scaledRectifiedImageR, scaledDisparityImage;
-
-                cv::resize(rectifiedImageL, scaledRectifiedImageL, cv::Size(), stereoInputScaling, stereoInputScaling);
-                cv::resize(rectifiedImageR, scaledRectifiedImageR, cv::Size(), stereoInputScaling, stereoInputScaling);
-                
-                stereoMethod->computeDisparityImage(scaledRectifiedImageL, scaledRectifiedImageR, scaledDisparityImage, disparityLevels);
-
-                cv::resize(scaledDisparityImage, disparityImage, cv::Size(), 1.0/stereoInputScaling, 1.0/stereoInputScaling);
-                
-            }
+            stereoMethod->computeDisparityImage(rectifiedImageL, rectifiedImageR, disparityImage, disparityLevels);
             disparityImageComputationTime = timer.elapsed();
         } catch (std::exception &e) {
             disparityImage = cv::Mat(); // Clear

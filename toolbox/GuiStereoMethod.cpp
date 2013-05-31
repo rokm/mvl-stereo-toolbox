@@ -54,25 +54,6 @@ GuiStereoMethod::GuiStereoMethod (StereoPipeline *p, QList<StereoMethod *> &m, Q
 
     buttonsLayout->addStretch();
 
-    // Input image scaling
-    box = new QHBoxLayout();
-    box->setContentsMargins(0, 0, 0, 0);
-    buttonsLayout->addLayout(box);
-
-    label = new QLabel("Input scaling", this);
-    label->setToolTip("Input image scaling to speed up method or accomodate memory constraints.");
-    box->addWidget(label);
-    
-    spinBoxD = new QDoubleSpinBox(this);
-    spinBoxD->setKeyboardTracking(false);
-    spinBoxD->setSingleStep(0.10);
-    spinBoxD->setRange(0.01, 1.0);
-    spinBoxD->setValue(pipeline->getStereoInputScaling());
-    connect(spinBoxD, SIGNAL(valueChanged(double)), pipeline, SLOT(setStereoInputScaling(double)));
-    connect(pipeline, SIGNAL(stereoInputScalingChanged(double)), spinBoxD, SLOT(setValue(double)));
-    box->addWidget(spinBoxD);
-    spinBoxInputScaling = spinBoxD;
-
     // Disparity image display type
     box = new QHBoxLayout();
     box->setContentsMargins(0, 0, 0, 0);

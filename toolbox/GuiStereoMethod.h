@@ -59,7 +59,6 @@ protected:
 
     // GUI
     QComboBox *comboBoxDisplayType;
-    QDoubleSpinBox *spinBoxInputScaling;
     QPushButton *pushButtonSaveImage;
     
     ImageDisplayWidget *displayDisparityImage;
