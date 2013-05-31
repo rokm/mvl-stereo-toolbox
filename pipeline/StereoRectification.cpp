@@ -44,16 +44,6 @@ bool StereoRectification::getState () const
     return isValid;
 }
 
-const cv::Rect &StereoRectification::getLeftROI () const
-{
-    return validRoi1;
-}
-
-const cv::Rect &StereoRectification::getRightROI () const
-{
-    return validRoi2;
-}
-
 
 // *********************************************************************
 // *                            Calibration                            *

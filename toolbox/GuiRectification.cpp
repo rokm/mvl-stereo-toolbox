@@ -71,6 +71,12 @@ GuiRectification::GuiRectification (StereoPipeline *p, StereoRectification *r, Q
     buttonsLayout->addWidget(pushButton);
     pushButtonClear = pushButton;
 
+    pushButton = new QPushButton("ROI");
+    pushButton->setToolTip("Modify ROI on rectified images.");
+    connect(pushButton, SIGNAL(clicked()), this, SLOT(modifyRoi()));
+    buttonsLayout->addWidget(pushButton);
+    pushButtonRoi = pushButton;
+
     pushButton = new QPushButton("Save rectified images");
     pushButton->setToolTip("Save rectified image pair.");
     connect(pushButton, SIGNAL(clicked()), this, SLOT(saveImages()));
@@ -90,9 +96,14 @@ GuiRectification::GuiRectification (StereoPipeline *p, StereoRectification *r, Q
 
     // Pipeline
     connect(pipeline, SIGNAL(rectifiedImagesChanged()), this, SLOT(updateImage()));
+    connect(pipeline, SIGNAL(centerRoiChanged()), this, SLOT(updateRoi()));
+
+    // Roi dialog
+    dialogRoi = new RoiDialog(this);
 
     // Rectification
     connect(rectification, SIGNAL(stateChanged(bool)), this, SLOT(updateState()));
+    connect(rectification, SIGNAL(roiChanged()), this, SLOT(updateRoi()));
     updateState();
 
     // Calibration wizard
@@ -111,22 +122,22 @@ void GuiRectification::updateImage ()
 void GuiRectification::updateState ()
 {
     if (rectification->getState()) {
-        statusBar->showMessage("Calibration set; rectifying input images.");
-
-        displayPair->setImagePairROI(rectification->getLeftROI(), rectification->getRightROI());
-
+        statusBar->showMessage("Calibration set; rectifying input images.");        
         pushButtonClear->setEnabled(true);
         pushButtonExport->setEnabled(true);
     } else {
         statusBar->showMessage("Calibration not set; passing input images through.");
-
-        displayPair->setImagePairROI(cv::Rect(), cv::Rect());
-
         pushButtonClear->setEnabled(false);
         pushButtonExport->setEnabled(false);
     }
 
-    //updateImage();
+    updateRoi();
+}
+
+void GuiRectification::updateRoi ()
+{
+    displayPair->setImagePairROI(pipeline->getCenterRoi(), pipeline->getCenterRoi());
+    dialogRoi->setRoiSize(pipeline->getCenterRoiSize());
 }
 
 
@@ -181,6 +192,16 @@ void GuiRectification::clearCalibration ()
     rectification->clearStereoCalibration();
 }
 
+void GuiRectification::modifyRoi ()
+{
+    if (dialogRoi->exec() == QDialog::Accepted) {
+        pipeline->setCenterRoiSize(dialogRoi->getRoiSize());
+    } else {
+        // Reset ROI values in the dialog to their actual values
+        dialogRoi->setRoiSize(pipeline->getCenterRoiSize());
+    }
+}
+
 
 // *********************************************************************
 // *                            Image saving                           *
@@ -216,4 +237,58 @@ void GuiRectification::saveImages ()
             QMessageBox::warning(this, "Error", "Failed to save images: " + QString::fromStdString(e.what()));
         }
     }
+}
+
+
+//
+//
+//
+RoiDialog::RoiDialog (QWidget *parent)
+    : QDialog(parent)
+{
+    QFormLayout *layout = new QFormLayout(this);
+
+    QLabel *label;
+    QSpinBox *spinBox;
+
+    // Width
+    label = new QLabel("Width", this);
+    label->setToolTip("ROI width; set to -1 to disable ROI");
+
+    spinBox = new QSpinBox(this);
+    spinBox->setRange(-1, INT_MAX);
+    spinBoxWidth = spinBox;
+
+    layout->addRow(label, spinBox);
+
+    // Height
+    label = new QLabel("Height", this);
+    label->setToolTip("ROI height; set to -1 to disable ROI");
+
+    spinBox = new QSpinBox(this);
+    spinBox->setRange(-1, INT_MAX);
+    spinBoxHeight = spinBox;
+
+    layout->addRow(label, spinBox);
+
+    // Button box
+    QDialogButtonBox *buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, Qt::Horizontal, this);
+    layout->addRow(buttonBox);    
+    connect(buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
+    connect(buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
+}
+
+RoiDialog::~RoiDialog ()
+{
+}
+
+cv::Size RoiDialog::getRoiSize () const
+{
+    return cv::Size(spinBoxWidth->value(), spinBoxHeight->value());
+}
+
+void RoiDialog::setRoiSize (const cv::Size &size)
+{
+    spinBoxWidth->setValue(size.width);
+    spinBoxHeight->setValue(size.height);
 }

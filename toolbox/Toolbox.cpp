@@ -177,7 +177,7 @@ void Toolbox::setPushButtonRectificationActiveState (bool active)
     setActiveButtonState(pushButtonRectificationActive, active);
 }
 
-void Toolbox::setPushButtonStereomethodActiveState (bool active)
+void Toolbox::setPushButtonStereoMethodActiveState (bool active)
 {
     setActiveButtonState(pushButtonStereoMethodActive, active);
 }

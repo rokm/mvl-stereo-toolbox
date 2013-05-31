@@ -35,6 +35,8 @@ StereoPipeline::StereoPipeline (QObject *parent)
     rectification = NULL;
     stereoMethod = NULL;
 
+    centerRoiW = centerRoiH = -1;
+
     useStereoMethodThread = false;
     stereoDroppedFramesCounter = 0;
 
@@ -48,10 +50,58 @@ StereoPipeline::StereoPipeline (QObject *parent)
     connect(this, SIGNAL(imageSourceStateChanged(bool)), this, SLOT(beginProcessing()));
     connect(this, SIGNAL(rectificationStateChanged(bool)), this, SLOT(rectifyImages()));
     connect(this, SIGNAL(stereoMethodStateChanged(bool)), this, SLOT(computeDisparityImage()));
+
+    connect(this, SIGNAL(centerRoiChanged()), this, SLOT(computeDisparityImage()));
 }
 
 StereoPipeline::~StereoPipeline ()
 {
+}
+
+
+// *********************************************************************
+// *                             Center ROI                            *
+// *********************************************************************
+cv::Size StereoPipeline::getCenterRoiSize () const
+{
+    return cv::Size(centerRoiW, centerRoiH);
+}
+
+void StereoPipeline::setCenterRoiSize (const cv::Size &size)
+{
+    if (size.width != centerRoiW || size.height != centerRoiH) {
+        centerRoiW = size.width;
+        centerRoiH = size.height;
+
+        // Recompute center ROI
+        recomputeCenterRoi();
+    }
+}
+
+const cv::Rect &StereoPipeline::getCenterRoi () const
+{
+    return centerRoi;
+}
+
+void StereoPipeline::recomputeCenterRoi ()
+{
+    cv::Rect roi;
+
+    if (centerRoiW == -1 || centerRoiH == -1) {
+        // Center ROI not set
+        roi = cv::Rect();
+    } else {
+        // Center ROI set; use only part of rectified images
+        int roiW = qBound(0, centerRoiW, rectifiedImageL.cols);
+        int roiH = qBound(0, centerRoiH, rectifiedImageL.rows);
+
+        roi = cv::Rect((rectifiedImageL.cols - roiW)/2, (rectifiedImageL.rows - roiH)/2, roiW, roiH);
+    }
+    
+    if (roi != centerRoi) {
+        centerRoi = roi;
+        emit centerRoiChanged();
+    }
 }
 
 
@@ -243,6 +293,9 @@ int StereoPipeline::getDisparityImageComputationTime () const
 // Processing
 void StereoPipeline::computeDisparityImage ()
 {
+    // Recompute center ROI, since image size could have changed
+    recomputeCenterRoi();
+    
     // Make sure stereo method is marked as active
     if (!stereoMethodActive) {
         return;
@@ -279,7 +332,31 @@ void StereoPipeline::computeDisparityImageInThread ()
     } else {
         try {
             QTime timer; timer.start();
-            stereoMethod->computeDisparityImage(rectifiedImageL, rectifiedImageR, disparityImage, disparityLevels);
+            if (centerRoi == cv::Rect()) {
+                // Set image dimensions (in case method derives some
+                // parameters from it)
+                stereoMethod->setImageDimensions(rectifiedImageL.cols, rectifiedImageL.rows, rectifiedImageL.channels());
+
+                // Make sure disparity image is of correct size
+                disparityImage.create(rectifiedImageL.rows, rectifiedImageL.cols, CV_8UC1);
+
+                // Compute disparity
+                stereoMethod->computeDisparityImage(rectifiedImageL, rectifiedImageR, disparityImage, disparityLevels);
+            } else {
+                // Apply ROI
+                cv::Mat rectifiedRoiL = rectifiedImageL(centerRoi);
+                cv::Mat rectifiedRoiR = rectifiedImageR(centerRoi);
+
+                // Set image dimensions (in case method derives some
+                // parameters from it)
+                stereoMethod->setImageDimensions(rectifiedRoiL.cols, rectifiedRoiL.rows, rectifiedRoiL.channels());
+
+                // Make sure disparity image is of correct size
+                disparityImage.create(rectifiedRoiL.rows, rectifiedRoiL.cols, CV_8UC1);
+
+                // Compute disparity
+                stereoMethod->computeDisparityImage(rectifiedRoiL, rectifiedRoiR, disparityImage, disparityLevels);
+            }
             disparityImageComputationTime = timer.elapsed();
         } catch (std::exception &e) {
             disparityImage = cv::Mat(); // Clear

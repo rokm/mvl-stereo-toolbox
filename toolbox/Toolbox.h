@@ -50,7 +50,7 @@ protected slots:
 
     void setPushButtonImageSourceActiveState (bool);
     void setPushButtonRectificationActiveState (bool);
-    void setPushButtonStereomethodActiveState (bool);
+    void setPushButtonStereoMethodActiveState (bool);
 
 protected:
     void createGui ();

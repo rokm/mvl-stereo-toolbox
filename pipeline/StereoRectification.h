@@ -43,14 +43,14 @@ public:
     void rectifyImagePair (const cv::Mat &, const cv::Mat &, cv::Mat &, cv::Mat &) const;
 
     bool getState () const;
-    const cv::Rect &getLeftROI () const;
-    const cv::Rect &getRightROI () const;
-
+    
 protected:
     void initializeStereoRectification ();
 
 signals:
     void stateChanged (bool);
+
+    void roiChanged ();
 
 protected:
     bool isValid;

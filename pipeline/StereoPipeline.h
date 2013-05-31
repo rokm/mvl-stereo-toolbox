@@ -55,7 +55,10 @@ public:
     const cv::Mat &getLeftRectifiedImage () const;
     const cv::Mat &getRightRectifiedImage () const;
     int getRectificationTime () const;
-        
+
+    cv::Size getCenterRoiSize () const;
+    const cv::Rect &getCenterRoi () const;
+
     // Stereo method
     void setStereoMethod (StereoMethod *);
 
@@ -76,13 +79,17 @@ public slots:
     void setRectificationState (bool);
     void setStereoMethodState (bool);
 
+    void setCenterRoiSize (const cv::Size &);
+
 protected slots:
     void beginProcessing ();
     void rectifyImages ();
     void computeDisparityImage ();
 
     void computeDisparityImageInThread ();
-    
+
+    void recomputeCenterRoi ();
+
 signals:
     void error (const QString &);
 
@@ -94,6 +101,8 @@ signals:
     void rectifiedImagesChanged ();
     void disparityImageChanged ();
 
+    void centerRoiChanged ();
+
 protected:
     // Image source
     bool imageSourceActive;
@@ -102,7 +111,6 @@ protected:
     // Cached input images
     cv::Mat inputImageL;
     cv::Mat inputImageR;
-
 
     // Stereo rectification
     bool rectificationActive;
@@ -113,6 +121,9 @@ protected:
     cv::Mat rectifiedImageR;
     int rectificationTime;
 
+    // Center ROI
+    int centerRoiW, centerRoiH;
+    cv::Rect centerRoi;
 
     // Stereo method
     bool stereoMethodActive;

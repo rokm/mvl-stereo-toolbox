@@ -30,6 +30,7 @@
 
 class CalibrationWizard;
 class ImagePairDisplayWidget;
+class RoiDialog;
 class StereoPipeline;
 
 class GuiRectification : public QWidget
@@ -44,12 +45,14 @@ protected slots:
     void runCalibrationWizard ();
     void importCalibration ();
     void exportCalibration ();
+    void modifyRoi ();
     void clearCalibration ();
 
     void saveImages ();
 
     void updateImage ();
     void updateState ();
+    void updateRoi ();
 
 protected:
     // Pipeline
@@ -61,14 +64,34 @@ protected:
     QPushButton *pushButtonImport;
     QPushButton *pushButtonExport;
     QPushButton *pushButtonClear;
+    QPushButton *pushButtonRoi;
     QPushButton *pushButtonSaveImages;
     
     ImagePairDisplayWidget *displayPair;
 
     QStatusBar *statusBar;
 
+    // ROI dialog
+    RoiDialog *dialogRoi;
+
     // Wizard
     CalibrationWizard *wizard;
+};
+
+class RoiDialog : public QDialog
+{
+    Q_OBJECT
+
+public:
+    RoiDialog (QWidget * = 0);
+    virtual ~RoiDialog ();
+
+    cv::Size getRoiSize () const;
+    void setRoiSize (const cv::Size &);
+
+protected:
+    QSpinBox *spinBoxWidth;
+    QSpinBox *spinBoxHeight;
 };
 
 #endif

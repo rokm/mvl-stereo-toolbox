@@ -42,11 +42,13 @@ StereoMethod::~StereoMethod ()
 // *********************************************************************
 void StereoMethod::setImageDimensions (int width, int height, int channels)
 {
-    imageWidth = width;
-    imageHeight = height;
-    imageChannels = channels;
+    if (imageWidth != width || imageHeight != height || imageChannels != channels) {
+        imageWidth = width;
+        imageHeight = height;
+        imageChannels = channels;
 
-    emit imageDimensionsChanged();
+        emit imageDimensionsChanged();
+    }
 }
 
 int StereoMethod::getImageWidth () const
