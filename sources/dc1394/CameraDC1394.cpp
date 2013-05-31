@@ -39,24 +39,17 @@ CameraDC1394::CameraDC1394 (dc1394camera_t *c, QObject *parent)
 
     // Capture thread
     captureActive = false;
-
-    // Config widget
-    configWidget = new CameraDC1394ConfigWidget(this);
 }
 
 CameraDC1394::~CameraDC1394 ()
 {
     // Make sure capture is stopped
     stopCapture();
-
-    // Unparent the config widget and destroy it
-    configWidget->setParent(0);
-    delete configWidget;
 }
 
-QWidget *CameraDC1394::getConfigWidget ()
+QWidget *CameraDC1394::createConfigWidget (QWidget *parent)
 {
-    return configWidget;
+    return new CameraDC1394ConfigWidget(this, parent);
 }
 
 

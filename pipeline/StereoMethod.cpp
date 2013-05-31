@@ -25,8 +25,6 @@
 StereoMethod::StereoMethod (QObject *parent)
     : QObject(parent)
 {
-    configWidget = NULL;
-
     // Default image dimensions
     imageWidth = 640;
     imageHeight = 480;
@@ -36,6 +34,16 @@ StereoMethod::StereoMethod (QObject *parent)
 StereoMethod::~StereoMethod ()
 {
 }
+
+
+// *********************************************************************
+// *                            Method name                            *
+// *********************************************************************
+const QString &StereoMethod::getShortName () const
+{
+    return shortName;
+}
+
 
 // *********************************************************************
 // *                        Image dimensions                           *
@@ -111,16 +119,3 @@ void StereoMethod::saveParameters (cv::FileStorage &storage) const
     // Actual parameter saving is implemented by children...
 }
 
-
-// *********************************************************************
-// *                           Config widget                           *
-// *********************************************************************
-const QString &StereoMethod::getShortName () const
-{
-    return shortName;
-}
-
-QWidget *StereoMethod::getConfigWidget ()
-{
-    return configWidget;
-}

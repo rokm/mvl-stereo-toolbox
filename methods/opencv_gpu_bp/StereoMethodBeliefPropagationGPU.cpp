@@ -27,16 +27,25 @@ StereoMethodBeliefPropagationGPU::StereoMethodBeliefPropagationGPU (QObject *par
     : StereoMethod(parent)
 {
     shortName = "BP_GPU";
-    configWidget = new StereoMethodBeliefPropagationGPUConfigWidget(this);
 }
 
 StereoMethodBeliefPropagationGPU::~StereoMethodBeliefPropagationGPU ()
 {
-    // Unparent the config widget and destroy it
-    configWidget->setParent(0);
-    delete configWidget;
 }
 
+
+// *********************************************************************
+// *                           Config widget                           *
+// *********************************************************************
+QWidget *StereoMethodBeliefPropagationGPU::createConfigWidget (QWidget *parent)
+{
+    return new StereoMethodBeliefPropagationGPUConfigWidget(this, parent);
+}
+
+
+// *********************************************************************
+// *                              Preset                               *
+// *********************************************************************
 void StereoMethodBeliefPropagationGPU::usePreset (int type)
 {
     switch (type) {

@@ -109,7 +109,7 @@ GuiStereoMethod::GuiStereoMethod (StereoPipeline *p, QList<StereoMethod *> &m, Q
 
     // Create config tabs
     for (int i = 0; i < methods.size(); i++) {
-        tabWidget->addTab(methods[i]->getConfigWidget(), methods[i]->getShortName());
+        tabWidget->addTab(methods[i]->createConfigWidget(this), methods[i]->getShortName());
     }
 
     // Method selection

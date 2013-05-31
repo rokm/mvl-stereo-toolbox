@@ -40,7 +40,7 @@ public:
     virtual ~CameraDC1394 ();
 
     // Config widget
-    QWidget *getConfigWidget ();
+    QWidget *createConfigWidget (QWidget * = 0);
 
     // Camera identification
     dc1394camera_id_t getId () const;

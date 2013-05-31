@@ -30,19 +30,27 @@ StereoMethodSemiGlobalBlockMatching::StereoMethodSemiGlobalBlockMatching (QObjec
 {
     // Config interface
     shortName = "SGBM";
-    configWidget = new StereoMethodSemiGlobalBlockMatchingConfigWidget(this);
 
     usePreset(OpenCV);
 }
 
 StereoMethodSemiGlobalBlockMatching::~StereoMethodSemiGlobalBlockMatching ()
 {
-    // Unparent the config widget and destroy it
-    configWidget->setParent(0);
-    delete configWidget;
 }
 
 
+// *********************************************************************
+// *                           Config widget                           *
+// *********************************************************************
+QWidget *StereoMethodSemiGlobalBlockMatching::createConfigWidget (QWidget *parent)
+{
+    return new StereoMethodSemiGlobalBlockMatchingConfigWidget(this, parent);
+}
+
+
+// *********************************************************************
+// *                              Preset                               *
+// *********************************************************************
 void StereoMethodSemiGlobalBlockMatching::usePreset (int type)
 {
     switch (type) {

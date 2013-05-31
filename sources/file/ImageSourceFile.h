@@ -32,6 +32,8 @@ public:
     ImageSourceFile (QObject * = 0);
     virtual ~ImageSourceFile ();
 
+    virtual QWidget *createConfigWidget (QWidget * = 0);
+
     void loadImagePair (const QString &, const QString &);
 
     const QString &getLeftFilename () const;

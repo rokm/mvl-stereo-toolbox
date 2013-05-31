@@ -27,16 +27,25 @@ StereoMethodBlockMatchingGPU::StereoMethodBlockMatchingGPU (QObject *parent)
     : StereoMethod(parent)
 {
     shortName = "BM_GPU";
-    configWidget = new StereoMethodBlockMatchingGPUConfigWidget(this);
 }
 
 StereoMethodBlockMatchingGPU::~StereoMethodBlockMatchingGPU ()
 {
-    // Unparent the config widget and destroy it
-    configWidget->setParent(0);
-    delete configWidget;
 }
 
+
+// *********************************************************************
+// *                           Config widget                           *
+// *********************************************************************
+QWidget *StereoMethodBlockMatchingGPU::createConfigWidget (QWidget *parent)
+{
+    return new StereoMethodBlockMatchingGPUConfigWidget(this, parent);
+}
+
+
+// *********************************************************************
+// *                             Defaults                              *
+// *********************************************************************
 void StereoMethodBlockMatchingGPU::resetToDefaults ()
 {
     bm = cv::gpu::StereoBM_GPU();

@@ -43,7 +43,12 @@ public:
     int getImageWidth () const;
     int getImageHeight () const;
     int getImageChannels () const;
-    
+
+    // Config widget
+    virtual QWidget *createConfigWidget (QWidget * = 0) = 0;
+
+    const QString &getShortName () const;
+
     // Disparity image computation
     virtual void computeDisparityImage (const cv::Mat &, const cv::Mat &, cv::Mat &, int &) = 0;
 
@@ -53,10 +58,6 @@ public:
 
     void saveParameters (const QString &) const;
     virtual void saveParameters (cv::FileStorage &) const;
-
-    // Config interface
-    const QString &getShortName () const;
-    QWidget *getConfigWidget ();
 
     // Generic parameter setting
     template <typename T> void setParameter (T &parameter, const T &newValue) {
@@ -73,7 +74,6 @@ signals:
 
 protected:
     QString shortName;
-    QWidget *configWidget;
 
     // Image dimensions
     int imageWidth;

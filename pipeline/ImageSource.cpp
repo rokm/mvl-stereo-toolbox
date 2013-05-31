@@ -31,6 +31,18 @@ ImageSource::~ImageSource ()
 {
 }
 
+// *********************************************************************
+// *                            Source name                            *
+// *********************************************************************
+const QString &ImageSource::getShortName () const
+{
+    return shortName;
+}
+
+
+// *********************************************************************
+// *                          Image retrieval                          *
+// *********************************************************************
 void ImageSource::getImages (cv::Mat &left, cv::Mat &right)
 {
     // Copy images under lock, in case source implements dynamic image grab
@@ -38,18 +50,4 @@ void ImageSource::getImages (cv::Mat &left, cv::Mat &right)
     
     left = imageLeft;
     right = imageRight;
-}
-
-
-// *********************************************************************
-// *                           Config widget                           *
-// *********************************************************************
-const QString &ImageSource::getShortName () const
-{
-    return shortName;
-}
-
-QWidget *ImageSource::getConfigWidget ()
-{
-    return configWidget;
 }

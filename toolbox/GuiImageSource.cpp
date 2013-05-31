@@ -104,7 +104,7 @@ GuiImageSource::GuiImageSource (StereoPipeline *p, QList<ImageSource *> &s, QWid
 
     // Create config tabs
     for (int i = 0; i < sources.size(); i++) {
-        tabWidget->addTab(sources[i]->getConfigWidget(), sources[i]->getShortName());
+        tabWidget->addTab(sources[i]->createConfigWidget(this), sources[i]->getShortName());
     }
 
     // Method selection

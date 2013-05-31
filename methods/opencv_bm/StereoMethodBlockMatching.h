@@ -35,6 +35,9 @@ public:
     StereoMethodBlockMatching (QObject * = 0);
     virtual ~StereoMethodBlockMatching ();
 
+    // Config widget
+    virtual QWidget *createConfigWidget (QWidget * = 0);
+
     // Disparity image computation
     virtual void computeDisparityImage (const cv::Mat &, const cv::Mat &, cv::Mat &, int &);
 

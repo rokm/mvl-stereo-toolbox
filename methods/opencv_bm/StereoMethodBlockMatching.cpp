@@ -29,19 +29,27 @@ StereoMethodBlockMatching::StereoMethodBlockMatching (QObject *parent)
     : StereoMethod(parent)
 {
     shortName = "BM";
-    configWidget = new StereoMethodBlockMatchingConfigWidget(this);
 
     usePreset(OpenCVBasic);
 }
 
 StereoMethodBlockMatching::~StereoMethodBlockMatching ()
 {
-    // Unparent the config widget and destroy it
-    configWidget->setParent(0);
-    delete configWidget;
 }
 
 
+// *********************************************************************
+// *                           Config widget                           *
+// *********************************************************************
+QWidget *StereoMethodBlockMatching::createConfigWidget (QWidget *parent)
+{
+    return new StereoMethodBlockMatchingConfigWidget(this, parent);
+}
+
+
+// *********************************************************************
+// *                              Preset                               *
+// *********************************************************************
 void StereoMethodBlockMatching::usePreset (int type)
 {
     switch (type) {
@@ -80,6 +88,7 @@ void StereoMethodBlockMatching::usePreset (int type)
 
     emit parameterChanged();
 }
+
 
 // *********************************************************************
 // *                    Disparity image computation                    *

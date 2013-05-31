@@ -39,17 +39,28 @@ ImageSourceDC1394::ImageSourceDC1394 (QObject *parent)
     // Perform initial scan
     scanBus();
 
-    // Config widget
+    // Name
     shortName = "DC1394";
-    configWidget = new ImageSourceDC1394ConfigWidget(this);
 }
 
 ImageSourceDC1394::~ImageSourceDC1394 ()
 {
+    // Stop capture
+    startStopCapture(false);
+
+    // Release FireWire bus
     if (fw) {
         dc1394_free(fw);
     }
 }
+
+
+QWidget *ImageSourceDC1394::createConfigWidget (QWidget *parent)
+{
+    return new ImageSourceDC1394ConfigWidget(this, parent);
+}
+
+
 
 CameraListModel *ImageSourceDC1394::getCameraListModel ()
 {

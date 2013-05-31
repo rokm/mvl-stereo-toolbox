@@ -29,15 +29,18 @@ ImageSourceFile::ImageSourceFile (QObject *parent)
     : ImageSource(parent)
 {
     shortName = "FILE";
-    configWidget = new ImageSourceFileConfigWidget(this);
 }
 
 ImageSourceFile::~ImageSourceFile ()
 {
-    // Unparent the config widget and destroy it
-    configWidget->setParent(0);
-    delete configWidget;
 }
+
+
+QWidget *ImageSourceFile::createConfigWidget (QWidget *parent)
+{
+    return new ImageSourceFileConfigWidget(this, parent);
+}
+
 
 
 void ImageSourceFile::loadImagePair (const QString &left, const QString &right)

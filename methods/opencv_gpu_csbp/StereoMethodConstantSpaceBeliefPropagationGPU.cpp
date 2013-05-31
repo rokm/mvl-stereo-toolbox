@@ -27,18 +27,27 @@ StereoMethodConstantSpaceBeliefPropagationGPU::StereoMethodConstantSpaceBeliefPr
     : StereoMethod(parent)
 {
     shortName = "CSBP_GPU";
-    configWidget = new StereoMethodConstantSpaceBeliefPropagationGPUConfigWidget(this);
 
     usePreset(OpenCVInit);
 }
 
 StereoMethodConstantSpaceBeliefPropagationGPU::~StereoMethodConstantSpaceBeliefPropagationGPU ()
 {
-    // Unparent the config widget and destroy it
-    configWidget->setParent(0);
-    delete configWidget;
 }
 
+
+// *********************************************************************
+// *                           Config widget                           *
+// *********************************************************************
+QWidget *StereoMethodConstantSpaceBeliefPropagationGPU::createConfigWidget (QWidget *parent)
+{
+    return new StereoMethodConstantSpaceBeliefPropagationGPUConfigWidget(this, parent);
+}
+
+
+// *********************************************************************
+// *                              Preset                               *
+// *********************************************************************
 void StereoMethodConstantSpaceBeliefPropagationGPU::usePreset (int type)
 {
     switch (type) {

@@ -29,19 +29,27 @@ StereoMethodELAS::StereoMethodELAS (QObject *parent)
     : StereoMethod(parent), param(Elas::parameters(Elas::ROBOTICS)), elas(param), returnLeft(true)
 {
     shortName = "ELAS";
-    configWidget = new StereoMethodELASConfigWidget(this);
 
     usePreset(ElasRobotics);
 }
 
 StereoMethodELAS::~StereoMethodELAS ()
 {
-    // Unparent the config widget and destroy it
-    configWidget->setParent(0);
-    delete configWidget;
 }
 
 
+// *********************************************************************
+// *                           Config widget                           *
+// *********************************************************************
+QWidget *StereoMethodELAS::createConfigWidget (QWidget *parent)
+{
+    return new StereoMethodELASConfigWidget(this, parent);
+}
+
+
+// *********************************************************************
+// *                              Preset                               *
+// *********************************************************************
 void StereoMethodELAS::usePreset (int type)
 {
     switch (type) {

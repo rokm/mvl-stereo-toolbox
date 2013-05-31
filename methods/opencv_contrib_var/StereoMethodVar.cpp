@@ -29,18 +29,27 @@ StereoMethodVar::StereoMethodVar (QObject *parent)
     : StereoMethod(parent)
 {
     shortName = "Var";
-    configWidget = new StereoMethodVarConfigWidget(this);
 
     usePreset(OpenCV);
 }
 
 StereoMethodVar::~StereoMethodVar ()
 {
-    // Unparent the config widget and destroy it
-    configWidget->setParent(0);
-    delete configWidget;
 }
 
+
+// *********************************************************************
+// *                           Config widget                           *
+// *********************************************************************
+QWidget *StereoMethodVar::createConfigWidget (QWidget *parent)
+{
+    return new StereoMethodVarConfigWidget(this, parent);
+}
+
+
+// *********************************************************************
+// *                              Preset                               *
+// *********************************************************************
 void StereoMethodVar::usePreset (int type)
 {
     switch (type) {

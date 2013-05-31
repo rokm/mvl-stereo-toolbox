@@ -39,14 +39,14 @@ public:
 
     // Config interface
     const QString &getShortName () const;
-    QWidget *getConfigWidget ();
+
+    virtual QWidget *createConfigWidget (QWidget * = 0) = 0;
 
 signals:
     void imagesChanged ();
 
 protected:
     QString shortName;
-    QWidget *configWidget;
 
     // Images
     QReadWriteLock imagesLock;
