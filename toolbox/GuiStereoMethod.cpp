@@ -38,9 +38,8 @@ GuiStereoMethod::GuiStereoMethod (StereoPipeline *p, QList<StereoMethod *> &m, Q
     setWindowTitle("Stereo method");
     resize(800, 600);
 
-    QGridLayout *layout = new QGridLayout(this);
+    QVBoxLayout *layout = new QVBoxLayout(this);
     layout->setContentsMargins(2, 2, 2, 2);
-    setLayout(layout);
 
     // Buttons
     QHBoxLayout *buttonsLayout = new QHBoxLayout();
@@ -50,7 +49,7 @@ GuiStereoMethod::GuiStereoMethod (StereoPipeline *p, QList<StereoMethod *> &m, Q
     QDoubleSpinBox *spinBoxD;
     QHBoxLayout *box;    
     
-    layout->addLayout(buttonsLayout, 0, 0, 1, 2);
+    layout->addLayout(buttonsLayout);
 
     buttonsLayout->addStretch();
 
@@ -86,25 +85,32 @@ GuiStereoMethod::GuiStereoMethod (StereoPipeline *p, QList<StereoMethod *> &m, Q
 
     buttonsLayout->addStretch();
 
-    // Disparity image
-    displayDisparityImage = new ImageDisplayWidget("Disparity image", this);
-    displayDisparityImage->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    layout->addWidget(displayDisparityImage, 2, 1);
-
+    // Splitter - disparity image and methods
+    QSplitter *splitter = new QSplitter(Qt::Horizontal, this);
+    splitter->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    layout->addWidget(splitter);
+    
     // Methods
     QScrollArea *scrollArea = new QScrollArea(this);
     scrollArea->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    layout->addWidget(scrollArea, 2, 0);
+    scrollArea->resize(400, 600); // Make sure scroll area has some size
+    splitter->addWidget(scrollArea);
     
     QTabWidget *tabWidget = new QTabWidget(scrollArea);
     tabWidget->setTabPosition(QTabWidget::West);
 
     scrollArea->setWidget(tabWidget);
     scrollArea->setWidgetResizable(true);
+    
+    // Disparity image
+    displayDisparityImage = new ImageDisplayWidget("Disparity image", this);
+    displayDisparityImage->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    displayDisparityImage->resize(400, 600); // Make sure scroll area has some size
+    splitter->addWidget(displayDisparityImage);
 
     // Status bar
     statusBar = new QStatusBar(this);
-    layout->addWidget(statusBar, 3, 0, 1, 2);
+    layout->addWidget(statusBar);
 
 
     // Create config tabs
