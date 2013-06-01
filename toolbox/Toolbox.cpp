@@ -226,6 +226,7 @@ void Toolbox::loadSources (QDir &rootDir, QList<ImageSource *> &sources)
             qDebug() << "Plugin successfully loaded!";
             ImageSource *source = qobject_cast<ImageSource *>(plugin);
             if (source) {
+                source->setParent(this);
                 sources.append(source);
             } else {
                 qDebug() << "Failed to cast plugged object to ImageSource class!";
@@ -260,6 +261,7 @@ void Toolbox::loadMethods (QDir &rootDir, QList<StereoMethod *> &methods)
             qDebug() << "Plugin successfully loaded!";
             StereoMethod *method = qobject_cast<StereoMethod *>(plugin);
             if (method) {
+                method->setParent(this);
                 methods.append(method);
             } else {
                 qDebug() << "Failed to cast plugged object to StereoMethod class!";
