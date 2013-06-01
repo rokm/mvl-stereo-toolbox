@@ -215,15 +215,12 @@ void Toolbox::loadSources (QDir &rootDir, QList<ImageSource *> &sources)
             continue;
         }
 
-        // Load plugin
-        qDebug() << "Trying to load plugin:" << fileName;
-        
+        // Load plugin       
         QPluginLoader loader(fileName);
         loader.setLoadHints(QLibrary::ResolveAllSymbolsHint);
 
         QObject *plugin = loader.instance();
         if (plugin) {
-            qDebug() << "Plugin successfully loaded!";
             ImageSource *source = qobject_cast<ImageSource *>(plugin);
             if (source) {
                 source->setParent(this);
@@ -250,15 +247,12 @@ void Toolbox::loadMethods (QDir &rootDir, QList<StereoMethod *> &methods)
             continue;
         }
 
-        // Load plugin
-        qDebug() << "Trying to load plugin:" << fileName;
-        
+        // Load plugin        
         QPluginLoader loader(fileName);
         loader.setLoadHints(QLibrary::ResolveAllSymbolsHint);
         
         QObject *plugin = loader.instance();
         if (plugin) {
-            qDebug() << "Plugin successfully loaded!";
             StereoMethod *method = qobject_cast<StereoMethod *>(plugin);
             if (method) {
                 method->setParent(this);
