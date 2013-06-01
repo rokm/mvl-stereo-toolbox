@@ -1,0 +1,12 @@
+prefix=@CMAKE_INSTALL_PREFIX@
+exec_prefix=${prefix}
+libdir=@CMAKE_INSTALL_FULL_LIBDIR@
+includedir=@CMAKE_INSTALL_FULL_INCLUDEDIR@
+plugindir=@MVL_STEREO_PIPELINE_PLUGIN_DIR@
+
+Name: @PROJECT_NAME@
+Description: MVL Stereo Pipeline shared library
+Version: @MIRAGE_VERSION_LONG@
+Libs: -L${libdir} -lmvl_stereo_pipeline
+Cflags: -I${includedir}/mvl_stereo_pipeline
+

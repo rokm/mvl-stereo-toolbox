@@ -1,5 +1,5 @@
 /*
- * Stereo Pipeline: image source
+ * Stereo Pipeline: plugin interface
  * Copyright (C) 2013 Rok Mandeljc
  *
  * This program is free software; you can redistribute it and/or modify
@@ -19,40 +19,28 @@
  * 
  */
 
-#ifndef IMAGE_SOURCE_H
-#define IMAGE_SOURCE_H
+#ifndef PLUGIN_FACTORY_H
+#define PLUGIN_FACTORY_H
 
-#include <QtCore>
-
-#include <opencv2/core/core.hpp>
+#include <QtPlugin>
 
 
-class ImageSource : public QObject
+class PluginFactory : public QObject
 {
     Q_OBJECT
 
 public:
-    ImageSource (QObject * = 0);
-    virtual ~ImageSource ();
+    enum PluginType {
+        PluginStereoMethod,
+        PluginImageSource,
+    };
 
-    const QString &getShortName () const;
-
-    virtual void getImages (cv::Mat &, cv::Mat &);
-
-    // Config widget
-    virtual QWidget *createConfigWidget (QWidget * = 0) = 0;
-
-signals:
-    void imagesChanged ();
-
-protected:
-    QString shortName;
+    virtual PluginType getPluginType () const = 0;
     
-    // Images
-    QReadWriteLock imagesLock;
+    virtual QString getShortName () const = 0;
+    virtual QString getDescription () const = 0;
     
-    cv::Mat imageLeft;
-    cv::Mat imageRight;
+    virtual QObject *createObject (QObject * = 0) const = 0;    
 };
 
 #endif

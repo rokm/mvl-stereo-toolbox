@@ -37,6 +37,8 @@ public:
     StereoMethod (QObject * = 0);
     virtual ~StereoMethod ();
 
+    const QString &getShortName () const;
+
     // Image information
     void setImageDimensions (int, int, int);
     
@@ -46,8 +48,6 @@ public:
 
     // Config widget
     virtual QWidget *createConfigWidget (QWidget * = 0) = 0;
-
-    const QString &getShortName () const;
 
     // Disparity image computation
     virtual void computeDisparityImage (const cv::Mat &, const cv::Mat &, cv::Mat &, int &) = 0;

@@ -22,6 +22,7 @@
 #include "Toolbox.h"
 
 #include "ImageSource.h"
+#include "PluginFactory.h"
 #include "StereoRectification.h"
 #include "StereoMethod.h"
 #include "StereoPipeline.h"
@@ -41,18 +42,7 @@ Toolbox::Toolbox ()
     rectification = new StereoRectification(pipeline);
     pipeline->setRectification(rectification);
 
-    // Load image source and method plugins; look for path stored in
-    // MVL_STEREO_TOOLBOX_PLUGIN_DIR, otherwise use application path
-    QDir pluginRoot;
-    QByteArray pluginEnvVariable = qgetenv ("MVL_STEREO_TOOLBOX_PLUGIN_DIR");
-    if (!pluginEnvVariable.isEmpty()) {
-        pluginRoot = QDir(pluginEnvVariable);
-    } else {
-        pluginRoot = QDir(qApp->applicationDirPath());
-    }
-
-    loadSources(pluginRoot, imageSources);
-    loadMethods(pluginRoot, stereoMethods);
+    loadPlugins();
 
     // Create windows
     windowImageSource = new GuiImageSource(pipeline, imageSources, this);
@@ -186,82 +176,26 @@ void Toolbox::setPushButtonStereoMethodActiveState (bool active)
 // *********************************************************************
 // *                          Plugin loading                           *
 // *********************************************************************
-static void recursiveDirectoryScan (QDir dir, QStringList &files)
+void Toolbox::loadPlugins ()
 {
-    // List all files in current directory
-    dir.setFilter(QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks);
-    foreach (QString fileName, dir.entryList()) {
-        files.append(dir.absoluteFilePath(fileName));
-    }
-
-    // List all directories and recursively scan them
-    dir.setFilter(QDir::AllDirs | QDir::NoDotAndDotDot | QDir::NoSymLinks);
-    foreach (QString dirName, dir.entryList()) {
-        recursiveDirectoryScan(dir.absoluteFilePath(dirName), files);
-    }
-}
-
-
-void Toolbox::loadSources (QDir &rootDir, QList<ImageSource *> &sources)
-{
-    QStringList files;
-
-    // Recursively scan "sources" directory for plugin files
-    recursiveDirectoryScan(rootDir.absoluteFilePath("sources"), files);
-    
-    foreach (QString fileName, files) {
-        // Make sure it is a library
-        if (!QLibrary::isLibrary(fileName)) {
-            continue;
-        }
-
-        // Load plugin       
-        QPluginLoader loader(fileName);
-        loader.setLoadHints(QLibrary::ResolveAllSymbolsHint);
-
-        QObject *plugin = loader.instance();
-        if (plugin) {
-            ImageSource *source = qobject_cast<ImageSource *>(plugin);
-            if (source) {
-                source->setParent(this);
-                sources.append(source);
-            } else {
-                qDebug() << "Failed to cast plugged object to ImageSource class!";
+    foreach (PluginFactory *plugin, pipeline->getAvailablePlugins()) {
+        switch (plugin->getPluginType()) {
+            case PluginFactory::PluginStereoMethod: {
+                QObject *method = plugin->createObject(this);
+                if (method) {
+                    stereoMethods.append(qobject_cast<StereoMethod *>(method));
+                }
+                break;
             }
-        } else {
-            qDebug() << "Failed to load plugin:" << loader.errorString();            
-        }
-    }
-}
-
-void Toolbox::loadMethods (QDir &rootDir, QList<StereoMethod *> &methods)
-{
-    QStringList files;
-
-    // Recursively scan "methods" directory for plugin files
-    recursiveDirectoryScan(rootDir.absoluteFilePath("methods"), files);
-    
-    foreach (QString fileName, files) {
-        // Make sure it is a library
-        if (!QLibrary::isLibrary(fileName)) {
-            continue;
-        }
-
-        // Load plugin        
-        QPluginLoader loader(fileName);
-        loader.setLoadHints(QLibrary::ResolveAllSymbolsHint);
-        
-        QObject *plugin = loader.instance();
-        if (plugin) {
-            StereoMethod *method = qobject_cast<StereoMethod *>(plugin);
-            if (method) {
-                method->setParent(this);
-                methods.append(method);
-            } else {
-                qDebug() << "Failed to cast plugged object to StereoMethod class!";
+            case PluginFactory::PluginImageSource: {
+                QObject *source = plugin->createObject(this);
+                if (source) {
+                    imageSources.append(qobject_cast<ImageSource *>(source));
+                }
             }
-        } else {
-            qDebug() << "Failed to load plugin:" << loader.errorString();            
+            default: {
+                break;
+            }            
         }
     }
 }

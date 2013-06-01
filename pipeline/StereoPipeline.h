@@ -28,6 +28,7 @@
 
 
 class ImageSource;
+class PluginFactory;
 class StereoRectification;
 class StereoMethod;
 
@@ -39,6 +40,11 @@ public:
     StereoPipeline (QObject * = 0);
     virtual ~StereoPipeline ();
 
+    // Plugin management
+    void setPluginDirectory (const QString & = QString());
+    QString getPluginDirectory () const;
+    const QList<PluginFactory *> getAvailablePlugins () const;
+    
     // Image source
     void setImageSource (ImageSource *);
 
@@ -104,6 +110,10 @@ signals:
     void centerRoiChanged ();
 
 protected:
+    // Plugin management
+    QDir pluginDirectory;
+    QList<PluginFactory *> plugins;
+
     // Image source
     bool imageSourceActive;
     ImageSource *imageSource;

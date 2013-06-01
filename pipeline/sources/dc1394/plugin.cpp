@@ -1,5 +1,5 @@
 /*
- * Stereo Pipeline: image source
+ * DC1394 Image Source: plugin
  * Copyright (C) 2013 Rok Mandeljc
  *
  * This program is free software; you can redistribute it and/or modify
@@ -19,40 +19,26 @@
  * 
  */
 
-#ifndef IMAGE_SOURCE_H
-#define IMAGE_SOURCE_H
+#include "PluginFactory.h"
+#include "ImageSourceDC1394.h"
 
-#include <QtCore>
-
-#include <opencv2/core/core.hpp>
-
-
-class ImageSource : public QObject
+class Plugin : public PluginFactory
 {
-    Q_OBJECT
-
-public:
-    ImageSource (QObject * = 0);
-    virtual ~ImageSource ();
-
-    const QString &getShortName () const;
-
-    virtual void getImages (cv::Mat &, cv::Mat &);
-
-    // Config widget
-    virtual QWidget *createConfigWidget (QWidget * = 0) = 0;
-
-signals:
-    void imagesChanged ();
-
-protected:
-    QString shortName;
+    PluginType getPluginType () const {
+        return PluginImageSource;
+    }
     
-    // Images
-    QReadWriteLock imagesLock;
+    QString getShortName () const {
+        return "DC1394";
+    }
     
-    cv::Mat imageLeft;
-    cv::Mat imageRight;
+    QString getDescription () const {
+        return "DC1394 FireWire Camera Pair Image Source";
+    }
+    
+    QObject *createObject (QObject *parent = 0) const {
+        return new ImageSourceDC1394(parent);
+    }
 };
 
-#endif
+Q_EXPORT_PLUGIN2(dc1394, Plugin)

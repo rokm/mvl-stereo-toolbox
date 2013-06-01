@@ -55,9 +55,8 @@ protected slots:
 protected:
     void createGui ();
 
-    void loadSources (QDir &, QList<ImageSource *> &);
-    void loadMethods (QDir &, QList<StereoMethod *> &);
-
+    void loadPlugins ();
+    
 protected:
     GuiImageSource *windowImageSource;
     GuiRectification *windowRectification;

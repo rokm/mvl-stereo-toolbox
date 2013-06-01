@@ -38,4 +38,4 @@ add_executable(MVLStereoToolbox ${toolbox_SOURCES} ${toolbox_HEADERS_MOC})
 
 target_link_libraries(MVLStereoToolbox ${QT_LIBRARIES})
 target_link_libraries(MVLStereoToolbox ${OpenCV_LIBS})
-target_link_libraries(MVLStereoToolbox stereo_pipeline)
+target_link_libraries(MVLStereoToolbox mvl_stereo_pipeline)
