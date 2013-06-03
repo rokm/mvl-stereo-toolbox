@@ -173,6 +173,7 @@ void ImageSourceDC1394ConfigWidget::deviceSelected (QWidget *&deviceConfig, QFra
     if (deviceConfig) {
         deviceFrame->layout()->removeWidget(deviceConfig);
         deviceConfig->deleteLater();
+        deviceConfig = NULL;
     }
     
     // Set new device
