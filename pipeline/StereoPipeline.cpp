@@ -198,6 +198,7 @@ void StereoPipeline::setImageSource (ImageSource *newSource)
 {
     // Change source
     if (imageSource) {
+        imageSource->stopSource(); // Stop the source
         disconnect(imageSource, SIGNAL(imagesChanged()), this, SLOT(beginProcessing()));
     }
 

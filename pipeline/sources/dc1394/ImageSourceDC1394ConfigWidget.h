@@ -38,13 +38,11 @@ public:
 
 protected slots:
     void deviceSelected (int);
-    void startStopCapture (bool);
     
 protected:
     QWidget *createDeviceFrame (bool);
 
     void deviceSelected (QWidget *&, QFrame *&, QComboBox *&, int);
-    void startStopCapture (CameraDC1394 *, bool);
 
 protected:
     ImageSourceDC1394 *source;

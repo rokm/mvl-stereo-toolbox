@@ -61,6 +61,11 @@ QWidget *ImageSourceDC1394::createConfigWidget (QWidget *parent)
 }
 
 
+void ImageSourceDC1394::stopSource ()
+{
+    startStopCapture(false);
+}
+
 
 CameraListModel *ImageSourceDC1394::getCameraListModel ()
 {

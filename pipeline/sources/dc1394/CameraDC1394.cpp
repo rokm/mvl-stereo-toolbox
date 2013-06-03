@@ -45,6 +45,9 @@ CameraDC1394::~CameraDC1394 ()
 {
     // Make sure capture is stopped
     stopCapture();
+
+    // Free camera
+    dc1394_camera_free(camera);
 }
 
 QWidget *CameraDC1394::createConfigWidget (QWidget *parent)
@@ -345,6 +348,8 @@ void CameraDC1394::captureFunction ()
     }
 
     qDebug() << this << "Capture function ended!";
+
+    emit captureFinished();
 }
 
 void CameraDC1394::startCapture ()

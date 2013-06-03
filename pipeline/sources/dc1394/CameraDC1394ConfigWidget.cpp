@@ -37,11 +37,14 @@ CameraDC1394ConfigWidget::CameraDC1394ConfigWidget (CameraDC1394 *c, QWidget *pa
 
     QLabel *label;
     QComboBox *comboBox;
+    QPushButton *button;
     QFrame *line;
 
     QString tooltip;
 
     connect(camera, SIGNAL(parameterChanged()), this, SLOT(updateParameters()));
+    connect(camera, SIGNAL(captureStarted()), this, SLOT(updateCameraState()));
+    connect(camera, SIGNAL(captureFinished()), this, SLOT(updateCameraState()));
 
     // Separator
     line = new QFrame(this);
@@ -64,6 +67,24 @@ CameraDC1394ConfigWidget::CameraDC1394ConfigWidget (CameraDC1394 *c, QWidget *pa
     label->setToolTip(tooltip);
 
     layout->addRow(label);
+
+    // Separator
+    line = new QFrame(this);
+    line->setFrameStyle(QFrame::HLine | QFrame::Sunken);
+
+    layout->addRow(line);
+
+    
+    // Capture
+    tooltip = "Start/stop capture.";
+    
+    button = new QPushButton("Capture", this);
+    button->setToolTip(tooltip);
+    button->setCheckable(true);
+    connect(button, SIGNAL(toggled(bool)), this, SLOT(captureButtonToggled(bool)));
+    pushButtonCapture = button;
+
+    layout->addRow(button);
 
     // Separator
     line = new QFrame(this);
@@ -167,6 +188,21 @@ void CameraDC1394ConfigWidget::updateParameters ()
     comboBoxFramerate->setCurrentIndex(comboBoxFramerate->findData(camera->getFramerate()));
 }
 
+
+void CameraDC1394ConfigWidget::captureButtonToggled (bool start)
+{
+    if (start) {
+        camera->startCapture();
+    } else {
+        camera->stopCapture();
+    }
+}
+
+
+void CameraDC1394ConfigWidget::updateCameraState ()
+{
+    pushButtonCapture->setChecked(camera->getCaptureState());
+}
 
 
 // *********************************************************************

@@ -39,6 +39,8 @@ public:
 
     virtual void getImages (cv::Mat &, cv::Mat &);
 
+    virtual void stopSource ();
+
     // Config widget
     virtual QWidget *createConfigWidget (QWidget * = 0) = 0;
 

@@ -86,7 +86,6 @@ QWidget *ImageSourceDC1394ConfigWidget::createDeviceFrame (bool left)
     QFrame *deviceFrame, *frame;
     QLabel *label;
     QComboBox *comboBox;
-    QPushButton *button;
     QFrame *line;
     QString tooltip;
 
@@ -116,21 +115,6 @@ QWidget *ImageSourceDC1394ConfigWidget::createDeviceFrame (bool left)
         comboBoxRightDevice = comboBox;
     }
     layout->addRow(comboBox);
-
-    // Capture
-    tooltip = "Start/stop capture.";
-    
-    button = new QPushButton("Capture", deviceFrame);
-    button->setToolTip(tooltip);
-    button->setCheckable(true);
-    connect(button, SIGNAL(toggled(bool)), this, SLOT(startStopCapture(bool)));
-    if (left) {
-        pushButtonCaptureLeftDevice = button;
-    } else {
-        pushButtonCaptureRightDevice = button;
-    }
-
-    layout->addRow(button);
 
     // Camera config frame
     frame = new QFrame(deviceFrame);
@@ -192,31 +176,5 @@ void ImageSourceDC1394ConfigWidget::deviceSelected (QWidget *&deviceConfig, QFra
     if (newDevice) {
         deviceConfig = newDevice->createConfigWidget(this);
         deviceFrame->layout()->addWidget(deviceConfig);
-    }
-}
-
-
-// *********************************************************************
-// *                     Device start/stop capture                     *
-// *********************************************************************
-void ImageSourceDC1394ConfigWidget::startStopCapture (bool start)
-{
-    if (QObject::sender() == pushButtonCaptureLeftDevice) {
-        startStopCapture(source->getLeftCamera(), start);        
-    } else {
-        startStopCapture(source->getRightCamera(), start);
-    }
-}
-
-void ImageSourceDC1394ConfigWidget::startStopCapture (CameraDC1394 *device, bool start)
-{
-    if (!device) {
-        return;
-    }
-    
-    if (start) {
-        device->startCapture();
-    } else {
-        device->stopCapture();
     }
 }

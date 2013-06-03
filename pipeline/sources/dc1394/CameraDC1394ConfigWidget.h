@@ -36,6 +36,9 @@ public:
     virtual ~CameraDC1394ConfigWidget ();
 
 protected slots:
+    void captureButtonToggled (bool);
+    void updateCameraState ();
+
     void modeChanged (int);
     void framerateChanged (int);
 
@@ -46,6 +49,8 @@ protected:
 
 protected:
     CameraDC1394 *camera;
+
+    QPushButton *pushButtonCapture;
 
     QComboBox *comboBoxMode;
     QComboBox *comboBoxFramerate;

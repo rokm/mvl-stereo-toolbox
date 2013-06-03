@@ -109,10 +109,15 @@ void StereoMethodBlockMatching::computeDisparityImage (const cv::Mat &img1, cons
 
     
     // Compute depth image
+    tmpDisparity.create(img1.rows, img1.cols, CV_16SC1);
     bm(tmpImg1, tmpImg2, tmpDisparity);
 
     // Normalize to output
-    tmpDisparity.convertTo(disparity, CV_8U, 255/(bm.state->numberOfDisparities*16.));
+    if (tmpDisparity.type() == CV_16SC1) {
+        tmpDisparity.convertTo(disparity, CV_8U, 255/(bm.state->numberOfDisparities*16.));
+    } else if (tmpDisparity.type() == CV_32FC1) {
+        tmpDisparity.convertTo(disparity, CV_8U);
+    }
 
     // Number of disparities
     numDisparities = getNumDisparities();

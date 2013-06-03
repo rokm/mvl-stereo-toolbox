@@ -38,6 +38,8 @@ public:
     ImageSourceDC1394 (QObject * = 0);
     virtual ~ImageSourceDC1394 ();
 
+    virtual void stopSource ();
+
     virtual QWidget *createConfigWidget (QWidget * = 0);
 
     CameraListModel *getCameraListModel();

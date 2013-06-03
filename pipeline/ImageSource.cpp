@@ -51,3 +51,12 @@ void ImageSource::getImages (cv::Mat &left, cv::Mat &right)
     left = imageLeft;
     right = imageRight;
 }
+
+
+// *********************************************************************
+// *                            Source stop                            *
+// *********************************************************************
+void ImageSource::stopSource ()
+{
+    // Default implementation does nothing
+}
