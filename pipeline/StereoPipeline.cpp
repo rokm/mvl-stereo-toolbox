@@ -60,6 +60,15 @@ StereoPipeline::StereoPipeline (QObject *parent)
 
 StereoPipeline::~StereoPipeline ()
 {
+    // Disable all ...
+    setImageSourceState(false);
+    setRectificationState(false);
+    setStereoMethodState(false);
+
+    // ... and wait for method thread to finish
+    if (stereoMethodWatcher.isRunning()) {
+        stereoMethodWatcher.waitForFinished();
+    }
 }
 
 // *********************************************************************
