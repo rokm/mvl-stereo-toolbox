@@ -38,13 +38,27 @@ CameraDC1394::CameraDC1394 (dc1394camera_t *c, QObject *parent)
     //dc1394_feature_print_all(&features, stdout);
 
     // Capture thread
-    captureActive = false;
+    captureThread = new QThread(this);
+    captureWorker = new CameraDC1394CaptureWorker(camera); // No parent, so we can move it to thread!
+    captureWorker->moveToThread(captureThread);
+
+    // Start/stop
+    connect(captureThread, SIGNAL(started()), captureWorker, SLOT(startCapture()));
+    connect(this, SIGNAL(workerStopCapture()), captureWorker, SLOT(stopCapture()), Qt::BlockingQueuedConnection);
+    // Passthrough signals
+    connect(captureWorker, SIGNAL(captureStarted()), this, SIGNAL(captureStarted()));
+    connect(captureWorker, SIGNAL(captureFinished()), this, SIGNAL(captureStarted()));
+    connect(captureWorker, SIGNAL(frameReady()), this, SIGNAL(frameReady()));
+    connect(captureWorker, SIGNAL(error(const QString)), this, SIGNAL(error(const QString)));
 }
 
 CameraDC1394::~CameraDC1394 ()
 {
     // Make sure capture is stopped
     stopCapture();
+
+    // Delete capture worker
+    delete captureWorker;
 
     // Free camera
     dc1394_camera_free(camera);
@@ -326,14 +340,60 @@ dc1394feature_mode_t CameraDC1394::getFeatureMode (dc1394feature_t feature)
 }
 
 
+void CameraDC1394::startCapture ()
+{
+    if (!captureThread->isRunning()) {
+        captureThread->start();
+    } else {
+        qWarning() << this << "Capture already running!";
+    }
+}
+
+void CameraDC1394::stopCapture ()
+{
+    if (captureThread->isRunning()) {
+        qDebug() << "Stopping capture; current thread:" << QThread::currentThread();
+        emit workerStopCapture(); // Note: this is blocking connection
+
+        // Stop the thread and make sure it finished
+        captureThread->quit();
+        captureThread->wait();
+    }
+}
+
+bool CameraDC1394::getCaptureState () const
+{
+    return captureThread->isRunning();
+}
+
+
 // *********************************************************************
-// *                         Capture start/stop                        *
+// *                           Frame access                            *
 // *********************************************************************
-void CameraDC1394::captureFunction ()
+void CameraDC1394::copyFrame (cv::Mat &frame)
+{
+    captureWorker->copyFrame(frame);
+}
+
+
+
+// *********************************************************************
+// *                          Capture worker                           *
+// *********************************************************************
+CameraDC1394CaptureWorker::CameraDC1394CaptureWorker (dc1394camera_t *c, QObject *parent)
+    : QObject(parent), camera(c), frameNotifier(0)
+{
+}
+
+CameraDC1394CaptureWorker::~CameraDC1394CaptureWorker ()
+{
+}
+
+void CameraDC1394CaptureWorker::startCapture ()
 {
     dc1394error_t ret;
 
-    qDebug() << this << "Starting capture function...";
+    qDebug() << this << "Starting capture worker" << QThread::currentThread();
 
     // Setup capture
     ret = dc1394_capture_setup(camera, NUM_BUFFERS, DC1394_CAPTURE_FLAGS_DEFAULT);
@@ -351,22 +411,24 @@ void CameraDC1394::captureFunction ()
         return;
     }
 
-    captureActive = true;
-    dc1394video_frame_t *frame;
+    // Create notifier
+    frameNotifier = new QSocketNotifier(dc1394_capture_get_fileno(camera), QSocketNotifier::Read, this);
+    connect(frameNotifier, SIGNAL(activated(int)), this, SLOT(grabFrame()));
 
-    while (captureActive) {
-        dequeueCaptureBuffer(frame, true);
+    emit captureStarted();
+}
 
-        frameBufferLock.lockForWrite();
-        convertToOpenCVImage(frame, frameBuffer);
-        frameBufferLock.unlock();
-        emit frameReady();
+void CameraDC1394CaptureWorker::stopCapture ()
+{
+    dc1394error_t ret;
 
-        enqueueCaptureBuffer(frame);
-    }
+    qDebug() << "Stopping capture worker" << QThread::currentThread();
     
-
     // Cleanup
+    disconnect(frameNotifier, SIGNAL(activated(int)), this, SLOT(grabFrame()));
+    delete frameNotifier;
+    frameNotifier = NULL;
+
     ret = dc1394_video_set_transmission(camera, DC1394_OFF);
     if (ret) {
         qWarning() << "Could not stop camera ISO transmission!";
@@ -375,47 +437,43 @@ void CameraDC1394::captureFunction ()
     ret = dc1394_capture_stop(camera);
     if (ret) {
         qWarning() << "Could not stop camera capture!";
-
     }
-
-    qDebug() << this << "Capture function ended!";
 
     emit captureFinished();
 }
 
-void CameraDC1394::startCapture ()
-{
-    if (!captureWatcher.isRunning()) {
-        // Start capture function
-        QFuture<void> future = QtConcurrent::run(this, &CameraDC1394::captureFunction);
-        captureWatcher.setFuture(future);
-    } else {
-        qWarning() << this << "Capture already running!";
-    }
-}
 
-void CameraDC1394::stopCapture ()
+void CameraDC1394CaptureWorker::copyFrame (cv::Mat &frame)
 {
-    if (captureWatcher.isRunning()) {
-        captureActive = false;
-
-        // Make sure capture thread finishes
-        captureWatcher.waitForFinished();
-    } else {
-        qWarning() << this << "Capture not running!";
-    }
-}
-
-bool CameraDC1394::getCaptureState () const
-{
-    return captureActive;
+    // Copy under lock
+    QReadLocker lock(&frameBufferLock);
+    frameBuffer.copyTo(frame);
 }
 
 
-// *********************************************************************
-// *                    Advanced grabbing interface                    *
-// *********************************************************************
-void CameraDC1394::dequeueCaptureBuffer (dc1394video_frame_t *&frame, bool drainQueue)
+void CameraDC1394CaptureWorker::grabFrame ()
+{    
+    dc1394video_frame_t *frame;
+
+    // Disable notifier, as per Qt docs
+    frameNotifier->setEnabled(false);
+
+    // Grab frame
+    dequeueCaptureBuffer(frame, true);
+
+    frameBufferLock.lockForWrite();
+    convertToOpenCVImage(frame, frameBuffer);
+    frameBufferLock.unlock();
+    emit frameReady();
+
+    enqueueCaptureBuffer(frame);
+
+    // Re-enable notifier
+    frameNotifier->setEnabled(true);
+}
+
+
+void CameraDC1394CaptureWorker::dequeueCaptureBuffer (dc1394video_frame_t *&frame, bool drainQueue)
 {
     dc1394error_t ret;
     
@@ -439,19 +497,18 @@ void CameraDC1394::dequeueCaptureBuffer (dc1394video_frame_t *&frame, bool drain
     }
 }
 
-void CameraDC1394::enqueueCaptureBuffer (dc1394video_frame_t *frame)
+void CameraDC1394CaptureWorker::enqueueCaptureBuffer (dc1394video_frame_t *frame)
 {
     dc1394error_t ret;
 
     // Enqueue
-    ret = dc1394_capture_enqueue (camera, frame);
+    ret = dc1394_capture_enqueue(camera, frame);
     if (ret) {
         qWarning() << "Could not enque buffer!";
-        return;
     }
 }
 
-void CameraDC1394::convertToOpenCVImage (dc1394video_frame_t *frame, cv::Mat &image) const
+void CameraDC1394CaptureWorker::convertToOpenCVImage (dc1394video_frame_t *frame, cv::Mat &image) const
 {
     // Determine if image is monochrome or color
     dc1394bool_t isColor = DC1394_FALSE;
@@ -471,12 +528,4 @@ void CameraDC1394::convertToOpenCVImage (dc1394video_frame_t *frame, cv::Mat &im
     }
 }
 
-// *********************************************************************
-// *                           Frame access                            *
-// *********************************************************************
-void CameraDC1394::copyFrame (cv::Mat &frame)
-{
-    // Copy under lock
-    QReadLocker lock(&frameBufferLock);
-    frameBuffer.copyTo(frame);
-}
+

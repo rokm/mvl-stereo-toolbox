@@ -29,6 +29,7 @@
 #include <opencv2/core/core.hpp>
 
 
+class CameraDC1394CaptureWorker;
 class CameraDC1394ConfigWidget;
 
 class CameraDC1394 : public QObject
@@ -85,8 +86,50 @@ public:
     // Frame
     void copyFrame (cv::Mat &);
 
+signals:
+    void captureStarted ();
+    void captureFinished ();
+    void frameReady ();
+
+    void error (const QString);
+
+    void parameterChanged ();
+
+    void workerStopCapture ();
+
+protected:
+    dc1394camera_id_t id;
+    
+    dc1394camera_t *camera;
+    dc1394featureset_t features;
+
+    QSocketNotifier *frameNotifier;
+
+    // Capture thread
+    QThread *captureThread;
+    CameraDC1394CaptureWorker *captureWorker;
+
+    // Config widget
+    CameraDC1394ConfigWidget *configWidget;
+};
+
+
+class CameraDC1394CaptureWorker : public QObject
+{
+    Q_OBJECT
+
+public:
+    CameraDC1394CaptureWorker (dc1394camera_t *, QObject * = 0);
+    virtual ~CameraDC1394CaptureWorker ();
+
+    void copyFrame (cv::Mat &);
+
+public slots:
+    void startCapture ();
+    void stopCapture ();
+
 protected slots:
-    void captureFunction ();
+    void grabFrame ();
 
 protected:
     void dequeueCaptureBuffer (dc1394video_frame_t *&, bool);
@@ -100,22 +143,14 @@ signals:
 
     void error (const QString);
 
-    void parameterChanged ();
-
 protected:
-    dc1394camera_id_t id;
-    
     dc1394camera_t *camera;
-    dc1394featureset_t features;
 
-    // Frame buffer
-    QFutureWatcher<void> captureWatcher;
-    bool captureActive;
+    QSocketNotifier *frameNotifier;
+
     cv::Mat frameBuffer;
     QReadWriteLock frameBufferLock;
-
-    // Config widget
-    CameraDC1394ConfigWidget *configWidget;
 };
+
 
 #endif
