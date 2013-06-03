@@ -67,6 +67,9 @@ public:
     void setFeatureValue (dc1394feature_t, int);
     int getFeatureValue (dc1394feature_t);
 
+    void setFeatureAbsoluteValue (dc1394feature_t, double);
+    double getFeatureAbsoluteValue (dc1394feature_t);
+
     QList<dc1394feature_mode_t> getFeatureModes (dc1394feature_t);
     void setFeatureMode (dc1394feature_t, dc1394feature_mode_t);
     dc1394feature_mode_t getFeatureMode (dc1394feature_t);

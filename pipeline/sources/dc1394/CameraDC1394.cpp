@@ -235,6 +235,8 @@ void CameraDC1394::setFeatureValue (dc1394feature_t feature, int newValue)
     if (ret) {
         qDebug() << "Failed to set feature value!";
     }
+
+    emit parameterChanged();
 }
 
 int CameraDC1394::getFeatureValue (dc1394feature_t feature)
@@ -249,6 +251,33 @@ int CameraDC1394::getFeatureValue (dc1394feature_t feature)
 
     return value;
 }
+
+
+void CameraDC1394::setFeatureAbsoluteValue (dc1394feature_t feature, double newValue)
+{
+    dc1394error_t ret;
+
+    ret = dc1394_feature_set_absolute_value(camera, feature, newValue);
+    if (ret) {
+        qDebug() << "Failed to set feature absolute value!";
+    }
+
+    emit parameterChanged();
+}
+
+double CameraDC1394::getFeatureAbsoluteValue (dc1394feature_t feature)
+{
+    float value;
+    dc1394error_t ret;
+    
+    ret = dc1394_feature_get_absolute_value(camera, feature, &value);
+    if (ret) {
+        qDebug() << "Failed to get feature value!";
+    }
+
+    return value;
+}
+
 
 
 QList<dc1394feature_mode_t> CameraDC1394::getFeatureModes (dc1394feature_t feature)
@@ -279,6 +308,8 @@ void CameraDC1394::setFeatureMode (dc1394feature_t feature, dc1394feature_mode_t
     if (ret) {
         qDebug() << "Failed to set feature mode!";
     }
+
+    emit parameterChanged();
 }
 
 dc1394feature_mode_t CameraDC1394::getFeatureMode (dc1394feature_t feature)

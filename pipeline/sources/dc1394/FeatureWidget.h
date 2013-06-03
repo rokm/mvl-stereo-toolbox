@@ -51,6 +51,7 @@ protected:
 
     QSpinBox *spinBoxValue;
     QComboBox *comboBoxMode;
+    QDoubleSpinBox *spinBoxAbsoluteValue;
 };
 
 #endif

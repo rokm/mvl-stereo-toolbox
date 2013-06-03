@@ -157,7 +157,6 @@ void CameraDC1394ConfigWidget::addFeatureWidgets ()
 
             qobject_cast<QFormLayout *>(layout())->addRow(label, widget);
         }
-
     }
 }
 

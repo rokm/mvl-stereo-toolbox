@@ -37,6 +37,7 @@ FeatureWidget::FeatureWidget (CameraDC1394 *c, const dc1394feature_info_t &f, QW
     
     // Value
     spinBoxValue = new QSpinBox(this);
+    spinBoxValue->setKeyboardTracking(false);
     spinBoxValue->setRange(feature.min, feature.max);
     connect(spinBoxValue, SIGNAL(valueChanged(int)), this, SLOT(setValue(int)));
     layout()->addWidget(spinBoxValue);
@@ -55,6 +56,18 @@ FeatureWidget::FeatureWidget (CameraDC1394 *c, const dc1394feature_info_t &f, QW
     if (availableModes.size() < 2) {
         comboBoxMode->hide();
     }
+    
+    // Absolute value
+    if (feature.absolute_capable) {
+        spinBoxAbsoluteValue = new QDoubleSpinBox(this);
+        spinBoxAbsoluteValue->setKeyboardTracking(false);
+        spinBoxAbsoluteValue->setDecimals(6);
+        spinBoxAbsoluteValue->setEnabled(false);
+        spinBoxAbsoluteValue->setRange(feature.abs_min, feature.abs_max);
+        connect(spinBoxAbsoluteValue, SIGNAL(valueChanged(double)), this, SLOT(setFeatureAbsoluteValue(double)));
+        layout()->addWidget(spinBoxAbsoluteValue);
+    }
+
 
     // Update parameters
     updateParameters();
@@ -69,6 +82,10 @@ void FeatureWidget::updateParameters ()
 {
     spinBoxValue->setValue(camera->getFeatureValue(feature.id));
     comboBoxMode->setCurrentIndex(comboBoxMode->findData(camera->getFeatureMode(feature.id)));
+
+    if (feature.absolute_capable) {
+        spinBoxAbsoluteValue->setValue(camera->getFeatureAbsoluteValue(feature.id));
+    }
 }
 
 
