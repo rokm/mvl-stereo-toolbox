@@ -40,10 +40,10 @@ public:
 
 protected slots:
     void setValue (int);
+    void setAbsoluteValue (double);
     void modeChanged (int);
 
     void updateParameters ();
-
 
 protected:
     CameraDC1394 *camera;

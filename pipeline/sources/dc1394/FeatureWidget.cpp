@@ -64,7 +64,7 @@ FeatureWidget::FeatureWidget (CameraDC1394 *c, const dc1394feature_info_t &f, QW
         spinBoxAbsoluteValue->setDecimals(6);
         spinBoxAbsoluteValue->setEnabled(false);
         spinBoxAbsoluteValue->setRange(feature.abs_min, feature.abs_max);
-        connect(spinBoxAbsoluteValue, SIGNAL(valueChanged(double)), this, SLOT(setFeatureAbsoluteValue(double)));
+        connect(spinBoxAbsoluteValue, SIGNAL(valueChanged(double)), this, SLOT(setAbsoluteValue(double)));
         layout()->addWidget(spinBoxAbsoluteValue);
     }
 
@@ -92,6 +92,11 @@ void FeatureWidget::updateParameters ()
 void FeatureWidget::setValue (int newValue)
 {
     camera->setFeatureValue(feature.id, newValue);
+}
+
+void FeatureWidget::setAbsoluteValue (double newValue)
+{
+    camera->setFeatureAbsoluteValue(feature.id, newValue);
 }
 
 void FeatureWidget::modeChanged (int index)
