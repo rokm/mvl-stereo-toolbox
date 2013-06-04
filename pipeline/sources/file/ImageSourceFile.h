@@ -22,6 +22,8 @@
 #ifndef IMAGE_SOURCE_FILE_H
 #define IMAGE_SOURCE_FILE_H
 
+#include <QtNetwork>
+
 #include "ImageSource.h"
 
 class ImageSourceFile : public ImageSource
@@ -32,9 +34,11 @@ public:
     ImageSourceFile (QObject * = 0);
     virtual ~ImageSourceFile ();
 
+    virtual void stopSource ();
+
     virtual QWidget *createConfigWidget (QWidget * = 0);
 
-    void loadImagePair (const QString &, const QString &);
+    void loadImagePair (const QString &, const QString &, bool);
 
     const QString &getLeftFilename () const;
     int getLeftWidth () const;
@@ -45,10 +49,37 @@ public:
     int getRightWidth () const;
     int getRightHeight () const;
     int getRightChannels () const;
+
+    bool getPeriodicRefreshState () const;
+    int getRefreshPeriod () const;
+    
+public slots:
+    void setPeriodicRefreshState (bool);
+    void setRefreshPeriod (int);
+
+protected slots:
+    void periodicRefresh ();
+    void processRemoteReply (QNetworkReply *);
+
+protected:
+    void loadLocalImages ();
+    void loadRemoteImages ();
+    void imageLoadingError (const QString &);
+
+signals:
+    void periodicRefreshStateChanged (bool);
+    void refreshPeriodChanged (int);
     
 protected:
+    QTimer *refreshTimer;
+    int refreshPeriod;
+
     QString filenameLeft;
     QString filenameRight;
+
+    bool remote;
+    QNetworkAccessManager *network;
+    QNetworkReply *replyLeft, *replyRight;
 };
 
 #endif

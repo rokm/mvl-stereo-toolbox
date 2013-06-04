@@ -26,6 +26,7 @@
 
 
 class ImageSourceFile;
+class UrlDialog;
 
 class ImageSourceFileConfigWidget : public QWidget
 {
@@ -36,14 +37,42 @@ public:
     virtual ~ImageSourceFileConfigWidget ();
 
 protected slots:
-    void loadImages ();
+    void loadFiles ();
+    void loadUrls ();
+
+    void updateImageInformation ();
 
 protected:
     ImageSourceFile *source;
 
-    QPushButton *buttonLoadImages;
+    QPushButton *pushButtonLoadFiles;
+    QPushButton *pushButtonLoadUrls;
+
+    QPushButton *pushButtonPeriodicRefresh;
+
+    QSpinBox *spinBoxRefreshPeriod;
+    
     QLabel *labelFilenameLeft;
     QLabel *labelFilenameRight;
+
+    UrlDialog *dialogUrl;
+};
+
+
+class UrlDialog : public QDialog
+{
+    Q_OBJECT
+
+public:
+    UrlDialog (QWidget * = 0);
+    virtual ~UrlDialog ();
+
+    QString getUrlLeft () const;
+    QString getUrlRight () const;
+
+protected:
+    QTextEdit *textEditUrl1;
+    QTextEdit *textEditUrl2;
 };
 
 #endif

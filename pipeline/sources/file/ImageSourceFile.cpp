@@ -29,6 +29,15 @@ ImageSourceFile::ImageSourceFile (QObject *parent)
     : ImageSource(parent)
 {
     shortName = "FILE";
+
+    refreshPeriod = 1000;
+    refreshTimer = new QTimer(this);
+    connect(refreshTimer, SIGNAL(timeout()), this, SLOT(periodicRefresh()));
+
+    remote = false;
+    network = new QNetworkAccessManager(this);
+    connect(network, SIGNAL(finished(QNetworkReply *)), this, SLOT(processRemoteReply(QNetworkReply *)));
+    replyLeft = replyRight = NULL;
 }
 
 ImageSourceFile::~ImageSourceFile ()
@@ -42,16 +51,24 @@ QWidget *ImageSourceFile::createConfigWidget (QWidget *parent)
 }
 
 
+void ImageSourceFile::stopSource ()
+{
+    // Stop periodic refresh
+    setPeriodicRefreshState(false);
+}
 
-void ImageSourceFile::loadImagePair (const QString &left, const QString &right)
+
+void ImageSourceFile::loadImagePair (const QString &left, const QString &right, bool remoteAccess)
 {
     filenameLeft = left;
-    imageLeft = cv::imread(filenameLeft.toStdString());
-    
     filenameRight = right;
-    imageRight = cv::imread(filenameRight.toStdString());
+    remote = remoteAccess;
 
-    emit imagesChanged();
+    // Loading images stops the periodic update
+    setPeriodicRefreshState(false);
+
+    // Load images via periodicRefresh() function
+    periodicRefresh();
 }
 
 
@@ -101,3 +118,128 @@ int ImageSourceFile::getRightChannels () const
 {
     return imageRight.channels();
 }
+
+
+// *********************************************************************
+// *                         Periodic refresh                          *
+// *********************************************************************
+void ImageSourceFile::setPeriodicRefreshState (bool enable)
+{
+    if (enable == refreshTimer->isActive()) {
+        return;
+    }
+
+    if (enable) {
+        refreshTimer->start(refreshPeriod);
+        periodicRefresh();
+    } else {
+        refreshTimer->stop();
+    }
+
+    emit periodicRefreshStateChanged(enable);
+}
+
+bool ImageSourceFile::getPeriodicRefreshState () const
+{
+    return refreshTimer->isActive();
+}
+
+int ImageSourceFile::getRefreshPeriod () const
+{
+    return refreshPeriod;
+}
+
+void ImageSourceFile::setRefreshPeriod (int newPeriod)
+{
+    if (refreshPeriod == newPeriod) {
+        return;
+    }
+
+    refreshPeriod = newPeriod;
+
+    // Restart timer if it is running
+    if (refreshTimer->isActive()) {
+        refreshTimer->start(refreshPeriod);
+    }
+
+    emit refreshPeriodChanged(refreshPeriod);
+}
+
+
+
+void ImageSourceFile::periodicRefresh ()
+{
+    if (remote) {
+        loadRemoteImages();
+    } else {
+        loadLocalImages();
+    }
+}
+
+void ImageSourceFile::imageLoadingError (const QString &errorDescription)
+{
+    qWarning() << qPrintable(errorDescription);
+    emit error(errorDescription);
+
+    // Stop periodic refresh (no-op if already inactive)
+    setPeriodicRefreshState(false);
+}
+
+void ImageSourceFile::loadLocalImages ()
+{
+    try {
+        // Load both images and amit the change signal
+        imageLeft = cv::imread(filenameLeft.toStdString(), -1);
+        imageRight = cv::imread(filenameRight.toStdString(), -1);
+        emit imagesChanged();
+    } catch (std::exception e) {
+        imageLoadingError(QString("Error while loading images: %1").arg(QString::fromStdString(e.what())));
+    }
+}
+
+void ImageSourceFile::loadRemoteImages ()
+{
+    // Make sure we are not already processing requests
+    if ((replyLeft && replyLeft->isRunning()) || (replyRight && replyRight->isRunning())) {
+        imageLoadingError("Still processing previous request for remote images!");
+        return;
+    }
+
+    // Submit network requests
+    replyLeft = network->get(QNetworkRequest(filenameLeft));
+    replyRight = network->get(QNetworkRequest(filenameRight));
+}
+
+void ImageSourceFile::processRemoteReply (QNetworkReply *reply)
+{
+    if (reply->error() != QNetworkReply::NoError) {
+        imageLoadingError(QString("Error while retrieving left image; network error code %1").arg(reply->error()));
+    } else {
+        QByteArray payload = reply->readAll();
+        reply->deleteLater();
+
+        // Set output image, and decode
+        cv::Mat *image;
+        if (reply == replyLeft) {
+            replyLeft = NULL;
+            image = &imageLeft;
+        } else {
+            replyRight = NULL;
+            image = &imageRight;
+        }
+
+        try {
+            cv::imdecode(cv::Mat(1, payload.size(), CV_8UC1, payload.data()), -1, image);
+        } catch (std::exception e) {
+            imageLoadingError(QString("Error while decoding retrieved image: %1").arg(QString::fromStdString(e.what())));
+        }
+    }
+
+    // If both images have been retrieved, send signal
+    if (!replyLeft && !replyRight) {
+        emit imagesChanged();
+    }
+}
+
+
+

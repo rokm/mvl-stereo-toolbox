@@ -47,6 +47,8 @@ public:
 signals:
     void imagesChanged ();
 
+    void error (const QString);
+
 protected:
     QString shortName;
     
