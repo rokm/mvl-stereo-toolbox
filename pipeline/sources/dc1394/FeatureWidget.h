@@ -49,6 +49,8 @@ protected:
     CameraDC1394 *camera;
     dc1394feature_info_t feature;
 
+    QTimer *updateTimer;
+
     QSpinBox *spinBoxValue;
     QComboBox *comboBoxMode;
     QDoubleSpinBox *spinBoxAbsoluteValue;

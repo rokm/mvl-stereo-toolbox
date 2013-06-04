@@ -37,6 +37,7 @@ FeatureWidget::FeatureWidget (CameraDC1394 *c, const dc1394feature_info_t &f, QW
     
     // Value
     spinBoxValue = new QSpinBox(this);
+    spinBoxValue->setToolTip(QString("Min: %1 Max: %2").arg(feature.min).arg(feature.max));
     spinBoxValue->setKeyboardTracking(false);
     spinBoxValue->setRange(feature.min, feature.max);
     connect(spinBoxValue, SIGNAL(valueChanged(int)), this, SLOT(setValue(int)));
@@ -68,8 +69,10 @@ FeatureWidget::FeatureWidget (CameraDC1394 *c, const dc1394feature_info_t &f, QW
         layout()->addWidget(spinBoxAbsoluteValue);
     }
 
-
-    // Update parameters
+    // Update parameter
+    updateTimer = new QTimer(this);
+    connect(updateTimer, SIGNAL(timeout()), this, SLOT(updateParameters()));
+    
     updateParameters();
 }
 
@@ -80,11 +83,33 @@ FeatureWidget::~FeatureWidget ()
 
 void FeatureWidget::updateParameters ()
 {
+    bool oldState;
+    
+    // Value
+    oldState = spinBoxValue->blockSignals(true);
     spinBoxValue->setValue(camera->getFeatureValue(feature.id));
-    comboBoxMode->setCurrentIndex(comboBoxMode->findData(camera->getFeatureMode(feature.id)));
+    spinBoxValue->blockSignals(oldState);
 
+    // Mode
+    oldState = comboBoxMode->blockSignals(true);
+    comboBoxMode->setCurrentIndex(comboBoxMode->findData(camera->getFeatureMode(feature.id)));
+    comboBoxMode->blockSignals(oldState);
+
+    // Absolute value
     if (feature.absolute_capable) {
+        oldState = spinBoxAbsoluteValue->blockSignals(true);
         spinBoxAbsoluteValue->setValue(camera->getFeatureAbsoluteValue(feature.id));
+        spinBoxAbsoluteValue->blockSignals(oldState);
+    }
+
+    // If mode is auto, disable the controls and enable the refresh timer,
+    // otherwise, disable timer and enable control
+    if (comboBoxMode->itemData(comboBoxMode->currentIndex()) == DC1394_FEATURE_MODE_AUTO) {
+        spinBoxValue->setEnabled(false);
+        updateTimer->start(1000);
+    } else {
+        spinBoxValue->setEnabled(true);
+        updateTimer->stop();
     }
 }
 
