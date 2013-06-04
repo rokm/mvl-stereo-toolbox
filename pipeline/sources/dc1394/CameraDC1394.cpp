@@ -145,7 +145,7 @@ QVector<dc1394video_mode_t> CameraDC1394::getSupportedModes ()
     }
 
     modes.resize(raw_modes.num);
-    for (int i = 0; i < raw_modes.num; i++) {
+    for (unsigned int i = 0; i < raw_modes.num; i++) {
         modes[i] = raw_modes.modes[i];
     }
 
@@ -196,7 +196,7 @@ QVector<dc1394framerate_t> CameraDC1394::getSupportedFramerates ()
     }
 
     framerates.resize(raw_framerates.num);
-    for (int i = 0; i < raw_framerates.num; i++) {
+    for (unsigned int i = 0; i < raw_framerates.num; i++) {
         framerates[i] = raw_framerates.framerates[i];
     }
 
@@ -307,7 +307,7 @@ QList<dc1394feature_mode_t> CameraDC1394::getFeatureModes (dc1394feature_t featu
         return modes;
     }
 
-    for (int i = 0; i < raw_modes.num; i++) {
+    for (unsigned int i = 0; i < raw_modes.num; i++) {
         modes.append(raw_modes.modes[i]);
     }
 

@@ -140,4 +140,6 @@ static const QString featureModeToString (dc1394feature_mode_t mode)
         case DC1394_FEATURE_MODE_AUTO: return "Auto";
         case DC1394_FEATURE_MODE_ONE_PUSH_AUTO: return "One push auto";  
     }
+
+    return "INVALID";
 }

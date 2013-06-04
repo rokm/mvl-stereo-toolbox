@@ -148,7 +148,7 @@ void CameraDC1394ConfigWidget::addFeatureWidgets ()
     QLabel *label;
     FeatureWidget *widget;
 
-    for (int i = 0; i < sizeof(featureSet.feature)/sizeof(featureSet.feature[0]); i++) {
+    for (unsigned int i = 0; i < sizeof(featureSet.feature)/sizeof(featureSet.feature[0]); i++) {
         const dc1394feature_info_t &feature = featureSet.feature[i];
         
         if (feature.available) {
@@ -245,6 +245,8 @@ static const QString videoModeToString (dc1394video_mode_t mode)
         CASE_ENTRY(DC1394_VIDEO_MODE_FORMAT7_6)
         CASE_ENTRY(DC1394_VIDEO_MODE_FORMAT7_7)
     }
+
+    return "INVALID";
 }
 
 static const QString framerateToString (dc1394framerate_t framerate)
@@ -259,4 +261,6 @@ static const QString framerateToString (dc1394framerate_t framerate)
         CASE_ENTRY(DC1394_FRAMERATE_120)
         CASE_ENTRY(DC1394_FRAMERATE_240)
     }
+
+    return "INVALID";
 }

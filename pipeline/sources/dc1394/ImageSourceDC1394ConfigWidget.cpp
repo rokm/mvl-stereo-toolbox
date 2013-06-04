@@ -35,9 +35,8 @@ ImageSourceDC1394ConfigWidget::ImageSourceDC1394ConfigWidget (ImageSourceDC1394 
     QFormLayout *layout = new QFormLayout(this);
 
     QLabel *label;
-    QFrame *line, *frame;
+    QFrame *line;
     QPushButton *button;
-    QComboBox *comboBox;
     QString tooltip;
 
     // Name
@@ -86,7 +85,6 @@ QWidget *ImageSourceDC1394ConfigWidget::createDeviceFrame (bool left)
     QFrame *deviceFrame, *frame;
     QLabel *label;
     QComboBox *comboBox;
-    QFrame *line;
     QString tooltip;
 
     QFormLayout *layout;
@@ -137,10 +135,6 @@ QWidget *ImageSourceDC1394ConfigWidget::createDeviceFrame (bool left)
 // *********************************************************************
 void ImageSourceDC1394ConfigWidget::deviceSelected (int index)
 {
-    QWidget **deviceConfig;
-    QFrame **frame;
-    QComboBox **comboBox;
-
     if (QObject::sender() == comboBoxLeftDevice) {
         deviceSelected(configLeftDevice, frameLeftDevice, comboBoxLeftDevice, index);
     } else if (QObject::sender() == comboBoxRightDevice) {

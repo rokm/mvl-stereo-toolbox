@@ -36,7 +36,7 @@ void CameraListModel::setDeviceList (const dc1394camera_list_t *list)
     beginResetModel();
     
     entries.clear();
-    for (int i = 0; i < list->num; i++) {
+    for (unsigned int i = 0; i < list->num; i++) {
         entries.append(list->ids[i]);
     }
     active.resize(list->num);
