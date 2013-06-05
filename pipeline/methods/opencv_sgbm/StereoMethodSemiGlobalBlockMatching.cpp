@@ -88,7 +88,9 @@ void StereoMethodSemiGlobalBlockMatching::usePreset (int type)
 void StereoMethodSemiGlobalBlockMatching::computeDisparityImage (const cv::Mat &img1, const cv::Mat &img2, cv::Mat &disparity, int &numDisparities)
 {
     // Compute disparity image
+    mutex.lock();
     sgbm(img1, img2, tmpDisparity);
+    mutex.unlock();
 
     // Normalize to output
     tmpDisparity.convertTo(disparity, CV_8U, 255/(sgbm.numberOfDisparities*16.));

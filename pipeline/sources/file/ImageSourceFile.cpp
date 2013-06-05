@@ -201,7 +201,8 @@ void ImageSourceFile::loadRemoteImages ()
 {
     // Make sure we are not already processing requests
     if ((replyLeft && replyLeft->isRunning()) || (replyRight && replyRight->isRunning())) {
-        imageLoadingError("Still processing previous request for remote images!");
+        //imageLoadingError("Still processing previous request for remote images!");
+        qDebug() << "Still processing the previous request for remote images!";
         return;
     }
 

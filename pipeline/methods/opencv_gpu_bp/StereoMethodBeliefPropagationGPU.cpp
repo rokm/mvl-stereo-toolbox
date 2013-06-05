@@ -80,7 +80,9 @@ void StereoMethodBeliefPropagationGPU::computeDisparityImage (const cv::Mat &img
         cv::gpu::GpuMat gpu_img2(img2);
 
         // Compute disparity image
+        mutex.lock();
         bp(gpu_img1, gpu_img2, gpu_disp);
+        mutex.unlock();
     }
     
     // Convert and download

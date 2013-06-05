@@ -63,7 +63,10 @@ public:
     template <typename T> void setParameter (T &parameter, const T &newValue) {
         // Set only if necessary
         if (parameter != newValue) {
+            mutex.lock();
             parameter = newValue;
+            mutex.unlock();
+            
             emit parameterChanged();
         }
     }
@@ -74,6 +77,8 @@ signals:
 
 protected:
     QString shortName;
+
+    QMutex mutex;
 
     // Image dimensions
     int imageWidth;

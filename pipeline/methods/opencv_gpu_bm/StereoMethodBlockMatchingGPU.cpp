@@ -76,7 +76,9 @@ void StereoMethodBlockMatchingGPU::computeDisparityImage (const cv::Mat &img1, c
     }
 
     // Compute disparity image
+    mutex.lock();
     bm(gpu_img1, gpu_img2, gpu_disp);
+    mutex.unlock();
 
     // Download
     gpu_disp.download(disparity);

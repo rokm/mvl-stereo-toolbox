@@ -37,6 +37,16 @@ StereoMethodELAS::~StereoMethodELAS ()
 }
 
 
+void StereoMethodELAS::createElasObject ()
+{
+    mutex.lock();
+    elas = Elas(param);
+    mutex.unlock();
+    
+    emit parameterChanged();
+}
+
+
 // *********************************************************************
 // *                           Config widget                           *
 // *********************************************************************
@@ -64,8 +74,8 @@ void StereoMethodELAS::usePreset (int type)
         }
     };
 
-    elas = Elas(param);
-    emit parameterChanged();
+    // Create ELAS object
+    createElasObject();
 }
 
 
@@ -100,7 +110,9 @@ void StereoMethodELAS::computeDisparityImage (const cv::Mat &img1, const cv::Mat
     }
 
     // Process
+    mutex.lock();
     elas.process(tmpImg1.ptr<uint8_t>(), tmpImg2.ptr<uint8_t>(), tmpDisp1.ptr<float>(), tmpDisp2.ptr<float>(), dims);
+    mutex.unlock();
 
     // Convert to output
     if (returnLeft) {
@@ -155,9 +167,9 @@ void StereoMethodELAS::loadParameters (const cv::FileStorage &storage)
     storage["Subsampling"] >> param.subsampling;
     
     storage["ReturnLeft"] >> returnLeft;
-    
-    elas = Elas(param);
-    emit parameterChanged();
+
+    // Create ELAS object
+    createElasObject();
 }
 
 void StereoMethodELAS::saveParameters (cv::FileStorage &storage) const

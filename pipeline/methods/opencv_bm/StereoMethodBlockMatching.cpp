@@ -108,9 +108,12 @@ void StereoMethodBlockMatching::computeDisparityImage (const cv::Mat &img1, cons
     }
 
     
-    // Compute depth image
+    // Compute disparity image
     tmpDisparity.create(img1.rows, img1.cols, CV_16SC1);
+
+    mutex.lock();
     bm(tmpImg1, tmpImg2, tmpDisparity);
+    mutex.unlock();
 
     // Normalize to output
     if (tmpDisparity.type() == CV_16SC1) {

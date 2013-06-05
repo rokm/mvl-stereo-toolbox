@@ -52,8 +52,8 @@ public:
         if (parameter != newValue) {
             parameter = newValue;
 
-            elas = Elas(param);
-            emit parameterChanged();
+            // Create Elas object
+            createElasObject();
         }
     }
 
@@ -129,6 +129,9 @@ public slots:
     void setSubsampling (bool);
 
     void setReturnLeft (bool);
+
+protected:
+    void createElasObject ();
     
 protected:
     // ELAS

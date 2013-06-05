@@ -90,7 +90,9 @@ void StereoMethodVar::usePreset (int type)
 void StereoMethodVar::computeDisparityImage (const cv::Mat &img1, const cv::Mat &img2, cv::Mat &disparity, int &numDisparities)
 {    
     // Compute disparity image
+    mutex.lock();
     var(img1, img2, tmpDisparity);
+    mutex.unlock();
 
     // Normalize to output
     tmpDisparity.convertTo(disparity, CV_8U);
