@@ -418,6 +418,9 @@ protected:
     QFutureWatcher<bool> calibrationWatcher;
     QDialog *dialogBusy;
 
+    // Error
+    double calibrationRMSE;
+
     // Data
     cv::Mat cameraMatrix;
     cv::Mat distCoeffs;
@@ -493,6 +496,10 @@ protected:
     bool calibrationComplete;
     QFutureWatcher<bool> calibrationWatcher;
     QDialog *dialogBusy;
+
+    // Error
+    double calibrationRMSE;
+    double averageReprojectionError;
     
     // Data
     cv::Mat cameraMatrix1;

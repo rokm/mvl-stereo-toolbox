@@ -1579,6 +1579,11 @@ void CalibrationWizardPageCalibration::calibrationFinished ()
     // Read result
     calibrationComplete = calibrationWatcher.result();
 
+    // Display dialog
+    if (calibrationComplete) {
+        QMessageBox::information(this, "Calibration finished", QString("Calibration finished!\nRMSE: %1").arg(calibrationRMSE));
+    }
+    
     // We might be ready
     emit completeChanged();
 }
@@ -1591,8 +1596,6 @@ bool CalibrationWizardPageCalibration::calibrationFunction ()
     std::vector<std::vector<cv::Point2f> > imagePoints = field(fieldPrefix + "PatternImagePoints").value< std::vector<std::vector<cv::Point2f> > >();
     std::vector<std::vector<cv::Point3f> > worldPoints = field(fieldPrefix + "PatternWorldPoints").value< std::vector<std::vector<cv::Point3f> > >();
     cv::Size imageSize = field(fieldPrefix + "ImageSize").value<cv::Size>();
-    
-    double rmse;
 
     // Get values from the config widgets
     int flags = boxCalibrationFlags->getFlags();
@@ -1600,8 +1603,7 @@ bool CalibrationWizardPageCalibration::calibrationFunction ()
     distCoeffs = cv::Mat(boxCameraParameters->getDistCoeffs()).clone();
    
     try {
-        rmse = cv::calibrateCamera(worldPoints, imagePoints, imageSize, cameraMatrix, distCoeffs, cv::noArray(), cv::noArray(), flags);
-        qDebug() << "Calibration finished; RMSE:" << rmse;
+        calibrationRMSE = cv::calibrateCamera(worldPoints, imagePoints, imageSize, cameraMatrix, distCoeffs, cv::noArray(), cv::noArray(), flags);
     } catch (cv::Exception e) {
         emit error("Calibration failed: " + QString::fromStdString(e.what()));
         return false;
@@ -1804,6 +1806,11 @@ void CalibrationWizardPageStereoCalibration::calibrationFinished ()
     // Read result
     calibrationComplete = calibrationWatcher.result();
 
+    // Display dialog
+    if (calibrationComplete) {
+        QMessageBox::information(this, "Calibration finished", QString("Calibration finished!\nRMSE: %1\nAvg. reprojection error: %2").arg(calibrationRMSE).arg(averageReprojectionError));
+    }
+
     // We might be ready
     emit completeChanged();
 }
@@ -1831,27 +1838,58 @@ bool CalibrationWizardPageStereoCalibration::calibrationFunction ()
         imagePoints2.push_back(imagePoints[i+1]);
     }
 
-    double rmse;
-
     // Get values from the config widgets
     int flags = boxCalibrationFlags->getFlags();
     cameraMatrix1 = boxLeftCameraParameters->getCameraMatrix();
     distCoeffs1 = cv::Mat(boxLeftCameraParameters->getDistCoeffs()).clone();
     cameraMatrix2 = boxRightCameraParameters->getCameraMatrix();
     distCoeffs2 = cv::Mat(boxRightCameraParameters->getDistCoeffs()).clone();
+
+    cv::Mat E, F;
    
     try {
-        rmse = cv::stereoCalibrate(objectPoints, imagePoints1, imagePoints2,
-                                  cameraMatrix1, distCoeffs1,
-                                  cameraMatrix2, distCoeffs2,
-                                  imageSize, R, T, cv::noArray(), cv::noArray(),
-                                  cv::TermCriteria(cv::TermCriteria::COUNT + cv::TermCriteria::EPS, 100, 1e-6),
-                                  flags);
-        qDebug() << "Calibration finished; RMSE:" << rmse;
+        calibrationRMSE = cv::stereoCalibrate(objectPoints, imagePoints1, imagePoints2,
+                                              cameraMatrix1, distCoeffs1,
+                                              cameraMatrix2, distCoeffs2,
+                                              imageSize, R, T, E, F,
+                                              cv::TermCriteria(cv::TermCriteria::COUNT + cv::TermCriteria::EPS, 100, 1e-6),
+                                              flags);
     } catch (cv::Exception e) {
         emit error("Calibration failed: " + QString::fromStdString(e.what()));
         return false;
     }
+
+    // Compute average reprojection error
+    averageReprojectionError = 0;
+    int num_points = 0;
+    std::vector<cv::Vec3f> lines1, lines2;
+
+    for (int i = 0; i < objectPoints.size(); i++) {
+        int npt = imagePoints1[i].size();
+        cv::Mat imgpt1, imgpt2;
+
+        // First image
+        imgpt1 = cv::Mat(imagePoints1[i]);
+        cv::undistortPoints(imgpt1, imgpt1, cameraMatrix1, distCoeffs1, cv::Mat(), cameraMatrix1);
+        cv::computeCorrespondEpilines(imgpt1, 1, F, lines1);
+
+        // Second image
+        imgpt2 = cv::Mat(imagePoints2[i]);
+        cv::undistortPoints(imgpt2, imgpt2, cameraMatrix2, distCoeffs2, cv::Mat(), cameraMatrix2);
+        cv::computeCorrespondEpilines(imgpt2, 2, F, lines2);
+
+        // Compute error
+        for (int j = 0; j < npt; j++) {
+            double errij = fabs(imagePoints1[i][j].x*lines2[j][0] +
+                                imagePoints1[i][j].y*lines2[j][1] + lines2[j][2]) +
+                           fabs(imagePoints2[i][j].x*lines1[j][0] +
+                                imagePoints2[i][j].y*lines1[j][1] + lines1[j][2]);
+            averageReprojectionError += errij;
+        }
+
+        num_points += npt;
+    }
+    averageReprojectionError /= num_points;
 
     return true;
 }
