@@ -98,8 +98,8 @@ class CalibrationWizardPageImages : public QWizardPage
 {
     Q_OBJECT
 
-    Q_PROPERTY(QStringList images READ getImages);
-    Q_PROPERTY(int patternType READ getPatternType);
+    Q_PROPERTY(QStringList images READ getImages WRITE setImages);
+    Q_PROPERTY(int patternType READ getPatternType WRITE setPatternType);
 
 public:
     CalibrationWizardPageImages (const QString &, QWidget * = 0);
@@ -111,7 +111,10 @@ protected slots:
 
 protected:
     QStringList getImages () const;
+    void setImages (const QStringList &);
+    
     int getPatternType () const;
+    void setPatternType (int);
 
 protected:
     QString fieldPrefix;

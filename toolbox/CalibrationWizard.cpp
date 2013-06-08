@@ -332,21 +332,8 @@ void CalibrationWizardPageImages::addImages ()
         }
     }
 
-    // Display them in the list
-    foreach (const QString &fileName, fileNames) {
-        QFileInfo info(fileName);
-
-        QListWidgetItem *item = new QListWidgetItem(fileName, listWidgetImages);
-        listWidgetImages->addItem(item);
-
-        if (!info.isReadable()) {
-            item->setForeground(Qt::red);
-            item->setToolTip("File cannot be read!");
-        }
-    }
-    
-    // Revalidate
-    emit completeChanged();
+    // Set images
+    setImages(fileNames);
 }
 
 void CalibrationWizardPageImages::clearImages ()
@@ -354,6 +341,7 @@ void CalibrationWizardPageImages::clearImages ()
     listWidgetImages->clear();
     emit completeChanged();
 }
+
 
 QStringList CalibrationWizardPageImages::getImages () const
 {
@@ -370,9 +358,36 @@ QStringList CalibrationWizardPageImages::getImages () const
     return images;
 }
 
+void CalibrationWizardPageImages::setImages (const QStringList &fileNames)
+{
+    listWidgetImages->clear();
+
+    // Display them in the list
+    foreach (const QString &fileName, fileNames) {
+        QFileInfo info(fileName);
+
+        QListWidgetItem *item = new QListWidgetItem(fileName, listWidgetImages);
+        listWidgetImages->addItem(item);
+
+        if (!info.isReadable()) {
+            item->setForeground(Qt::red);
+            item->setToolTip("File cannot be read!");
+        }
+    }
+
+    // Revalidate
+    emit completeChanged();
+}
+
+
 int CalibrationWizardPageImages::getPatternType () const
 {
     return comboBoxPatternType->itemData(comboBoxPatternType->currentIndex()).toInt();
+}
+
+void CalibrationWizardPageImages::setPatternType (int type)
+{
+    comboBoxPatternType->setCurrentIndex(comboBoxPatternType->findData(type));
 }
 
 
@@ -591,6 +606,9 @@ void CalibrationWizardPageDetection::initializePage ()
 
     // ... and disable "Discard" button
     pushButtonDiscard->setEnabled(false);
+
+    // Enable "auto" button
+    pushButtonAuto->setEnabled(true);
 
     // Set parameters for pattern detector
     calibrationPattern.setParameters(
