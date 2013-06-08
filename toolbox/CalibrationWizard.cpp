@@ -1868,7 +1868,7 @@ CalibrationWizardPageResult::CalibrationWizardPageResult (const QString &fieldPr
     QLabel *label;
 
     // Layout
-    QGridLayout *layout = new QGridLayout(this);
+    QVBoxLayout *layout = new QVBoxLayout(this);
     layout->setSpacing(10);
 
     // Label
@@ -1876,17 +1876,23 @@ CalibrationWizardPageResult::CalibrationWizardPageResult (const QString &fieldPr
     label->setAlignment(Qt::AlignVCenter | Qt::AlignJustify);
     label->setWordWrap(true);
 
-    layout->addWidget(label, 0, 0, 1, 2);
+    layout->addWidget(label);
+
+    // Splitter
+    QSplitter *splitter = new QSplitter(Qt::Horizontal, this);
+    splitter->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    layout->addWidget(splitter);
 
     // Camera parameters
     boxCameraParameters = new CameraParametersWidget("Parameters", this);
     boxCameraParameters->setDisplayMode(true);
-    layout->addWidget(boxCameraParameters, 1, 0, 1, 1);
+    splitter->addWidget(boxCameraParameters);
 
     // Undistorted image
     displayImage = new ImageDisplayWidget("Undistorted image", this);
     displayImage->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    layout->addWidget(displayImage, 1, 1, 1, 1);
+    displayImage->resize(400, 600);
+    splitter->addWidget(displayImage);
 }
 
 CalibrationWizardPageResult::~CalibrationWizardPageResult ()
@@ -1964,7 +1970,7 @@ CalibrationWizardPageStereoResult::CalibrationWizardPageStereoResult (QWidget *p
     QLabel *label;
 
     // Layout
-    QGridLayout *layout = new QGridLayout(this);
+    QVBoxLayout *layout = new QVBoxLayout(this);
     layout->setSpacing(10);
 
     // Label
@@ -1972,22 +1978,28 @@ CalibrationWizardPageStereoResult::CalibrationWizardPageStereoResult (QWidget *p
     label->setAlignment(Qt::AlignVCenter | Qt::AlignJustify);
     label->setWordWrap(true);
 
-    layout->addWidget(label, 0, 0, 1, 3);
+    layout->addWidget(label);
+
+    // Splitter
+    QSplitter *splitter = new QSplitter(Qt::Horizontal, this);
+    splitter->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    layout->addWidget(splitter);
 
     // Left camera parameters
     boxLeftCameraParameters = new CameraParametersWidget("Left camera", this);
     boxLeftCameraParameters->setDisplayMode(true);
-    layout->addWidget(boxLeftCameraParameters, 1, 0, 1, 1);
+    splitter->addWidget(boxLeftCameraParameters);
 
     // Right camera parameters
     boxRightCameraParameters = new CameraParametersWidget("Right camera", this);
     boxRightCameraParameters->setDisplayMode(true);
-    layout->addWidget(boxRightCameraParameters, 1, 1, 1, 1);
+    splitter->addWidget(boxRightCameraParameters);
 
     // Undistorted image
     displayImage = new ImagePairDisplayWidget("Rectified image pair", this);
     displayImage->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    layout->addWidget(displayImage, 1, 2, 1, 1);
+    displayImage->resize(400, 600);
+    splitter->addWidget(displayImage);
 }
 
 CalibrationWizardPageStereoResult::~CalibrationWizardPageStereoResult ()

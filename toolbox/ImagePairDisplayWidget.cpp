@@ -87,8 +87,10 @@ void ImagePairDisplayWidget::paintEvent (QPaintEvent *event)
         
         painter.drawImage(QRect(0, (h - ih)/2, iw, ih), imageLeft);
 
-        painter.setPen(QPen(Qt::red, 2));
-        painter.drawRect(roiLeft.x*scale, roiLeft.y*scale, roiLeft.width*scale, roiLeft.height*scale);
+        if ((roiLeft.width && roiLeft.height) && (roiLeft.width != imageLeft.width() || roiLeft.height != imageLeft.height())) {
+            painter.setPen(QPen(Qt::red, 2));
+            painter.drawRect(roiLeft.x*scale, roiLeft.y*scale, roiLeft.width*scale, roiLeft.height*scale);
+        }
         
         // Move to right image
         painter.translate(iw, 0);
@@ -99,8 +101,10 @@ void ImagePairDisplayWidget::paintEvent (QPaintEvent *event)
         
         painter.drawImage(QRect(0, (h - ih)/2, iw, ih), imageRight);
 
-        painter.setPen(QPen(Qt::red, 2));
-        painter.drawRect(roiRight.x*scale, roiRight.y*scale, roiRight.width*scale, roiRight.height*scale);
+        if ((roiRight.width && roiRight.height) && (roiRight.width != imageRight.width() || roiRight.height != imageRight.height())) {
+            painter.setPen(QPen(Qt::red, 2));
+            painter.drawRect(roiRight.x*scale, roiRight.y*scale, roiRight.width*scale, roiRight.height*scale);
+        }
 
         // Draw horizontal lines        
         painter.resetTransform();
