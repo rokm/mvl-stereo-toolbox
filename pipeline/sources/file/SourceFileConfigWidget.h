@@ -1,5 +1,5 @@
 /*
- * File Image Source: config widget
+ * File Image Pair Source: config widget
  * Copyright (C) 2013 Rok Mandeljc
  *
  * This program is free software; you can redistribute it and/or modify
@@ -19,22 +19,22 @@
  * 
  */
 
-#ifndef IMAGE_SOURCE_FILE_CONFIG_WIDGET_H
-#define IMAGE_SOURCE_FILE_CONFIG_WIDGET_H
+#ifndef SOURCE_FILE_CONFIG_WIDGET_H
+#define SOURCE_FILE_CONFIG_WIDGET_H
 
 #include <QtGui>
 
 
-class ImageSourceFile;
+class SourceFile;
 class UrlDialog;
 
-class ImageSourceFileConfigWidget : public QWidget
+class SourceFileConfigWidget : public QWidget
 {
     Q_OBJECT
     
 public:
-    ImageSourceFileConfigWidget (ImageSourceFile *, QWidget * = 0);
-    virtual ~ImageSourceFileConfigWidget ();
+    SourceFileConfigWidget (SourceFile *, QWidget * = 0);
+    virtual ~SourceFileConfigWidget ();
 
 protected slots:
     void loadFiles ();
@@ -43,7 +43,7 @@ protected slots:
     void updateImageInformation ();
 
 protected:
-    ImageSourceFile *source;
+    SourceFile *source;
 
     QPushButton *pushButtonLoadFiles;
     QPushButton *pushButtonLoadUrls;

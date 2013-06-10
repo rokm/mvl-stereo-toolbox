@@ -27,7 +27,7 @@
 #include <opencv2/core/core.hpp>
 
 
-class ImageSource;
+class ImagePairSource;
 class PluginFactory;
 class StereoRectification;
 class StereoMethod;
@@ -45,10 +45,10 @@ public:
     QString getPluginDirectory () const;
     const QList<PluginFactory *> getAvailablePlugins () const;
     
-    // Image source
-    void setImageSource (ImageSource *);
+    // Image pair source
+    void setImagePairSource (ImagePairSource *);
 
-    bool getImageSourceState () const;
+    bool getImagePairSourceState () const;
 
     const cv::Mat &getLeftImage () const;
     const cv::Mat &getRightImage () const;
@@ -81,7 +81,7 @@ public:
     int getStereoDroppedFrames () const;
 
 public slots:
-    void setImageSourceState (bool);
+    void setImagePairSourceState (bool);
     void setRectificationState (bool);
     void setStereoMethodState (bool);
 
@@ -99,7 +99,7 @@ protected slots:
 signals:
     void error (const QString &);
 
-    void imageSourceStateChanged (bool);
+    void imagePairSourceStateChanged (bool);
     void rectificationStateChanged (bool);
     void stereoMethodStateChanged (bool);
 
@@ -114,9 +114,9 @@ protected:
     QDir pluginDirectory;
     QList<PluginFactory *> plugins;
 
-    // Image source
-    bool imageSourceActive;
-    ImageSource *imageSource;
+    // Image pair source
+    bool imagePairSourceActive;
+    ImagePairSource *imagePairSource;
 
     // Cached input images
     cv::Mat inputImageL;

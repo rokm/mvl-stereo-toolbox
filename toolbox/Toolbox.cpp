@@ -21,13 +21,13 @@
 
 #include "Toolbox.h"
 
-#include "ImageSource.h"
+#include "ImagePairSource.h"
 #include "PluginFactory.h"
 #include "StereoRectification.h"
 #include "StereoMethod.h"
 #include "StereoPipeline.h"
 
-#include "GuiImageSource.h"
+#include "GuiImagePairSource.h"
 #include "GuiRectification.h"
 #include "GuiStereoMethod.h"
 
@@ -45,7 +45,7 @@ Toolbox::Toolbox ()
     loadPlugins();
 
     // Create windows
-    windowImageSource = new GuiImageSource(pipeline, imageSources, this);
+    windowImagePairSource = new GuiImagePairSource(pipeline, imagePairSources, this);
     windowRectification = new GuiRectification(pipeline, rectification, this);
     windowStereoMethod = new GuiStereoMethod(pipeline, stereoMethods, this);
 
@@ -62,19 +62,19 @@ void Toolbox::createGui ()
     QGridLayout *layout = new QGridLayout(this);
     setLayout(layout);
 
-    // Image source
-    pushButtonImageSource = new QPushButton("Image source", this);
-    connect(pushButtonImageSource, SIGNAL(clicked()), this, SLOT(showWindowImageSource()));
+    // Image pair source
+    pushButtonImagePairSource = new QPushButton("Image pair source", this);
+    connect(pushButtonImagePairSource, SIGNAL(clicked()), this, SLOT(showWindowImagePairSource()));
     
-    pushButtonImageSourceActive = new QPushButton("Active", this);
-    pushButtonImageSourceActive->setCheckable(true);
+    pushButtonImagePairSourceActive = new QPushButton("Active", this);
+    pushButtonImagePairSourceActive->setCheckable(true);
 
-    pushButtonImageSourceActive->setChecked(pipeline->getImageSourceState());
-    connect(pushButtonImageSourceActive, SIGNAL(toggled(bool)), pipeline, SLOT(setImageSourceState(bool)));
-    connect(pipeline, SIGNAL(imageSourceStateChanged(bool)), this, SLOT(setPushButtonImageSourceActiveState(bool)));
+    pushButtonImagePairSourceActive->setChecked(pipeline->getImagePairSourceState());
+    connect(pushButtonImagePairSourceActive, SIGNAL(toggled(bool)), pipeline, SLOT(setImagePairSourceState(bool)));
+    connect(pipeline, SIGNAL(imagePairSourceStateChanged(bool)), this, SLOT(setPushButtonImagePairSourceActiveState(bool)));
     
-    layout->addWidget(pushButtonImageSource, 0, 0);
-    layout->addWidget(pushButtonImageSourceActive, 0, 1);
+    layout->addWidget(pushButtonImagePairSource, 0, 0);
+    layout->addWidget(pushButtonImagePairSourceActive, 0, 1);
 
     // Rectification
     pushButtonRectification = new QPushButton("Rectification", this);
@@ -128,9 +128,9 @@ static void showWindowOnTop (QWidget *window)
     window->raise();
 }
 
-void Toolbox::showWindowImageSource ()
+void Toolbox::showWindowImagePairSource ()
 {
-    showWindowOnTop(windowImageSource);
+    showWindowOnTop(windowImagePairSource);
 }
 
 void Toolbox::showWindowRectification ()
@@ -157,9 +157,9 @@ static void setActiveButtonState (QPushButton *button, bool active)
     }
 }
 
-void Toolbox::setPushButtonImageSourceActiveState (bool active)
+void Toolbox::setPushButtonImagePairSourceActiveState (bool active)
 {
-    setActiveButtonState(pushButtonImageSourceActive, active);
+    setActiveButtonState(pushButtonImagePairSourceActive, active);
 }
 
 void Toolbox::setPushButtonRectificationActiveState (bool active)
@@ -187,10 +187,10 @@ void Toolbox::loadPlugins ()
                 }
                 break;
             }
-            case PluginFactory::PluginImageSource: {
+            case PluginFactory::PluginImagePairSource: {
                 QObject *source = plugin->createObject(this);
                 if (source) {
-                    imageSources.append(qobject_cast<ImageSource *>(source));
+                    imagePairSources.append(qobject_cast<ImagePairSource *>(source));
                 }
             }
             default: {

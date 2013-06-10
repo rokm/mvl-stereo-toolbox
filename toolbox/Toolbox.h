@@ -26,12 +26,12 @@
 #include <QtGui>
 
 
-class ImageSource;
+class ImagePairSource;
 class StereoRectification;
 class StereoMethod;
 class StereoPipeline;
 
-class GuiImageSource;
+class GuiImagePairSource;
 class GuiRectification;
 class GuiStereoMethod;
 
@@ -44,11 +44,11 @@ public:
     virtual ~Toolbox ();
 
 protected slots:
-    void showWindowImageSource ();
+    void showWindowImagePairSource ();
     void showWindowRectification ();
     void showWindowStereoMethod ();
 
-    void setPushButtonImageSourceActiveState (bool);
+    void setPushButtonImagePairSourceActiveState (bool);
     void setPushButtonRectificationActiveState (bool);
     void setPushButtonStereoMethodActiveState (bool);
 
@@ -58,12 +58,12 @@ protected:
     void loadPlugins ();
     
 protected:
-    GuiImageSource *windowImageSource;
+    GuiImagePairSource *windowImagePairSource;
     GuiRectification *windowRectification;
     GuiStereoMethod *windowStereoMethod;
 
-    QPushButton *pushButtonImageSource;
-    QPushButton *pushButtonImageSourceActive;
+    QPushButton *pushButtonImagePairSource;
+    QPushButton *pushButtonImagePairSourceActive;
     QPushButton *pushButtonRectification;
     QPushButton *pushButtonRectificationActive;
     QPushButton *pushButtonStereoMethod;
@@ -72,7 +72,7 @@ protected:
     StereoPipeline *pipeline;
     StereoRectification *rectification;
 
-    QList<ImageSource *> imageSources;
+    QList<ImagePairSource *> imagePairSources;
     QList<StereoMethod *> stereoMethods;
 };
 

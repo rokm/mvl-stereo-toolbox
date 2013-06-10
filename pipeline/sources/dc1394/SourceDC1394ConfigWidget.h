@@ -1,5 +1,5 @@
 /*
- * MVL Stereo Toolbox: image source GUI
+ * DC1394 Image Pair Source: config widget
  * Copyright (C) 2013 Rok Mandeljc
  *
  * This program is free software; you can redistribute it and/or modify
@@ -19,49 +19,48 @@
  * 
  */
 
-#ifndef GUI_IMAGE_SOURCE_H
-#define GUI_IMAGE_SOURCE_H
+#ifndef IMAGE_SOURCE_DC1394_CONFIG_WIDGET_H
+#define IMAGE_SOURCE_DC1394_CONFIG_WIDGET_H
 
-#include <QtCore>
 #include <QtGui>
 
 
-class StereoPipeline;
-class ImageSource;
+class SourceDC1394;
+class CameraDC1394;
 
-class ImageDisplayWidget;
-
-class GuiImageSource : public QWidget
+class SourceDC1394ConfigWidget : public QWidget
 {
     Q_OBJECT
-
+    
 public:
-    GuiImageSource (StereoPipeline *, QList<ImageSource *> &, QWidget * = 0);
-    virtual ~GuiImageSource ();
+    SourceDC1394ConfigWidget (SourceDC1394 *, QWidget * = 0);
+    virtual ~SourceDC1394ConfigWidget ();
 
 protected slots:
-    void setSource (int);
+    void deviceSelected (int);
     
-    void updateImages ();
+protected:
+    QWidget *createDeviceFrame (bool);
 
-    void saveImages ();
-    void snapshotImages ();
+    void deviceSelected (QWidget *&, QFrame *&, QComboBox *&, int);
 
 protected:
-    // Pipeline
-    StereoPipeline *pipeline;
-    QList<ImageSource *> sources;
-
-    QString snapshotBaseName;
+    SourceDC1394 *source;
 
     // GUI
-    QPushButton *pushButtonSaveImages;
-    QPushButton *pushButtonSnapshotImages;
+    QComboBox *comboBoxLeftDevice;
+    QComboBox *comboBoxRightDevice;
 
-    ImageDisplayWidget *displayImageLeft;
-    ImageDisplayWidget *displayImageRight;
+    QPushButton *pushButtonCaptureLeftDevice;
+    QPushButton *pushButtonCaptureRightDevice;
 
-    QStatusBar *statusBar;
+    QHBoxLayout *boxDevices;
+    
+    QFrame *frameLeftDevice;
+    QFrame *frameRightDevice;
+
+    QWidget *configLeftDevice;
+    QWidget *configRightDevice;
 };
 
 #endif

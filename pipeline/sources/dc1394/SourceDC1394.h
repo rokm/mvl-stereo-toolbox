@@ -1,5 +1,5 @@
 /*
- * DC1394 Image Source: source
+ * DC1394 Image Pair Source: source
  * Copyright (C) 2013 Rok Mandeljc
  *
  * This program is free software; you can redistribute it and/or modify
@@ -22,7 +22,7 @@
 #ifndef IMAGE_SOURCE_DC1394_H
 #define IMAGE_SOURCE_DC1394_H
 
-#include "ImageSource.h"
+#include "ImagePairSource.h"
 
 #include <dc1394/dc1394.h>
 
@@ -30,13 +30,13 @@
 class CameraDC1394;
 class CameraListModel;
 
-class ImageSourceDC1394 : public ImageSource
+class SourceDC1394 : public ImagePairSource
 {
     Q_OBJECT
 
 public:
-    ImageSourceDC1394 (QObject * = 0);
-    virtual ~ImageSourceDC1394 ();
+    SourceDC1394 (QObject * = 0);
+    virtual ~SourceDC1394 ();
 
     virtual void stopSource ();
 

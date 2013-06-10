@@ -1,5 +1,5 @@
 /*
- * DC1394 Image Source: source
+ * DC1394 Image Pair Source: source
  * Copyright (C) 2013 Rok Mandeljc
  *
  * This program is free software; you can redistribute it and/or modify
@@ -19,15 +19,15 @@
  * 
  */
 
-#include "ImageSourceDC1394.h"
-#include "ImageSourceDC1394ConfigWidget.h"
+#include "SourceDC1394.h"
+#include "SourceDC1394ConfigWidget.h"
 
 #include "CameraDC1394.h"
 #include "CameraListModel.h"
 
 
-ImageSourceDC1394::ImageSourceDC1394 (QObject *parent)
-    : ImageSource(parent)
+SourceDC1394::SourceDC1394 (QObject *parent)
+    : ImagePairSource(parent)
 {
     fw = NULL;
     leftCamera = NULL;
@@ -43,7 +43,7 @@ ImageSourceDC1394::ImageSourceDC1394 (QObject *parent)
     shortName = "DC1394";
 }
 
-ImageSourceDC1394::~ImageSourceDC1394 ()
+SourceDC1394::~SourceDC1394 ()
 {
     // Stop capture
     startStopCapture(false);
@@ -55,25 +55,25 @@ ImageSourceDC1394::~ImageSourceDC1394 ()
 }
 
 
-QWidget *ImageSourceDC1394::createConfigWidget (QWidget *parent)
+QWidget *SourceDC1394::createConfigWidget (QWidget *parent)
 {
-    return new ImageSourceDC1394ConfigWidget(this, parent);
+    return new SourceDC1394ConfigWidget(this, parent);
 }
 
 
-void ImageSourceDC1394::stopSource ()
+void SourceDC1394::stopSource ()
 {
     startStopCapture(false);
 }
 
 
-CameraListModel *ImageSourceDC1394::getCameraListModel ()
+CameraListModel *SourceDC1394::getCameraListModel ()
 {
     return cameraListModel;
 }
 
 
-void ImageSourceDC1394::scanBus ()
+void SourceDC1394::scanBus ()
 {
     dc1394error_t ret;
 
@@ -106,21 +106,21 @@ void ImageSourceDC1394::scanBus ()
 }
 
 
-void ImageSourceDC1394::setLeftCamera (int c)
+void SourceDC1394::setLeftCamera (int c)
 {
     // Create camera
     createCamera(leftCamera, c);
     emit leftCameraChanged();
 }
 
-void ImageSourceDC1394::setRightCamera (int c)
+void SourceDC1394::setRightCamera (int c)
 {
     // Create camera
     createCamera(rightCamera, c);
     emit rightCameraChanged();
 }
 
-void ImageSourceDC1394::createCamera (CameraDC1394 *& camera, int c)
+void SourceDC1394::createCamera (CameraDC1394 *& camera, int c)
 {
     // If c is -1, release camera
     if (c == -1) {
@@ -161,7 +161,7 @@ void ImageSourceDC1394::createCamera (CameraDC1394 *& camera, int c)
     cameraListModel->setActive(c, true);
 }
 
-void ImageSourceDC1394::releaseCamera (CameraDC1394 *& camera)
+void SourceDC1394::releaseCamera (CameraDC1394 *& camera)
 {
     if (camera) {
         dc1394camera_id_t id = camera->getId();
@@ -179,18 +179,18 @@ void ImageSourceDC1394::releaseCamera (CameraDC1394 *& camera)
 }
 
 
-CameraDC1394 *ImageSourceDC1394::getLeftCamera ()
+CameraDC1394 *SourceDC1394::getLeftCamera ()
 {
     return leftCamera;
 }
 
-CameraDC1394 *ImageSourceDC1394::getRightCamera ()
+CameraDC1394 *SourceDC1394::getRightCamera ()
 {
     return rightCamera;
 }
 
 
-void ImageSourceDC1394::startStopCapture (bool start)
+void SourceDC1394::startStopCapture (bool start)
 {
     if (start) {
         leftFrameReady = rightFrameReady = false;
@@ -202,7 +202,7 @@ void ImageSourceDC1394::startStopCapture (bool start)
     }
 }
 
-void ImageSourceDC1394::frameAggregator ()
+void SourceDC1394::frameAggregator ()
 {
     if (QObject::sender() == leftCamera) {
         leftFrameReady = true;

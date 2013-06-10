@@ -11,7 +11,7 @@ find_package(OpenCV REQUIRED core imgproc)
 find_package(Qt4 REQUIRED)
 
 set(pipeline_SOURCES
-    ImageSource.cpp
+    ImagePairSource.cpp
     StereoCalibrationPattern.cpp
     StereoMethod.cpp
     StereoPipeline.cpp
@@ -19,7 +19,7 @@ set(pipeline_SOURCES
 )
 
 set(pipeline_HEADERS
-    ImageSource.h
+    ImagePairSource.h
     PluginFactory.h
     StereoCalibrationPattern.h
     StereoMethod.h

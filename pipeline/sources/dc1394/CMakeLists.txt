@@ -16,8 +16,8 @@ set(plugin_SOURCES
     CameraDC1394ConfigWidget.cpp
     CameraListModel.cpp
     FeatureWidget.cpp
-    ImageSourceDC1394.cpp
-    ImageSourceDC1394ConfigWidget.cpp
+    SourceDC1394.cpp
+    SourceDC1394ConfigWidget.cpp
     plugin.cpp
 )
     
@@ -26,8 +26,8 @@ set(plugin_HEADERS
     CameraDC1394ConfigWidget.h
     CameraListModel.h
     FeatureWidget.h
-    ImageSourceDC1394.h
-    ImageSourceDC1394ConfigWidget.h
+    SourceDC1394.h
+    SourceDC1394ConfigWidget.h
 )
 
 QT4_WRAP_CPP(plugin_HEADERS_MOC ${plugin_HEADERS})

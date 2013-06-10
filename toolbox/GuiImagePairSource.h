@@ -1,5 +1,5 @@
 /*
- * Stereo Pipeline: image source
+ * MVL Stereo Toolbox: image pair source GUI
  * Copyright (C) 2013 Rok Mandeljc
  *
  * This program is free software; you can redistribute it and/or modify
@@ -19,44 +19,49 @@
  * 
  */
 
-#ifndef IMAGE_SOURCE_H
-#define IMAGE_SOURCE_H
+#ifndef GUI_IMAGE_PAIR_SOURCE_H
+#define GUI_IMAGE_PAIR_SOURCE_H
 
 #include <QtCore>
+#include <QtGui>
 
-#include <opencv2/core/core.hpp>
 
+class StereoPipeline;
+class ImagePairSource;
 
-class ImageSource : public QObject
+class ImageDisplayWidget;
+
+class GuiImagePairSource : public QWidget
 {
     Q_OBJECT
 
 public:
-    ImageSource (QObject * = 0);
-    virtual ~ImageSource ();
+    GuiImagePairSource (StereoPipeline *, QList<ImagePairSource *> &, QWidget * = 0);
+    virtual ~GuiImagePairSource ();
 
-    const QString &getShortName () const;
+protected slots:
+    void setSource (int);
+    
+    void updateImages ();
 
-    virtual void getImages (cv::Mat &, cv::Mat &);
-
-    virtual void stopSource ();
-
-    // Config widget
-    virtual QWidget *createConfigWidget (QWidget * = 0) = 0;
-
-signals:
-    void imagesChanged ();
-
-    void error (const QString);
+    void saveImages ();
+    void snapshotImages ();
 
 protected:
-    QString shortName;
-    
-    // Images
-    QReadWriteLock imagesLock;
-    
-    cv::Mat imageLeft;
-    cv::Mat imageRight;
+    // Pipeline
+    StereoPipeline *pipeline;
+    QList<ImagePairSource *> sources;
+
+    QString snapshotBaseName;
+
+    // GUI
+    QPushButton *pushButtonSaveImages;
+    QPushButton *pushButtonSnapshotImages;
+
+    ImageDisplayWidget *displayImageLeft;
+    ImageDisplayWidget *displayImageRight;
+
+    QStatusBar *statusBar;
 };
 
 #endif

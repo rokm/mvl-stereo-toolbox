@@ -32,7 +32,7 @@ class PluginFactory : public QObject
 public:
     enum PluginType {
         PluginStereoMethod,
-        PluginImageSource,
+        PluginImagePairSource,
     };
 
     virtual PluginType getPluginType () const = 0;

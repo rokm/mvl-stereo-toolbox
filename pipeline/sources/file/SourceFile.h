@@ -1,5 +1,5 @@
 /*
- * File Image Source: source
+ * File Image Pair Source: source
  * Copyright (C) 2013 Rok Mandeljc
  *
  * This program is free software; you can redistribute it and/or modify
@@ -19,20 +19,21 @@
  * 
  */
 
-#ifndef IMAGE_SOURCE_FILE_H
-#define IMAGE_SOURCE_FILE_H
+#ifndef SOURCE_FILE_H
+#define SOURCE_FILE_H
 
 #include <QtNetwork>
 
-#include "ImageSource.h"
+#include "ImagePairSource.h"
 
-class ImageSourceFile : public ImageSource
+
+class SourceFile : public ImagePairSource
 {
     Q_OBJECT
 
 public:
-    ImageSourceFile (QObject * = 0);
-    virtual ~ImageSourceFile ();
+    SourceFile (QObject * = 0);
+    virtual ~SourceFile ();
 
     virtual void stopSource ();
 

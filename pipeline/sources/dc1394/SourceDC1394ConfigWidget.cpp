@@ -1,5 +1,5 @@
 /*
- * DC1394 Image Source: config widget
+ * DC1394 Image Pair Source: config widget
  * Copyright (C) 2013 Rok Mandeljc
  *
  * This program is free software; you can redistribute it and/or modify
@@ -19,14 +19,14 @@
  * 
  */
 
-#include "ImageSourceDC1394ConfigWidget.h"
-#include "ImageSourceDC1394.h"
+#include "SourceDC1394ConfigWidget.h"
+#include "SourceDC1394.h"
 
 #include "CameraDC1394.h"
 #include "CameraListModel.h"
 
 
-ImageSourceDC1394ConfigWidget::ImageSourceDC1394ConfigWidget (ImageSourceDC1394 *s, QWidget *parent)
+SourceDC1394ConfigWidget::SourceDC1394ConfigWidget (SourceDC1394 *s, QWidget *parent)
     : QWidget(parent), source(s)
 {
     configLeftDevice = NULL;
@@ -74,13 +74,13 @@ ImageSourceDC1394ConfigWidget::ImageSourceDC1394ConfigWidget (ImageSourceDC1394 
     boxDevices->addWidget(createDeviceFrame(false)); // Right device frame
 }
 
-ImageSourceDC1394ConfigWidget::~ImageSourceDC1394ConfigWidget ()
+SourceDC1394ConfigWidget::~SourceDC1394ConfigWidget ()
 {
 }
 
 
 
-QWidget *ImageSourceDC1394ConfigWidget::createDeviceFrame (bool left)
+QWidget *SourceDC1394ConfigWidget::createDeviceFrame (bool left)
 {
     QFrame *deviceFrame, *frame;
     QLabel *label;
@@ -133,7 +133,7 @@ QWidget *ImageSourceDC1394ConfigWidget::createDeviceFrame (bool left)
 // *********************************************************************
 // *                          Device selection                         *
 // *********************************************************************
-void ImageSourceDC1394ConfigWidget::deviceSelected (int index)
+void SourceDC1394ConfigWidget::deviceSelected (int index)
 {
     if (QObject::sender() == comboBoxLeftDevice) {
         deviceSelected(configLeftDevice, frameLeftDevice, comboBoxLeftDevice, index);
@@ -144,7 +144,7 @@ void ImageSourceDC1394ConfigWidget::deviceSelected (int index)
     }
 }
 
-void ImageSourceDC1394ConfigWidget::deviceSelected (QWidget *&deviceConfig, QFrame *&deviceFrame, QComboBox *&deviceComboBox, int index)
+void SourceDC1394ConfigWidget::deviceSelected (QWidget *&deviceConfig, QFrame *&deviceFrame, QComboBox *&deviceComboBox, int index)
 {
     
     // Remove config widget for old device

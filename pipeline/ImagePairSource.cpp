@@ -1,5 +1,5 @@
 /*
- * Stereo Pipeline: image source
+ * Stereo Pipeline: image pair source
  * Copyright (C) 2013 Rok Mandeljc
  *
  * This program is free software; you can redistribute it and/or modify
@@ -19,22 +19,22 @@
  * 
  */
 
-#include "ImageSource.h"
+#include "ImagePairSource.h"
 
 
-ImageSource::ImageSource (QObject *parent)
+ImagePairSource::ImagePairSource (QObject *parent)
     : QObject(parent)
 {
 }
 
-ImageSource::~ImageSource ()
+ImagePairSource::~ImagePairSource ()
 {
 }
 
 // *********************************************************************
 // *                            Source name                            *
 // *********************************************************************
-const QString &ImageSource::getShortName () const
+const QString &ImagePairSource::getShortName () const
 {
     return shortName;
 }
@@ -43,7 +43,7 @@ const QString &ImageSource::getShortName () const
 // *********************************************************************
 // *                          Image retrieval                          *
 // *********************************************************************
-void ImageSource::getImages (cv::Mat &left, cv::Mat &right)
+void ImagePairSource::getImages (cv::Mat &left, cv::Mat &right)
 {
     // Copy images under lock, in case source implements dynamic image grab
     QReadLocker lock(&imagesLock);
@@ -56,7 +56,7 @@ void ImageSource::getImages (cv::Mat &left, cv::Mat &right)
 // *********************************************************************
 // *                            Source stop                            *
 // *********************************************************************
-void ImageSource::stopSource ()
+void ImagePairSource::stopSource ()
 {
     // Default implementation does nothing
 }

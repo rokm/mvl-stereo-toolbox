@@ -21,7 +21,7 @@
 
 #include "StereoPipeline.h"
 
-#include "ImageSource.h"
+#include "ImagePairSource.h"
 #include "PluginFactory.h"
 #include "StereoRectification.h"
 #include "StereoMethod.h"
@@ -32,7 +32,7 @@
 StereoPipeline::StereoPipeline (QObject *parent)
     : QObject(parent)
 {
-    imageSource = NULL;
+    imagePairSource = NULL;
     rectification = NULL;
     stereoMethod = NULL;
 
@@ -41,14 +41,14 @@ StereoPipeline::StereoPipeline (QObject *parent)
     useStereoMethodThread = false;
     stereoDroppedFramesCounter = 0;
 
-    imageSourceActive = true;
+    imagePairSourceActive = true;
     rectificationActive = true;
     stereoMethodActive = true;
 
     connect(this, SIGNAL(inputImagesChanged()), this, SLOT(rectifyImages()));
     connect(this, SIGNAL(rectifiedImagesChanged()), this, SLOT(computeDisparityImage()));
 
-    connect(this, SIGNAL(imageSourceStateChanged(bool)), this, SLOT(beginProcessing()));
+    connect(this, SIGNAL(imagePairSourceStateChanged(bool)), this, SLOT(beginProcessing()));
     connect(this, SIGNAL(rectificationStateChanged(bool)), this, SLOT(rectifyImages()));
     connect(this, SIGNAL(stereoMethodStateChanged(bool)), this, SLOT(computeDisparityImage()));
 
@@ -61,7 +61,7 @@ StereoPipeline::StereoPipeline (QObject *parent)
 StereoPipeline::~StereoPipeline ()
 {
     // Disable all ...
-    setImageSourceState(false);
+    setImagePairSourceState(false);
     setRectificationState(false);
     setStereoMethodState(false);
 
@@ -200,20 +200,20 @@ void StereoPipeline::recomputeCenterRoi ()
 
 
 // *********************************************************************
-// *                            Image source                           *
+// *                         Image pair source                         *
 // *********************************************************************
 // Source setting
-void StereoPipeline::setImageSource (ImageSource *newSource)
+void StereoPipeline::setImagePairSource (ImagePairSource *newSource)
 {
     // Change source
-    if (imageSource) {
-        imageSource->stopSource(); // Stop the source
-        disconnect(imageSource, SIGNAL(imagesChanged()), this, SLOT(beginProcessing()));
+    if (imagePairSource) {
+        imagePairSource->stopSource(); // Stop the source
+        disconnect(imagePairSource, SIGNAL(imagesChanged()), this, SLOT(beginProcessing()));
     }
 
-    imageSource = newSource;
+    imagePairSource = newSource;
 
-    connect(imageSource, SIGNAL(imagesChanged()), this, SLOT(beginProcessing()));
+    connect(imagePairSource, SIGNAL(imagesChanged()), this, SLOT(beginProcessing()));
 
     // Process
     beginProcessing();
@@ -221,17 +221,17 @@ void StereoPipeline::setImageSource (ImageSource *newSource)
 
 
 // Source state
-void StereoPipeline::setImageSourceState (bool newState)
+void StereoPipeline::setImagePairSourceState (bool newState)
 {
-    if (newState != imageSourceActive) {
-        imageSourceActive = newState;
-        emit imageSourceStateChanged(newState);
+    if (newState != imagePairSourceActive) {
+        imagePairSourceActive = newState;
+        emit imagePairSourceStateChanged(newState);
     }
 }
 
-bool StereoPipeline::getImageSourceState () const
+bool StereoPipeline::getImagePairSourceState () const
 {
-    return imageSourceActive;
+    return imagePairSourceActive;
 }
 
 
@@ -251,12 +251,12 @@ const cv::Mat &StereoPipeline::getRightImage () const
 void StereoPipeline::beginProcessing ()
 {
     // Make sure image source is marked as active
-    if (!imageSourceActive) {
+    if (!imagePairSourceActive) {
         return;
     }
     
     // Get images from source
-    imageSource->getImages(inputImageL, inputImageR);
+    imagePairSource->getImages(inputImageL, inputImageR);
     emit inputImagesChanged();
 }
 

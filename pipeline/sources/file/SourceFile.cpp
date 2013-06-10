@@ -1,5 +1,5 @@
 /*
- * File Image Source: source
+ * File Image Pair Source: source
  * Copyright (C) 2013 Rok Mandeljc
  *
  * This program is free software; you can redistribute it and/or modify
@@ -19,14 +19,14 @@
  * 
  */
 
-#include "ImageSourceFile.h"
-#include "ImageSourceFileConfigWidget.h"
+#include "SourceFile.h"
+#include "SourceFileConfigWidget.h"
 
 #include <opencv2/highgui/highgui.hpp>
 
 
-ImageSourceFile::ImageSourceFile (QObject *parent)
-    : ImageSource(parent)
+SourceFile::SourceFile (QObject *parent)
+    : ImagePairSource(parent)
 {
     shortName = "FILE";
 
@@ -40,25 +40,25 @@ ImageSourceFile::ImageSourceFile (QObject *parent)
     replyLeft = replyRight = NULL;
 }
 
-ImageSourceFile::~ImageSourceFile ()
+SourceFile::~SourceFile ()
 {
 }
 
 
-QWidget *ImageSourceFile::createConfigWidget (QWidget *parent)
+QWidget *SourceFile::createConfigWidget (QWidget *parent)
 {
-    return new ImageSourceFileConfigWidget(this, parent);
+    return new SourceFileConfigWidget(this, parent);
 }
 
 
-void ImageSourceFile::stopSource ()
+void SourceFile::stopSource ()
 {
     // Stop periodic refresh
     setPeriodicRefreshState(false);
 }
 
 
-void ImageSourceFile::loadImagePair (const QString &left, const QString &right, bool remoteAccess)
+void SourceFile::loadImagePair (const QString &left, const QString &right, bool remoteAccess)
 {
     filenameLeft = left;
     filenameRight = right;
@@ -75,22 +75,22 @@ void ImageSourceFile::loadImagePair (const QString &left, const QString &right, 
 // *********************************************************************
 // *                          Left image info                          *
 // *********************************************************************
-const QString &ImageSourceFile::getLeftFilename () const
+const QString &SourceFile::getLeftFilename () const
 {
     return filenameLeft;
 }
 
-int ImageSourceFile::getLeftWidth () const
+int SourceFile::getLeftWidth () const
 {
     return imageLeft.cols;
 }
 
-int ImageSourceFile::getLeftHeight () const
+int SourceFile::getLeftHeight () const
 {
     return imageLeft.rows;
 }
 
-int ImageSourceFile::getLeftChannels () const
+int SourceFile::getLeftChannels () const
 {
     return imageLeft.channels();
 }
@@ -99,22 +99,22 @@ int ImageSourceFile::getLeftChannels () const
 // *********************************************************************
 // *                         Right image info                          *
 // *********************************************************************
-const QString &ImageSourceFile::getRightFilename () const
+const QString &SourceFile::getRightFilename () const
 {
     return filenameRight;
 }
 
-int ImageSourceFile::getRightWidth () const
+int SourceFile::getRightWidth () const
 {
     return imageRight.cols;
 }
 
-int ImageSourceFile::getRightHeight () const
+int SourceFile::getRightHeight () const
 {
     return imageRight.rows;
 }
 
-int ImageSourceFile::getRightChannels () const
+int SourceFile::getRightChannels () const
 {
     return imageRight.channels();
 }
@@ -123,7 +123,7 @@ int ImageSourceFile::getRightChannels () const
 // *********************************************************************
 // *                         Periodic refresh                          *
 // *********************************************************************
-void ImageSourceFile::setPeriodicRefreshState (bool enable)
+void SourceFile::setPeriodicRefreshState (bool enable)
 {
     if (enable == refreshTimer->isActive()) {
         return;
@@ -139,17 +139,17 @@ void ImageSourceFile::setPeriodicRefreshState (bool enable)
     emit periodicRefreshStateChanged(enable);
 }
 
-bool ImageSourceFile::getPeriodicRefreshState () const
+bool SourceFile::getPeriodicRefreshState () const
 {
     return refreshTimer->isActive();
 }
 
-int ImageSourceFile::getRefreshPeriod () const
+int SourceFile::getRefreshPeriod () const
 {
     return refreshPeriod;
 }
 
-void ImageSourceFile::setRefreshPeriod (int newPeriod)
+void SourceFile::setRefreshPeriod (int newPeriod)
 {
     if (refreshPeriod == newPeriod) {
         return;
@@ -167,7 +167,7 @@ void ImageSourceFile::setRefreshPeriod (int newPeriod)
 
 
 
-void ImageSourceFile::periodicRefresh ()
+void SourceFile::periodicRefresh ()
 {
     if (remote) {
         loadRemoteImages();
@@ -176,7 +176,7 @@ void ImageSourceFile::periodicRefresh ()
     }
 }
 
-void ImageSourceFile::imageLoadingError (const QString &errorDescription)
+void SourceFile::imageLoadingError (const QString &errorDescription)
 {
     qWarning() << qPrintable(errorDescription);
     emit error(errorDescription);
@@ -185,7 +185,7 @@ void ImageSourceFile::imageLoadingError (const QString &errorDescription)
     setPeriodicRefreshState(false);
 }
 
-void ImageSourceFile::loadLocalImages ()
+void SourceFile::loadLocalImages ()
 {
     try {
         // Load both images and amit the change signal
@@ -197,7 +197,7 @@ void ImageSourceFile::loadLocalImages ()
     }
 }
 
-void ImageSourceFile::loadRemoteImages ()
+void SourceFile::loadRemoteImages ()
 {
     // Make sure we are not already processing requests
     if ((replyLeft && replyLeft->isRunning()) || (replyRight && replyRight->isRunning())) {
@@ -211,7 +211,7 @@ void ImageSourceFile::loadRemoteImages ()
     replyRight = network->get(QNetworkRequest(filenameRight));
 }
 
-void ImageSourceFile::processRemoteReply (QNetworkReply *reply)
+void SourceFile::processRemoteReply (QNetworkReply *reply)
 {
     if (reply->error() != QNetworkReply::NoError) {
         imageLoadingError(QString("Error while retrieving left image; network error code %1").arg(reply->error()));

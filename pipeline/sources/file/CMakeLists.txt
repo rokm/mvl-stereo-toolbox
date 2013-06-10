@@ -7,14 +7,14 @@ find_package(Qt4 REQUIRED QtNetwork)
 set(plugin_name ${PROJECT_NAME})
 
 set(plugin_SOURCES
-    ImageSourceFile.cpp
-    ImageSourceFileConfigWidget.cpp
+    SourceFile.cpp
+    SourceFileConfigWidget.cpp
     plugin.cpp
 )
     
 set(plugin_HEADERS
-    ImageSourceFile.h
-    ImageSourceFileConfigWidget.h
+    SourceFile.h
+    SourceFileConfigWidget.h
 )
 
 QT4_WRAP_CPP(plugin_HEADERS_MOC ${plugin_HEADERS})

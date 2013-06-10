@@ -1,5 +1,5 @@
 /*
- * MVL Stereo Toolbox: image source GUI
+ * MVL Stereo Toolbox: image pair source GUI
  * Copyright (C) 2013 Rok Mandeljc
  *
  * This program is free software; you can redistribute it and/or modify
@@ -19,18 +19,18 @@
  * 
  */
 
-#include "GuiImageSource.h"
+#include "GuiImagePairSource.h"
 
 #include "ImageDisplayWidget.h"
 
 #include "StereoPipeline.h"
-#include "ImageSource.h"
+#include "ImagePairSource.h"
 
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
 
 
-GuiImageSource::GuiImageSource (StereoPipeline *p, QList<ImageSource *> &s, QWidget *parent)
+GuiImagePairSource::GuiImagePairSource (StereoPipeline *p, QList<ImagePairSource *> &s, QWidget *parent)
     : QWidget(parent, Qt::Window), pipeline(p), sources(s)
 {
     setWindowTitle("Image source");
@@ -114,22 +114,22 @@ GuiImageSource::GuiImageSource (StereoPipeline *p, QList<ImageSource *> &s, QWid
     connect(pipeline, SIGNAL(inputImagesChanged()), this, SLOT(updateImages()));
 }
 
-GuiImageSource::~GuiImageSource ()
+GuiImagePairSource::~GuiImagePairSource ()
 {
 }
 
-void GuiImageSource::setSource (int i)
+void GuiImagePairSource::setSource (int i)
 {
     if (i < 0 || i >= sources.size()) {
         qWarning() << "Source" << i << "does not exist!";
         return;
     }
     
-    pipeline->setImageSource(sources[i]);
+    pipeline->setImagePairSource(sources[i]);
 }
 
 
-void GuiImageSource::updateImages ()
+void GuiImagePairSource::updateImages ()
 {
     displayImageLeft->setImage(pipeline->getLeftImage());
     displayImageRight->setImage(pipeline->getRightImage());
@@ -139,7 +139,7 @@ void GuiImageSource::updateImages ()
 // *********************************************************************
 // *                            Image saving                           *
 // *********************************************************************
-void GuiImageSource::saveImages ()
+void GuiImagePairSource::saveImages ()
 {
     // Make snapshot of images - because it can take a while to get
     // the filename...
@@ -176,7 +176,7 @@ void GuiImageSource::saveImages ()
     }
 }
 
-void GuiImageSource::snapshotImages ()
+void GuiImagePairSource::snapshotImages ()
 {
     // Make snapshot of images - because it can take a while to get
     // the filename...

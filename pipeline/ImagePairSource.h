@@ -1,5 +1,5 @@
 /*
- * File Image Pair Source: plugin
+ * Stereo Pipeline: image pair source
  * Copyright (C) 2013 Rok Mandeljc
  *
  * This program is free software; you can redistribute it and/or modify
@@ -19,27 +19,44 @@
  * 
  */
 
-#include "PluginFactory.h"
-#include "SourceFile.h"
+#ifndef IMAGE_PAIR_SOURCE_H
+#define IMAGE_PAIR_SOURCE_H
+
+#include <QtCore>
+
+#include <opencv2/core/core.hpp>
 
 
-class Plugin : public PluginFactory
+class ImagePairSource : public QObject
 {
-    PluginType getPluginType () const {
-        return PluginImagePairSource;
-    }
+    Q_OBJECT
+
+public:
+    ImagePairSource (QObject * = 0);
+    virtual ~ImagePairSource ();
+
+    const QString &getShortName () const;
+
+    virtual void getImages (cv::Mat &, cv::Mat &);
+
+    virtual void stopSource ();
+
+    // Config widget
+    virtual QWidget *createConfigWidget (QWidget * = 0) = 0;
+
+signals:
+    void imagesChanged ();
+
+    void error (const QString);
+
+protected:
+    QString shortName;
     
-    QString getShortName () const {
-        return "FILE";
-    }
+    // Images
+    QReadWriteLock imagesLock;
     
-    QString getDescription () const {
-        return "File Image Pair Source";
-    }
-    
-    QObject *createObject (QObject *parent = 0) const {
-        return new SourceFile(parent);
-    }
+    cv::Mat imageLeft;
+    cv::Mat imageRight;
 };
 
-Q_EXPORT_PLUGIN2(file, Plugin)
+#endif

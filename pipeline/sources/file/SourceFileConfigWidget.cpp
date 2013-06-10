@@ -1,5 +1,5 @@
 /*
- * File Image Source: config widget
+ * File Image Pair Source: config widget
  * Copyright (C) 2013 Rok Mandeljc
  *
  * This program is free software; you can redistribute it and/or modify
@@ -19,11 +19,11 @@
  * 
  */
 
-#include "ImageSourceFileConfigWidget.h"
-#include "ImageSourceFile.h"
+#include "SourceFileConfigWidget.h"
+#include "SourceFile.h"
 
 
-ImageSourceFileConfigWidget::ImageSourceFileConfigWidget (ImageSourceFile *s, QWidget *parent)
+SourceFileConfigWidget::SourceFileConfigWidget (SourceFile *s, QWidget *parent)
     : QWidget(parent), source(s)
 {
     QFormLayout *layout = new QFormLayout(this);
@@ -135,18 +135,18 @@ ImageSourceFileConfigWidget::ImageSourceFileConfigWidget (ImageSourceFile *s, QW
     connect(source, SIGNAL(imagesChanged()), this, SLOT(updateImageInformation()));
 }
 
-ImageSourceFileConfigWidget::~ImageSourceFileConfigWidget ()
+SourceFileConfigWidget::~SourceFileConfigWidget ()
 {
 }
 
-void ImageSourceFileConfigWidget::updateImageInformation ()
+void SourceFileConfigWidget::updateImageInformation ()
 {
     // Display image information
     labelFilenameLeft->setText(QString("<b>Left image: </b> %1, <b>resolution:</b> %2x%3, <b>channels:</b> %4").arg(source->getLeftFilename()).arg(source->getLeftWidth()).arg(source->getLeftHeight()).arg(source->getLeftChannels()));
     labelFilenameRight->setText(QString("<b>Right image: </b> %1, <b>resolution:</b> %2x%3, <b>channels:</b> %4").arg(source->getRightFilename()).arg(source->getRightWidth()).arg(source->getRightHeight()).arg(source->getRightChannels()));
 }
 
-void ImageSourceFileConfigWidget::loadFiles ()
+void SourceFileConfigWidget::loadFiles ()
 {
     QStringList filenames = QFileDialog::getOpenFileNames(this, "Load left and right image", QString(), "Images (*.png *.jpg *.pgm *.ppm *.tif *.bmp)");
 
@@ -158,7 +158,7 @@ void ImageSourceFileConfigWidget::loadFiles ()
 }
 
 
-void ImageSourceFileConfigWidget::loadUrls ()
+void SourceFileConfigWidget::loadUrls ()
 {
     // Run the dialog
     if (dialogUrl->exec() == QDialog::Accepted) {

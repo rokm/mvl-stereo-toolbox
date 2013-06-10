@@ -1,5 +1,5 @@
 /*
- * DC1394 Image Source: plugin
+ * DC1394 Image Pair Source: plugin
  * Copyright (C) 2013 Rok Mandeljc
  *
  * This program is free software; you can redistribute it and/or modify
@@ -20,12 +20,12 @@
  */
 
 #include "PluginFactory.h"
-#include "ImageSourceDC1394.h"
+#include "SourceDC1394.h"
 
 class Plugin : public PluginFactory
 {
     PluginType getPluginType () const {
-        return PluginImageSource;
+        return PluginImagePairSource;
     }
     
     QString getShortName () const {
@@ -33,11 +33,11 @@ class Plugin : public PluginFactory
     }
     
     QString getDescription () const {
-        return "DC1394 FireWire Camera Pair Image Source";
+        return "DC1394 Image Pair Source";
     }
     
     QObject *createObject (QObject *parent = 0) const {
-        return new ImageSourceDC1394(parent);
+        return new SourceDC1394(parent);
     }
 };
 
