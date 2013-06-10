@@ -59,7 +59,7 @@ protected:
     void releaseCamera (CameraDC1394 *&);
 
 protected slots:
-    void frameAggregator ();
+    void synchronizeFrames ();
 
 signals:
     void leftCameraChanged ();

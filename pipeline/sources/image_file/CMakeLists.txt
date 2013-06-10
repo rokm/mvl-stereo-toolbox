@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8)
-project(source_file CXX)
+project(source_image_file CXX)
 
 find_package(OpenCV REQUIRED core highgui)
 find_package(Qt4 REQUIRED QtNetwork)
@@ -7,14 +7,18 @@ find_package(Qt4 REQUIRED QtNetwork)
 set(plugin_name ${PROJECT_NAME})
 
 set(plugin_SOURCES
-    SourceFile.cpp
-    SourceFileConfigWidget.cpp
+    ImageFileCapture.cpp
+    ImageFileCaptureConfigWidget.cpp
+    SourceImageFile.cpp
+    SourceImageFileConfigWidget.cpp
     plugin.cpp
 )
     
 set(plugin_HEADERS
-    SourceFile.h
-    SourceFileConfigWidget.h
+    ImageFileCapture.h
+    ImageFileCaptureConfigWidget.h
+    SourceImageFile.h
+    SourceImageFileConfigWidget.h
 )
 
 QT4_WRAP_CPP(plugin_HEADERS_MOC ${plugin_HEADERS})

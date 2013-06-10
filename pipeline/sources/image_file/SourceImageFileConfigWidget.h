@@ -1,5 +1,5 @@
 /*
- * File Image Pair Source: config widget
+ * Image File Pair Source: config widget
  * Copyright (C) 2013 Rok Mandeljc
  *
  * This program is free software; you can redistribute it and/or modify
@@ -25,54 +25,31 @@
 #include <QtGui>
 
 
-class SourceFile;
-class UrlDialog;
+class SourceImageFile;
 
-class SourceFileConfigWidget : public QWidget
+class SourceImageFileConfigWidget : public QWidget
 {
     Q_OBJECT
     
 public:
-    SourceFileConfigWidget (SourceFile *, QWidget * = 0);
-    virtual ~SourceFileConfigWidget ();
-
-protected slots:
-    void loadFiles ();
-    void loadUrls ();
-
-    void updateImageInformation ();
+    SourceImageFileConfigWidget (SourceImageFile *, QWidget * = 0);
+    virtual ~SourceImageFileConfigWidget ();
 
 protected:
-    SourceFile *source;
+    QWidget *createImageFrame (bool);
 
-    QPushButton *pushButtonLoadFiles;
-    QPushButton *pushButtonLoadUrls;
+protected slots:
+    void loadImagePair ();
+
+protected:
+    SourceImageFile *source;
+
+    QPushButton *pushButtonLoadPair;
 
     QPushButton *pushButtonPeriodicRefresh;
 
     QSpinBox *spinBoxRefreshPeriod;
-    
-    QLabel *labelFilenameLeft;
-    QLabel *labelFilenameRight;
-
-    UrlDialog *dialogUrl;
 };
 
-
-class UrlDialog : public QDialog
-{
-    Q_OBJECT
-
-public:
-    UrlDialog (QWidget * = 0);
-    virtual ~UrlDialog ();
-
-    QString getUrlLeft () const;
-    QString getUrlRight () const;
-
-protected:
-    QTextEdit *textEditUrl1;
-    QTextEdit *textEditUrl2;
-};
 
 #endif

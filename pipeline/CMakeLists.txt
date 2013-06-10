@@ -51,7 +51,7 @@ add_definitions(-DMVL_STEREO_PIPELINE_PLUGIN_DIR="${MVL_STEREO_PIPELINE_PLUGIN_D
 
 # Image source plugins
 add_subdirectory(sources/dc1394)
-add_subdirectory(sources/file)
+add_subdirectory(sources/image_file)
 
 # Stereo method plugins
 add_subdirectory(methods/elas)

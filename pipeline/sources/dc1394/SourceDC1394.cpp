@@ -155,7 +155,7 @@ void SourceDC1394::createCamera (CameraDC1394 *& camera, int c)
     camera = new CameraDC1394(raw_camera, this);
 
     // Connect
-    connect(camera, SIGNAL(frameReady()), this, SLOT(frameAggregator()));
+    connect(camera, SIGNAL(frameReady()), this, SLOT(synchronizeFrames()));
 
     // Mark camera as active in our list
     cameraListModel->setActive(c, true);
@@ -167,7 +167,7 @@ void SourceDC1394::releaseCamera (CameraDC1394 *& camera)
         dc1394camera_id_t id = camera->getId();
 
         // Disconnect
-        disconnect(camera, SIGNAL(frameReady()), this, SLOT(frameAggregator()));
+        disconnect(camera, SIGNAL(frameReady()), this, SLOT(synchronizeFrames()));
 
         // Delete camera object 
         delete camera;
@@ -202,7 +202,11 @@ void SourceDC1394::startStopCapture (bool start)
     }
 }
 
-void SourceDC1394::frameAggregator ()
+
+// *********************************************************************
+// *                        Frame synchronizer                         *
+// *********************************************************************
+void SourceDC1394::synchronizeFrames ()
 {
     if (QObject::sender() == leftCamera) {
         leftFrameReady = true;

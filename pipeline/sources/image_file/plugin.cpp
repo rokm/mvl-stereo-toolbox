@@ -20,7 +20,7 @@
  */
 
 #include "PluginFactory.h"
-#include "SourceFile.h"
+#include "SourceImageFile.h"
 
 
 class Plugin : public PluginFactory
@@ -34,11 +34,11 @@ class Plugin : public PluginFactory
     }
     
     QString getDescription () const {
-        return "File Image Pair Source";
+        return "Image File Pair Source";
     }
     
     QObject *createObject (QObject *parent = 0) const {
-        return new SourceFile(parent);
+        return new SourceImageFile(parent);
     }
 };
 
