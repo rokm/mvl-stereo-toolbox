@@ -1,5 +1,5 @@
 /*
- * Image File Pair Source: config widget
+ * Video File Pair Source: plugin
  * Copyright (C) 2013 Rok Mandeljc
  *
  * This program is free software; you can redistribute it and/or modify
@@ -19,37 +19,27 @@
  * 
  */
 
-#ifndef SOURCE_IMAGE_FILE_CONFIG_WIDGET_H
-#define SOURCE_IMAGE_FILE_CONFIG_WIDGET_H
-
-#include <QtGui>
+#include "PluginFactory.h"
+#include "SourceVideoFile.h"
 
 
-class SourceImageFile;
-
-class SourceImageFileConfigWidget : public QWidget
+class Plugin : public PluginFactory
 {
-    Q_OBJECT
+    PluginType getPluginType () const {
+        return PluginImagePairSource;
+    }
     
-public:
-    SourceImageFileConfigWidget (SourceImageFile *, QWidget * = 0);
-    virtual ~SourceImageFileConfigWidget ();
-
-protected:
-    QWidget *createImageFrame (bool);
-
-protected slots:
-    void loadImagePair ();
-
-protected:
-    SourceImageFile *source;
-
-    QPushButton *pushButtonLoadPair;
-
-    QPushButton *pushButtonPeriodicRefresh;
-
-    QSpinBox *spinBoxRefreshPeriod;
+    QString getShortName () const {
+        return "VIDEO";
+    }
+    
+    QString getDescription () const {
+        return "Video File Pair Source";
+    }
+    
+    QObject *createObject (QObject *parent = 0) const {
+        return new SourceVideoFile(parent);
+    }
 };
 
-
-#endif
+Q_EXPORT_PLUGIN2(file, Plugin)

@@ -1,5 +1,5 @@
 /*
- * Image File Pair Source: config widget
+ * Video File Pair Source: config widget
  * Copyright (C) 2013 Rok Mandeljc
  *
  * This program is free software; you can redistribute it and/or modify
@@ -19,36 +19,34 @@
  * 
  */
 
-#ifndef SOURCE_IMAGE_FILE_CONFIG_WIDGET_H
-#define SOURCE_IMAGE_FILE_CONFIG_WIDGET_H
+#ifndef SOURCE_FILE_CONFIG_WIDGET_H
+#define SOURCE_FILE_CONFIG_WIDGET_H
 
 #include <QtGui>
 
 
-class SourceImageFile;
+class SourceVideoFile;
 
-class SourceImageFileConfigWidget : public QWidget
+class SourceVideoFileConfigWidget : public QWidget
 {
     Q_OBJECT
     
 public:
-    SourceImageFileConfigWidget (SourceImageFile *, QWidget * = 0);
-    virtual ~SourceImageFileConfigWidget ();
+    SourceVideoFileConfigWidget (SourceVideoFile *, QWidget * = 0);
+    virtual ~SourceVideoFileConfigWidget ();
 
 protected:
-    QWidget *createImageFrame (bool);
+    QWidget *createVideoFrame (bool);
 
 protected slots:
-    void loadImagePair ();
+    void loadVideoPair ();
 
 protected:
-    SourceImageFile *source;
+    SourceVideoFile *source;
 
     QPushButton *pushButtonLoadPair;
 
-    QPushButton *pushButtonPeriodicRefresh;
-
-    QSpinBox *spinBoxRefreshPeriod;
+    QPushButton *pushButtonPlay;
 };
 
 

@@ -1,5 +1,5 @@
 /*
- * File Image Pair Source: plugin
+ * Image File Pair Source: plugin
  * Copyright (C) 2013 Rok Mandeljc
  *
  * This program is free software; you can redistribute it and/or modify
@@ -30,7 +30,7 @@ class Plugin : public PluginFactory
     }
     
     QString getShortName () const {
-        return "FILE";
+        return "IMAGE";
     }
     
     QString getDescription () const {

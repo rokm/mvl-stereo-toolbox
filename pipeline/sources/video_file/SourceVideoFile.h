@@ -19,56 +19,48 @@
  * 
  */
 
-#ifndef SOURCE_IMAGE_FILE_H
-#define SOURCE_IMAGE_FILE_H
-
-#include <QtNetwork>
+#ifndef SOURCE_FILE_H
+#define SOURCE_FILE_H
 
 #include "ImagePairSource.h"
 
 
-class ImageFileCapture;
+class VideoFileCapture;
 
-class SourceImageFile : public ImagePairSource
+class SourceVideoFile : public ImagePairSource
 {
     Q_OBJECT
 
 public:
-    SourceImageFile (QObject * = 0);
-    virtual ~SourceImageFile ();
+    SourceVideoFile (QObject * = 0);
+    virtual ~SourceVideoFile ();
 
     virtual void stopSource ();
 
     virtual QWidget *createConfigWidget (QWidget * = 0);
 
-    ImageFileCapture *getLeftImageCapture ();
-    ImageFileCapture *getRightImageCapture ();
+    VideoFileCapture *getLeftVideoCapture ();
+    VideoFileCapture *getRightVideoCapture ();
 
-    void loadImagePair (const QString &, const QString &, bool);
+    void loadVideoPair (const QString &, const QString &);
 
-    bool getPeriodicRefreshState () const;
-    int getRefreshPeriod () const;
+    bool getPlaybackState () const;
     
 public slots:
-    void setPeriodicRefreshState (bool);
-    void setRefreshPeriod (int);
-
+    void setPlaybackState (bool);
+    
 protected slots:
-    void periodicRefresh ();
+    //void periodicRefresh ();
     void synchronizeFrames ();
 
 signals:
-    void periodicRefreshStateChanged (bool);
-    void refreshPeriodChanged (int);
+    void playbackStateChanged (bool);
     
 protected:
-    QTimer *refreshTimer;
-    int refreshPeriod;
+    VideoFileCapture *leftVideoCapture;
+    VideoFileCapture *rightVideoCapture;
 
-    ImageFileCapture *leftImageCapture;
-    ImageFileCapture *rightImageCapture;
-
-    bool leftImageReady, rightImageReady;
+    bool leftFrameReady, rightFrameReady;
 };
 
 #endif
