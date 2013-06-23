@@ -13,7 +13,7 @@
  * GNU General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
+ * along with this prograsetCenterRoiSizem; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301, USA.
  * 
@@ -25,6 +25,7 @@
 #include "PluginFactory.h"
 #include "StereoRectification.h"
 #include "StereoMethod.h"
+#include "StereoReprojection.h"
 
 #include <opencv2/imgproc/imgproc.hpp>
 
@@ -39,6 +40,7 @@ StereoPipeline::StereoPipeline (QObject *parent)
     imagePairSource = NULL;
     rectification = NULL;
     stereoMethod = NULL;
+    reprojection = NULL;
 
     centerRoiW = centerRoiH = -1;
 
@@ -48,13 +50,16 @@ StereoPipeline::StereoPipeline (QObject *parent)
     imagePairSourceActive = true;
     rectificationActive = true;
     stereoMethodActive = true;
+    reprojectionActive = true;
 
     connect(this, SIGNAL(inputImagesChanged()), this, SLOT(rectifyImages()));
     connect(this, SIGNAL(rectifiedImagesChanged()), this, SLOT(computeDisparityImage()));
+    connect(this, SIGNAL(disparityImageChanged()), this, SLOT(reprojectDisparityImage()));
 
     connect(this, SIGNAL(imagePairSourceStateChanged(bool)), this, SLOT(beginProcessing()));
     connect(this, SIGNAL(rectificationStateChanged(bool)), this, SLOT(rectifyImages()));
     connect(this, SIGNAL(stereoMethodStateChanged(bool)), this, SLOT(computeDisparityImage()));
+    connect(this, SIGNAL(reprojectionStateChanged(bool)), this, SLOT(reprojectDisparityImage()));
 
     connect(this, SIGNAL(centerRoiChanged()), this, SLOT(computeDisparityImage()));
 
@@ -71,6 +76,7 @@ StereoPipeline::~StereoPipeline ()
     setImagePairSourceState(false);
     setRectificationState(false);
     setStereoMethodState(false);
+    setReprojectionState(false);
 
     // ... and wait for method thread to finish
     if (stereoMethodWatcher.isRunning()) {
@@ -558,3 +564,72 @@ int StereoPipeline::getStereoDroppedFrames () const
 {
     return stereoDroppedFramesCounter;
 }
+
+
+// *********************************************************************
+// *                          3D Reprojection                          *
+// *********************************************************************
+// Reprojection setting
+void StereoPipeline::setReprojection (StereoReprojection *newReprojection)
+{
+    // Change reprojection
+    if (reprojection) {
+        disconnect(reprojection, SIGNAL(stateChanged(bool)), this, SLOT(reprojectDisparityImage()));
+    }
+    
+    reprojection = newReprojection;
+    connect(reprojection, SIGNAL(stateChanged(bool)), this, SLOT(reprojectDisparityImage()));
+
+    // Reproject disparity image
+    reprojectDisparityImage();
+}
+
+
+// Reprojection state
+void StereoPipeline::setReprojectionState (bool newState)
+{
+    if (newState != reprojectionActive) {
+        reprojectionActive = newState;
+        emit reprojectionStateChanged(newState);
+    }
+}
+
+bool StereoPipeline::getReprojectionState () const
+{
+    return reprojectionActive;
+}
+
+
+// Image retrieval
+const cv::Mat &StereoPipeline::getReprojectedImage () const
+{
+    return reprojectedImage;
+}
+
+int StereoPipeline::getReprojectionComputationTime () const
+{
+    return reprojectionComputationTime;
+}
+
+
+// Processing
+void StereoPipeline::reprojectDisparityImage ()
+{
+    // Make sure reprojection is marked as active
+    if (!reprojectionActive) {
+        return;
+    }
+    
+    // Make sure we have reprojection object set
+    if (!reprojection) {
+        emit error("Stereo reprojection object not set!");
+        return;
+    }
+
+    QTime timer; timer.start();
+    reprojection->reprojectStereoDisparity(disparityImage, reprojectedImage);
+    reprojectionComputationTime = timer.elapsed();
+
+    emit reprojectedImageChanged();
+}
+

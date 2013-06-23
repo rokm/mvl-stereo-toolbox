@@ -25,11 +25,13 @@
 #include "PluginFactory.h"
 #include "StereoRectification.h"
 #include "StereoMethod.h"
+#include "StereoReprojection.h"
 #include "StereoPipeline.h"
 
 #include "GuiImagePairSource.h"
 #include "GuiRectification.h"
 #include "GuiStereoMethod.h"
+#include "GuiPointCloud.h"
 
 
 Toolbox::Toolbox ()
@@ -51,6 +53,7 @@ Toolbox::Toolbox ()
     windowImagePairSource = new GuiImagePairSource(pipeline, imagePairSources, this);
     windowRectification = new GuiRectification(pipeline, pipeline->getRectification(), this);
     windowStereoMethod = new GuiStereoMethod(pipeline, stereoMethods, this);
+    windowPointCloud = new GuiPointCloud(pipeline, reprojection, this);
 
     // Create GUI
     createGui();
@@ -63,7 +66,6 @@ Toolbox::~Toolbox ()
 void Toolbox::createGui ()
 {
     QGridLayout *layout = new QGridLayout(this);
-    setLayout(layout);
 
     // Image pair source
     pushButtonImagePairSource = new QPushButton("Image pair source", this);
@@ -107,17 +109,31 @@ void Toolbox::createGui ()
     layout->addWidget(pushButtonStereoMethod, 2, 0);
     layout->addWidget(pushButtonStereoMethodActive, 2, 1);
 
+    // Reprojection/point cloud
+    pushButtonPointCloud = new QPushButton("Point cloud", this);
+    connect(pushButtonPointCloud, SIGNAL(clicked()), this, SLOT(showWindowPointCloud()));
+
+    pushButtonPointCloudActive = new QPushButton("Active", this);
+    pushButtonPointCloudActive->setCheckable(true);
+
+    pushButtonPointCloudActive->setChecked(pipeline->getReprojectionState());
+    connect(pushButtonPointCloudActive, SIGNAL(toggled(bool)), pipeline, SLOT(setReprojectionState(bool)));
+    connect(pipeline, SIGNAL(reprojectionStateChanged(bool)), this, SLOT(setPushButtonPointCloudActiveState(bool)));
+
+    layout->addWidget(pushButtonPointCloud, 3, 0);
+    layout->addWidget(pushButtonPointCloudActive, 3, 1);
+
     // Separator
     QFrame *line = new QFrame(this);
     line->setFrameStyle(QFrame::HLine | QFrame::Sunken);
 
-    layout->addWidget(line, 3, 0, 1, 2);
+    layout->addWidget(line, 4, 0, 1, 2);
 
     // Exit
     QPushButton *pushButtonExit = new QPushButton("Exit", this);
     connect(pushButtonExit, SIGNAL(clicked()), qApp, SLOT(quit()));
 
-    layout->addWidget(pushButtonExit, 4, 0, 1, 2);
+    layout->addWidget(pushButtonExit, 5, 0, 1, 2);
 }
 
 
@@ -147,6 +163,12 @@ void Toolbox::showWindowStereoMethod ()
     showWindowOnTop(windowStereoMethod);
 }
 
+void Toolbox::showWindowPointCloud ()
+{
+    showWindowOnTop(windowPointCloud);
+}
+
+
 // *********************************************************************
 // *                      Active buttons states                        *
 // *********************************************************************
@@ -173,6 +195,11 @@ void Toolbox::setPushButtonRectificationActiveState (bool active)
 void Toolbox::setPushButtonStereoMethodActiveState (bool active)
 {
     setActiveButtonState(pushButtonStereoMethodActive, active);
+}
+
+void Toolbox::setPushButtonPointCloudActiveState (bool active)
+{
+    setActiveButtonState(pushButtonPointCloudActive, active);
 }
 
 

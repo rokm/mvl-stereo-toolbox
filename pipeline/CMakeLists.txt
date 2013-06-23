@@ -17,6 +17,7 @@ set(pipeline_SOURCES
     StereoMethod.cpp
     StereoPipeline.cpp
     StereoRectification.cpp
+    StereoReprojection.cpp
 )
 
 set(pipeline_HEADERS
@@ -26,6 +27,7 @@ set(pipeline_HEADERS
     StereoMethod.h
     StereoPipeline.h
     StereoRectification.h
+    StereoReprojection.h
 )
 
 QT4_WRAP_CPP(pipeline_HEADERS_MOC ${pipeline_HEADERS})

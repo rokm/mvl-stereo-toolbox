@@ -18,6 +18,7 @@ set(toolbox_SOURCES
     CalibrationPatternDisplayWidget.cpp
     CalibrationWizard.cpp
     GuiImagePairSource.cpp
+    GuiPointCloud.cpp
     GuiRectification.cpp
     GuiStereoMethod.cpp
     ImageDisplayWidget.cpp
@@ -29,6 +30,7 @@ set(toolbox_HEADERS
     CalibrationPatternDisplayWidget.h
     CalibrationWizard.h
     GuiImagePairSource.h
+    GuiPointCloud.h
     GuiRectification.h
     GuiStereoMethod.h
     ImageDisplayWidget.h

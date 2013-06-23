@@ -31,6 +31,7 @@ class ImagePairSource;
 class PluginFactory;
 class StereoRectification;
 class StereoMethod;
+class StereoReprojection;
 
 class StereoPipeline : public QObject
 {
@@ -88,10 +89,19 @@ public:
 
     int getStereoDroppedFrames () const;
 
+    // Reprojection
+    void setReprojection (StereoReprojection *);
+
+    bool getReprojectionState () const;
+
+    const cv::Mat &getReprojectedImage () const;
+    int getReprojectionComputationTime () const;
+
 public slots:
     void setImagePairSourceState (bool);
     void setRectificationState (bool);
     void setStereoMethodState (bool);
+    void setReprojectionState (bool);
 
     void setCenterRoiSize (const cv::Size &);
 
@@ -99,6 +109,7 @@ protected slots:
     void beginProcessing ();
     void rectifyImages ();
     void computeDisparityImage ();
+    void reprojectDisparityImage ();
 
     void computeDisparityImageInThread ();
 
@@ -110,10 +121,12 @@ signals:
     void imagePairSourceStateChanged (bool);
     void rectificationStateChanged (bool);
     void stereoMethodStateChanged (bool);
+    void reprojectionStateChanged (bool);
 
     void inputImagesChanged ();
     void rectifiedImagesChanged ();
     void disparityImageChanged ();
+    void reprojectedImageChanged ();
 
     void centerRoiChanged ();
 
@@ -155,6 +168,14 @@ protected:
     cv::Mat disparityImage;
     int disparityLevels;
     int disparityImageComputationTime;
+
+    // Reprojection
+    bool reprojectionActive;
+    StereoReprojection *reprojection;
+    
+    // Cached reprojected image
+    cv::Mat reprojectedImage;
+    int reprojectionComputationTime;
 };
 
 #endif
