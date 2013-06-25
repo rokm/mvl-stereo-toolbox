@@ -1,10 +1,14 @@
 cmake_minimum_required(VERSION 2.8)
 project(toolbox CXX)
 
-find_package(OpenCV REQUIRED core imgproc gpu highgui calib3d)
+find_package(OpenCV REQUIRED)
 find_package(Qt4 REQUIRED)
 
 include_directories(${PROJECT_SOURCE_DIR}/../pipeline)
+
+if(OPENCV_GPU_FOUND)
+    add_definitions(-DHAVE_OPENCV_GPU)
+endif()
 
 include(${QT_USE_FILE})
 add_definitions(${QT_DEFINITIONS})

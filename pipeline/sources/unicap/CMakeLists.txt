@@ -36,7 +36,7 @@ include(${QT_USE_FILE})
 add_definitions(${QT_DEFINITIONS})
 
 add_library(${plugin_name} SHARED ${plugin_SOURCES} ${plugin_HEADERS_MOC})
-target_link_libraries(${plugin_name} ${QT_LIBRARIES} ${OpenCV_LIBS})
+target_link_libraries(${plugin_name} ${QT_LIBRARIES} ${OpenCV_LIBS} ${UNICAP_LIBRARIES})
 set_target_properties(${plugin_name} PROPERTIES PREFIX "")
 
 install(TARGETS ${plugin_name} DESTINATION ${MVL_STEREO_PIPELINE_PLUGIN_DIR})

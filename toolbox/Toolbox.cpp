@@ -39,6 +39,12 @@ Toolbox::Toolbox ()
     pipeline = new StereoPipeline(this);
     pipeline->setUseStereoMethodThread(true);
 
+    // If available, initialize first GPU
+    if (pipeline->getNumberOfGpuDevices()) {
+        pipeline->setGpuDevice(0);
+    }
+
+    // Load plugins
     loadPlugins();
 
     // Create windows

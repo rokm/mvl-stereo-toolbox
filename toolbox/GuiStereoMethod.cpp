@@ -29,7 +29,9 @@
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
 
+#ifdef HAVE_OPENCV_GPU
 #include <opencv2/gpu/gpu.hpp>
+#endif
 
 
 GuiStereoMethod::GuiStereoMethod (StereoPipeline *p, QList<StereoMethod *> &m, QWidget *parent)
@@ -67,11 +69,13 @@ GuiStereoMethod::GuiStereoMethod (StereoPipeline *p, QList<StereoMethod *> &m, Q
     comboBox->setItemData(0, "Raw grayscale disparity.", Qt::ToolTipRole);
     comboBox->addItem("Dynamic range", DisplayDynamicDisparity);
     comboBox->setItemData(1, "Grayscale disparity scaled to min/max value.", Qt::ToolTipRole);
+#ifdef HAVE_OPENCV_GPU
     if (cv::gpu::getCudaEnabledDeviceCount()) {
         // This one requires CUDA...
         comboBox->addItem("Color (GPU)", DisplayColorDisparity);
         comboBox->setItemData(2, "HSV disparity (computed on GPU).", Qt::ToolTipRole);
-    }    
+    }
+#endif
     connect(comboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(updateImage()));
     box->addWidget(comboBox);
     comboBoxDisplayType = comboBox;
@@ -166,6 +170,7 @@ void GuiStereoMethod::updateImage ()
             displayDisparityImage->setImage(scaledDisp);
             break;
         }
+#ifdef HAVE_OPENCV_GPU
         case DisplayColorDisparity: {
             // Hue-color-coded disparity
             cv::gpu::GpuMat gpu_disp(disparity);
@@ -179,6 +184,7 @@ void GuiStereoMethod::updateImage ()
         
             break;
         }
+#endif
     }
         
 

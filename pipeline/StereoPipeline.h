@@ -44,6 +44,11 @@ public:
     void setPluginDirectory (const QString & = QString());
     QString getPluginDirectory () const;
     const QList<PluginFactory *> getAvailablePlugins () const;
+
+    // GPU/CUDA management
+    int getNumberOfGpuDevices ();
+    void setGpuDevice (int);
+    int getGpuDevice () const;
     
     // Image pair source
     void setImagePairSource (ImagePairSource *);

@@ -28,6 +28,10 @@
 
 #include <opencv2/imgproc/imgproc.hpp>
 
+#ifdef HAVE_OPENCV_GPU
+#include <opencv2/gpu/gpu.hpp>
+#endif
+
 
 StereoPipeline::StereoPipeline (QObject *parent)
     : QObject(parent)
@@ -73,6 +77,7 @@ StereoPipeline::~StereoPipeline ()
         stereoMethodWatcher.waitForFinished();
     }
 }
+
 
 // *********************************************************************
 // *                         Plugin management                         *
@@ -153,6 +158,37 @@ QString StereoPipeline::getPluginDirectory () const
 const QList<PluginFactory *> StereoPipeline::getAvailablePlugins () const
 {
     return plugins;
+}
+
+
+// *********************************************************************
+// *                        GPU/CUDA management                        *
+// *********************************************************************
+int StereoPipeline::getNumberOfGpuDevices ()
+{
+#ifdef HAVE_OPENCV_GPU
+    return cv::gpu::getCudaEnabledDeviceCount();
+#else
+    return 0;
+#endif
+}
+
+
+void StereoPipeline::setGpuDevice (int dev)
+{
+#ifdef HAVE_OPENCV_GPU
+    cv::gpu::setDevice(dev);
+    cv::gpu::GpuMat mat; // Create a matrix to initialize GPU
+#endif
+}
+
+int StereoPipeline::getGpuDevice () const
+{
+#ifdef HAVE_OPENCV_GPU
+    return cv::gpu::getDevice();
+#else
+    return -1;
+#endif
 }
 
 
