@@ -209,9 +209,16 @@ void StereoPipeline::setImagePairSource (ImagePairSource *newSource)
     if (imagePairSource) {
         imagePairSource->stopSource(); // Stop the source
         disconnect(imagePairSource, SIGNAL(imagesChanged()), this, SLOT(beginProcessing()));
+
+        if (imagePairSource->parent() == this) {
+            imagePairSource->deleteLater(); // Schedule for deletion
+        }
     }
 
     imagePairSource = newSource;
+    if (!imagePairSource->parent()) {
+        imagePairSource->setParent(this);
+    }
 
     connect(imagePairSource, SIGNAL(imagesChanged()), this, SLOT(beginProcessing()));
 
@@ -270,9 +277,16 @@ void StereoPipeline::setRectification (StereoRectification *newRectification)
     // Change rectification
     if (rectification) {
         disconnect(rectification, SIGNAL(stateChanged(bool)), this, SLOT(rectifyImages()));
+        if (rectification->parent() == this) {
+            rectification->deleteLater(); // Schedule for deletion
+        }
     }
     
     rectification = newRectification;
+    if (!rectification->parent()) {
+        rectification->setParent(this);
+    }
+    
     connect(rectification, SIGNAL(stateChanged(bool)), this, SLOT(rectifyImages()));
 
     // Rectify images
@@ -343,9 +357,17 @@ void StereoPipeline::setStereoMethod (StereoMethod *newMethod)
     // Change method
     if (stereoMethod) {
         disconnect(stereoMethod, SIGNAL(parameterChanged()), this, SLOT(computeDisparityImage()));
+
+        if (stereoMethod->parent() == this) {
+            stereoMethod->deleteLater(); // Schedule for deletion
+        }
     }
     
     stereoMethod = newMethod;
+    if (!stereoMethod->parent()) {
+        stereoMethod->deleteLater();
+    }
+    
     connect(stereoMethod, SIGNAL(parameterChanged()), this, SLOT(computeDisparityImage()));
 
     // Compute new disparity image
