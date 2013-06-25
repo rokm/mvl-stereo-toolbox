@@ -1,5 +1,5 @@
 /*
- * DC1394 Image Source: camera list model
+ * Unicap Image Source: camera list model
  * Copyright (C) 2013 Rok Mandeljc
  *
  * This program is free software; you can redistribute it and/or modify
@@ -31,23 +31,12 @@ CameraListModel::~CameraListModel()
 {
 }
 
-void CameraListModel::setDeviceList (const dc1394camera_list_t *list)
+void CameraListModel::setDeviceList (const QVector<unicap_device_t> &list)
 {
     beginResetModel();
-    
-    entries.clear();
-    for (unsigned int i = 0; i < list->num; i++) {
-        entries.append(list->ids[i]);
-    }
-    active.resize(list->num);
-
+    entries = list;
+    active.resize(list.size());
     endResetModel();
-}
-
-
-const dc1394camera_id_t &CameraListModel::getDeviceId (int c) const
-{
-    return entries[c];
 }
 
 
@@ -59,15 +48,19 @@ void CameraListModel::setActive (int c, bool value)
     dataChanged(index(c+1, 0), index(c+1, 0));
 }
 
-void CameraListModel::setActive (const dc1394camera_id_t &id, bool value)
+void CameraListModel::setActive (const unicap_device_t &dev, bool value)
 {
     for (int i = 0; i < entries.size(); i++) {
-        const dc1394camera_id_t &storedId = entries[i];
-        if (storedId.guid == id.guid && storedId.unit == id.unit) {
+        if (!strcmp(entries[i].identifier, dev.identifier)) {
             setActive(i, value);
             break;
         }
     }
+}
+
+const unicap_device_t &CameraListModel::getDeviceInfo (int c) const
+{
+    return entries[c];
 }
 
 
@@ -123,10 +116,10 @@ QVariant CameraListModel::data (const QModelIndex &index, int role) const
     }
 
     // Other valid devices
-    const dc1394camera_id_t &entry = entries[index.row() - 1];
+    const unicap_device_t &entry = entries[index.row() - 1];
     switch (role) {
         case Qt::DisplayRole: {
-            return QString("%1:%2").arg(entry.guid, 8, 16, QChar('0')).arg(entry.unit);
+            return QString("%1").arg(entry.identifier);
         }
         case Qt::UserRole: {
             // Index of device
