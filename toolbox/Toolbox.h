@@ -70,7 +70,6 @@ protected:
     QPushButton *pushButtonStereoMethodActive;
     
     StereoPipeline *pipeline;
-    StereoRectification *rectification;
 
     QList<ImagePairSource *> imagePairSources;
     QList<StereoMethod *> stereoMethods;

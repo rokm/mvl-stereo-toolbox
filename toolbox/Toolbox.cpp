@@ -39,14 +39,11 @@ Toolbox::Toolbox ()
     pipeline = new StereoPipeline(this);
     pipeline->setUseStereoMethodThread(true);
 
-    rectification = new StereoRectification(pipeline);
-    pipeline->setRectification(rectification);
-
     loadPlugins();
 
     // Create windows
     windowImagePairSource = new GuiImagePairSource(pipeline, imagePairSources, this);
-    windowRectification = new GuiRectification(pipeline, rectification, this);
+    windowRectification = new GuiRectification(pipeline, pipeline->getRectification(), this);
     windowStereoMethod = new GuiStereoMethod(pipeline, stereoMethods, this);
 
     // Create GUI

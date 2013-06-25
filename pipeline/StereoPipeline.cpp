@@ -54,6 +54,9 @@ StereoPipeline::StereoPipeline (QObject *parent)
 
     connect(this, SIGNAL(centerRoiChanged()), this, SLOT(computeDisparityImage()));
 
+    // Create rectification
+    setRectification(new StereoRectification(this));
+
     // Load plugins in default plugin path
     setPluginDirectory();
 }
@@ -226,6 +229,11 @@ void StereoPipeline::setImagePairSource (ImagePairSource *newSource)
     beginProcessing();
 }
 
+ImagePairSource *StereoPipeline::getImagePairSource ()
+{
+    return imagePairSource;
+}
+
 
 // Source state
 void StereoPipeline::setImagePairSourceState (bool newState)
@@ -291,6 +299,11 @@ void StereoPipeline::setRectification (StereoRectification *newRectification)
 
     // Rectify images
     rectifyImages();
+}
+
+StereoRectification *StereoPipeline::getRectification ()
+{
+    return rectification;
 }
 
 
@@ -372,6 +385,11 @@ void StereoPipeline::setStereoMethod (StereoMethod *newMethod)
 
     // Compute new disparity image
     computeDisparityImage();
+}
+
+StereoMethod *StereoPipeline::getStereoMethod ()
+{
+    return stereoMethod;
 }
 
 

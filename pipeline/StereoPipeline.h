@@ -47,6 +47,7 @@ public:
     
     // Image pair source
     void setImagePairSource (ImagePairSource *);
+    ImagePairSource *getImagePairSource ();
 
     bool getImagePairSourceState () const;
 
@@ -55,6 +56,7 @@ public:
     
     // Rectification
     void setRectification (StereoRectification *);
+    StereoRectification *getRectification ();
 
     bool getRectificationState () const;
 
@@ -67,6 +69,7 @@ public:
 
     // Stereo method
     void setStereoMethod (StereoMethod *);
+    StereoMethod *getStereoMethod ();
 
     bool getStereoMethodState () const;
     
