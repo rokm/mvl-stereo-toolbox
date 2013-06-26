@@ -66,7 +66,16 @@ bool StereoReprojection::getUseGpu () const
 
 void StereoReprojection::setReprojectionMatrix (const cv::Mat &newQ)
 {
-    Q = newQ.clone(); // Copy
+    // By default, OpenCV stereo calibration produces reprojection
+    // matrix that is 4x4 CV_64F... however, GPU reprojection code
+    // requires it to be 4x4 CV_32F. For performance reasons, we do
+    // the conversion here
+    if (newQ.type() == CV_64F) {
+        newQ.convertTo(Q, CV_32F); // Convert: CV_64F -> CV_32F
+    } else {
+        Q = newQ.clone(); // Copy
+    }
+    
     emit reprojectionMatrixChanged();
 }
 

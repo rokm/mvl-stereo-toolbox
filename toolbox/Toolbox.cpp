@@ -41,7 +41,11 @@ Toolbox::Toolbox ()
 
     // If available, initialize first GPU
     if (pipeline->getNumberOfGpuDevices()) {
+        qDebug() << "";
+        qDebug() << "Initializing GPU. This might take a while...";
         pipeline->setGpuDevice(0);
+        qDebug() << "GPU initialized!";
+        qDebug() << "";
     }
 
     // Load plugins
