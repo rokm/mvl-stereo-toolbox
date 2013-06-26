@@ -185,7 +185,7 @@ void StereoPipeline::setGpuDevice (int dev)
 {
 #ifdef HAVE_OPENCV_GPU
     cv::gpu::setDevice(dev);
-    cv::gpu::GpuMat mat; // Create a matrix to initialize GPU
+    cv::gpu::GpuMat mat(4, 4, CV_32FC1); // Create a dummy matrix to initialize GPU
 #endif
 }
 
