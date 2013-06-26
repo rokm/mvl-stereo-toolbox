@@ -1,10 +1,14 @@
 cmake_minimum_required(VERSION 2.8)
 project(toolbox CXX)
 
+set(TOOLBOX_VERSION 1.0.0)
+
 find_package(OpenCV REQUIRED)
 find_package(Qt4 REQUIRED)
 
 include_directories(${PROJECT_SOURCE_DIR}/../pipeline)
+
+add_definitions(-DTOOLBOX_VERSION="${TOOLBOX_VERSION}")
 
 if(OPENCV_GPU_FOUND)
     add_definitions(-DHAVE_OPENCV_GPU)

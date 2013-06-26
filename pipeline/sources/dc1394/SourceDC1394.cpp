@@ -78,8 +78,6 @@ void SourceDC1394::scanBus ()
     // Release old cameras
     releaseCamera(leftCamera);
     releaseCamera(rightCamera);
-
-    qDebug() << "Scanning bus for DC1394 devices...";
     
     // Create DC1394 object - if not already created
     if (!fw) {
@@ -131,13 +129,11 @@ void SourceDC1394::createCamera (CameraDC1394 *& camera, int c)
 
     // Check if it is the same as the current right camera
     if (rightCamera && rightCamera->isSameCamera(newId)) {
-        qDebug() << "Same as current right!";
         return;
     }
 
     // Check if it is the same as the current left camera
     if (leftCamera && leftCamera->isSameCamera(newId)) {
-        qDebug() << "Same as current left!";
         return;
     }
 

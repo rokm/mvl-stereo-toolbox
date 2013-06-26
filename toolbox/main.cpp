@@ -24,7 +24,10 @@ int main (int argc, char **argv)
 {
     QApplication app(argc, argv);
     
-    qDebug() << "MVL StereoToolbox v.1.0, (C) 2013 Rok Mandeljc <rok.mandeljc@fe.uni-lj.si>";
+    qDebug() << "MVL StereoToolbox";
+    qDebug() << "version" << TOOLBOX_VERSION;
+    qDebug() << "(C) 2013 Rok Mandeljc <rok.mandeljc@fe.uni-lj.si>";
+    qDebug() << "";
 
     Toolbox toolbox;
     toolbox.show();

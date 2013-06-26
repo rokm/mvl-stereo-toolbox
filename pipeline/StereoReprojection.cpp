@@ -80,7 +80,6 @@ void StereoReprojection::reprojectStereoDisparity (const cv::Mat &disparity, cv:
 {
     // Validate reprojection matrix
     if (Q.rows != 4 || Q.cols != 4 /*|| Q.type() != CV_32F || !Q.isContinuous()*/) {
-        qWarning() << "Reprojection: invalid Q!";
         points = cv::Mat();
         return;
     }

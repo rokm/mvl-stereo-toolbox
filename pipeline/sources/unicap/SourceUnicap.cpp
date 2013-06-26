@@ -71,8 +71,6 @@ void SourceUnicap::scanForDevices ()
     releaseCamera(leftCamera);
     releaseCamera(rightCamera);
 
-    qDebug() << "Scanning for Unicap devices...";
-
     // Enumerate devices
     int num_devices;
     unicap_status_t status = unicap_reenumerate_devices(&num_devices);
@@ -80,7 +78,6 @@ void SourceUnicap::scanForDevices ()
         qWarning() << "Failed to re-enumerate devices!";
         return;
     }
-    qDebug() << "Found" << num_devices << "devices";
 
     QVector<unicap_device_t> devices = QVector<unicap_device_t>(num_devices);
 
