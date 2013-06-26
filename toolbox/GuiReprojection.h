@@ -47,6 +47,7 @@ protected:
     StereoReprojection *reprojection;
 
     // GUI
+    QComboBox *comboBoxImage;
     QPushButton *pushButtonUseGpu;
 
     ReprojectedImageDisplayWidget *displayReprojectedImage;

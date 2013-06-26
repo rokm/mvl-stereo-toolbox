@@ -39,10 +39,30 @@ GuiReprojection::GuiReprojection (StereoPipeline *p, StereoReprojection *r, QWid
     // Buttons
     QHBoxLayout *buttonsLayout = new QHBoxLayout();
     QPushButton *pushButton;
+    QComboBox *comboBox;
+    QLabel *label;
+    QHBoxLayout *box;    
     
     layout->addLayout(buttonsLayout);
 
     buttonsLayout->addStretch();
+
+    // Display image
+    box = new QHBoxLayout();
+    box->setContentsMargins(0, 0, 0, 0);
+    buttonsLayout->addLayout(box);
+
+    label = new QLabel("Image", this);
+    label->setToolTip("Image to display in background");
+    box->addWidget(label);
+    
+    comboBox = new QComboBox(this);
+    comboBox->addItem("Disparity");
+    comboBox->addItem("Left");
+    comboBox->addItem("Right");
+    connect(comboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(updateImage()));
+    box->addWidget(comboBox);
+    comboBoxImage = comboBox;
 
     // Use GPU
     pushButton = new QPushButton("Use GPU", this);
@@ -77,5 +97,30 @@ GuiReprojection::~GuiReprojection ()
 
 void GuiReprojection::updateImage ()
 {
-    displayReprojectedImage->setImage(pipeline->getDisparityImage(), pipeline->getReprojectedImage());
+    const cv::Mat &reprojectedImage = pipeline->getReprojectedImage();
+
+    switch (comboBoxImage->currentIndex()) {
+        case 0: {
+            // Disparity
+            displayReprojectedImage->setImage(pipeline->getDisparityImage(), reprojectedImage);
+            break;
+        }
+        case 1: {
+            // Left
+            displayReprojectedImage->setImage(pipeline->getLeftRectifiedImage(), reprojectedImage);
+            break;
+        }
+        case 2: {
+            // Right
+            displayReprojectedImage->setImage(pipeline->getRightRectifiedImage(), reprojectedImage);
+            break;
+        }
+    }
+
+    // If reprojected points are valid, display computation time
+    if (reprojectedImage.data) {
+        statusBar->showMessage(QString("Disparity image (%1x%2) reprojected in %3 milliseconds.").arg(reprojectedImage.cols).arg(reprojectedImage.rows).arg(pipeline->getReprojectionComputationTime()));
+    } else {
+        statusBar->clearMessage();
+    }
 }
