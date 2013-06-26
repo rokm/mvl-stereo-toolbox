@@ -15,28 +15,22 @@ add_definitions(${QT_DEFINITIONS})
 
 set(toolbox_SOURCES
     main.cpp
-    CalibrationPatternDisplayWidget.cpp
     CalibrationWizard.cpp
     GuiImagePairSource.cpp
     GuiRectification.cpp
     GuiStereoMethod.cpp
     GuiReprojection.cpp
     ImageDisplayWidget.cpp
-    ImagePairDisplayWidget.cpp
-    ReprojectedImageDisplayWidget.cpp
     Toolbox.cpp
 )
 
 set(toolbox_HEADERS
-    CalibrationPatternDisplayWidget.h
     CalibrationWizard.h
     GuiImagePairSource.h
     GuiRectification.h
     GuiStereoMethod.h
     GuiReprojection.h
     ImageDisplayWidget.h
-    ImagePairDisplayWidget.h
-    ReprojectedImageDisplayWidget.h
     Toolbox.h
 )
 

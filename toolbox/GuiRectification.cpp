@@ -22,7 +22,7 @@
 #include "GuiRectification.h"
 
 #include "CalibrationWizard.h"
-#include "ImagePairDisplayWidget.h"
+#include "ImageDisplayWidget.h"
 #include "StereoPipeline.h"
 #include "StereoRectification.h"
 

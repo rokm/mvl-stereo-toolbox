@@ -21,7 +21,7 @@
 
 #include "GuiReprojection.h"
 
-#include "ReprojectedImageDisplayWidget.h"
+#include "ImageDisplayWidget.h"
 
 #include "StereoPipeline.h"
 #include "StereoReprojection.h"
