@@ -45,6 +45,12 @@ bool StereoRectification::getState () const
 }
 
 
+const cv::Mat &StereoRectification::getReprojectionMatrix () const
+{
+    return Q;
+}
+
+
 // *********************************************************************
 // *                            Calibration                            *
 // *********************************************************************

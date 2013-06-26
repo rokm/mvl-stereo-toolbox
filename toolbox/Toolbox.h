@@ -34,7 +34,7 @@ class StereoReprojection;
 
 class GuiImagePairSource;
 class GuiRectification;
-class GuiPointCloud;
+class GuiReprojection;
 class GuiStereoMethod;
 
 class Toolbox : public QWidget
@@ -49,12 +49,12 @@ protected slots:
     void showWindowImagePairSource ();
     void showWindowRectification ();
     void showWindowStereoMethod ();
-    void showWindowPointCloud ();
+    void showWindowReprojection ();
 
     void setPushButtonImagePairSourceActiveState (bool);
     void setPushButtonRectificationActiveState (bool);
     void setPushButtonStereoMethodActiveState (bool);
-    void setPushButtonPointCloudActiveState (bool);
+    void setPushButtonReprojectionActiveState (bool);
 
 protected:
     void createGui ();
@@ -65,7 +65,7 @@ protected:
     GuiImagePairSource *windowImagePairSource;
     GuiRectification *windowRectification;
     GuiStereoMethod *windowStereoMethod;
-    GuiPointCloud *windowPointCloud;
+    GuiReprojection *windowReprojection;
 
     QPushButton *pushButtonImagePairSource;
     QPushButton *pushButtonImagePairSourceActive;
@@ -73,15 +73,13 @@ protected:
     QPushButton *pushButtonRectificationActive;
     QPushButton *pushButtonStereoMethod;
     QPushButton *pushButtonStereoMethodActive;
-    QPushButton *pushButtonPointCloud;
-    QPushButton *pushButtonPointCloudActive;
+    QPushButton *pushButtonReprojection;
+    QPushButton *pushButtonReprojectionActive;
     
     StereoPipeline *pipeline;
 
     QList<ImagePairSource *> imagePairSources;
     QList<StereoMethod *> stereoMethods;
-
-    StereoReprojection *reprojection;
 };
 
 

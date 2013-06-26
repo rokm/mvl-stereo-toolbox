@@ -31,7 +31,7 @@
 #include "GuiImagePairSource.h"
 #include "GuiRectification.h"
 #include "GuiStereoMethod.h"
-#include "GuiPointCloud.h"
+#include "GuiReprojection.h"
 
 
 Toolbox::Toolbox ()
@@ -53,7 +53,7 @@ Toolbox::Toolbox ()
     windowImagePairSource = new GuiImagePairSource(pipeline, imagePairSources, this);
     windowRectification = new GuiRectification(pipeline, pipeline->getRectification(), this);
     windowStereoMethod = new GuiStereoMethod(pipeline, stereoMethods, this);
-    windowPointCloud = new GuiPointCloud(pipeline, reprojection, this);
+    windowReprojection = new GuiReprojection(pipeline, pipeline->getReprojection(), this);
 
     // Create GUI
     createGui();
@@ -110,18 +110,18 @@ void Toolbox::createGui ()
     layout->addWidget(pushButtonStereoMethodActive, 2, 1);
 
     // Reprojection/point cloud
-    pushButtonPointCloud = new QPushButton("Point cloud", this);
-    connect(pushButtonPointCloud, SIGNAL(clicked()), this, SLOT(showWindowPointCloud()));
+    pushButtonReprojection = new QPushButton("Reprojection", this);
+    connect(pushButtonReprojection, SIGNAL(clicked()), this, SLOT(showWindowReprojection()));
 
-    pushButtonPointCloudActive = new QPushButton("Active", this);
-    pushButtonPointCloudActive->setCheckable(true);
+    pushButtonReprojectionActive = new QPushButton("Active", this);
+    pushButtonReprojectionActive->setCheckable(true);
 
-    pushButtonPointCloudActive->setChecked(pipeline->getReprojectionState());
-    connect(pushButtonPointCloudActive, SIGNAL(toggled(bool)), pipeline, SLOT(setReprojectionState(bool)));
-    connect(pipeline, SIGNAL(reprojectionStateChanged(bool)), this, SLOT(setPushButtonPointCloudActiveState(bool)));
+    pushButtonReprojectionActive->setChecked(pipeline->getReprojectionState());
+    connect(pushButtonReprojectionActive, SIGNAL(toggled(bool)), pipeline, SLOT(setReprojectionState(bool)));
+    connect(pipeline, SIGNAL(reprojectionStateChanged(bool)), this, SLOT(setPushButtonReprojectionActiveState(bool)));
 
-    layout->addWidget(pushButtonPointCloud, 3, 0);
-    layout->addWidget(pushButtonPointCloudActive, 3, 1);
+    layout->addWidget(pushButtonReprojection, 3, 0);
+    layout->addWidget(pushButtonReprojectionActive, 3, 1);
 
     // Separator
     QFrame *line = new QFrame(this);
@@ -163,9 +163,9 @@ void Toolbox::showWindowStereoMethod ()
     showWindowOnTop(windowStereoMethod);
 }
 
-void Toolbox::showWindowPointCloud ()
+void Toolbox::showWindowReprojection ()
 {
-    showWindowOnTop(windowPointCloud);
+    showWindowOnTop(windowReprojection);
 }
 
 
@@ -197,9 +197,9 @@ void Toolbox::setPushButtonStereoMethodActiveState (bool active)
     setActiveButtonState(pushButtonStereoMethodActive, active);
 }
 
-void Toolbox::setPushButtonPointCloudActiveState (bool active)
+void Toolbox::setPushButtonReprojectionActiveState (bool active)
 {
-    setActiveButtonState(pushButtonPointCloudActive, active);
+    setActiveButtonState(pushButtonReprojectionActive, active);
 }
 
 

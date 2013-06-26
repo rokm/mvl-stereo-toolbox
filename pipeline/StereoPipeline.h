@@ -91,6 +91,7 @@ public:
 
     // Reprojection
     void setReprojection (StereoReprojection *);
+    StereoReprojection *getReprojection ();
 
     bool getReprojectionState () const;
 
@@ -114,6 +115,7 @@ protected slots:
     void computeDisparityImageInThread ();
 
     void recomputeCenterRoi ();
+    void updateReprojectionMatrix ();
 
 signals:
     void error (const QString &);

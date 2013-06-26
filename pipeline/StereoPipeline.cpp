@@ -66,6 +66,9 @@ StereoPipeline::StereoPipeline (QObject *parent)
     // Create rectification
     setRectification(new StereoRectification(this));
 
+    // Create reprojection
+    setReprojection(new StereoReprojection(this));
+
     // Load plugins in default plugin path
     setPluginDirectory();
 }
@@ -327,6 +330,7 @@ void StereoPipeline::setRectification (StereoRectification *newRectification)
     // Change rectification
     if (rectification) {
         disconnect(rectification, SIGNAL(stateChanged(bool)), this, SLOT(rectifyImages()));
+        disconnect(rectification, SIGNAL(stateChanged(bool)), this, SLOT(updateReprojectionMatrix()));
         if (rectification->parent() == this) {
             rectification->deleteLater(); // Schedule for deletion
         }
@@ -338,6 +342,7 @@ void StereoPipeline::setRectification (StereoRectification *newRectification)
     }
     
     connect(rectification, SIGNAL(stateChanged(bool)), this, SLOT(rectifyImages()));
+    connect(rectification, SIGNAL(stateChanged(bool)), this, SLOT(updateReprojectionMatrix()));
 
     // Rectify images
     rectifyImages();
@@ -569,19 +574,38 @@ int StereoPipeline::getStereoDroppedFrames () const
 // *********************************************************************
 // *                          3D Reprojection                          *
 // *********************************************************************
+void StereoPipeline::updateReprojectionMatrix ()
+{
+    if (rectification && reprojection) {
+        reprojection->setReprojectionMatrix(rectification->getReprojectionMatrix());
+    }
+}
+
 // Reprojection setting
 void StereoPipeline::setReprojection (StereoReprojection *newReprojection)
 {
     // Change reprojection
     if (reprojection) {
-        disconnect(reprojection, SIGNAL(stateChanged(bool)), this, SLOT(reprojectDisparityImage()));
+        disconnect(reprojection, SIGNAL(useGpuChanged(bool)), this, SLOT(reprojectDisparityImage()));
+        if (reprojection->parent() == this) {
+            reprojection->deleteLater(); // Schedule for deletion
+        }
     }
     
     reprojection = newReprojection;
-    connect(reprojection, SIGNAL(stateChanged(bool)), this, SLOT(reprojectDisparityImage()));
+    if (!reprojection->parent()) {
+        reprojection->setParent(this);
+    }
+    
+    connect(reprojection, SIGNAL(useGpuChanged(bool)), this, SLOT(reprojectDisparityImage()));
 
     // Reproject disparity image
     reprojectDisparityImage();
+}
+
+StereoReprojection *StereoPipeline::getReprojection ()
+{
+    return reprojection;
 }
 
 
@@ -626,9 +650,15 @@ void StereoPipeline::reprojectDisparityImage ()
         return;
     }
 
-    QTime timer; timer.start();
-    reprojection->reprojectStereoDisparity(disparityImage, reprojectedImage);
-    reprojectionComputationTime = timer.elapsed();
+    // Reproject
+    try {
+        QTime timer; timer.start();
+        reprojection->reprojectStereoDisparity(disparityImage, reprojectedImage);
+        reprojectionComputationTime = timer.elapsed();
+    } catch (std::exception &e) {
+        qWarning() << "Failed to reproject:" << QString::fromStdString(e.what());
+        reprojectedImage = cv::Mat();
+    }
 
     emit reprojectedImageChanged();
 }

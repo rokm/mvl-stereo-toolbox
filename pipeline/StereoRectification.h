@@ -43,7 +43,9 @@ public:
     void rectifyImagePair (const cv::Mat &, const cv::Mat &, cv::Mat &, cv::Mat &) const;
 
     bool getState () const;
-    
+
+    const cv::Mat &getReprojectionMatrix () const;
+
 protected:
     void initializeStereoRectification ();
 

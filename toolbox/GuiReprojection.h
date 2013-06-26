@@ -1,5 +1,5 @@
 /*
- * MVL Stereo Toolbox: reprojection/point cloud GUI
+ * MVL Stereo Toolbox: reprojection GUI
  * Copyright (C) 2013 Rok Mandeljc
  *
  * This program is free software; you can redistribute it and/or modify
@@ -19,8 +19,8 @@
  * 
  */
 
-#ifndef GUI_POINT_CLOUD_H
-#define GUI_POINT_CLOUD_H
+#ifndef GUI_REPROJECTION_H
+#define GUI_REPROJECTION_H
 
 #include <QtCore>
 #include <QtGui>
@@ -30,16 +30,18 @@
 
 class StereoReprojection;
 class StereoPipeline;
+class ReprojectedImageDisplayWidget;
 
-class GuiPointCloud : public QWidget
+class GuiReprojection : public QWidget
 {
     Q_OBJECT
 
 public:
-    GuiPointCloud (StereoPipeline *, StereoReprojection *, QWidget * = 0);
-    virtual ~GuiPointCloud ();
+    GuiReprojection (StereoPipeline *, StereoReprojection *, QWidget * = 0);
+    virtual ~GuiReprojection ();
 
 protected slots:
+    void updateImage ();
     
 protected:
     // Pipeline
@@ -47,7 +49,10 @@ protected:
     StereoReprojection *reprojection;
 
     // GUI
+    QPushButton *pushButtonUseGpu;
 
+    ReprojectedImageDisplayWidget *displayReprojectedImage;
+    
     QStatusBar *statusBar;
 };
 
