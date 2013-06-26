@@ -65,13 +65,11 @@ GuiStereoMethod::GuiStereoMethod (StereoPipeline *p, QList<StereoMethod *> &m, Q
     comboBox = new QComboBox(this);
     comboBox->addItem("Raw", DisplayRawDisparity);
     comboBox->setItemData(0, "Raw grayscale disparity.", Qt::ToolTipRole);
-    comboBox->addItem("Dynamic range", DisplayDynamicDisparity);
-    comboBox->setItemData(1, "Grayscale disparity scaled to min/max value.", Qt::ToolTipRole);
 #ifdef HAVE_OPENCV_GPU
     if (cv::gpu::getCudaEnabledDeviceCount()) {
         // This one requires CUDA...
-        comboBox->addItem("Color (GPU)", DisplayColorDisparity);
-        comboBox->setItemData(2, "HSV disparity (computed on GPU).", Qt::ToolTipRole);
+        comboBox->addItem("Color (GPU)", DisplayColorGpuDisparity);
+        comboBox->setItemData(1, "HSV disparity (computed on GPU).", Qt::ToolTipRole);
     }
 #endif
     connect(comboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(updateImage()));
@@ -156,20 +154,8 @@ void GuiStereoMethod::updateImage ()
             displayDisparityImage->setImage(disparity);
             break;
         }
-        case DisplayDynamicDisparity: {
-            // Grayscale with dynamically rescaled values
-            double minVal, maxVal, scale;
-            cv::Mat scaledDisp;
-
-            cv::minMaxLoc(disparity, &minVal, &maxVal, 0, 0);
-            scale = 255.0 / (maxVal-minVal);
-            disparity.convertTo(scaledDisp, CV_8UC1, scale, minVal/scale);
-            
-            displayDisparityImage->setImage(scaledDisp);
-            break;
-        }
 #ifdef HAVE_OPENCV_GPU
-        case DisplayColorDisparity: {
+        case DisplayColorGpuDisparity: {
             // Hue-color-coded disparity
             cv::gpu::GpuMat gpu_disp(disparity);
             cv::gpu::GpuMat gpu_disp_color;

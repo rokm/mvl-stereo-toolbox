@@ -47,8 +47,7 @@ protected slots:
 protected:
     enum {
         DisplayRawDisparity,
-        DisplayDynamicDisparity,
-        DisplayColorDisparity,
+        DisplayColorGpuDisparity,
     };
 
     // Pipeline
