@@ -7,7 +7,7 @@ if(CMAKE_COMPILER_IS_GNUCXX)
     add_definitions(-Wall -Wextra -Wno-unused-parameter)
 endif()
 
-find_package(PkgConfig REQUIRED)
+find_package(PkgConfig)
 find_package(OpenCV REQUIRED)
 find_package(Qt4 REQUIRED)
 
@@ -50,43 +50,46 @@ target_link_libraries(mvl_stereo_pipeline ${OpenCV_LIBS})
 install(TARGETS mvl_stereo_pipeline DESTINATION ${CMAKE_INSTALL_LIBDIR})
 install(FILES ${pipeline_HEADERS} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/mvl_stereo_pipeline)
 
-# Pkg-config for library
-configure_file(${PROJECT_SOURCE_DIR}/libmvl_stereo_pipeline.pc.in ${PROJECT_BINARY_DIR}/libmvl_stereo_pipeline.pc)
-install(FILES ${PROJECT_BINARY_DIR}/libmvl_stereo_pipeline.pc DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig)
+# Pkg-config for library; only if we have pkg-config installed
+if(PKG_CONFIG_FOUND)
+    configure_file(${PROJECT_SOURCE_DIR}/libmvl_stereo_pipeline.pc.in ${PROJECT_BINARY_DIR}/libmvl_stereo_pipeline.pc)
+    install(FILES ${PROJECT_BINARY_DIR}/libmvl_stereo_pipeline.pc DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig)
+endif()
 
 # *** Bundled plugins ***
 set(MVL_STEREO_PIPELINE_PLUGIN_DIR "${CMAKE_INSTALL_FULL_LIBDIR}/mvl-stereo-pipeline" CACHE PATH "Path to MVL Stereo Pipeline plugins")
 add_definitions(-DMVL_STEREO_PIPELINE_PLUGIN_DIR="${MVL_STEREO_PIPELINE_PLUGIN_DIR}")
 
-# *** Image source plugins ***
-# Always built
+# File image pair source: always build
 add_subdirectory(sources/image_file)
 
-# Build if we have libdc1394
-pkg_check_modules(DC1394 libdc1394-2)
-if(DC1394_FOUND)
-    add_subdirectory(sources/dc1394)
+# Plugins that require pkg-config (linux-only)
+if(PKG_CONFIG_FOUND)
+    # DC1394 image pair source: build if we have libdc1394-2
+    pkg_check_modules(DC1394 libdc1394-2)
+    if(DC1394_FOUND)
+        add_subdirectory(sources/dc1394)
+    endif()
+
+    # Unicap image pair source: build if we have libunicap
+    pkg_check_modules(UNICAP libunicap)
+    if (UNICAP_FOUND)
+        add_subdirectory(sources/unicap)
+    endif()
+
+    # ELAS stereo method: build if we have libelas
+    pkg_check_modules(ELAS libelas)
+    if(ELAS_FOUND)
+        add_subdirectory(methods/elas)
+    endif()
 endif()
 
-# Build if we have libunicap
-pkg_check_modules(UNICAP libunicap)
-if (UNICAP_FOUND)
-    add_subdirectory(sources/unicap)
-endif()
-
-# *** Stereo method plugins ***
-# Always build
+# OpenCV CPU stereo methods: always build
 add_subdirectory(methods/opencv_bm)
 add_subdirectory(methods/opencv_contrib_var)
 add_subdirectory(methods/opencv_sgbm)
 
-# Build if we have libelas
-pkg_check_modules(ELAS libelas)
-if(ELAS_FOUND)
-    add_subdirectory(methods/elas)
-endif()
-
-# Build if we have OpenCV with GPU module
+# OpenCV GPU stereo methods: build if we have OpenCV with GPU module
 if(OPENCV_GPU_FOUND)
     add_subdirectory(methods/opencv_gpu_bm)
     add_subdirectory(methods/opencv_gpu_bp)
