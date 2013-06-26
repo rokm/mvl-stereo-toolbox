@@ -98,7 +98,6 @@ void SourceDC1394::scanBus ()
     }
     cameraListModel->setDeviceList(camera_list);
     dc1394_camera_free_list(camera_list);
-    
 }
 
 

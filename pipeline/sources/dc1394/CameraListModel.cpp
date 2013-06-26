@@ -31,15 +31,21 @@ CameraListModel::~CameraListModel()
 
 void CameraListModel::setDeviceList (const dc1394camera_list_t *list)
 {
-    beginResetModel();
-    
-    entries.clear();
-    for (unsigned int i = 0; i < list->num; i++) {
-        entries.append(list->ids[i]);
+    // Clear old entries
+    if (entries.size()) {
+        beginRemoveRows(QModelIndex(), 1, entries.size()); // Remove all but first entry, which is "None"
+        entries.clear();
+        endRemoveRows();
     }
-    active.resize(list->num);
 
-    endResetModel();
+    if (list->num) {
+        beginInsertRows(QModelIndex(), 1, list->num);
+        for (unsigned int i = 0; i < list->num; i++) {
+            entries.append(list->ids[i]);
+        }
+        active = QVector<bool>(list->num, false);
+        endInsertRows();
+    }
 }
 
 
