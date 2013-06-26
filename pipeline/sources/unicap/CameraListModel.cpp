@@ -31,10 +31,19 @@ CameraListModel::~CameraListModel()
 
 void CameraListModel::setDeviceList (const QVector<unicap_device_t> &list)
 {
-    beginResetModel();
-    entries = list;
-    active.resize(list.size());
-    endResetModel();
+    // Clear old entries
+    if (entries.size()) {
+        beginRemoveRows(QModelIndex(), 1, entries.size()); // Remove all but first entry, which is "None"
+        entries.clear();
+        endRemoveRows();
+    }
+
+    if (list.size()) {
+        beginInsertRows(QModelIndex(), 1, list.size());
+        entries = list;
+        active = QVector<bool>(list.size(), false);
+        endInsertRows();
+    }
 }
 
 
