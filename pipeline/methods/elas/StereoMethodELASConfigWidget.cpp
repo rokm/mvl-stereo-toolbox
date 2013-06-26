@@ -90,7 +90,7 @@ StereoMethodELASConfigWidget::StereoMethodELASConfigWidget (StereoMethodELAS *m,
     // Max disparity
     tooltip = "Maximum possible disparity value.";
 
-    label = new QLabel("Min. disparity", this);
+    label = new QLabel("Max. disparity", this);
     label->setToolTip(tooltip);
 
     spinBox = new QSpinBox(this);
