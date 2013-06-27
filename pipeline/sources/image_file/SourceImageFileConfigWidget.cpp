@@ -116,7 +116,6 @@ QWidget *SourceImageFileConfigWidget::createImageFrame (bool left)
     imageFrame = new QFrame(this);
     imageFrame->setFrameStyle(QFrame::Box | QFrame::Sunken);
     layout = new QFormLayout(imageFrame);
-    imageFrame->setLayout(layout);
 
     // Label
     label = new QLabel(left ? "<b>Left image</b>" : "<b>Right image</b>", imageFrame);

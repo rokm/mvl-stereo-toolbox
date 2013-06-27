@@ -26,9 +26,9 @@ PropertyWidget::PropertyWidget (CameraUnicap *c, const unicap_property_t &p, QWi
     : QWidget(parent), camera(c), property(p)
 {
     connect(camera, SIGNAL(propertyChanged()), this, SLOT(updateProperty()));
-    
-    setLayout(new QHBoxLayout(this));
-    layout()->setContentsMargins(0, 0, 0, 0);
+
+    QHBoxLayout *layout = new QHBoxLayout(this);
+    layout->setContentsMargins(0, 0, 0, 0);
 
     switch (property.type) {
         case UNICAP_PROPERTY_TYPE_RANGE: {
@@ -38,7 +38,7 @@ PropertyWidget::PropertyWidget (CameraUnicap *c, const unicap_property_t &p, QWi
                 pushButtonValue->setCheckable(true);
 
                 connect(pushButtonValue, SIGNAL(toggled(bool)), this, SLOT(pushButtonValueToggled(bool)));
-                layout()->addWidget(pushButtonValue);
+                layout->addWidget(pushButtonValue);
 
                 type = TypeOnOff;
             } else {
@@ -57,7 +57,7 @@ PropertyWidget::PropertyWidget (CameraUnicap *c, const unicap_property_t &p, QWi
                 }
 
                 connect(spinBoxValue, SIGNAL(valueChanged(double)), this, SLOT(spinBoxValueChanged(double)));
-                layout()->addWidget(spinBoxValue);
+                layout->addWidget(spinBoxValue);
 
                 type = TypeValue;
             }
@@ -67,7 +67,7 @@ PropertyWidget::PropertyWidget (CameraUnicap *c, const unicap_property_t &p, QWi
             comboBoxValue = new QComboBox(this);
 
             connect(comboBoxValue, SIGNAL(activated(int)), this, SLOT(comboBoxValueActivated(int)));
-            layout()->addWidget(comboBoxValue);
+            layout->addWidget(comboBoxValue);
 
             for (int i = 0; i < property.value_list.value_count; i++) {
                 comboBoxValue->addItem(QString::number(property.value_list.values[i]), property.value_list.values[i]);
@@ -80,7 +80,7 @@ PropertyWidget::PropertyWidget (CameraUnicap *c, const unicap_property_t &p, QWi
             comboBoxValue = new QComboBox(this);
 
             connect(comboBoxValue, SIGNAL(activated(int)), this, SLOT(comboBoxValueActivated(int)));
-            layout()->addWidget(comboBoxValue);
+            layout->addWidget(comboBoxValue);
 
             for (int i = 0; i < property.menu.menu_item_count; i++) {
                 QString entry(property.menu.menu_items[i]);
@@ -101,7 +101,7 @@ PropertyWidget::PropertyWidget (CameraUnicap *c, const unicap_property_t &p, QWi
     int numModes = 0;
     comboBoxMode = new QComboBox(this);
     connect(comboBoxMode, SIGNAL(activated(int)), this, SLOT(comboBoxModeActivated(int)));
-    layout()->addWidget(comboBoxMode);
+    layout->addWidget(comboBoxMode);
 
     if (property.flags_mask & UNICAP_FLAGS_MANUAL) {
         comboBoxMode->addItem("Manual", CameraUnicap::PropertyModeManual);

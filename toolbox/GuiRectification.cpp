@@ -30,15 +30,16 @@
 GuiRectification::GuiRectification (StereoPipeline *p, StereoRectification *r, QWidget *parent)
     : QWidget(parent, Qt::Window), pipeline(p), rectification(r)
 {
-    setWindowTitle("Stereo calibration");
+    setWindowTitle("Rectification");
     resize(800, 600);
 
     QGridLayout *layout = new QGridLayout(this);
     layout->setContentsMargins(2, 2, 2, 2);
-    setLayout(layout);
+    layout->setSpacing(2);
 
     // Buttons
     QHBoxLayout *buttonsLayout = new QHBoxLayout();
+    buttonsLayout->setContentsMargins(0, 0, 0, 0);
     QPushButton *pushButton;
     
     layout->addLayout(buttonsLayout, 0, 0, 1, 2);

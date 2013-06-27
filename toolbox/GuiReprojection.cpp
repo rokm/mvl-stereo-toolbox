@@ -35,9 +35,11 @@ GuiReprojection::GuiReprojection (StereoPipeline *p, StereoReprojection *r, QWid
 
     QVBoxLayout *layout = new QVBoxLayout(this);
     layout->setContentsMargins(2, 2, 2, 2);
-
+    layout->setSpacing(2);
+    
     // Buttons
     QHBoxLayout *buttonsLayout = new QHBoxLayout();
+    buttonsLayout->setContentsMargins(0, 0, 0, 0);
     QPushButton *pushButton;
     QComboBox *comboBox;
     QLabel *label;

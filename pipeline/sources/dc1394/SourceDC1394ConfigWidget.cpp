@@ -91,7 +91,6 @@ QWidget *SourceDC1394ConfigWidget::createDeviceFrame (bool left)
     deviceFrame = new QFrame(this);
     deviceFrame->setFrameStyle(QFrame::Box | QFrame::Sunken);
     layout = new QFormLayout(deviceFrame);
-    deviceFrame->setLayout(layout);
 
     // Label
     label = new QLabel(left ? "<b>Left device</b>" : "<b>Right device</b>", deviceFrame);
@@ -114,9 +113,9 @@ QWidget *SourceDC1394ConfigWidget::createDeviceFrame (bool left)
 
     // Camera config frame
     frame = new QFrame(deviceFrame);
-    frame->setLayout(new QVBoxLayout(frame));
+    QVBoxLayout *frameLayout = new QVBoxLayout(frame);
     frame->setContentsMargins(0, 0, 0, 0);
-    frame->layout()->setContentsMargins(0, 0, 0, 0);
+    frameLayout->setContentsMargins(0, 0, 0, 0);
     layout->addRow(frame);
     if (left) {
         frameLeftDevice = frame;

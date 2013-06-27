@@ -29,9 +29,9 @@ FeatureWidget::FeatureWidget (CameraDC1394 *c, const dc1394feature_info_t &f, QW
     : QWidget(parent), camera(c), feature(f)
 {
     connect(camera, SIGNAL(parameterChanged()), this, SLOT(updateParameters()));
-    
-    setLayout(new QHBoxLayout(this));
-    layout()->setContentsMargins(0, 0, 0, 0);
+
+    QHBoxLayout *layout = new QHBoxLayout(this);
+    layout->setContentsMargins(0, 0, 0, 0);
     
     // Value
     spinBoxValue = new QSpinBox(this);
@@ -39,12 +39,12 @@ FeatureWidget::FeatureWidget (CameraDC1394 *c, const dc1394feature_info_t &f, QW
     spinBoxValue->setKeyboardTracking(false);
     spinBoxValue->setRange(feature.min, feature.max);
     connect(spinBoxValue, SIGNAL(valueChanged(int)), this, SLOT(setValue(int)));
-    layout()->addWidget(spinBoxValue);
+    layout->addWidget(spinBoxValue);
 
     // Mode
     comboBoxMode = new QComboBox(this);
     connect(comboBoxMode, SIGNAL(activated(int)), this, SLOT(modeChanged(int)));
-    layout()->addWidget(comboBoxMode);
+    layout->addWidget(comboBoxMode);
 
     QList<dc1394feature_mode_t> availableModes = camera->getFeatureModes(feature.id);
     foreach (dc1394feature_mode_t mode, availableModes) {
@@ -64,7 +64,7 @@ FeatureWidget::FeatureWidget (CameraDC1394 *c, const dc1394feature_info_t &f, QW
         spinBoxAbsoluteValue->setEnabled(false);
         spinBoxAbsoluteValue->setRange(feature.abs_min, feature.abs_max);
         connect(spinBoxAbsoluteValue, SIGNAL(valueChanged(double)), this, SLOT(setAbsoluteValue(double)));
-        layout()->addWidget(spinBoxAbsoluteValue);
+        layout->addWidget(spinBoxAbsoluteValue);
     }
 
     // Update parameter

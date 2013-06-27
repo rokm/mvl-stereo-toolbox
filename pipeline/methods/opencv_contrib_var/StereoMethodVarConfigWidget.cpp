@@ -246,36 +246,36 @@ StereoMethodVarConfigWidget::StereoMethodVarConfigWidget (StereoMethodVar *m, QW
 
     // Flags
     QGroupBox *group = new QGroupBox("Flags", this);
-    group->setLayout(new QVBoxLayout(group));
+    QVBoxLayout *groupLayout = new QVBoxLayout(group);
 
     checkBox = new QCheckBox("USE_INITIAL_DISPARITY", this);
     checkBox->setToolTip("Use the input flow as the initial flow approximation.");
     connect(checkBox, SIGNAL(stateChanged(int)), this, SLOT(flagsChanged()));
-    group->layout()->addWidget(checkBox);
+    groupLayout->addWidget(checkBox);
     checkBoxUseInitialDisparity = checkBox;
 
     checkBox = new QCheckBox("USE_EQUALIZE_HIST", this);
     checkBox->setToolTip("Use the histogram equalization in the pre-processing phase.");
     connect(checkBox, SIGNAL(stateChanged(int)), this, SLOT(flagsChanged()));
-    group->layout()->addWidget(checkBox);
+    groupLayout->addWidget(checkBox);
     checkBoxUseEqualizeHist = checkBox;
 
     checkBox = new QCheckBox("USE_SMART_ID", this);
     checkBox->setToolTip("Use the smart iteration distribution (SID).");
     connect(checkBox, SIGNAL(stateChanged(int)), this, SLOT(flagsChanged()));
-    group->layout()->addWidget(checkBox);
+    groupLayout->addWidget(checkBox);
     checkBoxUseSmartId = checkBox;
 
     checkBox = new QCheckBox("USE_AUTO_PARAMS", this);
     checkBox->setToolTip("Allow the method to initialize the main parameters.");
     connect(checkBox, SIGNAL(stateChanged(int)), this, SLOT(flagsChanged()));
-    group->layout()->addWidget(checkBox);
+    groupLayout->addWidget(checkBox);
     checkBoxUseAutoParams = checkBox;
 
     checkBox = new QCheckBox("USE_MEDIAN_FILTERING", this);
     checkBox->setToolTip("Use the median filer of the solution in the post-processing phase.");
     connect(checkBox, SIGNAL(stateChanged(int)), this, SLOT(flagsChanged()));
-    group->layout()->addWidget(checkBox);
+    groupLayout->addWidget(checkBox);
     checkBoxUseMedianFiltering = checkBox;
 
     layout->addRow(group);

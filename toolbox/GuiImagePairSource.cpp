@@ -36,10 +36,11 @@ GuiImagePairSource::GuiImagePairSource (StereoPipeline *p, QList<ImagePairSource
 
     QVBoxLayout *layout = new QVBoxLayout(this);
     layout->setContentsMargins(2, 2, 2, 2);
-    setLayout(layout);
+    layout->setSpacing(2);
 
     // Buttons
     QHBoxLayout *buttonsLayout = new QHBoxLayout();
+    buttonsLayout->setContentsMargins(0, 0, 0, 0);
     QPushButton *pushButton;
     
     layout->addLayout(buttonsLayout);
@@ -69,7 +70,7 @@ GuiImagePairSource::GuiImagePairSource (StereoPipeline *p, QList<ImagePairSource
     splitter->addWidget(imagesWidget);
 
     QHBoxLayout *imagesLayout = new QHBoxLayout(imagesWidget);
-    imagesWidget->setLayout(imagesLayout);
+    imagesLayout->setContentsMargins(0, 0, 0, 0);
     imagesWidget->resize(800, 300); // Make sure image widget has some space
     imagesWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     
