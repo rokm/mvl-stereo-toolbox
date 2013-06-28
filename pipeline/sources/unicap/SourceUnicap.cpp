@@ -150,6 +150,7 @@ void SourceUnicap::createCamera (CameraUnicap *& camera, int c)
 void SourceUnicap::releaseCamera (CameraUnicap *& camera)
 {
     if (camera) {
+        bool left = (camera == leftCamera);
         unicap_device_t device = camera->getDevice();
 
         // Disconnect
@@ -161,6 +162,13 @@ void SourceUnicap::releaseCamera (CameraUnicap *& camera)
 
         // Mark camera as inactive in our list
         cameraListModel->setActive(device, false);
+
+        // Emit camera change
+        if (left) {
+            emit leftCameraChanged();
+        } else {
+            emit rightCameraChanged();
+        }
     }
 }
 

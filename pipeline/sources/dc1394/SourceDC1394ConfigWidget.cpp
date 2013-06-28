@@ -70,6 +70,9 @@ SourceDC1394ConfigWidget::SourceDC1394ConfigWidget (SourceDC1394 *s, QWidget *pa
 
     boxDevices->addWidget(createDeviceFrame(true)); // Left device frame
     boxDevices->addWidget(createDeviceFrame(false)); // Right device frame
+
+    connect(source, SIGNAL(leftCameraChanged()), this, SLOT(updateLeftCamera()));
+    connect(source, SIGNAL(rightCameraChanged()), this, SLOT(updateRightCamera()));
 }
 
 SourceDC1394ConfigWidget::~SourceDC1394ConfigWidget ()
@@ -132,35 +135,35 @@ QWidget *SourceDC1394ConfigWidget::createDeviceFrame (bool left)
 // *********************************************************************
 void SourceDC1394ConfigWidget::deviceSelected (int index)
 {
-    if (QObject::sender() == comboBoxLeftDevice) {
-        deviceSelected(configLeftDevice, frameLeftDevice, comboBoxLeftDevice, index);
-    } else if (QObject::sender() == comboBoxRightDevice) {
-        deviceSelected(configRightDevice, frameRightDevice, comboBoxRightDevice, index);
-    } else {
-        qFatal("Invalid sender!");
+    QComboBox *comboBox = qobject_cast<QComboBox *>(QObject::sender());
+    QVariant c = comboBox->itemData(index);
+    int device = c.isValid() ? c.toInt() : -1;
+    
+    if (comboBox == comboBoxLeftDevice) {
+        source->setLeftCamera(device);
+    } else if (comboBox == comboBoxRightDevice) {
+        source->setRightCamera(device);
     }
 }
 
-void SourceDC1394ConfigWidget::deviceSelected (QWidget *&deviceConfig, QFrame *&deviceFrame, QComboBox *&deviceComboBox, int index)
+
+void SourceDC1394ConfigWidget::updateLeftCamera ()
 {
-    
+    updateCamera(configLeftDevice, frameLeftDevice, source->getLeftCamera());
+}
+
+void SourceDC1394ConfigWidget::updateRightCamera ()
+{
+    updateCamera(configRightDevice, frameRightDevice, source->getRightCamera());
+}
+
+void SourceDC1394ConfigWidget::updateCamera (QWidget *&deviceConfig, QFrame *&deviceFrame, CameraDC1394 *newDevice)
+{
     // Remove config widget for old device
     if (deviceConfig) {
         deviceFrame->layout()->removeWidget(deviceConfig);
         deviceConfig->deleteLater();
         deviceConfig = NULL;
-    }
-    
-    // Set new device
-    CameraDC1394 *newDevice;
-    QVariant c = deviceComboBox->itemData(index);
-    
-    if (deviceComboBox == comboBoxLeftDevice) {
-        source->setLeftCamera(c.isValid() ? c.toInt() : -1);
-        newDevice = source->getLeftCamera();
-    } else {
-        source->setRightCamera(c.isValid() ? c.toInt() : -1);
-        newDevice = source->getRightCamera();
     }
 
     // Get new device's config widget

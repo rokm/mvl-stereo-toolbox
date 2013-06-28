@@ -157,6 +157,7 @@ void SourceDC1394::createCamera (CameraDC1394 *& camera, int c)
 void SourceDC1394::releaseCamera (CameraDC1394 *& camera)
 {
     if (camera) {
+        bool left = (camera == leftCamera);
         dc1394camera_id_t id = camera->getId();
 
         // Disconnect
@@ -168,6 +169,13 @@ void SourceDC1394::releaseCamera (CameraDC1394 *& camera)
 
         // Mark camera as inactive in our list
         cameraListModel->setActive(id, false);
+
+        // Emit camera change
+        if (left) {
+            emit leftCameraChanged();
+        } else {
+            emit rightCameraChanged();
+        }
     }
 }
 

@@ -245,7 +245,7 @@ void CameraDC1394::setFeatureValue (dc1394feature_t feature, int newValue)
 
     ret = dc1394_feature_set_value(camera, feature, newValue);
     if (ret) {
-        qDebug() << "Failed to set feature value!";
+        qWarning() << "Failed to set feature value!";
     }
 
     emit parameterChanged();
@@ -258,7 +258,7 @@ int CameraDC1394::getFeatureValue (dc1394feature_t feature)
     
     ret = dc1394_feature_get_value(camera, feature, &value);
     if (ret) {
-        qDebug() << "Failed to get feature value!";
+        qWarning() << "Failed to get feature value!";
     }
 
     return value;
@@ -271,7 +271,7 @@ void CameraDC1394::setFeatureAbsoluteValue (dc1394feature_t feature, double newV
 
     ret = dc1394_feature_set_absolute_value(camera, feature, newValue);
     if (ret) {
-        qDebug() << "Failed to set feature absolute value!";
+        qWarning() << "Failed to set feature absolute value!";
     }
 
     emit parameterChanged();
@@ -284,7 +284,7 @@ double CameraDC1394::getFeatureAbsoluteValue (dc1394feature_t feature)
     
     ret = dc1394_feature_get_absolute_value(camera, feature, &value);
     if (ret) {
-        qDebug() << "Failed to get feature value!";
+        qWarning() << "Failed to get feature value!";
     }
 
     return value;
@@ -301,7 +301,7 @@ QList<dc1394feature_mode_t> CameraDC1394::getFeatureModes (dc1394feature_t featu
 
     ret = dc1394_feature_get_modes(camera, feature, &raw_modes);
     if (ret) {
-        qDebug() << "Failed to set feature value!";
+        qWarning() << "Failed to set feature value!";
         return modes;
     }
 
@@ -318,7 +318,7 @@ void CameraDC1394::setFeatureMode (dc1394feature_t feature, dc1394feature_mode_t
     
     ret = dc1394_feature_set_mode(camera, feature, mode);
     if (ret) {
-        qDebug() << "Failed to set feature mode!";
+        qWarning() << "Failed to set feature mode!";
     }
 
     emit parameterChanged();
@@ -331,7 +331,7 @@ dc1394feature_mode_t CameraDC1394::getFeatureMode (dc1394feature_t feature)
     
     ret = dc1394_feature_get_mode(camera, feature, &mode);
     if (ret) {
-        qDebug() << "Failed to get feature mode!";
+        qWarning() << "Failed to get feature mode!";
     }
 
     return mode;
@@ -350,7 +350,7 @@ void CameraDC1394::startCapture ()
 void CameraDC1394::stopCapture ()
 {
     if (captureThread->isRunning()) {
-        qDebug() << "Stopping capture; current thread:" << QThread::currentThread();
+        //qDebug() << "Stopping capture; current thread:" << QThread::currentThread();
         emit workerStopCapture(); // Note: this is blocking connection
 
         // Stop the thread and make sure it finished
@@ -391,7 +391,7 @@ void CameraDC1394CaptureWorker::startCapture ()
 {
     dc1394error_t ret;
 
-    qDebug() << this << "Starting capture worker" << QThread::currentThread();
+    //qDebug() << this << "Starting capture worker" << QThread::currentThread();
 
     // Setup capture
     ret = dc1394_capture_setup(camera, NUM_BUFFERS, DC1394_CAPTURE_FLAGS_DEFAULT);
@@ -420,7 +420,7 @@ void CameraDC1394CaptureWorker::stopCapture ()
 {
     dc1394error_t ret;
 
-    qDebug() << "Stopping capture worker" << QThread::currentThread();
+    //qDebug() << "Stopping capture worker" << QThread::currentThread();
     
     // Cleanup
     disconnect(frameNotifier, SIGNAL(activated(int)), this, SLOT(grabFrame()));
@@ -485,7 +485,7 @@ void CameraDC1394CaptureWorker::dequeueCaptureBuffer (dc1394video_frame_t *&fram
     if (drainQueue) {
         // Drain until we're no frames behind
         while (frame->frames_behind) {
-            qDebug() << "Draining capture queue due to being" << frame->frames_behind << "frames!";
+            //qDebug() << "Draining capture queue due to being" << frame->frames_behind << "frames!";
             ret = dc1394_capture_dequeue(camera, DC1394_CAPTURE_POLICY_WAIT, &frame);
             if (ret) {
                 qWarning() << "Could not dequeue frame!";

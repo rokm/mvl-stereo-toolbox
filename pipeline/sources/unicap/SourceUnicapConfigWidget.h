@@ -36,11 +36,14 @@ public:
 
 protected slots:
     void deviceSelected (int);
+
+    void updateLeftCamera ();
+    void updateRightCamera ();
     
 protected:
     QWidget *createDeviceFrame (bool);
 
-    void deviceSelected (QWidget *&, QFrame *&, QComboBox *&, int);
+    void updateCamera (QWidget *&, QFrame *&, CameraUnicap *);
 
 protected:
     SourceUnicap *source;
