@@ -55,6 +55,29 @@ GuiStereoMethod::GuiStereoMethod (StereoPipeline *p, QList<StereoMethod *> &m, Q
 
     buttonsLayout->addStretch();
 
+    // Export parameters
+    pushButton = new QPushButton("Export param.", this);
+    pushButton->setToolTip("Export active method's parameters.");
+    connect(pushButton, SIGNAL(clicked()), this, SLOT(exportParameters()));
+    buttonsLayout->addWidget(pushButton);
+    pushButtonExportParameters = pushButton;
+
+    // Import parameters
+    pushButton = new QPushButton("Import param.", this);
+    pushButton->setToolTip("Import parameters for active method.");
+    connect(pushButton, SIGNAL(clicked()), this, SLOT(importParameters()));
+    buttonsLayout->addWidget(pushButton);
+    pushButtonImportParameters = pushButton;
+
+    // Save
+    pushButton = new QPushButton("Save disparity", this);
+    pushButton->setToolTip("Save disparity image.");
+    connect(pushButton, SIGNAL(clicked()), this, SLOT(saveImage()));
+    buttonsLayout->addWidget(pushButton);
+    pushButtonSaveImage = pushButton;
+
+    buttonsLayout->addStretch();
+
     // Disparity image display type
     box = new QHBoxLayout();
     box->setContentsMargins(0, 0, 0, 0);
@@ -77,13 +100,6 @@ GuiStereoMethod::GuiStereoMethod (StereoPipeline *p, QList<StereoMethod *> &m, Q
     connect(comboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(updateImage()));
     box->addWidget(comboBox);
     comboBoxDisplayType = comboBox;
-
-    // Save
-    pushButton = new QPushButton("Save disp.", this);
-    pushButton->setToolTip("Save disparity image.");
-    connect(pushButton, SIGNAL(clicked()), this, SLOT(saveImage()));
-    buttonsLayout->addWidget(pushButton);
-    pushButtonSaveImage = pushButton;
 
     buttonsLayout->addStretch();
 
@@ -210,6 +226,34 @@ void GuiStereoMethod::saveImage ()
             cv::imwrite(fileName.toStdString(), tmpImg);
         } catch (cv::Exception e) {
             qWarning() << "Failed to save image:" << QString::fromStdString(e.what());
+        }
+    }
+}
+
+
+// *********************************************************************
+// *                      Parameter import/export                      *
+// *********************************************************************
+void GuiStereoMethod::importParameters ()
+{
+    QString fileName = QFileDialog::getOpenFileName(this, "Load parameters from file", QString(), "OpenCV storage file (*.xml *.yml *.yaml)");
+    if (!fileName.isNull()) {
+        try {
+            pipeline->getStereoMethod()->loadParameters(fileName);
+        } catch (QString e) {
+            QMessageBox::warning(this, "Error", "Failed to import parameters: " + e);
+        }
+    }
+}
+
+void GuiStereoMethod::exportParameters ()
+{
+    QString fileName = QFileDialog::getSaveFileName(this, "Save parameters to file", QString(), "OpenCV storage file (*.xml *.yml *.yaml)");
+    if (!fileName.isNull()) {
+        try {
+            pipeline->getStereoMethod()->saveParameters(fileName);
+        } catch (QString e) {
+            QMessageBox::warning(this, "Error", "Failed to export parameters: " + e);
         }
     }
 }

@@ -44,6 +44,9 @@ protected slots:
 
     void saveImage ();
 
+    void importParameters ();
+    void exportParameters ();
+
 protected:
     enum {
         DisplayRawDisparity,
@@ -55,6 +58,8 @@ protected:
     QList<StereoMethod *> methods;
 
     // GUI
+    QPushButton *pushButtonExportParameters;
+    QPushButton *pushButtonImportParameters;
     QComboBox *comboBoxDisplayType;
     QPushButton *pushButtonSaveImage;
     
