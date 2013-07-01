@@ -470,35 +470,132 @@ void StereoMethodELASConfigWidget::returnLeftChanged (int state)
 
 void StereoMethodELASConfigWidget::updateParameters ()
 {
+    bool oldState;
+
+    // Min disparity
+    oldState = spinBoxMinDisparity->blockSignals(true);
     spinBoxMinDisparity->setValue(method->getMinDisparity());
-    spinBoxMaxDisparity->setValue(method->getMaxDisparity());
-
-    spinBoxSupportThreshold->setValue(method->getSupportThreshold());
-    spinBoxSupportTexture->setValue(method->getSupportTexture());
-    spinBoxCandidateStepSize->setValue(method->getCandidateStepSize());
-    spinBoxInconsistentWindowSize->setValue(method->getInconsistentWindowSize());
-    spinBoxInconsistentThreshold->setValue(method->getInconsistentThreshold());
-    spinBoxInconsistentMinSupport->setValue(method->getInconsistentMinSupport());
-
-    checkBoxAddCorners->setChecked(method->getAddCorners());
-    spinBoxGridSize->setValue(method->getGridSize());
+    spinBoxMinDisparity->blockSignals(oldState);
     
+    // Max disparity
+    oldState = spinBoxMaxDisparity->blockSignals(true);
+    spinBoxMaxDisparity->setValue(method->getMaxDisparity());
+    spinBoxMaxDisparity->blockSignals(oldState);
+
+
+    // Support threshold
+    oldState = spinBoxSupportThreshold->blockSignals(true);
+    spinBoxSupportThreshold->setValue(method->getSupportThreshold());
+    spinBoxSupportThreshold->blockSignals(oldState);
+
+    // Support texture
+    oldState = spinBoxSupportTexture->blockSignals(true);
+    spinBoxSupportTexture->setValue(method->getSupportTexture());
+    spinBoxSupportTexture->blockSignals(oldState);
+
+    // Candidate step size
+    oldState = spinBoxCandidateStepSize->blockSignals(true);
+    spinBoxCandidateStepSize->setValue(method->getCandidateStepSize());
+    spinBoxCandidateStepSize->blockSignals(oldState);
+
+    // Inconsistent window size
+    oldState = spinBoxInconsistentWindowSize->blockSignals(true);
+    spinBoxInconsistentWindowSize->setValue(method->getInconsistentWindowSize());
+    spinBoxInconsistentWindowSize->blockSignals(oldState);
+
+    // Inconsistent threshold
+    oldState = spinBoxInconsistentThreshold->blockSignals(true);
+    spinBoxInconsistentThreshold->setValue(method->getInconsistentThreshold());
+    spinBoxInconsistentThreshold->blockSignals(oldState);
+
+    // Inconsistent min. support
+    oldState = spinBoxInconsistentMinSupport->blockSignals(true);
+    spinBoxInconsistentMinSupport->setValue(method->getInconsistentMinSupport());
+    spinBoxInconsistentMinSupport->blockSignals(oldState);
+
+
+    // Add corners
+    oldState = checkBoxAddCorners->blockSignals(true);
+    checkBoxAddCorners->setChecked(method->getAddCorners());
+    checkBoxAddCorners->blockSignals(oldState);
+
+    // Grid size
+    oldState = spinBoxGridSize->blockSignals(true);
+    spinBoxGridSize->setValue(method->getGridSize());
+    spinBoxGridSize->blockSignals(oldState);
+    
+
+    // Beta
+    oldState = spinBoxBeta->blockSignals(true);
     spinBoxBeta->setValue(method->getBeta());
+    spinBoxBeta->blockSignals(oldState);
+
+    // Gamma
+    oldState = spinBoxGamma->blockSignals(true);
     spinBoxGamma->setValue(method->getGamma());
+    spinBoxGamma->blockSignals(oldState);
+
+    // Sigma
+    oldState = spinBoxSigma->blockSignals(true);
     spinBoxSigma->setValue(method->getSigma());
+    spinBoxSigma->blockSignals(oldState);
+
+    // Sigma radius
+    oldState = spinBoxSigmaRadius->blockSignals(true);
     spinBoxSigmaRadius->setValue(method->getSigmaRadius());
+    spinBoxSigmaRadius->blockSignals(oldState);
 
+
+    // Match texture
+    oldState = spinBoxMatchTexture->blockSignals(true);
     spinBoxMatchTexture->setValue(method->getMatchTexture());
+    spinBoxMatchTexture->blockSignals(oldState);
+
+    // LR threshold
+    oldState = spinBoxLRThreshold->blockSignals(true);
     spinBoxLRThreshold->setValue(method->getLRThreshold());
+    spinBoxLRThreshold->blockSignals(oldState);
 
+
+    // Speckles sim threshold
+    oldState = spinBoxSpeckleSimThreshold->blockSignals(true);
     spinBoxSpeckleSimThreshold->setValue(method->getSpeckleSimThreshold());
+    spinBoxSpeckleSimThreshold->blockSignals(oldState);
+
+    // Speckle size
+    oldState = spinBoxSpeckleSize->blockSignals(true);
     spinBoxSpeckleSize->setValue(method->getSpeckleSize());
+    spinBoxSpeckleSize->blockSignals(oldState);
+
+    // Interpolation gap width
+    oldState = spinBoxInterpolationGapWidth->blockSignals(true);
     spinBoxInterpolationGapWidth->setValue(method->getInterpolationGapWidth());
+    spinBoxInterpolationGapWidth->blockSignals(oldState);
 
+
+    // Filter median
+    oldState = checkBoxFilterMedian->blockSignals(true);
     checkBoxFilterMedian->setChecked(method->getFilterMedian());
-    checkBoxFilterAdaptiveMean->setChecked(method->getFilterAdaptiveMean());
-    checkBoxPostProcessOnlyLeft->setChecked(method->getPostProcessOnlyLeft());
-    checkBoxSubsampling->setChecked(method->getSubsampling());
+    checkBoxFilterMedian->blockSignals(oldState);
 
+    // Filter adaptive mean
+    oldState = checkBoxFilterAdaptiveMean->blockSignals(true);
+    checkBoxFilterAdaptiveMean->setChecked(method->getFilterAdaptiveMean());
+    checkBoxFilterAdaptiveMean->blockSignals(oldState);
+
+    // Post-process only left
+    oldState = checkBoxPostProcessOnlyLeft->blockSignals(true);
+    checkBoxPostProcessOnlyLeft->setChecked(method->getPostProcessOnlyLeft());
+    checkBoxPostProcessOnlyLeft->blockSignals(oldState);
+
+    // Subsampling
+    oldState = checkBoxSubsampling->blockSignals(true);
+    checkBoxSubsampling->setChecked(method->getSubsampling());
+    checkBoxSubsampling->blockSignals(oldState);
+
+
+    // Return left
+    oldState = checkBoxReturnLeft->blockSignals(true);
     checkBoxReturnLeft->setChecked(method->getReturnLeft());
+    checkBoxReturnLeft->blockSignals(oldState);
 }

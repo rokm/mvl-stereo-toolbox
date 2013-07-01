@@ -281,29 +281,79 @@ void StereoMethodSemiGlobalBlockMatchingConfigWidget::fullDPChanged (int state)
 
 void StereoMethodSemiGlobalBlockMatchingConfigWidget::updateParameters ()
 {
-    spinBoxMinDisparity->setValue(method->getMinDisparity());
-    spinBoxNumDisparities->setValue(method->getNumDisparities());
-    spinBoxSADWindowSize->setValue(method->getSADWindowSize());
+    bool oldState;
 
+    // Min. disparity
+    oldState = spinBoxMinDisparity->blockSignals(true);
+    spinBoxMinDisparity->setValue(method->getMinDisparity());
+    spinBoxMinDisparity->blockSignals(oldState);
+
+    // Num. disparities
+    oldState = spinBoxNumDisparities->blockSignals(true);
+    spinBoxNumDisparities->setValue(method->getNumDisparities());
+    spinBoxNumDisparities->blockSignals(oldState);
+
+    // SAD window size
+    oldState = spinBoxSADWindowSize->blockSignals(true);
+    spinBoxSADWindowSize->setValue(method->getSADWindowSize());
+    spinBoxSADWindowSize->blockSignals(oldState);
+
+
+    // Pre-filter cap
+    oldState = spinBoxPreFilterCap->blockSignals(true);
     spinBoxPreFilterCap->setValue(method->getPreFilterCap());
+    spinBoxPreFilterCap->blockSignals(oldState);
     
+
+    // Uniqueness ratio
+    oldState = spinBoxUniquenessRatio->blockSignals(true);
     spinBoxUniquenessRatio->setValue(method->getUniquenessRatio());
+    spinBoxUniquenessRatio->blockSignals(oldState);
 
     // P1 and P2 require some more work...
     int SADWindowSize = method->getSADWindowSize();
     int numChannels = method->getImageChannels();
     if (SADWindowSize > 0 && numChannels > 0) {
+        // P1
+        oldState = spinBoxP1->blockSignals(true);
         spinBoxP1->setValue(method->getP1() / (numChannels*SADWindowSize*SADWindowSize));
+        spinBoxP1->blockSignals(oldState);
+
+        // P2
+        oldState = spinBoxP2->blockSignals(true);
         spinBoxP2->setValue(method->getP2() / (numChannels*SADWindowSize*SADWindowSize));
+        spinBoxP2->blockSignals(oldState);
     } else {
+        // P1
+        oldState = spinBoxP1->blockSignals(true);
         spinBoxP1->setValue(method->getP1());
+        spinBoxP1->blockSignals(oldState);
+
+        // P2
+        oldState = spinBoxP2->blockSignals(true);
         spinBoxP2->setValue(method->getP2());
+        spinBoxP2->blockSignals(oldState);
     }
 
+    // Speckle window size
+    oldState = spinBoxSpeckleWindowSize->blockSignals(true);
     spinBoxSpeckleWindowSize->setValue(method->getSpeckleWindowSize());
-    spinBoxSpeckleRange->setValue(method->getSpeckleRange());
-    
-    spinBoxDisp12MaxDiff->setValue(method->getDisp12MaxDiff());
+    spinBoxSpeckleWindowSize->blockSignals(oldState);
 
+    // Speckle range
+    oldState = spinBoxSpeckleRange->blockSignals(true);
+    spinBoxSpeckleRange->setValue(method->getSpeckleRange());
+    spinBoxSpeckleRange->blockSignals(oldState);
+    
+
+    // Disp12 max diff
+    oldState = spinBoxDisp12MaxDiff->blockSignals(true);
+    spinBoxDisp12MaxDiff->setValue(method->getDisp12MaxDiff());
+    spinBoxDisp12MaxDiff->blockSignals(oldState);
+
+
+    // Full DP
+    oldState = checkBoxFullDP->blockSignals(true);
     checkBoxFullDP->setChecked(method->getFullDP());
+    checkBoxFullDP->blockSignals(oldState);
 }

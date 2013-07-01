@@ -243,17 +243,59 @@ void StereoMethodConstantSpaceBeliefPropagationGPUConfigWidget::localCostChanged
 
 void StereoMethodConstantSpaceBeliefPropagationGPUConfigWidget::updateParameters ()
 {
+    bool oldState;
+
+    // Num. disparities
+    oldState = spinBoxNumDisparities->blockSignals(true);
     spinBoxNumDisparities->setValue(method->getNumDisparities());
+    spinBoxNumDisparities->blockSignals(oldState);
 
+
+    // Iterations
+    oldState = spinBoxIterations->blockSignals(true);
     spinBoxIterations->setValue(method->getIterations());
+    spinBoxIterations->blockSignals(oldState);
+
+    // Levels
+    oldState = spinBoxLevels->blockSignals(true);
     spinBoxLevels->setValue(method->getLevels());
+    spinBoxLevels->blockSignals(oldState);
+
+    // Nr. plane
+    oldState = spinBoxNrPlane->blockSignals(true);
     spinBoxNrPlane->setValue(method->getNrPlane());
+    spinBoxNrPlane->blockSignals(oldState);
 
+
+    // Max. data term
+    oldState = spinBoxMaxDataTerm->blockSignals(true);
     spinBoxMaxDataTerm->setValue(method->getMaxDataTerm());
-    spinBoxDataWeight->setValue(method->getDataWeight());
-    spinBoxMaxDiscTerm->setValue(method->getMaxDiscTerm());
-    spinBoxDiscSingleJump->setValue(method->getDiscSingleJump());
-    spinBoxMinDispThreshold->setValue(method->getMinDispThreshold());
+    spinBoxMaxDataTerm->blockSignals(oldState);
 
+    // Data weight
+    oldState = spinBoxDataWeight->blockSignals(true);
+    spinBoxDataWeight->setValue(method->getDataWeight());
+    spinBoxDataWeight->blockSignals(oldState);
+
+    // Max. disc. term
+    oldState = spinBoxMaxDiscTerm->blockSignals(true);
+    spinBoxMaxDiscTerm->setValue(method->getMaxDiscTerm());
+    spinBoxMaxDiscTerm->blockSignals(oldState);
+
+    // Disc. single jump
+    oldState = spinBoxDiscSingleJump->blockSignals(true);
+    spinBoxDiscSingleJump->setValue(method->getDiscSingleJump());
+    spinBoxDiscSingleJump->blockSignals(oldState);
+
+    // Min. disp. threshold
+    oldState = spinBoxMinDispThreshold->blockSignals(true);
+    spinBoxMinDispThreshold->setValue(method->getMinDispThreshold());
+    spinBoxMinDispThreshold->blockSignals(oldState);
+
+
+    // Use local cost
+    oldState = checkBoxUseLocalCost->blockSignals(true);
     checkBoxUseLocalCost->setChecked(method->getUseLocalCost());
+    checkBoxUseLocalCost->blockSignals(oldState);
 }
+

@@ -181,8 +181,17 @@ void CameraDC1394ConfigWidget::framerateChanged (int index)
 
 void CameraDC1394ConfigWidget::updateParameters ()
 {
+    bool oldState;
+
+    // Mode
+    oldState = comboBoxMode->blockSignals(true);
     comboBoxMode->setCurrentIndex(comboBoxMode->findData(camera->getMode()));
+    comboBoxMode->blockSignals(oldState);
+
+    // Framerate
+    oldState = comboBoxFramerate->blockSignals(true);
     comboBoxFramerate->setCurrentIndex(comboBoxFramerate->findData(camera->getFramerate()));
+    comboBoxFramerate->blockSignals(oldState);
 }
 
 

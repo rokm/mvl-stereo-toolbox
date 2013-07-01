@@ -150,9 +150,26 @@ void StereoMethodBlockMatchingGPUConfigWidget::presetChanged (int index)
 
 void StereoMethodBlockMatchingGPUConfigWidget::updateParameters ()
 {
+    bool oldState;
+
+    // Preset
+    oldState = comboBoxPreset->blockSignals(true);
     comboBoxPreset->setCurrentIndex(comboBoxPreset->findData(method->getPreset()));
-    
+    comboBoxPreset->blockSignals(oldState);
+
+
+    // Num. disparities
+    oldState = spinBoxNumDisparities->blockSignals(true);
     spinBoxNumDisparities->setValue(method->getNumDisparities());
+    spinBoxNumDisparities->blockSignals(oldState);
+
+    // Window size
+    oldState = spinBoxWindowSize->blockSignals(true);
     spinBoxWindowSize->setValue(method->getWindowSize());
+    spinBoxWindowSize->blockSignals(oldState);
+
+    // Average texture threshold
+    oldState = spinBoxAverageTextureThreshold->blockSignals(true);
     spinBoxAverageTextureThreshold->setValue(method->getAverageTextureThreshold());
+    spinBoxAverageTextureThreshold->blockSignals(oldState);
 }

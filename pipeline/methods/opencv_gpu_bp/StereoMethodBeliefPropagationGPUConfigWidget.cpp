@@ -193,13 +193,42 @@ void StereoMethodBeliefPropagationGPUConfigWidget::presetChanged (int index)
 
 void StereoMethodBeliefPropagationGPUConfigWidget::updateParameters ()
 {
+    bool oldState;
+
+    // Num. disparities
+    oldState = spinBoxNumDisparities->blockSignals(true);
     spinBoxNumDisparities->setValue(method->getNumDisparities());
+    spinBoxNumDisparities->blockSignals(oldState);
 
+
+    // Iterations
+    oldState = spinBoxIterations->blockSignals(true);
     spinBoxIterations->setValue(method->getIterations());
-    spinBoxLevels->setValue(method->getLevels());
+    spinBoxIterations->blockSignals(oldState);
 
+    // Levels
+    oldState = spinBoxLevels->blockSignals(true);
+    spinBoxLevels->setValue(method->getLevels());
+    spinBoxLevels->blockSignals(oldState);
+
+
+    // Max. data term
+    oldState = spinBoxMaxDataTerm->blockSignals(true);
     spinBoxMaxDataTerm->setValue(method->getMaxDataTerm());
+    spinBoxMaxDataTerm->blockSignals(oldState);
+
+    // Data weight
+    oldState = spinBoxDataWeight->blockSignals(true);
     spinBoxDataWeight->setValue(method->getDataWeight());
+    spinBoxDataWeight->blockSignals(oldState);
+
+    // Max. disc. term
+    oldState = spinBoxMaxDiscTerm->blockSignals(true);
     spinBoxMaxDiscTerm->setValue(method->getMaxDiscTerm());
+    spinBoxMaxDiscTerm->blockSignals(oldState);
+
+    // Disc. single jump
+    oldState = spinBoxDiscSingleJump->blockSignals(true);
     spinBoxDiscSingleJump->setValue(method->getDiscSingleJump());
+    spinBoxDiscSingleJump->blockSignals(oldState);
 }

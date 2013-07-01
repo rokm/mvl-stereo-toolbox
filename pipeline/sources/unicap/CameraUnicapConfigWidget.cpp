@@ -233,6 +233,7 @@ void CameraUnicapConfigWidget::updateFormat ()
 
 void CameraUnicapConfigWidget::updateSize ()
 {
+    bool oldState;
     format = camera->getFormat();
 
     // Size in widget
@@ -245,7 +246,11 @@ void CameraUnicapConfigWidget::updateSize ()
             break;
         }
     }
+
+    // Select size
+    oldState = comboBoxSize->blockSignals(true);
     comboBoxSize->setCurrentIndex(idx);
+    comboBoxSize->blockSignals(oldState);
 }
 
 
@@ -261,7 +266,10 @@ void CameraUnicapConfigWidget::captureButtonToggled (bool start)
 
 void CameraUnicapConfigWidget::updateCameraState ()
 {
+    bool oldState;
+    oldState = pushButtonCapture->blockSignals(true);
     pushButtonCapture->setChecked(camera->getCaptureState());
+    pushButtonCapture->blockSignals(oldState);
 }
 
 

@@ -315,35 +315,90 @@ void StereoMethodVarConfigWidget::flagsChanged ()
     method->setFlags(flags);
 }
 
-static inline void checkBoxSetCheckedQuiet (QCheckBox *checkBox, bool checked)
-{
-    bool oldState = checkBox->blockSignals(true);
-    checkBox->setChecked(checked);
-    checkBox->blockSignals(oldState);
-}
 
 void StereoMethodVarConfigWidget::updateParameters ()
 {
+    bool oldState;
+
+    // Levels
+    oldState = spinBoxLevels->blockSignals(true);
     spinBoxLevels->setValue(method->getLevels());
+    spinBoxLevels->blockSignals(oldState);
+
+    // Pyr. scale
+    oldState = spinBoxPyrScale->blockSignals(true);
     spinBoxPyrScale->setValue(method->getPyrScale());
+    spinBoxPyrScale->blockSignals(oldState);
+
+    // Num. iterations
+    oldState = spinBoxNumIterations->blockSignals(true);
     spinBoxNumIterations->setValue(method->getNumIterations());
+    spinBoxNumIterations->blockSignals(oldState);
 
+
+    // Min. disparity
+    oldState = spinBoxMinDisparity->blockSignals(true);
     spinBoxMinDisparity->setValue(method->getMinDisparity());
+    spinBoxMinDisparity->blockSignals(oldState);
+
+    // Max. disparity
+    oldState = spinBoxMaxDisparity->blockSignals(true);
     spinBoxMaxDisparity->setValue(method->getMaxDisparity());
+    spinBoxMaxDisparity->blockSignals(oldState);
 
+
+    // Poly N
+    oldState = spinBoxPolyN->blockSignals(true);
     spinBoxPolyN->setValue(method->getPolyN());
+    spinBoxPolyN->blockSignals(oldState);
+
+    // Poly Sigma
+    oldState = spinBoxPolySigma->blockSignals(true);
     spinBoxPolySigma->setValue(method->getPolySigma());
+    spinBoxPolySigma->blockSignals(oldState);
 
+
+    // Fi
+    oldState = spinBoxFi->blockSignals(true);
     spinBoxFi->setValue(method->getFi());
+    spinBoxFi->blockSignals(oldState);
+
+    // Lambda
+    oldState = spinBoxLambda->blockSignals(true);
     spinBoxLambda->setValue(method->getLambda());
+    spinBoxLambda->blockSignals(oldState);
 
+
+    // Penalization
+    oldState = comboBoxPenalization->blockSignals(true);
     comboBoxPenalization->setCurrentIndex(comboBoxPenalization->findData(method->getPenalization()));
-    comboBoxCycle->setCurrentIndex(comboBoxCycle->findData(method->getCycle()));
+    comboBoxPenalization->blockSignals(oldState);
 
+    // Cycle
+    oldState = comboBoxCycle->blockSignals(true);
+    comboBoxCycle->setCurrentIndex(comboBoxCycle->findData(method->getCycle()));
+    comboBoxCycle->blockSignals(oldState);
+
+    // Flags
     int flags = method->getFlags();
-    checkBoxSetCheckedQuiet(checkBoxUseInitialDisparity, flags & cv::StereoVar::USE_INITIAL_DISPARITY);
-    checkBoxSetCheckedQuiet(checkBoxUseEqualizeHist, flags & cv::StereoVar::USE_EQUALIZE_HIST);
-    checkBoxSetCheckedQuiet(checkBoxUseSmartId, flags & cv::StereoVar::USE_SMART_ID);
-    checkBoxSetCheckedQuiet(checkBoxUseAutoParams, flags & cv::StereoVar::USE_AUTO_PARAMS);
-    checkBoxSetCheckedQuiet(checkBoxUseMedianFiltering, flags & cv::StereoVar::USE_MEDIAN_FILTERING);
+
+    oldState = checkBoxUseInitialDisparity->blockSignals(true);
+    checkBoxUseInitialDisparity->setChecked(flags & cv::StereoVar::USE_INITIAL_DISPARITY);
+    checkBoxUseInitialDisparity->blockSignals(oldState);
+
+    oldState = checkBoxUseEqualizeHist->blockSignals(true);
+    checkBoxUseEqualizeHist->setChecked(flags & cv::StereoVar::USE_EQUALIZE_HIST);
+    checkBoxUseEqualizeHist->blockSignals(oldState);
+
+    oldState = checkBoxUseSmartId->blockSignals(true);
+    checkBoxUseSmartId->setChecked(flags & cv::StereoVar::USE_SMART_ID);
+    checkBoxUseSmartId->blockSignals(oldState);
+
+    oldState = checkBoxUseAutoParams->blockSignals(true);
+    checkBoxUseAutoParams->setChecked(flags & cv::StereoVar::USE_AUTO_PARAMS);
+    checkBoxUseAutoParams->blockSignals(oldState);
+
+    oldState = checkBoxUseMedianFiltering->blockSignals(true);
+    checkBoxUseMedianFiltering->setChecked(flags & cv::StereoVar::USE_MEDIAN_FILTERING);
+    checkBoxUseMedianFiltering->blockSignals(oldState);
 }

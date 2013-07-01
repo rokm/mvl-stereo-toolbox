@@ -102,6 +102,7 @@ void FeatureWidget::updateParameters ()
 
     // If mode is auto, disable the controls and enable the refresh timer,
     // otherwise, disable timer and enable control
+    oldState = spinBoxValue->blockSignals(true);
     if (comboBoxMode->itemData(comboBoxMode->currentIndex()) == DC1394_FEATURE_MODE_AUTO) {
         spinBoxValue->setEnabled(false);
         updateTimer->start(1000);
@@ -109,6 +110,7 @@ void FeatureWidget::updateParameters ()
         spinBoxValue->setEnabled(true);
         updateTimer->stop();
     }
+    spinBoxValue->blockSignals(oldState);
 }
 
 

@@ -300,21 +300,68 @@ void StereoMethodBlockMatchingConfigWidget::trySmallerWindowsChanged (int state)
 
 void StereoMethodBlockMatchingConfigWidget::updateParameters ()
 {
-    comboBoxPreFilterType->setCurrentIndex(comboBoxPreFilterType->findData(method->getPreFilterType()));
-    
-    spinBoxPreFilterSize->setValue(method->getPreFilterSize());
-    spinBoxPreFilterCap->setValue(method->getPreFilterCap());
-    
-    spinBoxSADWindowSize->setValue(method->getSADWindowSize());
-    spinBoxMinDisparity->setValue(method->getMinDisparity());
-    spinBoxNumDisparities->setValue(method->getNumDisparities());
-    
-    spinBoxTextureThreshold->setValue(method->getTextureThreshold());
-    spinBoxUniquenessRatio->setValue(method->getUniquenessRatio());
-    spinBoxSpeckleWindowSize->setValue(method->getSpeckleWindowSize());
-    spinBoxSpeckleRange->setValue(method->getSpeckleRange());
-    
-    checkBoxTrySmallerWindow->setChecked(method->getTrySmallerWindows());
+    bool oldState;
 
+    // Pre-filter type
+    oldState = comboBoxPreFilterType->blockSignals(true);
+    comboBoxPreFilterType->setCurrentIndex(comboBoxPreFilterType->findData(method->getPreFilterType()));
+    comboBoxPreFilterType->blockSignals(oldState);
+
+    // Pre-filter size
+    oldState = spinBoxPreFilterSize->blockSignals(true);
+    spinBoxPreFilterSize->setValue(method->getPreFilterSize());
+    spinBoxPreFilterSize->blockSignals(oldState);
+
+    // Pre-filter cap
+    oldState = spinBoxPreFilterCap->blockSignals(true);
+    spinBoxPreFilterCap->setValue(method->getPreFilterCap());
+    spinBoxPreFilterCap->blockSignals(oldState);
+    
+
+    // SAD window size
+    oldState = spinBoxSADWindowSize->blockSignals(true);
+    spinBoxSADWindowSize->setValue(method->getSADWindowSize());
+    spinBoxSADWindowSize->blockSignals(oldState);
+
+    // Min. disparity
+    oldState = spinBoxMinDisparity->blockSignals(true);
+    spinBoxMinDisparity->setValue(method->getMinDisparity());
+    spinBoxMinDisparity->blockSignals(oldState);
+
+    // Num. disparities
+    oldState = spinBoxNumDisparities->blockSignals(true);
+    spinBoxNumDisparities->setValue(method->getNumDisparities());
+    spinBoxNumDisparities->blockSignals(oldState);
+    
+
+    // Texture threshold
+    oldState = spinBoxTextureThreshold->blockSignals(true);
+    spinBoxTextureThreshold->setValue(method->getTextureThreshold());
+    spinBoxTextureThreshold->blockSignals(oldState);
+
+    // Uniqueness ratio
+    oldState = spinBoxUniquenessRatio->blockSignals(true);
+    spinBoxUniquenessRatio->setValue(method->getUniquenessRatio());
+    spinBoxUniquenessRatio->blockSignals(oldState);
+
+    // Speckle window size
+    oldState = spinBoxSpeckleWindowSize->blockSignals(true);
+    spinBoxSpeckleWindowSize->setValue(method->getSpeckleWindowSize());
+    spinBoxSpeckleWindowSize->blockSignals(oldState);
+
+    // Speckle range
+    oldState = spinBoxSpeckleRange->blockSignals(true);
+    spinBoxSpeckleRange->setValue(method->getSpeckleRange());
+    spinBoxSpeckleRange->blockSignals(oldState);
+    
+
+    // Try smaller windows
+    oldState = checkBoxTrySmallerWindow->blockSignals(true);
+    checkBoxTrySmallerWindow->setChecked(method->getTrySmallerWindows());
+    checkBoxTrySmallerWindow->blockSignals(oldState);
+
+    // Disp12 max diff
+    oldState = spinBoxDisp12MaxDiff->blockSignals(true);
     spinBoxDisp12MaxDiff->setValue(method->getDisp12MaxDiff());
+    spinBoxDisp12MaxDiff->blockSignals(oldState);
 }
