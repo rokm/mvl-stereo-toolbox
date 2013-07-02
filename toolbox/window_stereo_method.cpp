@@ -80,6 +80,7 @@ WindowStereoMethod::WindowStereoMethod (StereoPipeline *p, QList<StereoMethod *>
     // Disparity image display type
     box = new QHBoxLayout();
     box->setContentsMargins(0, 0, 0, 0);
+    box->setSpacing(2);
     buttonsLayout->addLayout(box);
 
     label = new QLabel("Display type", this);

@@ -51,6 +51,7 @@ WindowReprojection::WindowReprojection (StereoPipeline *p, StereoReprojection *r
     // Display image
     box = new QHBoxLayout();
     box->setContentsMargins(0, 0, 0, 0);
+    box->setSpacing(2);
     buttonsLayout->addLayout(box);
 
     label = new QLabel("Image", this);
@@ -64,6 +65,8 @@ WindowReprojection::WindowReprojection (StereoPipeline *p, StereoReprojection *r
     connect(comboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(updateImage()));
     box->addWidget(comboBox);
     comboBoxImage = comboBox;
+
+    buttonsLayout->addStretch();
 
     // Use GPU
     pushButton = new QPushButton("Use GPU", this);
