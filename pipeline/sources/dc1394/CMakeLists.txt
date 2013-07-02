@@ -12,22 +12,22 @@ link_directories(${DC1394_LIBRARY_DIRS})
 set(plugin_name ${PROJECT_NAME})
 
 set(plugin_SOURCES
-    CameraDC1394.cpp
-    CameraDC1394ConfigWidget.cpp
-    CameraListModel.cpp
-    FeatureWidget.cpp
-    SourceDC1394.cpp
-    SourceDC1394ConfigWidget.cpp
+    camera.cpp
+    camera_widget.cpp
+    camera_list.cpp
+    feature_widget.cpp
+    source.cpp
+    source_widget.cpp
     plugin.cpp
 )
     
 set(plugin_HEADERS
-    CameraDC1394.h
-    CameraDC1394ConfigWidget.h
-    CameraListModel.h
-    FeatureWidget.h
-    SourceDC1394.h
-    SourceDC1394ConfigWidget.h
+    camera.h
+    camera_widget.h
+    camera_list.h
+    feature_widget.h
+    source.h
+    source_widget.h
 )
 
 QT4_WRAP_CPP(plugin_HEADERS_MOC ${plugin_HEADERS})

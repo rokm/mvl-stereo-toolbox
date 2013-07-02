@@ -17,8 +17,10 @@
  * 
  */
 
-#include "PluginFactory.h"
-#include "StereoMethodConstantSpaceBeliefPropagationGPU.h"
+#include <plugin_factory.h>
+#include "method.h"
+
+using namespace StereoMethodConstantSpaceBeliefPropagationGPU;
 
 
 class Plugin : public PluginFactory
@@ -36,7 +38,7 @@ class Plugin : public PluginFactory
     }
     
     QObject *createObject (QObject *parent = 0) const {
-        return new StereoMethodConstantSpaceBeliefPropagationGPU(parent);
+        return new Method(parent);
     }
 };
 

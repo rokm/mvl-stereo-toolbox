@@ -12,14 +12,14 @@ link_directories(${ELAS_LIBRARY_DIRS})
 set(plugin_name ${PROJECT_NAME})
 
 set(plugin_SOURCES
-    StereoMethodELAS.cpp
-    StereoMethodELASConfigWidget.cpp
+    method.cpp
+    method_widget.cpp
     plugin.cpp
 )
 
 set(plugin_HEADERS
-    StereoMethodELAS.h
-    StereoMethodELASConfigWidget.h
+    method.h
+    method_widget.h
 )
 
 QT4_WRAP_CPP(plugin_HEADERS_MOC ${plugin_HEADERS})

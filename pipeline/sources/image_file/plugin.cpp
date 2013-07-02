@@ -17,8 +17,10 @@
  * 
  */
 
-#include "PluginFactory.h"
-#include "SourceImageFile.h"
+#include <plugin_factory.h>
+#include "source.h"
+
+using namespace SourceImageFile;
 
 
 class Plugin : public PluginFactory
@@ -36,7 +38,7 @@ class Plugin : public PluginFactory
     }
     
     QObject *createObject (QObject *parent = 0) const {
-        return new SourceImageFile(parent);
+        return new Source(parent);
     }
 };
 

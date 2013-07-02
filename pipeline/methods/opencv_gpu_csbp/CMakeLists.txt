@@ -7,14 +7,14 @@ find_package(Qt4 REQUIRED)
 set(plugin_name ${PROJECT_NAME})
 
 set(plugin_SOURCES
-    StereoMethodConstantSpaceBeliefPropagationGPU.cpp
-    StereoMethodConstantSpaceBeliefPropagationGPUConfigWidget.cpp
+    method.cpp
+    method_widget.cpp
     plugin.cpp
 )
 
 set(plugin_HEADERS
-    StereoMethodConstantSpaceBeliefPropagationGPU.h
-    StereoMethodConstantSpaceBeliefPropagationGPUConfigWidget.h
+    method.h
+    method_widget.h
 )
 
 QT4_WRAP_CPP(plugin_HEADERS_MOC ${plugin_HEADERS})

@@ -17,8 +17,10 @@
  * 
  */
 
-#include "PluginFactory.h"
-#include "StereoMethodELAS.h"
+#include <plugin_factory.h>
+#include "method.h"
+
+using namespace StereoMethodELAS;
 
 
 class Plugin : public PluginFactory
@@ -36,7 +38,7 @@ class Plugin : public PluginFactory
     }
     
     QObject *createObject (QObject *parent = 0) const {
-        return new StereoMethodELAS(parent);
+        return new Method(parent);
     }
 };
 

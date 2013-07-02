@@ -12,22 +12,22 @@ link_directories(${UNICAP_LIBRARY_DIRS})
 set(plugin_name ${PROJECT_NAME})
 
 set(plugin_SOURCES
-    CameraUnicap.cpp
-    CameraUnicapConfigWidget.cpp
-    CameraListModel.cpp
-    PropertyWidget.cpp
-    SourceUnicap.cpp
-    SourceUnicapConfigWidget.cpp
+    camera.cpp
+    camera_widget.cpp
+    camera_list.cpp
+    property_widget.cpp
+    source.cpp
+    source_widget.cpp
     plugin.cpp
 )
     
 set(plugin_HEADERS
-    CameraUnicap.h
-    CameraUnicapConfigWidget.h
-    CameraListModel.h
-    PropertyWidget.h
-    SourceUnicap.h
-    SourceUnicapConfigWidget.h
+    camera.h
+    camera_widget.h
+    camera_list.h
+    property_widget.h
+    source.h
+    source_widget.h
 )
 
 QT4_WRAP_CPP(plugin_HEADERS_MOC ${plugin_HEADERS})

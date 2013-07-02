@@ -17,8 +17,11 @@
  * 
  */
 
-#include "PluginFactory.h"
-#include "SourceDC1394.h"
+#include <plugin_factory.h>
+#include "source.h"
+
+using namespace SourceDC1394;
+
 
 class Plugin : public PluginFactory
 {
@@ -35,7 +38,7 @@ class Plugin : public PluginFactory
     }
     
     QObject *createObject (QObject *parent = 0) const {
-        return new SourceDC1394(parent);
+        return new Source(parent);
     }
 };
 

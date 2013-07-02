@@ -18,24 +18,24 @@ include(${QT_USE_FILE})
 add_definitions(${QT_DEFINITIONS})
 
 set(toolbox_SOURCES
+    calibration_wizard.cpp
+    image_display_widget.cpp
     main.cpp
-    CalibrationWizard.cpp
-    GuiImagePairSource.cpp
-    GuiRectification.cpp
-    GuiStereoMethod.cpp
-    GuiReprojection.cpp
-    ImageDisplayWidget.cpp
-    Toolbox.cpp
+    toolbox.cpp
+    window_image_pair_source.cpp
+    window_rectification.cpp
+    window_reprojection.cpp
+    window_stereo_method.cpp
 )
 
 set(toolbox_HEADERS
-    CalibrationWizard.h
-    GuiImagePairSource.h
-    GuiRectification.h
-    GuiStereoMethod.h
-    GuiReprojection.h
-    ImageDisplayWidget.h
-    Toolbox.h
+    calibration_wizard.h
+    image_display_widget.h
+    toolbox.h
+    window_image_pair_source.h
+    window_rectification.h
+    window_reprojection.h
+    window_stereo_method.h
 )
 
 QT4_WRAP_CPP(toolbox_HEADERS_MOC ${toolbox_HEADERS})

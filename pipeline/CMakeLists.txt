@@ -12,22 +12,22 @@ find_package(OpenCV REQUIRED)
 find_package(Qt4 REQUIRED)
 
 set(pipeline_SOURCES
-    ImagePairSource.cpp
-    StereoCalibrationPattern.cpp
-    StereoMethod.cpp
-    StereoPipeline.cpp
-    StereoRectification.cpp
-    StereoReprojection.cpp
+    image_pair_source.cpp
+    stereo_calibration_pattern.cpp
+    stereo_method.cpp
+    stereo_pipeline.cpp
+    stereo_rectification.cpp
+    stereo_reprojection.cpp
 )
 
 set(pipeline_HEADERS
-    ImagePairSource.h
-    PluginFactory.h
-    StereoCalibrationPattern.h
-    StereoMethod.h
-    StereoPipeline.h
-    StereoRectification.h
-    StereoReprojection.h
+    image_pair_source.h
+    plugin_factory.h
+    stereo_calibration_pattern.h
+    stereo_method.h
+    stereo_pipeline.h
+    stereo_rectification.h
+    stereo_reprojection.h
 )
 
 QT4_WRAP_CPP(pipeline_HEADERS_MOC ${pipeline_HEADERS})

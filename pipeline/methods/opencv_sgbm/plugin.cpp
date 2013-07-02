@@ -17,8 +17,10 @@
  * 
  */
 
-#include "PluginFactory.h"
-#include "StereoMethodSemiGlobalBlockMatching.h"
+#include <plugin_factory.h>
+#include "method.h"
+
+using namespace StereoMethodSemiGlobalBlockMatching;
 
 
 class Plugin : public PluginFactory
@@ -36,7 +38,7 @@ class Plugin : public PluginFactory
     }
     
     QObject *createObject (QObject *parent = 0) const {
-        return new StereoMethodSemiGlobalBlockMatching(parent);
+        return new Method(parent);
     }
 };
 
