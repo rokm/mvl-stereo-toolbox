@@ -27,9 +27,10 @@
 
 namespace StereoMethodConstantSpaceBeliefPropagationGPU {
 
-class Method : public StereoMethod
+class Method : public QObject, public StereoMethod
 {
     Q_OBJECT
+    Q_INTERFACES(StereoMethod)
 
 public:
     Method (QObject * = 0);
@@ -81,7 +82,11 @@ public slots:
     void setMinDispThreshold (int);
 
     void setUseLocalCost (bool);
-    
+
+signals:
+    // Signals from interface
+    void parameterChanged ();
+
 protected:
     // Block matcher
     cv::gpu::StereoConstantSpaceBP bp;

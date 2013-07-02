@@ -26,7 +26,7 @@ using namespace StereoMethodVar;
 
 
 Method::Method (QObject *parent)
-    : StereoMethod(parent)
+    : QObject(parent), StereoMethod()
 {
     shortName = "Var";
     usePreset(OpenCV);

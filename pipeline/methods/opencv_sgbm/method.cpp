@@ -26,7 +26,7 @@ using namespace StereoMethodSemiGlobalBlockMatching;
 
 
 Method::Method (QObject *parent)
-    : StereoMethod(parent)
+    : QObject(parent), StereoMethod()
 {
     shortName = "SGBM";
     usePreset(OpenCV);

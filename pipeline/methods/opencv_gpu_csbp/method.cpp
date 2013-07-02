@@ -24,7 +24,7 @@ using namespace StereoMethodConstantSpaceBeliefPropagationGPU;
 
 
 Method::Method (QObject *parent)
-    : StereoMethod(parent)
+    : QObject(parent), StereoMethod()
 {
     shortName = "CSBP_GPU";
 

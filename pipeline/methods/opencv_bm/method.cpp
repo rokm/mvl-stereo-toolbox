@@ -26,7 +26,7 @@ using namespace StereoMethodBlockMatching;
 
 
 Method::Method (QObject *parent)
-    : StereoMethod(parent)
+    : QObject(parent), StereoMethod()
 {
     shortName = "BM";
     usePreset(OpenCVBasic);

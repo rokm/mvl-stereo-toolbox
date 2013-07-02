@@ -413,20 +413,20 @@ void StereoPipeline::rectifyImages ()
 void StereoPipeline::setStereoMethod (StereoMethod *newMethod)
 {
     // Change method
-    if (stereoMethod) {
-        disconnect(stereoMethod, SIGNAL(parameterChanged()), this, SLOT(computeDisparityImage()));
+    if (dynamic_cast<QObject *>(stereoMethod)) {
+        disconnect(dynamic_cast<QObject *>(stereoMethod), SIGNAL(parameterChanged()), this, SLOT(computeDisparityImage()));
 
-        if (stereoMethod->parent() == this) {
-            stereoMethod->deleteLater(); // Schedule for deletion
+        if (dynamic_cast<QObject *>(stereoMethod)->parent() == this) {
+            dynamic_cast<QObject *>(stereoMethod)->deleteLater(); // Schedule for deletion
         }
     }
     
     stereoMethod = newMethod;
-    if (!stereoMethod->parent()) {
-        stereoMethod->deleteLater();
+    if (!dynamic_cast<QObject *>(stereoMethod)->parent()) {
+        dynamic_cast<QObject *>(stereoMethod)->deleteLater();
     }
     
-    connect(stereoMethod, SIGNAL(parameterChanged()), this, SLOT(computeDisparityImage()));
+    connect(dynamic_cast<QObject *>(stereoMethod), SIGNAL(parameterChanged()), this, SLOT(computeDisparityImage()));
 
     // Compute new disparity image
     computeDisparityImage();

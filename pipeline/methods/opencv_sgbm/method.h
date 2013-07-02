@@ -28,9 +28,10 @@
 
 namespace StereoMethodSemiGlobalBlockMatching {
 
-class Method : public StereoMethod
+class Method : public QObject, public StereoMethod
 {
     Q_OBJECT
+    Q_INTERFACES(StereoMethod)
 
 public:
     Method (QObject * = 0);
@@ -88,7 +89,11 @@ public slots:
     void setDisp12MaxDiff (int);
 
     void setFullDP (bool);
-    
+
+signals:
+    // Signals from interface
+    void parameterChanged ();
+
 protected:
     // Semi-global block matcher
     cv::StereoSGBM sgbm;

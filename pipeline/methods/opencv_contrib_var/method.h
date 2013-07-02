@@ -28,9 +28,10 @@
 
 namespace StereoMethodVar {
 
-class Method : public StereoMethod
+class Method : public QObject, public StereoMethod
 {
     Q_OBJECT
+    Q_INTERFACES(StereoMethod)
 
 public:
     Method (QObject * = 0);
@@ -80,7 +81,11 @@ public slots:
     void setPenalization (int);
     void setCycle (int);
     void setFlags (int);
-    
+
+signals:
+    // Signals from interface
+    void parameterChanged ();
+
 protected:
     // Semi-global block matcher
     cv::StereoVar var;

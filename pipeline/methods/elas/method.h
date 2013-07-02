@@ -27,9 +27,10 @@
 
 namespace StereoMethodELAS {
 
-class Method : public StereoMethod
+class Method : public QObject, public StereoMethod
 {
     Q_OBJECT
+    Q_INTERFACES(StereoMethod)
 
 public:
     Method (QObject * = 0);
@@ -132,7 +133,11 @@ public slots:
 
 protected:
     void createElasObject ();
-    
+
+signals:
+    // Signals from interface
+    void parameterChanged ();
+
 protected:
     // ELAS
     Elas::parameters param;

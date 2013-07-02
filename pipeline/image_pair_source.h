@@ -1,5 +1,5 @@
 /*
- * Stereo Pipeline: image pair source
+ * Stereo Pipeline: image pair source interface
  * Copyright (C) 2013 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify

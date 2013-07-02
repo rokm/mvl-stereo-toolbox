@@ -27,9 +27,10 @@
 
 namespace StereoMethodBlockMatchingGPU {
     
-class Method : public StereoMethod
+class Method : public QObject, public StereoMethod
 {
     Q_OBJECT
+    Q_INTERFACES(StereoMethod)
 
 public:
     Method (QObject * = 0);
@@ -60,7 +61,11 @@ public slots:
     void setWindowSize (int);
         
     void setAverageTextureThreshold (double);
-    
+
+signals:
+    // Signals from interface
+    void parameterChanged ();
+
 protected:
     // Block matcher
     cv::gpu::StereoBM_GPU bm;

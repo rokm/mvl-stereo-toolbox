@@ -1,5 +1,5 @@
 /*
- * Stereo Pipeline: stereo method
+ * Stereo Pipeline: stereo method interface
  * Copyright (C) 2013 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
@@ -27,12 +27,10 @@
 
 class QWidget;
 
-class StereoMethod : public QObject
+class StereoMethod
 {
-    Q_OBJECT
-
 public:
-    StereoMethod (QObject * = 0);
+    StereoMethod ();
     virtual ~StereoMethod ();
 
     const QString &getShortName () const;
@@ -62,14 +60,16 @@ public:
         }
     }
 
-signals:
-    void imageDimensionsChanged ();
-    void parameterChanged ();
+    // These are actually signals, but they are not allowed in non-QObject classes
+protected:
+    virtual void parameterChanged () = 0;
 
 protected:
     QString shortName;
 
     QMutex mutex;
 };
+
+Q_DECLARE_INTERFACE(StereoMethod, "MVL_Stereo_Toolbox.StereoMethod/1.0")
 
 #endif

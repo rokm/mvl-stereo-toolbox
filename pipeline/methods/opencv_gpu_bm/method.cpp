@@ -24,7 +24,7 @@ using namespace StereoMethodBlockMatchingGPU;
 
 
 Method::Method (QObject *parent)
-    : StereoMethod(parent)
+    : QObject(parent), StereoMethod()
 {
     shortName = "BM_GPU";
 }

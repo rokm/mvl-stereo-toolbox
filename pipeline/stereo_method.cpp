@@ -20,8 +20,7 @@
 #include "stereo_method.h"
 
 
-StereoMethod::StereoMethod (QObject *parent)
-    : QObject(parent)
+StereoMethod::StereoMethod ()
 {
 }
 

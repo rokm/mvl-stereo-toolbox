@@ -24,7 +24,7 @@ using namespace StereoMethodBeliefPropagationGPU;
 
 
 Method::Method (QObject *parent)
-    : StereoMethod(parent)
+    : QObject(parent), StereoMethod()
 {
     shortName = "BP_GPU";
 
