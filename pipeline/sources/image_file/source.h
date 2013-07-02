@@ -29,9 +29,10 @@ namespace SourceImageFile {
     
 class ImageFile;
 
-class Source : public ImagePairSource
+class Source : public QObject, public ImagePairSource
 {
     Q_OBJECT
+    Q_INTERFACES(ImagePairSource)
 
 public:
     Source (QObject * = 0);
@@ -56,10 +57,14 @@ public slots:
 protected slots:
     void periodicRefresh ();
     void synchronizeFrames ();
-
+    
 signals:
     void periodicRefreshStateChanged (bool);
     void refreshPeriodChanged (int);
+
+    // Signals from interface
+    void imagesChanged ();
+    void error (QString);
     
 protected:
     QTimer *refreshTimer;

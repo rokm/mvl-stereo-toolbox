@@ -28,36 +28,42 @@
 namespace SourceUnicap {
 
 class Camera;
-class CameraList;
 
-class Source : public ImagePairSource
+class Source : public QAbstractListModel, public ImagePairSource
 {
     Q_OBJECT
+    Q_INTERFACES(ImagePairSource)
 
 public:
     Source (QObject * = 0);
     virtual ~Source ();
 
     virtual void stopSource ();
-
     virtual QWidget *createConfigWidget (QWidget * = 0);
 
-    CameraList *getCameraList ();
-
+    int getNumberOfCameras () const;
+    const unicap_device_t &getCameraInfo (int) const;
     void setLeftCamera (int);
     void setRightCamera (int);
 
     Camera *getLeftCamera ();
     Camera *getRightCamera ();
 
+    // Model
+    virtual int rowCount (const QModelIndex &) const;
+    virtual Qt::ItemFlags flags (const QModelIndex &index) const;
+    virtual QVariant data (const QModelIndex &index, int role) const;
+    
 public slots:
-    void scanForDevices ();
+    void refreshCameraList ();
     void startStopCapture (bool);
 
 protected:
     void createCamera (Camera *&, int);
     void releaseCamera (Camera *&);
-
+    void setActive (int, bool);
+    void setActive (const unicap_device_t &, bool);
+    
 protected slots:
     void synchronizeFrames ();
 
@@ -65,8 +71,13 @@ signals:
     void leftCameraChanged ();
     void rightCameraChanged ();
 
+    // Signals from interface
+    void imagesChanged ();
+    void error (QString);
+    
 protected:
-    CameraList *cameraList;
+    QVector<unicap_device_t> entries;
+    QVector<bool> active;
 
     Camera *leftCamera;
     Camera *rightCamera;

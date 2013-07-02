@@ -20,22 +20,18 @@
 #include "source.h"
 #include "source_widget.h"
 #include "camera.h"
-#include "camera_list.h"
 
 using namespace SourceUnicap;
 
 
 Source::Source (QObject *parent)
-    : ImagePairSource(parent)
+    : QAbstractListModel(parent), ImagePairSource()
 {
     leftCamera = NULL;
     rightCamera = NULL;
 
-    // Camera list
-    cameraList = new CameraList(this);
-
-    // Perform initial scan
-    scanForDevices();
+    // Enumerate cameras
+    refreshCameraList();
 
     // Name
     shortName = "Unicap";
@@ -48,6 +44,9 @@ Source::~Source ()
 }
 
 
+// *********************************************************************
+// *                     ImagePairSource interface                     *
+// *********************************************************************
 QWidget *Source::createConfigWidget (QWidget *parent)
 {
     return new SourceWidget(this, parent);
@@ -60,18 +59,22 @@ void Source::stopSource ()
 }
 
 
-CameraList *Source::getCameraList ()
+// *********************************************************************
+// *                        Camera enumeration                         *
+// *********************************************************************
+void Source::refreshCameraList ()
 {
-    return cameraList;
-}
-
-
-void Source::scanForDevices ()
-{
-    // Release old cameras
+    // Release currently-set cameras
     releaseCamera(leftCamera);
     releaseCamera(rightCamera);
 
+    // Clear old entries
+    if (entries.size()) {
+        beginRemoveRows(QModelIndex(), 1, entries.size()); // Remove all but first entry, which is "None"
+        entries.clear();
+        endRemoveRows();
+    }
+    
     // Enumerate devices
     int num_devices;
     unicap_status_t status = unicap_reenumerate_devices(&num_devices);
@@ -80,16 +83,35 @@ void Source::scanForDevices ()
         return;
     }
 
-    QVector<unicap_device_t> devices = QVector<unicap_device_t>(num_devices);
+    if (num_devices) {
+        entries = QVector<unicap_device_t>(num_devices);
+        active = QVector<bool>(num_devices, false);
 
-    for (int i = 0; i < num_devices; i++) {
-        status = unicap_enumerate_devices(NULL, &devices[i], i);
-        if (!SUCCESS(status)) {
-            qWarning() << "Failed to query device" << i;
+        beginInsertRows(QModelIndex(), 1, num_devices);
+
+        for (int i = 0; i < num_devices; i++) {
+            status = unicap_enumerate_devices(NULL, &entries[i], i);
+            if (!SUCCESS(status)) {
+                qWarning() << "Failed to query device" << i;
+            }
         }
+
+        endInsertRows();
     }
-    
-    cameraList->setDeviceList(devices);    
+}
+
+
+// *********************************************************************
+// *                     Public camera management                      *
+// *********************************************************************
+int Source::getNumberOfCameras () const
+{
+    return entries.size();
+}
+
+const unicap_device_t &Source::getCameraInfo (int c) const
+{
+    return entries[c];
 }
 
 void Source::setLeftCamera (int c)
@@ -106,6 +128,20 @@ void Source::setRightCamera (int c)
     emit rightCameraChanged();
 }
 
+Camera *Source::getLeftCamera ()
+{
+    return leftCamera;
+}
+
+Camera *Source::getRightCamera ()
+{
+    return rightCamera;
+}
+
+
+// *********************************************************************
+// *                    Internal camera management                     *
+// *********************************************************************
 void Source::createCamera (Camera *& camera, int c)
 {
     // If c is -1, release camera
@@ -115,7 +151,7 @@ void Source::createCamera (Camera *& camera, int c)
     }
 
     // Get camera descriptor from our list
-    unicap_device_t deviceInfo = cameraList->getDeviceInfo(c);
+    unicap_device_t deviceInfo = entries[c];
 
     // Check if it is the same as the current right camera
     if (rightCamera && rightCamera->isSameCamera(deviceInfo)) {
@@ -145,7 +181,7 @@ void Source::createCamera (Camera *& camera, int c)
     connect(camera, SIGNAL(frameReady()), this, SLOT(synchronizeFrames()));
 
     // Mark camera as active in our list
-    cameraList->setActive(c, true);
+    setActive(c, true);
 }
 
 void Source::releaseCamera (Camera *& camera)
@@ -162,7 +198,7 @@ void Source::releaseCamera (Camera *& camera)
         camera = NULL;
 
         // Mark camera as inactive in our list
-        cameraList->setActive(device, false);
+        setActive(device, false);
 
         // Emit camera change
         if (left) {
@@ -173,18 +209,28 @@ void Source::releaseCamera (Camera *& camera)
     }
 }
 
-
-Camera *Source::getLeftCamera ()
+void Source::setActive (int c, bool value)
 {
-    return leftCamera;
+    active[c] = value;
+
+    // Emit data changed
+    dataChanged(index(c+1, 0), index(c+1, 0));
 }
 
-Camera *Source::getRightCamera ()
+void Source::setActive (const unicap_device_t &dev, bool value)
 {
-    return rightCamera;
+    for (int i = 0; i < entries.size(); i++) {
+        if (!strcmp(entries[i].identifier, dev.identifier)) {
+            setActive(i, value);
+            break;
+        }
+    }
 }
 
 
+// *********************************************************************
+// *                              Capture                              *
+// *********************************************************************
 void Source::startStopCapture (bool start)
 {
     if (start) {
@@ -229,3 +275,71 @@ void Source::synchronizeFrames ()
         emit imagesChanged();
     }
 }
+
+
+// *********************************************************************
+// *                               Model                               *
+// *********************************************************************
+int Source::rowCount (const QModelIndex &) const
+{
+    return entries.size() + 1;
+}
+
+Qt::ItemFlags Source::flags (const QModelIndex &index) const
+{
+    if (!index.isValid()) {
+        return Qt::NoItemFlags;
+    }
+
+    if (index.row() == 0) {
+        // Always selectable
+        return Qt::ItemIsSelectable | Qt::ItemIsEnabled;
+    } else {
+        int i = index.row() - 1;
+        // Selectable only if not enabled
+        if (!active[i]) {
+            return Qt::ItemIsSelectable | Qt::ItemIsEnabled;
+        } else {
+            return Qt::NoItemFlags;
+        }
+    }
+}
+
+QVariant Source::data (const QModelIndex &index, int role) const
+{
+    if (!index.isValid()) {
+        return QVariant();
+    }
+
+    // First element is always "None"
+    if (index.row() == 0) {
+        switch (role) {
+            case Qt::DisplayRole: {
+                return "None";
+            }
+            case Qt::ToolTipRole: {
+                return "No device selected";
+            }
+            default: {
+                return QVariant();
+            }
+        }
+
+        return QVariant();
+    }
+
+    // Other valid devices
+    const unicap_device_t &entry = entries[index.row() - 1];
+    switch (role) {
+        case Qt::DisplayRole: {
+            return QString("%1").arg(entry.identifier);
+        }
+        case Qt::UserRole: {
+            // Index of device
+            return index.row() - 1;
+        }
+    }
+
+    return QVariant();
+}
+

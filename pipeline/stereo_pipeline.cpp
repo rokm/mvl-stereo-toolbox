@@ -254,19 +254,19 @@ void StereoPipeline::setImagePairSource (ImagePairSource *newSource)
     // Change source
     if (imagePairSource) {
         imagePairSource->stopSource(); // Stop the source
-        disconnect(imagePairSource, SIGNAL(imagesChanged()), this, SLOT(beginProcessing()));
+        disconnect(dynamic_cast<QObject *>(imagePairSource), SIGNAL(imagesChanged()), this, SLOT(beginProcessing()));
 
-        if (imagePairSource->parent() == this) {
-            imagePairSource->deleteLater(); // Schedule for deletion
+        if (dynamic_cast<QObject *>(imagePairSource)->parent() == this) {
+            dynamic_cast<QObject *>(imagePairSource)->deleteLater(); // Schedule for deletion
         }
     }
 
     imagePairSource = newSource;
-    if (!imagePairSource->parent()) {
-        imagePairSource->setParent(this);
+    if (!dynamic_cast<QObject *>(imagePairSource)->parent()) {
+        dynamic_cast<QObject *>(imagePairSource)->setParent(this);
     }
 
-    connect(imagePairSource, SIGNAL(imagesChanged()), this, SLOT(beginProcessing()));
+    connect(dynamic_cast<QObject *>(imagePairSource), SIGNAL(imagesChanged()), this, SLOT(beginProcessing()));
 
     // Process
     beginProcessing();

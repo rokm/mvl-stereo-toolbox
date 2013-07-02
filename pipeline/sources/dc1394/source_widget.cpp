@@ -20,7 +20,6 @@
 #include "source_widget.h"
 #include "source.h"
 #include "camera.h"
-#include "camera_list.h"
 
 using namespace SourceDC1394;
 
@@ -55,7 +54,7 @@ SourceWidget::SourceWidget (Source *s, QWidget *parent)
     
     button = new QPushButton("Rescan");
     button->setToolTip(tooltip);
-    connect(button, SIGNAL(clicked()), source, SLOT(scanBus()));
+    connect(button, SIGNAL(clicked()), source, SLOT(refreshCameraList()));
 
     layout->addRow(button);
 
@@ -105,7 +104,7 @@ QWidget *SourceWidget::createDeviceFrame (bool left)
     tooltip = left ? "Left DC1394 device." : "Right DC1394 device.";
     
     comboBox = new QComboBox(deviceFrame);
-    comboBox->setModel(source->getCameraList());
+    comboBox->setModel(source);
     comboBox->setToolTip(tooltip);
     connect(comboBox, SIGNAL(activated(int)), this, SLOT(deviceSelected(int)));
     if (left) {

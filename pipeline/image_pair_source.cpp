@@ -20,8 +20,7 @@
 #include "image_pair_source.h"
 
 
-ImagePairSource::ImagePairSource (QObject *parent)
-    : QObject(parent)
+ImagePairSource::ImagePairSource ()
 {
 }
 

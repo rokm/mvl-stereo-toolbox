@@ -14,7 +14,6 @@ set(plugin_name ${PROJECT_NAME})
 set(plugin_SOURCES
     camera.cpp
     camera_widget.cpp
-    camera_list.cpp
     feature_widget.cpp
     source.cpp
     source_widget.cpp
@@ -24,7 +23,6 @@ set(plugin_SOURCES
 set(plugin_HEADERS
     camera.h
     camera_widget.h
-    camera_list.h
     feature_widget.h
     source.h
     source_widget.h

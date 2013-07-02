@@ -27,7 +27,7 @@ using namespace SourceImageFile;
 
 
 Source::Source (QObject *parent)
-    : ImagePairSource(parent)
+    : QObject(parent), ImagePairSource()
 {
     shortName = "IMAGE";
 

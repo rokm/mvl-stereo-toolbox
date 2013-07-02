@@ -25,12 +25,10 @@
 #include <opencv2/core/core.hpp>
 
 
-class ImagePairSource : public QObject
+class ImagePairSource
 {
-    Q_OBJECT
-
 public:
-    ImagePairSource (QObject * = 0);
+    ImagePairSource ();
     virtual ~ImagePairSource ();
 
     const QString &getShortName () const;
@@ -42,10 +40,10 @@ public:
     // Config widget
     virtual QWidget *createConfigWidget (QWidget * = 0) = 0;
 
-signals:
-    void imagesChanged ();
-
-    void error (const QString);
+    // These are actually signals, but they are not allowed in non-QObject classes
+protected:
+    virtual void imagesChanged () = 0;
+    virtual void error (const QString) = 0;
 
 protected:
     QString shortName;
@@ -56,5 +54,7 @@ protected:
     cv::Mat imageLeft;
     cv::Mat imageRight;
 };
+
+Q_DECLARE_INTERFACE(ImagePairSource, "MVL_Stereo_Toolbox.ImagePairSource/1.0")
 
 #endif
