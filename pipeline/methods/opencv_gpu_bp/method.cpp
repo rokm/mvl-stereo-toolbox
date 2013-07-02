@@ -27,6 +27,10 @@ Method::Method (QObject *parent)
     : StereoMethod(parent)
 {
     shortName = "BP_GPU";
+
+    // Default image width and height, used to compute optimal parameters
+    imageWidth = 320;
+    imageHeight = 240;
 }
 
 Method::~Method ()
@@ -72,6 +76,10 @@ void Method::usePreset (int type)
 void Method::computeDisparityImage (const cv::Mat &img1, const cv::Mat &img2, cv::Mat &disparity, int &numDisparities)
 {
     cv::gpu::GpuMat gpu_disp;
+
+    // Store in case user wants to estimate optimal parameters
+    imageWidth = img1.cols;
+    imageHeight = img1.rows;
 
     if (1) {
         // Make sure that GPU matrices are destroyed as soon as they are

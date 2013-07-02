@@ -513,10 +513,6 @@ void StereoPipeline::computeDisparityImageInThread ()
         try {
             QTime timer; timer.start();
             if (centerRoi == cv::Rect()) {
-                // Set image dimensions (in case method derives some
-                // parameters from it)
-                stereoMethod->setImageDimensions(rectifiedImageL.cols, rectifiedImageL.rows, rectifiedImageL.channels());
-
                 // Make sure disparity image is of correct size
                 disparityImage.create(rectifiedImageL.rows, rectifiedImageL.cols, CV_8UC1);
 
@@ -526,10 +522,6 @@ void StereoPipeline::computeDisparityImageInThread ()
                 // Apply ROI
                 cv::Mat rectifiedRoiL = rectifiedImageL(centerRoi);
                 cv::Mat rectifiedRoiR = rectifiedImageR(centerRoi);
-
-                // Set image dimensions (in case method derives some
-                // parameters from it)
-                stereoMethod->setImageDimensions(rectifiedRoiL.cols, rectifiedRoiL.rows, rectifiedRoiL.channels());
 
                 // Make sure disparity image is of correct size
                 disparityImage.create(rectifiedRoiL.rows, rectifiedRoiL.cols, CV_8UC1);

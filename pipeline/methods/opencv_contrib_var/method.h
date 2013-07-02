@@ -85,6 +85,8 @@ protected:
     // Semi-global block matcher
     cv::StereoVar var;
 
+    int imageWidth;
+
     cv::Mat tmpDisparity;
 };
 

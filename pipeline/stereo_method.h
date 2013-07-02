@@ -37,13 +37,6 @@ public:
 
     const QString &getShortName () const;
 
-    // Image information
-    void setImageDimensions (int, int, int);
-    
-    int getImageWidth () const;
-    int getImageHeight () const;
-    int getImageChannels () const;
-
     // Config widget
     virtual QWidget *createConfigWidget (QWidget * = 0) = 0;
 
@@ -77,11 +70,6 @@ protected:
     QString shortName;
 
     QMutex mutex;
-
-    // Image dimensions
-    int imageWidth;
-    int imageHeight;
-    int imageChannels;
 };
 
 #endif

@@ -30,6 +30,10 @@ Method::Method (QObject *parent)
 {
     shortName = "SGBM";
     usePreset(OpenCV);
+
+    // Default image width and channels, used to compute optimal parameters
+    imageWidth = 640;
+    imageChannels = 1;
 }
 
 Method::~Method ()
@@ -87,6 +91,10 @@ void Method::usePreset (int type)
 // *********************************************************************
 void Method::computeDisparityImage (const cv::Mat &img1, const cv::Mat &img2, cv::Mat &disparity, int &numDisparities)
 {
+    // Store in case user wants to compute optimal parameters
+    imageWidth = img1.cols;
+    imageChannels = img1.channels();
+    
     // Compute disparity image
     mutex.lock();
     sgbm(img1, img2, tmpDisparity);

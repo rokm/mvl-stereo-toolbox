@@ -30,6 +30,9 @@ Method::Method (QObject *parent)
 {
     shortName = "BM";
     usePreset(OpenCVBasic);
+
+    // Default image width, used to compute optimal parameters
+    imageWidth = 640;
 }
 
 Method::~Method ()
@@ -107,6 +110,8 @@ void Method::computeDisparityImage (const cv::Mat &img1, const cv::Mat &img2, cv
         tmpImg2 = img2;
     }
 
+    // Store in case user wants to compute optimal parameters
+    imageWidth = img1.cols;
     
     // Compute disparity image
     tmpDisparity.create(img1.rows, img1.cols, CV_16SC1);

@@ -77,6 +77,8 @@ public slots:
 protected:
     // Block matcher
     cv::gpu::StereoBeliefPropagation bp;
+
+    int imageWidth, imageHeight;
 };
 
 }

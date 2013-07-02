@@ -93,6 +93,9 @@ protected:
     // Semi-global block matcher
     cv::StereoSGBM sgbm;
 
+    int imageWidth;
+    int imageChannels;
+
     cv::Mat tmpDisparity;
 };
 

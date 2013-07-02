@@ -30,6 +30,9 @@ Method::Method (QObject *parent)
 {
     shortName = "Var";
     usePreset(OpenCV);
+
+    // Default image width, used to compute optimal parameters
+    imageWidth = 640;
 }
 
 Method::~Method ()
@@ -89,6 +92,9 @@ void Method::usePreset (int type)
 // *********************************************************************
 void Method::computeDisparityImage (const cv::Mat &img1, const cv::Mat &img2, cv::Mat &disparity, int &numDisparities)
 {    
+    // Store in case user wants to compute optimal parameters
+    imageWidth = img1.cols;
+    
     // Compute disparity image
     mutex.lock();
     var(img1, img2, tmpDisparity);

@@ -95,6 +95,8 @@ protected:
     // Block matcher
     cv::StereoBM bm;
 
+    int imageWidth;
+
     cv::Mat tmpImg1, tmpImg2;
     cv::Mat tmpDisparity;
 };

@@ -85,6 +85,8 @@ public slots:
 protected:
     // Block matcher
     cv::gpu::StereoConstantSpaceBP bp;
+
+    int imageWidth, imageHeight;
 };
 
 }

@@ -312,30 +312,15 @@ void MethodWidget::updateParameters ()
     spinBoxUniquenessRatio->setValue(method->getUniquenessRatio());
     spinBoxUniquenessRatio->blockSignals(oldState);
 
-    // P1 and P2 require some more work...
-    int SADWindowSize = method->getSADWindowSize();
-    int numChannels = method->getImageChannels();
-    if (SADWindowSize > 0 && numChannels > 0) {
-        // P1
-        oldState = spinBoxP1->blockSignals(true);
-        spinBoxP1->setValue(method->getP1() / (numChannels*SADWindowSize*SADWindowSize));
-        spinBoxP1->blockSignals(oldState);
+    // P1
+    oldState = spinBoxP1->blockSignals(true);
+    spinBoxP1->setValue(method->getP1());
+    spinBoxP1->blockSignals(oldState);
 
-        // P2
-        oldState = spinBoxP2->blockSignals(true);
-        spinBoxP2->setValue(method->getP2() / (numChannels*SADWindowSize*SADWindowSize));
-        spinBoxP2->blockSignals(oldState);
-    } else {
-        // P1
-        oldState = spinBoxP1->blockSignals(true);
-        spinBoxP1->setValue(method->getP1());
-        spinBoxP1->blockSignals(oldState);
-
-        // P2
-        oldState = spinBoxP2->blockSignals(true);
-        spinBoxP2->setValue(method->getP2());
-        spinBoxP2->blockSignals(oldState);
-    }
+    // P2
+    oldState = spinBoxP2->blockSignals(true);
+    spinBoxP2->setValue(method->getP2());
+    spinBoxP2->blockSignals(oldState);
 
     // Speckle window size
     oldState = spinBoxSpeckleWindowSize->blockSignals(true);
