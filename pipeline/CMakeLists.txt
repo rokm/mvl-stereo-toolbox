@@ -63,6 +63,9 @@ add_definitions(-DMVL_STEREO_PIPELINE_PLUGIN_DIR="${MVL_STEREO_PIPELINE_PLUGIN_D
 # File image pair source: always build
 add_subdirectory(sources/image_file)
 
+# OpenCV Cam image pair source: always build
+add_subdirectory(sources/opencv_cam)
+
 # Plugins that require pkg-config (linux-only)
 if(PKG_CONFIG_FOUND)
     # DC1394 image pair source: build if we have libdc1394-2

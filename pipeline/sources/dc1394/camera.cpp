@@ -340,6 +340,9 @@ dc1394feature_mode_t Camera::getFeatureMode (dc1394feature_t feature)
 }
 
 
+// *********************************************************************
+// *                              Capture                              *
+// *********************************************************************
 void Camera::startCapture ()
 {
     if (!captureThread->isRunning()) {
