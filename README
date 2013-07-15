@@ -1,0 +1,113 @@
+MVL Stereo Toolbox
+~~~~~~~~~~~~~~~~~~
+(C) 2013 Rok Mandeljc <rok.mandeljc@fe.uni-lj.si>
+Machine Vision Laboratory
+University of Ljubljana, Faculty of Electrical Engineering
+
+
+1. Introduction
+~~~~~~~~~~~~~~~
+This is Machine Vision Laboratory (MVL) Stereo Toolbox, a GUI-based
+testing and tuning tool for various aspects of a stereo camera system.
+It was written as a part of a project we were working on, where we needed
+to test several stereo methods with various parameters to find an optimal
+solution to our problem.
+
+The toolbox is largely inspired by BM Stereo Tuner utility written by
+Martin Peris (http://blog.martinperis.com/2011/08/opencv-stereo-matching.html),
+but aims to solve more problems associated with configuration and tuning
+of a stereo pipeline. As such, main highlights are:
+
+- programmable model of stereo pipeline, which provides control over
+  several steps: image pair acquisition, stereo calibration/rectification,
+  disparity computation and reprojection
+- Qt-based GUI for controlling each of steps in stereo pipeline
+- several image pair sources, with option to implement additional ones
+  via plug-ins
+- several stereo methods, with option to implement additional ones via
+  plug-ins
+- programmable and GUI-based configuration for image pair sources and
+  stereo methods
+- stereo calibration wizard, calibration import and export, export of
+  images at each processing step, stereo method parameter import and export
+- cross-platform, written in C++ and using Qt and OpenCV
+
+
+2. Installation
+~~~~~~~~~~~~~~~
+
+MVL Stereo Toolbox has following dependencies
+- C++ compiler and CMake
+- Qt 4.8 (core, gui and network modules are required)
+- OpenCV (tested with 2.4.3, 2.4.5 and 2.4.6)
+
+The above will build stereo pipeline model and toolbox GUI. In addition,
+stereo method plugins for all CPU-based methods provided in OpenCV are
+built, and two image pair sources are built - OpenCV-camera-based one
+file-loading-based one.
+
+Additional plugins for image pair sources and stereo methods have following
+dependencies:
+- unicap development libraries and headers for unicap image pair source (linux-only)
+- DC1394 development libraries and headers for dc1394 image pair source (linux-only)
+- libelas for Efficient LArge Scale stereo method plugin (linux-only)
+- OpenCV with GPU module for GPU-based stereo method plugins
+
+To build the toolbox, use cmake; in unpacked source directory, issue:
+
+mkdir build
+cd build
+cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local
+make
+make install
+
+The above sequence configures, builds and installs the toolbox into
+/usr/local and sets the default plugin path to /usr/local/lib{64}/mvl-stereo-pipeline.
+
+It is also possible to run the toolbox from build directory without installing
+it. In this case, plugin directory must be overriden in order for plugins to
+be loaded:
+
+MVL_STEREO_TOOLBOX_PLUGIN_DIR=$PWD ./toolbox/MVLStereoToolbox
+
+
+2.1 OpenCV with GPU/CUDA support:
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+OpenCV provides a module with GPU-accelerated functions using NVIDIA
+CUDA architecture. However, this module is missing from some OpenCV
+installations (most notably, on my Fedora development box).
+
+The toolbox' cmake script will automatically detect presence or absence
+of OpenCV GPU module and accordingly enable/disable corresponding plugins.
+
+In case you build GPU-enabled OpenCV yourself, you can override the version
+that toolbox is built against. To do so, use -DOpenCV_DIR switch when issuing
+cmake, e.g.:
+
+cmake -DOpenCV_DIR=/opt/opencv-2.4.6-gpu/share/OpenCV <the-rest-of-options>
+
+2.2 Installing libelas for ELAS stereo method plugin (linux-only):
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Obtain ELAS source from author's web page (requires your e-mail address):
+http://www.cvlibs.net/download.php?file=libelas.zip
+
+Unfortunately, the sources do not build an installable shared library;
+to fix this, grab the following patch:
+http://mvg.fe.uni-lj.si/~rokm/libelas-install-lib.patch
+
+In the example below, libelas is installed in /opt/libelas; to install
+it to default system directory, adjust CMAKE_INSTALL_PREFIX accordingly.
+
+unzip Downloads/libelas.zip -d libelas
+cd libelas
+patch -p1 -i ../Downloads/libelas-install-lib.patch
+mkdir build
+cd build
+cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/opt/libelas ..
+make
+make install
+
+Since the above sequence installed libelas to non-standard path,
+PKG_CONFIG_PATH must be altered when issuing toolbox' cmake command:
+
+PKG_CONFIG_PATH=/opt/libelas/lib64/pkgconfig cmake <the-rest-of-options>
