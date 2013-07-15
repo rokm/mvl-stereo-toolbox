@@ -86,6 +86,7 @@ cmake, e.g.:
 
 cmake -DOpenCV_DIR=/opt/opencv-2.4.6-gpu/share/OpenCV <the-rest-of-options>
 
+
 2.2 Installing libelas for ELAS stereo method plugin (linux-only):
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Obtain ELAS source from author's web page (requires your e-mail address):

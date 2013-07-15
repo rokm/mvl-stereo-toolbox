@@ -47,7 +47,6 @@ WindowStereoMethod::WindowStereoMethod (StereoPipeline *p, QList<StereoMethod *>
     QPushButton *pushButton;
     QComboBox *comboBox;
     QLabel *label;
-    QDoubleSpinBox *spinBoxD;
     QHBoxLayout *box;    
     
     layout->addLayout(buttonsLayout);

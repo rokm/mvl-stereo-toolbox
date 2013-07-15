@@ -495,7 +495,6 @@ CalibrationWizardPageDetection::CalibrationWizardPageDetection (const QString &f
 
     QLabel *label;
     QFrame *separator;
-    QGroupBox *box;
 
     // Layout
     QGridLayout *layout = new QGridLayout(this);
@@ -1829,7 +1828,7 @@ bool CalibrationWizardPageStereoCalibration::calibrationFunction ()
     std::vector<std::vector<cv::Point2f> > imagePoints1;
     std::vector<std::vector<cv::Point2f> > imagePoints2;
 
-    for (int i = 0; i < imagePoints.size(); i += 2) {
+    for (unsigned int i = 0; i < imagePoints.size(); i += 2) {
         imagePoints1.push_back(imagePoints[i]);
         imagePoints2.push_back(imagePoints[i+1]);
     }
@@ -1860,7 +1859,7 @@ bool CalibrationWizardPageStereoCalibration::calibrationFunction ()
     int num_points = 0;
     std::vector<cv::Vec3f> lines1, lines2;
 
-    for (int i = 0; i < objectPoints.size(); i++) {
+    for (unsigned int i = 0; i < objectPoints.size(); i++) {
         int npt = imagePoints1[i].size();
         cv::Mat imgpt1, imgpt2;
 

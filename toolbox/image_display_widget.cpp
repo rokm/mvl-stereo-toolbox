@@ -298,7 +298,7 @@ void CalibrationPatternDisplayWidget::paintEvent (QPaintEvent *event)
         QPointF lineOffsetB1 = QPointF(-r,r) / sqrtf(2.0);
         QPointF lineOffsetB2 = QPointF(r,-r) / sqrtf(2.0);
         
-        for (int i = 0; i < patternPoints.size(); i++) {            
+        for (unsigned int i = 0; i < patternPoints.size(); i++) {            
             // Select color based on which row we are drawing
             if (patternFound) {
                 int row = i / patternSize.width;

@@ -1,12 +1,6 @@
 cmake_minimum_required(VERSION 2.8)
 project(libmvl_stereo_pipeline CXX)
 
-include(GNUInstallDirs)
-
-if(CMAKE_COMPILER_IS_GNUCXX)
-    add_definitions(-Wall -Wextra -Wno-unused-parameter)
-endif()
-
 find_package(PkgConfig)
 find_package(OpenCV REQUIRED)
 find_package(Qt4 REQUIRED)
