@@ -61,6 +61,12 @@ public:
     // Frame
     void copyFrame (cv::Mat &);
 
+    // Properties
+    double getProperty (int);
+    
+public slots:
+    void setProperty (int, double);
+    
 protected:
     void captureFunction ();
 
@@ -71,7 +77,7 @@ signals:
 
     void error (const QString);
 
-    void parameterChanged ();
+    void propertyChanged ();
 
     void workerStopCapture ();
 

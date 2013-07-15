@@ -9,6 +9,7 @@ set(plugin_name ${PROJECT_NAME})
 set(plugin_SOURCES
     camera.cpp
     camera_widget.cpp
+    property_widget.cpp
     source.cpp
     source_widget.cpp
     plugin.cpp
@@ -17,6 +18,7 @@ set(plugin_SOURCES
 set(plugin_HEADERS
     camera.h
     camera_widget.h
+    property_widget.h
     source.h
     source_widget.h
 )

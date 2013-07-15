@@ -1,5 +1,5 @@
 /*
- * OpenCV Camera: config widget
+ * OpenCV Camera: generic property config widget
  * Copyright (C) 2013 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
@@ -17,35 +17,35 @@
  * 
  */
 
-#ifndef CAMERA_OPENCV_CONFIG_WIDGET_H
-#define CAMERA_OPENCV_CONFIG_WIDGET_H
+#ifndef PROPERTY_WIDGET_H
+#define PROPERTY_WIDGET_H
 
+#include <QtCore>
 #include <QtGui>
 
 
 namespace SourceOpenCvCam {
-    
+
 class Camera;
 
-class CameraWidget : public QWidget
+class PropertyWidget : public QDoubleSpinBox
 {
     Q_OBJECT
-    
+
 public:
-    CameraWidget (Camera *, QWidget * = 0);
-    virtual ~CameraWidget ();
+    PropertyWidget (Camera *, int, bool, QWidget * = 0);
+    virtual ~PropertyWidget ();
 
 protected slots:
-    void captureButtonToggled (bool);
-    void updateCameraState ();
+    void updateProperty ();
 
-protected:
-    void addPropertyWidgets ();
+    void spinBoxValueChanged (double);
 
 protected:
     Camera *camera;
+    int property;
 
-    QPushButton *pushButtonCapture;
+    QTimer *updateTimer;
 };
 
 }

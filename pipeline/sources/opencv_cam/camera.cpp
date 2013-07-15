@@ -62,6 +62,24 @@ bool Camera::isSameCamera (const ocv_camera_id_t &otherId) const
 
 
 // *********************************************************************
+// *                            Properties                             *
+// *********************************************************************
+double Camera::getProperty (int prop)
+{
+    return capture->get(prop);
+}
+
+void Camera::setProperty (int prop, double newValue)
+{
+    if (!capture->set(prop, newValue)) {
+        emit error(QString("Failed to set property %1!").arg(prop));
+    }
+    
+    emit propertyChanged();
+}
+
+
+// *********************************************************************
 // *                              Capture                              *
 // *********************************************************************
 void Camera::startCapture ()

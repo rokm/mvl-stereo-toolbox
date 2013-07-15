@@ -19,6 +19,7 @@
 
 #include "camera_widget.h"
 #include "camera.h"
+#include "property_widget.h"
 
 using namespace SourceOpenCvCam;
 
@@ -29,14 +30,11 @@ CameraWidget::CameraWidget (Camera *c, QWidget *parent)
     QFormLayout *layout = new QFormLayout(this);
     layout->setContentsMargins(0, 0, 0, 0);
 
-    QLabel *label;
-    QComboBox *comboBox;
     QPushButton *button;
     QFrame *line;
 
     QString tooltip;
 
-    connect(camera, SIGNAL(parameterChanged()), this, SLOT(updateParameters()));
     connect(camera, SIGNAL(captureStarted()), this, SLOT(updateCameraState()));
     connect(camera, SIGNAL(captureFinished()), this, SLOT(updateCameraState()));
 
@@ -63,8 +61,8 @@ CameraWidget::CameraWidget (Camera *c, QWidget *parent)
 
     layout->addRow(line);
 
-    // Update
-    updateParameters();
+    // Property widgets
+    addPropertyWidgets();
 }
 
 CameraWidget::~CameraWidget ()
@@ -72,8 +70,33 @@ CameraWidget::~CameraWidget ()
 }
 
 
-void CameraWidget::updateParameters ()
+void CameraWidget::addPropertyWidgets ()
 {
+    static const struct {
+        int prop;
+        const char *name;
+        bool integer_value;
+    } properties[] = {
+        { CV_CAP_PROP_FRAME_WIDTH, "Frame width", true },
+        { CV_CAP_PROP_FRAME_HEIGHT, "Frame height", true },
+        //{ CV_CAP_PROP_FPS, "FPS", false },
+        { CV_CAP_PROP_BRIGHTNESS, "Brightness", false },
+        { CV_CAP_PROP_CONTRAST, "Contrast", false },
+        { CV_CAP_PROP_SATURATION, "Saturation", false },
+        { CV_CAP_PROP_HUE, "Hue", false },
+        { CV_CAP_PROP_GAIN, "Gain", false },
+        { CV_CAP_PROP_EXPOSURE, "Exposure", false },
+    };
+
+    QLabel *label;
+    PropertyWidget *widget;
+
+    for (unsigned int i = 0; i < sizeof(properties)/sizeof(properties[0]); i++) {
+        label = new QLabel(properties[i].name, this);
+        widget = new PropertyWidget(camera, properties[i].prop, properties[i].integer_value, this);
+
+        qobject_cast<QFormLayout *>(layout())->addRow(label, widget);
+    }
 }
 
 

@@ -149,7 +149,7 @@ void PropertyWidget::updateProperty ()
     switch (type) {
         case TypeValue: {
             oldState = spinBoxValue->blockSignals(true);
-            if (property.value != spinBoxValue->value()) {
+            if (spinBoxValue->hasFocus()) {
                 spinBoxValue->setValue(property.value);
             }
             spinBoxValue->blockSignals(oldState);
