@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.8)
 project(source_opencv_cam CXX)
 
-find_package(OpenCV REQUIRED core imgproc)
+find_package(OpenCV REQUIRED core imgproc highgui)
 find_package(Qt4 REQUIRED)
 
 set(plugin_name ${PROJECT_NAME})
