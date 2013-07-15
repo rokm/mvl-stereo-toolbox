@@ -222,7 +222,7 @@ void Source::releaseCamera (Camera *& camera)
         disconnect(camera, SIGNAL(frameReady()), this, SLOT(synchronizeFrames()));
 
         // Delete camera object 
-        delete camera;
+        camera->deleteLater();
         camera = NULL;
 
         // Mark camera as inactive in our list
