@@ -116,7 +116,8 @@ protected slots:
     void updateReprojectionMatrix ();
 
 signals:
-    void error (const QString &);
+    void error (const QString);
+    void processingCompleted ();
 
     void imagePairSourceStateChanged (bool);
     void rectificationStateChanged (bool);

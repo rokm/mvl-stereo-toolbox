@@ -58,6 +58,10 @@ protected:
     void createGui ();
 
     void loadPlugins ();
+
+protected slots:
+    void displayError (const QString);
+    void clearError ();
     
 protected:
     WindowImagePairSource *windowImagePairSource;
@@ -73,6 +77,8 @@ protected:
     QPushButton *pushButtonStereoMethodActive;
     QPushButton *pushButtonReprojection;
     QPushButton *pushButtonReprojectionActive;
+
+    QLabel *statusLabel;
     
     StereoPipeline *pipeline;
 

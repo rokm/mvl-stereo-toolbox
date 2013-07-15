@@ -35,6 +35,9 @@
 Toolbox::Toolbox ()
     : QWidget()
 {
+    // Resize window
+    resize(400, 100);
+
     // Create pipeline
     pipeline = new StereoPipeline(this);
     pipeline->setUseStereoMethodThread(true);
@@ -68,6 +71,25 @@ Toolbox::~Toolbox ()
 void Toolbox::createGui ()
 {
     QGridLayout *layout = new QGridLayout(this);
+    QFrame *line;
+    int row = 0;
+
+    // Status text
+    statusLabel = new QLabel("Status:", this);
+    statusLabel->setAlignment(Qt::AlignCenter);
+
+    connect(pipeline, SIGNAL(error(const QString)), this, SLOT(displayError(const QString)));
+    connect(pipeline, SIGNAL(processingCompleted()), this, SLOT(clearError()));
+    
+    layout->addWidget(statusLabel, row, 0, 1, 2);
+    row++;
+
+    // Separator
+    line = new QFrame(this);
+    line->setFrameStyle(QFrame::HLine | QFrame::Sunken);
+
+    layout->addWidget(line, row, 0, 1, 2);
+    row++;
 
     // Image pair source
     pushButtonImagePairSource = new QPushButton("Image pair source", this);
@@ -80,8 +102,9 @@ void Toolbox::createGui ()
     connect(pushButtonImagePairSourceActive, SIGNAL(toggled(bool)), pipeline, SLOT(setImagePairSourceState(bool)));
     connect(pipeline, SIGNAL(imagePairSourceStateChanged(bool)), this, SLOT(setPushButtonImagePairSourceActiveState(bool)));
     
-    layout->addWidget(pushButtonImagePairSource, 0, 0);
-    layout->addWidget(pushButtonImagePairSourceActive, 0, 1);
+    layout->addWidget(pushButtonImagePairSource, row, 0);
+    layout->addWidget(pushButtonImagePairSourceActive, row, 1);
+    row++;
 
     // Rectification
     pushButtonRectification = new QPushButton("Rectification", this);
@@ -94,8 +117,9 @@ void Toolbox::createGui ()
     connect(pushButtonRectificationActive, SIGNAL(toggled(bool)), pipeline, SLOT(setRectificationState(bool)));
     connect(pipeline, SIGNAL(rectificationStateChanged(bool)), this, SLOT(setPushButtonRectificationActiveState(bool)));
         
-    layout->addWidget(pushButtonRectification, 1, 0);
-    layout->addWidget(pushButtonRectificationActive, 1, 1);
+    layout->addWidget(pushButtonRectification, row, 0);
+    layout->addWidget(pushButtonRectificationActive, row, 1);
+    row++;
 
     // Stereo method
     pushButtonStereoMethod = new QPushButton("Stereo method", this);
@@ -108,8 +132,9 @@ void Toolbox::createGui ()
     connect(pushButtonStereoMethodActive, SIGNAL(toggled(bool)), pipeline, SLOT(setStereoMethodState(bool)));
     connect(pipeline, SIGNAL(stereoMethodStateChanged(bool)), this, SLOT(setPushButtonStereoMethodActiveState(bool)));
         
-    layout->addWidget(pushButtonStereoMethod, 2, 0);
-    layout->addWidget(pushButtonStereoMethodActive, 2, 1);
+    layout->addWidget(pushButtonStereoMethod, row, 0);
+    layout->addWidget(pushButtonStereoMethodActive, row, 1);
+    row++;
 
     // Reprojection/point cloud
     pushButtonReprojection = new QPushButton("Reprojection", this);
@@ -122,20 +147,23 @@ void Toolbox::createGui ()
     connect(pushButtonReprojectionActive, SIGNAL(toggled(bool)), pipeline, SLOT(setReprojectionState(bool)));
     connect(pipeline, SIGNAL(reprojectionStateChanged(bool)), this, SLOT(setPushButtonReprojectionActiveState(bool)));
 
-    layout->addWidget(pushButtonReprojection, 3, 0);
-    layout->addWidget(pushButtonReprojectionActive, 3, 1);
+    layout->addWidget(pushButtonReprojection, row, 0);
+    layout->addWidget(pushButtonReprojectionActive, row, 1);
+    row++;
 
     // Separator
-    QFrame *line = new QFrame(this);
+    line = new QFrame(this);
     line->setFrameStyle(QFrame::HLine | QFrame::Sunken);
 
-    layout->addWidget(line, 4, 0, 1, 2);
+    layout->addWidget(line, row, 0, 1, 2);
+    row++;
 
     // Exit
     QPushButton *pushButtonExit = new QPushButton("Exit", this);
     connect(pushButtonExit, SIGNAL(clicked()), qApp, SLOT(quit()));
 
-    layout->addWidget(pushButtonExit, 5, 0, 1, 2);
+    layout->addWidget(pushButtonExit, row, 0, 1, 2);
+    row++;
 }
 
 
@@ -202,6 +230,20 @@ void Toolbox::setPushButtonStereoMethodActiveState (bool active)
 void Toolbox::setPushButtonReprojectionActiveState (bool active)
 {
     setActiveButtonState(pushButtonReprojectionActive, active);
+}
+
+
+// *********************************************************************
+// *                         Status message                            *
+// *********************************************************************
+void Toolbox::displayError (const QString error)
+{
+    statusLabel->setText(QString("ERROR: %1").arg(error));
+}
+
+void Toolbox::clearError ()
+{
+    statusLabel->setText("Status: operational");
 }
 
 

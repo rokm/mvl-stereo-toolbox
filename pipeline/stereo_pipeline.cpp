@@ -53,6 +53,7 @@ StereoPipeline::StereoPipeline (QObject *parent)
     connect(this, SIGNAL(inputImagesChanged()), this, SLOT(rectifyImages()));
     connect(this, SIGNAL(rectifiedImagesChanged()), this, SLOT(computeDisparityImage()));
     connect(this, SIGNAL(disparityImageChanged()), this, SLOT(reprojectDisparityImage()));
+    connect(this, SIGNAL(reprojectedImageChanged()), this, SIGNAL(processingCompleted()));
 
     connect(this, SIGNAL(imagePairSourceStateChanged(bool)), this, SLOT(beginProcessing()));
     connect(this, SIGNAL(rectificationStateChanged(bool)), this, SLOT(rectifyImages()));
@@ -310,6 +311,7 @@ void StereoPipeline::beginProcessing ()
 {
     // Make sure image source is marked as active
     if (!imagePairSourceActive) {
+        emit processingCompleted();
         return;
     }
     
@@ -389,12 +391,19 @@ void StereoPipeline::rectifyImages ()
 {
     // Make sure rectification is marked as active
     if (!rectificationActive) {
+        emit processingCompleted();
         return;
     }
     
     // Make sure we have rectification object set
     if (!rectification) {
         emit error("Stereo rectification object not set!");
+        return;
+    }
+
+    // Make sure input images are of same size
+    if (inputImageL.cols != inputImageR.cols || inputImageL.rows != inputImageR.rows) {
+        emit error("Input images do not have same dimensions!");
         return;
     }
 
@@ -478,6 +487,7 @@ void StereoPipeline::computeDisparityImage ()
     
     // Make sure stereo method is marked as active
     if (!stereoMethodActive) {
+        emit processingCompleted();
         return;
     }
     
@@ -631,6 +641,7 @@ void StereoPipeline::reprojectDisparityImage ()
 {
     // Make sure reprojection is marked as active
     if (!reprojectionActive) {
+        emit processingCompleted();
         return;
     }
     
@@ -652,4 +663,3 @@ void StereoPipeline::reprojectDisparityImage ()
 
     emit reprojectedImageChanged();
 }
-
