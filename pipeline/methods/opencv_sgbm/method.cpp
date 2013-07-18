@@ -96,9 +96,9 @@ void Method::computeDisparityImage (const cv::Mat &img1, const cv::Mat &img2, cv
     imageChannels = img1.channels();
     
     // Compute disparity image
-    mutex.lock();
+    QMutexLocker locker(&mutex);
     sgbm(img1, img2, tmpDisparity);
-    mutex.unlock();
+    locker.unlock();
 
     // Normalize to output
     tmpDisparity.convertTo(disparity, CV_8U, 255/(sgbm.numberOfDisparities*16.));

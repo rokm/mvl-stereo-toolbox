@@ -116,9 +116,9 @@ void Method::computeDisparityImage (const cv::Mat &img1, const cv::Mat &img2, cv
     // Compute disparity image
     tmpDisparity.create(img1.rows, img1.cols, CV_16SC1);
 
-    mutex.lock();
+    QMutexLocker locker(&mutex);
     bm(tmpImg1, tmpImg2, tmpDisparity);
-    mutex.unlock();
+    locker.unlock();
 
     // Normalize to output
     if (tmpDisparity.type() == CV_16SC1) {

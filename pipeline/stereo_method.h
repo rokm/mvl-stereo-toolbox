@@ -52,9 +52,9 @@ public:
     template <typename T> void setParameter (T &parameter, const T &newValue) {
         // Set only if necessary
         if (parameter != newValue) {
-            mutex.lock();
+            QMutexLocker locker(&mutex);
             parameter = newValue;
-            mutex.unlock();
+            locker.unlock();
             
             emit parameterChanged();
         }

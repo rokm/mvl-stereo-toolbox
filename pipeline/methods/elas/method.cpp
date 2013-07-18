@@ -39,9 +39,9 @@ Method::~Method ()
 
 void Method::createElasObject ()
 {
-    mutex.lock();
+    QMutexLocker locker(&mutex);
     elas = Elas(param);
-    mutex.unlock();
+    locker.unlock();
     
     emit parameterChanged();
 }
@@ -110,9 +110,9 @@ void Method::computeDisparityImage (const cv::Mat &img1, const cv::Mat &img2, cv
     }
 
     // Process
-    mutex.lock();
+    QMutexLocker locker(&mutex);
     elas.process(tmpImg1.ptr<uint8_t>(), tmpImg2.ptr<uint8_t>(), tmpDisp1.ptr<float>(), tmpDisp2.ptr<float>(), dims);
-    mutex.unlock();
+    locker.unlock();
 
     // Convert to output
     if (returnLeft) {

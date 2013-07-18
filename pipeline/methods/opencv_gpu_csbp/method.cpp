@@ -84,15 +84,15 @@ void Method::computeDisparityImage (const cv::Mat &img1, const cv::Mat &img2, cv
     imageHeight = img1.rows;
     
     if (1) {
+        QMutexLocker locker(&mutex);
         // Make sure that GPU matrices are destroyed as soon as they are
         // not needed anymore via scoping...
         cv::gpu::GpuMat gpu_img1(img1);
         cv::gpu::GpuMat gpu_img2(img2);
 
         // Compute disparity image
-        mutex.lock();
         bp(gpu_img1, gpu_img2, gpu_disp);
-        mutex.unlock();
+        locker.unlock();
     }
     
     // Convert and download

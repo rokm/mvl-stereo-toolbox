@@ -76,9 +76,9 @@ void Method::computeDisparityImage (const cv::Mat &img1, const cv::Mat &img2, cv
     }
 
     // Compute disparity image
-    mutex.lock();
+    QMutexLocker locker(&mutex);
     bm(gpu_img1, gpu_img2, gpu_disp);
-    mutex.unlock();
+    locker.unlock();
 
     // Download
     gpu_disp.download(disparity);
