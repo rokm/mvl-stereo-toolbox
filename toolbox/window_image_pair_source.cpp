@@ -54,6 +54,7 @@ WindowImagePairSource::WindowImagePairSource (StereoPipeline *p, QList<ImagePair
 
     pushButton = new QPushButton("Snap images", this);
     pushButton->setToolTip("Save image pair by asking for filename only once and then appending counter number for each new snapshot.");
+    pushButton->setShortcut(QKeySequence(Qt::Key_F5));
     connect(pushButton, SIGNAL(clicked()), this, SLOT(snapshotImages()));
     buttonsLayout->addWidget(pushButton);
     pushButtonSnapshotImages = pushButton;
