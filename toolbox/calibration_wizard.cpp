@@ -31,7 +31,7 @@ CalibrationWizard::CalibrationWizard (QWidget *parent)
     : QWizard(parent)
 {
     setWindowTitle("Calibration Wizard");
-    setWizardStyle(ModernStyle);
+    setWizardStyle(ClassicStyle);
 
     resize(800, 600);
     
