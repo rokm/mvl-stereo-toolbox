@@ -2014,25 +2014,42 @@ CalibrationWizardPageStereoResult::CalibrationWizardPageStereoResult (QWidget *p
     layout->addWidget(label);
 
     // Splitter
-    QSplitter *splitter = new QSplitter(Qt::Horizontal, this);
+    QSplitter *splitter = new QSplitter(Qt::Vertical, this);
     splitter->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     layout->addWidget(splitter);
-
-    // Left camera parameters
-    boxLeftCameraParameters = new CameraParametersWidget("Left camera", this);
-    boxLeftCameraParameters->setDisplayMode(true);
-    splitter->addWidget(boxLeftCameraParameters);
-
-    // Right camera parameters
-    boxRightCameraParameters = new CameraParametersWidget("Right camera", this);
-    boxRightCameraParameters->setDisplayMode(true);
-    splitter->addWidget(boxRightCameraParameters);
 
     // Undistorted image
     displayImage = new ImagePairDisplayWidget("Rectified image pair", this);
     displayImage->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     displayImage->resize(400, 600);
     splitter->addWidget(displayImage);
+
+    // Scroll area; camera parameters
+    QScrollArea *scrollArea = new QScrollArea(this);
+    scrollArea->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    scrollArea->setWidgetResizable(true);
+
+    QWidget *parametersWidget = new QWidget(scrollArea);
+    QHBoxLayout *boxLayout = new QHBoxLayout(parametersWidget);
+    parametersWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    boxLayout->setContentsMargins(0, 0, 0, 0);
+
+    // Left camera parameters
+    boxLeftCameraParameters = new CameraParametersWidget("Left camera", this);
+    boxLeftCameraParameters->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    boxLeftCameraParameters->setDisplayMode(true);
+    boxLayout->addWidget(boxLeftCameraParameters);
+
+    //boxLayout->addStretch();
+
+    // Right camera parameters
+    boxRightCameraParameters = new CameraParametersWidget("Right camera", this);
+    boxRightCameraParameters->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    boxRightCameraParameters->setDisplayMode(true);
+    boxLayout->addWidget(boxRightCameraParameters);
+
+    scrollArea->setWidget(parametersWidget);
+    splitter->addWidget(scrollArea);
 }
 
 CalibrationWizardPageStereoResult::~CalibrationWizardPageStereoResult ()
