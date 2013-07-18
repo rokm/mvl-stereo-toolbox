@@ -80,21 +80,28 @@ void StereoRectification::loadStereoCalibration (const QString &filename)
 
     // Load
     cv::FileStorage storage(filename.toStdString(), cv::FileStorage::READ);
-    if (storage.isOpened()) {
-        storage["M1"] >> M1;
-        storage["M2"] >> M2;
-        storage["D1"] >> D1;
-        storage["D2"] >> D2;
-
-        std::vector<int> size;
-        storage["imageSize"] >> size;
-        imageSize = cv::Size(size[0], size[1]);
-        
-        storage["R"] >> R;
-        storage["T"] >> T;
-    } else {
+    if (!storage.isOpened()) {
         throw QString("Failed to open file '%1' for reading!").arg(filename);
     }
+    
+    // Validate data type
+    QString dataType = QString::fromStdString(storage["DataType"]);
+    if (dataType.compare("StereoCalibration")) {
+        throw QString("Invalid stereo calibration data!");
+    }    
+
+    // Load calibration
+    storage["M1"] >> M1;
+    storage["M2"] >> M2;
+    storage["D1"] >> D1;
+    storage["D2"] >> D2;
+
+    std::vector<int> size;
+    storage["imageSize"] >> size;
+    imageSize = cv::Size(size[0], size[1]);
+        
+    storage["R"] >> R;
+    storage["T"] >> T;
 
     // Initialize rectification from loaded calibration
     initializeStereoRectification();
@@ -106,6 +113,8 @@ void StereoRectification::saveStereoCalibration (const QString &filename) const
     // rectification is yet to be computed...
     cv::FileStorage storage(filename.toStdString(), cv::FileStorage::WRITE);
     if (storage.isOpened()) {
+        storage << "DataType" << "StereoCalibration";
+        
         storage << "M1" << M1;
         storage << "M2" << M2;
 

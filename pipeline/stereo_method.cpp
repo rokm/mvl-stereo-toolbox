@@ -55,6 +55,12 @@ void StereoMethod::loadParameters (const QString &filename)
 
 void StereoMethod::loadParameters (const cv::FileStorage &storage)
 {
+    // Validate data type
+    QString dataType = QString::fromStdString(storage["DataType"]);
+    if (dataType.compare("StereoMethodParameters")) {
+        throw QString("Invalid stereo method parameters configuration!");
+    }
+    
     // Validate method name
     QString storedName = QString::fromStdString(storage["MethodName"]);
     if (shortName.compare(storedName)) {
@@ -77,6 +83,9 @@ void StereoMethod::saveParameters (const QString &filename) const
 
 void StereoMethod::saveParameters (cv::FileStorage &storage) const
 {
+    // Data type
+    storage << "DataType" << "StereoMethodParameters";
+    
     // Store method name, so it can be validate upon loading
     storage << "MethodName" << shortName.toStdString();
 
