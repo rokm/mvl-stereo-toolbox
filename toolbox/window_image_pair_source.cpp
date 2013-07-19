@@ -59,6 +59,12 @@ WindowImagePairSource::WindowImagePairSource (StereoPipeline *p, QList<ImagePair
     buttonsLayout->addWidget(pushButton);
     pushButtonSnapshotImages = pushButton;
 
+    pushButton = new QPushButton("Snapshot filename", this);
+    pushButton->setToolTip("Set filename for image snapshot saving.");
+    connect(pushButton, SIGNAL(clicked()), this, SLOT(selectSnapshotFilename()));
+    buttonsLayout->addWidget(pushButton);
+    pushButtonSnapshotFilename = pushButton;
+
     buttonsLayout->addStretch();
 
     // Splitter - image pair and sources selection
@@ -186,7 +192,7 @@ void WindowImagePairSource::snapshotImages ()
     
     // Get basename if not already set
     if (snapshotBaseName.isEmpty()) {
-        snapshotBaseName = QFileDialog::getSaveFileName(this, "Select basename for images snapshots", "image.ppm");
+        selectSnapshotFilename();
         if (snapshotBaseName.isNull()) {
             return;
         }
@@ -224,3 +230,7 @@ void WindowImagePairSource::snapshotImages ()
     }
 }
 
+void WindowImagePairSource::selectSnapshotFilename ()
+{
+    snapshotBaseName = QFileDialog::getSaveFileName(this, "Select basename for images snapshots", snapshotBaseName.isEmpty() ? "image.ppm" : snapshotBaseName);
+}

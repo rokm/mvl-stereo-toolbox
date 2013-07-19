@@ -45,6 +45,8 @@ protected slots:
     void saveImages ();
     void snapshotImages ();
 
+    void selectSnapshotFilename ();
+
 protected:
     // Pipeline
     StereoPipeline *pipeline;
@@ -55,6 +57,7 @@ protected:
     // GUI
     QPushButton *pushButtonSaveImages;
     QPushButton *pushButtonSnapshotImages;
+    QPushButton *pushButtonSnapshotFilename;
 
     ImageDisplayWidget *displayImageLeft;
     ImageDisplayWidget *displayImageRight;
