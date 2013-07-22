@@ -29,11 +29,12 @@ Method::Method (QObject *parent)
     : QObject(parent), StereoMethod()
 {
     shortName = "SGBM";
-    usePreset(OpenCV);
 
     // Default image width and channels, used to compute optimal parameters
     imageWidth = 640;
     imageChannels = 1;
+
+    usePreset(OpenCV);
 }
 
 Method::~Method ()

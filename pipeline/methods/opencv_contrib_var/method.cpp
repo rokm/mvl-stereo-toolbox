@@ -29,10 +29,11 @@ Method::Method (QObject *parent)
     : QObject(parent), StereoMethod()
 {
     shortName = "Var";
-    usePreset(OpenCV);
 
     // Default image width, used to compute optimal parameters
     imageWidth = 640;
+
+    usePreset(OpenCV);
 }
 
 Method::~Method ()

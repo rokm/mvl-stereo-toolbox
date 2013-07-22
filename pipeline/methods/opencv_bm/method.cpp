@@ -29,10 +29,11 @@ Method::Method (QObject *parent)
     : QObject(parent), StereoMethod()
 {
     shortName = "BM";
-    usePreset(OpenCVBasic);
 
     // Default image width, used to compute optimal parameters
     imageWidth = 640;
+
+    usePreset(OpenCVBasic);
 }
 
 Method::~Method ()
