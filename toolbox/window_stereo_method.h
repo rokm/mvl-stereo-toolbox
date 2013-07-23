@@ -49,11 +49,6 @@ protected slots:
     void exportParameters ();
 
 protected:
-    enum {
-        DisplayRawDisparity,
-        DisplayColorGpuDisparity,
-    };
-
     // Pipeline
     StereoPipeline *pipeline;
     QList<StereoMethod *> methods;
@@ -61,7 +56,7 @@ protected:
     // GUI
     QPushButton *pushButtonExportParameters;
     QPushButton *pushButtonImportParameters;
-    QComboBox *comboBoxDisplayType;
+    QComboBox *comboBoxVisualizationType;
     QPushButton *pushButtonSaveImage;
     
     DisparityImageDisplayWidget *displayDisparityImage;

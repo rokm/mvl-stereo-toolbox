@@ -346,18 +346,99 @@ void CalibrationPatternDisplayWidget::paintEvent (QPaintEvent *event)
 
 
 // *********************************************************************
-// *                 Reprojected image display widget                  *
+// *                  Disparity image display widget                   *
 // *********************************************************************
 DisparityImageDisplayWidget::DisparityImageDisplayWidget (const QString &t, QWidget *parent)
     : ImageDisplayWidget(t, parent)
 {
+    visualizationType = RawDisparity;
+    
     setMouseTracking(true); // Enable mouse tracking
 }
 
 DisparityImageDisplayWidget::~DisparityImageDisplayWidget ()
 {
-    
 }
+
+
+void DisparityImageDisplayWidget::setVisualizationType (int newType)
+{
+    if (visualizationType != newType) {
+        visualizationType = newType;
+
+        // Update visualization
+        updateDisparityVisualization();
+    }
+}
+
+int DisparityImageDisplayWidget::getVisualizationType () const
+{
+    return visualizationType;
+}
+
+
+void DisparityImageDisplayWidget::assignConfigComboBox (QComboBox *comboBox)
+{
+    // Populate
+    comboBox->addItem("Raw", RawDisparity);
+    comboBox->setItemData(0, "Raw grayscale disparity.", Qt::ToolTipRole);
+    
+#ifdef HAVE_OPENCV_GPU
+    try {
+        if (cv::gpu::getCudaEnabledDeviceCount()) {
+            // This one requires CUDA...
+            comboBox->addItem("Color (GPU)", ColorGpuDisparity);
+            comboBox->setItemData(1, "HSV disparity (computed on GPU).", Qt::ToolTipRole);
+        }
+    } catch (...) {
+        // Nothing to do :)
+    }
+#endif
+
+    connect(comboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(visualizationChanged(int)));
+}
+
+void DisparityImageDisplayWidget::visualizationChanged (int idx)
+{
+    setVisualizationType(qobject_cast<QComboBox *>(QObject::sender())->itemData(idx).toInt());
+}
+
+
+void DisparityImageDisplayWidget::updateDisparityVisualization ()
+{
+    switch (visualizationType) {
+        case RawDisparity: {
+            // Raw grayscale disparity
+            ImageDisplayWidget::setImage(disparity);
+            break;
+        }
+#ifdef HAVE_OPENCV_GPU
+        case ColorGpuDisparity: {
+            try {
+                // Hue-color-coded disparity
+                cv::gpu::GpuMat gpu_disp(disparity);
+                cv::gpu::GpuMat gpu_disp_color;
+                cv::Mat disp_color;
+            
+                cv::gpu::drawColorDisp(gpu_disp, gpu_disp_color, numDisparities);
+                gpu_disp_color.download(disp_color);
+    
+                ImageDisplayWidget::setImage(disp_color);
+            } catch (...) {
+                // The above calls can fail
+                ImageDisplayWidget::setImage(cv::Mat());                
+            }
+            
+            break;
+        }
+#endif
+        default: {
+            ImageDisplayWidget::setImage(cv::Mat());                
+            break;
+        }
+    }
+}
+
 
 void DisparityImageDisplayWidget::mouseMoveEvent (QMouseEvent *event)
 {
@@ -367,14 +448,17 @@ void DisparityImageDisplayWidget::mouseMoveEvent (QMouseEvent *event)
     return ImageDisplayWidget::mouseMoveEvent(event);
 }
 
-void DisparityImageDisplayWidget::setImage (const cv::Mat &newDisparity)
+
+void DisparityImageDisplayWidget::setImage (const cv::Mat &newDisparity, int newNumDisparities)
 {
     // Store disparity
     disparity = newDisparity;
+    numDisparities = newNumDisparities;
     
-    // Set base image
-    ImageDisplayWidget::setImage(newDisparity);
-
+    // Set base image, based on visualization type
+    updateDisparityVisualization();
+    
+    // Update disparity under mouse cursor
     emit disparityUnderMouseChanged(getDisparityAtPixel(mapFromGlobal(QCursor::pos())));
 }
 

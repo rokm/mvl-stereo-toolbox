@@ -26,10 +26,6 @@
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
 
-#ifdef HAVE_OPENCV_GPU
-#include <opencv2/gpu/gpu.hpp>
-#endif
-
 
 WindowStereoMethod::WindowStereoMethod (StereoPipeline *p, QList<StereoMethod *> &m, QWidget *parent)
     : QWidget(parent, Qt::Window), pipeline(p), methods(m)
@@ -76,29 +72,19 @@ WindowStereoMethod::WindowStereoMethod (StereoPipeline *p, QList<StereoMethod *>
 
     buttonsLayout->addStretch();
 
-    // Disparity image display type
+    // Disparity image visualization type
     box = new QHBoxLayout();
     box->setContentsMargins(0, 0, 0, 0);
     box->setSpacing(2);
     buttonsLayout->addLayout(box);
 
-    label = new QLabel("Display type", this);
-    label->setToolTip("Disparity image display type");
+    label = new QLabel("Vizualization type: ", this);
+    label->setToolTip("Disparity image vizualization type");
     box->addWidget(label);
     
-    comboBox = new QComboBox(this);
-    comboBox->addItem("Raw", DisplayRawDisparity);
-    comboBox->setItemData(0, "Raw grayscale disparity.", Qt::ToolTipRole);
-#ifdef HAVE_OPENCV_GPU
-    if (cv::gpu::getCudaEnabledDeviceCount()) {
-        // This one requires CUDA...
-        comboBox->addItem("Color (GPU)", DisplayColorGpuDisparity);
-        comboBox->setItemData(1, "HSV disparity (computed on GPU).", Qt::ToolTipRole);
-    }
-#endif
-    connect(comboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(updateImage()));
+    comboBox = new QComboBox(this); // Filled in by disparity image display widget!
     box->addWidget(comboBox);
-    comboBoxDisplayType = comboBox;
+    comboBoxVisualizationType = comboBox;
 
     buttonsLayout->addStretch();
 
@@ -124,6 +110,8 @@ WindowStereoMethod::WindowStereoMethod (StereoPipeline *p, QList<StereoMethod *>
     displayDisparityImage->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     displayDisparityImage->resize(400, 600); // Make sure scroll area has some size
     splitter->addWidget(displayDisparityImage);
+
+    displayDisparityImage->assignConfigComboBox(comboBoxVisualizationType);
 
     connect(displayDisparityImage, SIGNAL(disparityUnderMouseChanged(float)), this, SLOT(displayDisparity(float)));
 
@@ -166,31 +154,8 @@ void WindowStereoMethod::updateImage ()
 {
     const cv::Mat &disparity = pipeline->getDisparityImage();
     int numDisparities = pipeline->getNumberOfDisparityLevels();
-
-    // Show image
-    int displayType = comboBoxDisplayType->itemData(comboBoxDisplayType->currentIndex()).toInt();
-    switch (displayType) {
-        case DisplayRawDisparity: {
-            // Raw grayscale disparity
-            displayDisparityImage->setImage(disparity);
-            break;
-        }
-#ifdef HAVE_OPENCV_GPU
-        case DisplayColorGpuDisparity: {
-            // Hue-color-coded disparity
-            cv::gpu::GpuMat gpu_disp(disparity);
-            cv::gpu::GpuMat gpu_disp_color;
-            cv::Mat disp_color;
-            
-            cv::gpu::drawColorDisp(gpu_disp, gpu_disp_color, numDisparities);
-            gpu_disp_color.download(disp_color);
-    
-            displayDisparityImage->setImage(disp_color);
-        
-            break;
-        }
-#endif
-    }
+    // Disparity image
+    displayDisparityImage->setImage(disparity, numDisparities);
     
     // If image is valid, display computation time
     if (disparity.data) {

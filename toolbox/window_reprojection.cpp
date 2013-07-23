@@ -54,7 +54,7 @@ WindowReprojection::WindowReprojection (StereoPipeline *p, StereoReprojection *r
     box->setSpacing(2);
     buttonsLayout->addLayout(box);
 
-    label = new QLabel("Image", this);
+    label = new QLabel("Image: ", this);
     label->setToolTip("Image to display in background");
     box->addWidget(label);
     

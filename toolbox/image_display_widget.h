@@ -24,6 +24,10 @@
 #include <QtGui>
 #include <opencv2/core/core.hpp>
 
+#ifdef HAVE_OPENCV_GPU
+#include <opencv2/gpu/gpu.hpp>
+#endif
+
 
 // *********************************************************************
 // *                       Image display widget                        *
@@ -36,8 +40,8 @@ public:
     ImageDisplayWidget (const QString & = QString(), QWidget * = 0);
     virtual ~ImageDisplayWidget ();
 
-    virtual void setImage (const cv::Mat &);
-    virtual void setText (const QString &);
+    void setImage (const cv::Mat &);
+    void setText (const QString &);
 
     static QImage convertCvMatToQImage (const cv::Mat &src);
 
@@ -110,18 +114,38 @@ public:
     DisparityImageDisplayWidget (const QString & = QString(), QWidget * = 0);
     virtual ~DisparityImageDisplayWidget ();
 
-    virtual void setImage (const cv::Mat &);
+    void assignConfigComboBox (QComboBox *);
+
+    void setImage (const cv::Mat &, int);
+
+    enum VisualizationType {
+        RawDisparity,
+        ColorGpuDisparity,
+    };
+
+    int getVisualizationType () const;
+
+public slots:
+    void setVisualizationType (int);
+
+protected slots:
+    void visualizationChanged (int);
 
 protected:
     virtual void mouseMoveEvent (QMouseEvent *);
 
+    void updateDisparityVisualization ();
+    
     float getDisparityAtPixel (const QPoint &);
 
 signals:
     void disparityUnderMouseChanged (float);
 
 protected:
+    int visualizationType;
+    
     cv::Mat disparity;
+    int numDisparities;
 };
 
 
