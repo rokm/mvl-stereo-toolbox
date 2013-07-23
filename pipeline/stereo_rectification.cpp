@@ -81,6 +81,11 @@ void StereoRectification::loadStereoCalibration (const QString &filename)
     // Load
     cv::FileStorage storage(filename.toStdString(), cv::FileStorage::READ);
     if (storage.isOpened()) {
+        QString dataType = QString::fromStdString(storage["DataType"]);
+        if (dataType.compare("StereoCalibration")) {
+            throw QString("File '%1' does not contain stereo calibration data!").arg(shortName);
+        }
+    
         storage["M1"] >> M1;
         storage["M2"] >> M2;
         storage["D1"] >> D1;
@@ -106,6 +111,8 @@ void StereoRectification::saveStereoCalibration (const QString &filename) const
     // rectification is yet to be computed...
     cv::FileStorage storage(filename.toStdString(), cv::FileStorage::WRITE);
     if (storage.isOpened()) {
+        storage << "DataType" << "StereoCalibration";
+        
         storage << "M1" << M1;
         storage << "M2" << M2;
 
