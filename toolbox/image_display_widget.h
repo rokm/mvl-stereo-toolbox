@@ -36,8 +36,8 @@ public:
     ImageDisplayWidget (const QString & = QString(), QWidget * = 0);
     virtual ~ImageDisplayWidget ();
 
-    void setImage (const cv::Mat &);
-    void setText (const QString &);
+    virtual void setImage (const cv::Mat &);
+    virtual void setText (const QString &);
 
     static QImage convertCvMatToQImage (const cv::Mat &src);
 
@@ -100,6 +100,32 @@ protected:
 
 
 // *********************************************************************
+// *                  Disparity image display widget                   *
+// *********************************************************************
+class DisparityImageDisplayWidget : public ImageDisplayWidget
+{
+    Q_OBJECT
+
+public:
+    DisparityImageDisplayWidget (const QString & = QString(), QWidget * = 0);
+    virtual ~DisparityImageDisplayWidget ();
+
+    virtual void setImage (const cv::Mat &);
+
+protected:
+    virtual void mouseMoveEvent (QMouseEvent *);
+
+    float getDisparityAtPixel (const QPoint &);
+
+signals:
+    void disparityUnderMouseChanged (float);
+
+protected:
+    cv::Mat disparity;
+};
+
+
+// *********************************************************************
 // *                 Reprojected image display widget                  *
 // *********************************************************************
 class ReprojectedImageDisplayWidget : public ImageDisplayWidget
@@ -113,9 +139,12 @@ public:
     void setImage (const cv::Mat &, const cv::Mat &);
 
 protected:
-    virtual bool event (QEvent *);
+    virtual void mouseMoveEvent (QMouseEvent *);
 
     QVector3D getCoordinatesAtPixel (const QPoint &);
+
+signals:
+    void coordinatesUnderMouseChanged (QVector3D);
 
 protected:
     cv::Mat reprojectedPoints;

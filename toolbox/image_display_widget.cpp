@@ -26,8 +26,6 @@
 ImageDisplayWidget::ImageDisplayWidget (const QString &t, QWidget *parent)
     : QFrame(parent), text(t)
 {
-    setToolTip(text);
-
     setFrameStyle(QFrame::Box | QFrame::Sunken);
     setLineWidth(2);
 }
@@ -88,7 +86,6 @@ void ImageDisplayWidget::setText (const QString &newText)
 {
     // Store new text
     text = newText;
-    setToolTip(text);
 
     // Refresh
     update();
@@ -351,6 +348,81 @@ void CalibrationPatternDisplayWidget::paintEvent (QPaintEvent *event)
 // *********************************************************************
 // *                 Reprojected image display widget                  *
 // *********************************************************************
+DisparityImageDisplayWidget::DisparityImageDisplayWidget (const QString &t, QWidget *parent)
+    : ImageDisplayWidget(t, parent)
+{
+    setMouseTracking(true); // Enable mouse tracking
+}
+
+DisparityImageDisplayWidget::~DisparityImageDisplayWidget ()
+{
+    
+}
+
+void DisparityImageDisplayWidget::mouseMoveEvent (QMouseEvent *event)
+{
+    emit disparityUnderMouseChanged(getDisparityAtPixel(event->pos()));
+    
+    // Chain up to parent
+    return ImageDisplayWidget::mouseMoveEvent(event);
+}
+
+void DisparityImageDisplayWidget::setImage (const cv::Mat &newDisparity)
+{
+    // Store disparity
+    disparity = newDisparity;
+    
+    // Set base image
+    ImageDisplayWidget::setImage(newDisparity);
+
+    emit disparityUnderMouseChanged(getDisparityAtPixel(mapFromGlobal(QCursor::pos())));
+}
+
+float DisparityImageDisplayWidget::getDisparityAtPixel (const QPoint &pos)
+{
+    // Make sure there is image displayed
+    if (!disparity.data) {
+        return NAN;
+    }
+    
+    // This part is same as in base class's display... it computes
+    // display scaling and vertical/horizontal offsets
+    int w = disparity.cols;
+    int h = disparity.rows;
+        
+    double scale = qMin((double)width() / w, (double)height() / h);
+
+    w *= scale;
+    h *= scale;
+
+    double xd = pos.x() - (width() - w)/2;
+    double yd = pos.y() - (height() - h)/2;
+
+    int x = round(xd / scale);
+    int y = round(yd / scale);
+
+    if (x >= 0 && y >= 0 && x < disparity.cols && y < disparity.rows) {
+        switch (disparity.type()) {
+            case CV_8U: {
+                return disparity.at<unsigned char>(y, x);
+            }
+            case CV_32F: {
+                return disparity.at<float>(y, x);
+            }
+            default: {
+                qWarning() << "Unhandled disparity type:" << disparity.type() << "!";
+                return NAN;
+            }
+        }
+    }
+
+    return NAN;
+}
+
+
+// *********************************************************************
+// *                 Reprojected image display widget                  *
+// *********************************************************************
 ReprojectedImageDisplayWidget::ReprojectedImageDisplayWidget (const QString &t, QWidget *parent)
     : ImageDisplayWidget(t, parent)
 {
@@ -362,36 +434,23 @@ ReprojectedImageDisplayWidget::~ReprojectedImageDisplayWidget ()
     
 }
 
+void ReprojectedImageDisplayWidget::mouseMoveEvent (QMouseEvent *event)
+{
+    emit coordinatesUnderMouseChanged(getCoordinatesAtPixel(event->pos()));
+    
+    // Chain up to parent
+    return ImageDisplayWidget::mouseMoveEvent(event);
+}
+
 void ReprojectedImageDisplayWidget::setImage (const cv::Mat &newImage, const cv::Mat &newReprojectedPoints)
 {
     // Set base image
     ImageDisplayWidget::setImage(newImage);
 
     reprojectedPoints = newReprojectedPoints;
+
+    emit coordinatesUnderMouseChanged(getCoordinatesAtPixel(mapFromGlobal(QCursor::pos())));
 }
-
-
-bool ReprojectedImageDisplayWidget::event (QEvent *event)
-{
-    // Override handling of tool-tip events
-    if (event->type() == QEvent::ToolTip) {
-        QHelpEvent *helpEvent = static_cast<QHelpEvent *>(event);
-        QVector3D coordinates = getCoordinatesAtPixel(helpEvent->pos());
-
-        if (!coordinates.isNull()) {
-            QToolTip::showText(helpEvent->globalPos(), QString("%1, %2, %3").arg(coordinates.x()/1000, 0, 'f', 2).arg(coordinates.y()/1000, 0, 'f', 2).arg(coordinates.z()/1000, 0, 'f', 2));
-        } else {
-            QToolTip::hideText();
-            event->ignore();
-        }
-        
-        return true;
-    }
-
-    // Chain up to parent
-    return ImageDisplayWidget::event(event);
-}
-
 
 // Display image
 QVector3D ReprojectedImageDisplayWidget::getCoordinatesAtPixel (const QPoint &pos)

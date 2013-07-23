@@ -38,7 +38,8 @@ public:
 
 protected slots:
     void updateImage ();
-    
+    void displayCoordinates (const QVector3D &);
+
 protected:
     // Pipeline
     StereoPipeline *pipeline;
@@ -49,7 +50,8 @@ protected:
     QPushButton *pushButtonUseGpu;
 
     ReprojectedImageDisplayWidget *displayReprojectedImage;
-    
+
+    QLabel *labelCoordinates;
     QStatusBar *statusBar;
 };
 

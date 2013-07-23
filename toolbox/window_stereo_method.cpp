@@ -120,15 +120,19 @@ WindowStereoMethod::WindowStereoMethod (StereoPipeline *p, QList<StereoMethod *>
     scrollArea->setWidgetResizable(true);
     
     // Disparity image
-    displayDisparityImage = new ImageDisplayWidget("Disparity image", this);
+    displayDisparityImage = new DisparityImageDisplayWidget("Disparity image", this);
     displayDisparityImage->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     displayDisparityImage->resize(400, 600); // Make sure scroll area has some size
     splitter->addWidget(displayDisparityImage);
+
+    connect(displayDisparityImage, SIGNAL(disparityUnderMouseChanged(float)), this, SLOT(displayDisparity(float)));
 
     // Status bar
     statusBar = new QStatusBar(this);
     layout->addWidget(statusBar);
 
+    labelDisparity = new QLabel(statusBar);
+    statusBar->addPermanentWidget(labelDisparity);
 
     // Create config tabs
     for (int i = 0; i < methods.size(); i++) {
@@ -177,7 +181,7 @@ void WindowStereoMethod::updateImage ()
             cv::gpu::GpuMat gpu_disp(disparity);
             cv::gpu::GpuMat gpu_disp_color;
             cv::Mat disp_color;
-        
+            
             cv::gpu::drawColorDisp(gpu_disp, gpu_disp_color, numDisparities);
             gpu_disp_color.download(disp_color);
     
@@ -196,6 +200,14 @@ void WindowStereoMethod::updateImage ()
     }
 }
 
+void WindowStereoMethod::displayDisparity (float disparity)
+{
+    if (isnan(disparity)) {
+        labelDisparity->setText("");
+    } else {
+        labelDisparity->setText(QString("Disp: %1").arg(disparity, 0, 'f', 2));
+    }
+}
 
 
 // *********************************************************************

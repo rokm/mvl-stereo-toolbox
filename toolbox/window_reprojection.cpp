@@ -86,9 +86,14 @@ WindowReprojection::WindowReprojection (StereoPipeline *p, StereoReprojection *r
     displayReprojectedImage->resize(400, 600); // Make sure scroll area has some size
     layout->addWidget(displayReprojectedImage);
 
+    connect(displayReprojectedImage, SIGNAL(coordinatesUnderMouseChanged(QVector3D)), this, SLOT(displayCoordinates(const QVector3D &)));
+
     // Status bar
     statusBar = new QStatusBar(this);
     layout->addWidget(statusBar);
+
+    labelCoordinates = new QLabel(statusBar);
+    statusBar->addPermanentWidget(labelCoordinates);
 
     // Pipeline
     connect(pipeline, SIGNAL(reprojectedImageChanged()), this, SLOT(updateImage()));
@@ -126,5 +131,15 @@ void WindowReprojection::updateImage ()
         statusBar->showMessage(QString("Disparity image (%1x%2) reprojected in %3 milliseconds.").arg(reprojectedImage.cols).arg(reprojectedImage.rows).arg(pipeline->getReprojectionComputationTime()));
     } else {
         statusBar->clearMessage();
+    }
+}
+
+
+void WindowReprojection::displayCoordinates (const QVector3D &coordinates)
+{
+    if (coordinates.isNull()) {
+        labelCoordinates->setText("");
+    } else {
+        labelCoordinates->setText(QString("XYZ: %1, %2, %3").arg(coordinates.x()/1000, 0, 'f', 2).arg(coordinates.y()/1000, 0, 'f', 2).arg(coordinates.z()/1000, 0, 'f', 2));
     }
 }

@@ -27,7 +27,7 @@
 class StereoPipeline;
 class StereoMethod;
 
-class ImageDisplayWidget;
+class DisparityImageDisplayWidget;
 
 class WindowStereoMethod : public QWidget
 {
@@ -41,6 +41,7 @@ protected slots:
     void setMethod (int);
     
     void updateImage ();
+    void displayDisparity (float);
 
     void saveImage ();
 
@@ -63,8 +64,9 @@ protected:
     QComboBox *comboBoxDisplayType;
     QPushButton *pushButtonSaveImage;
     
-    ImageDisplayWidget *displayDisparityImage;
+    DisparityImageDisplayWidget *displayDisparityImage;
 
+    QLabel *labelDisparity;
     QStatusBar *statusBar;
 };
 
