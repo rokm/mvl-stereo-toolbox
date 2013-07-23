@@ -163,5 +163,5 @@ UrlDialog::~UrlDialog ()
 
 QString UrlDialog::getUrl() const
 {
-    return textEditUrl->toPlainText();
+    return textEditUrl->toPlainText().trimmed();
 }
