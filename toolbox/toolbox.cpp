@@ -253,23 +253,32 @@ void Toolbox::clearError ()
 void Toolbox::loadPlugins ()
 {
     foreach (PluginFactory *plugin, pipeline->getAvailablePlugins()) {
-        switch (plugin->getPluginType()) {
-            case PluginFactory::PluginStereoMethod: {
-                QObject *method = plugin->createObject(this);
-                if (method) {
-                    stereoMethods.append(qobject_cast<StereoMethod *>(method));
+        QObject *object = NULL;
+
+        // Create object
+        try {
+            object = plugin->createObject(this);
+        } catch (...) {
+            continue;
+        }
+
+        // Insert object into corresponding list
+        if (object) {
+            switch (plugin->getPluginType()) {
+                case PluginFactory::PluginStereoMethod: {
+                    stereoMethods.append(qobject_cast<StereoMethod *>(object));
+                    break;
                 }
-                break;
-            }
-            case PluginFactory::PluginImagePairSource: {
-                QObject *source = plugin->createObject(this);
-                if (source) {
-                    imagePairSources.append(qobject_cast<ImagePairSource *>(source));
+                case PluginFactory::PluginImagePairSource: {
+                    imagePairSources.append(qobject_cast<ImagePairSource *>(object));
+                    break;
+                }
+                default: {
+                    // Unhandled object; delete it
+                    object->deleteLater();
+                    break;
                 }
             }
-            default: {
-                break;
-            }            
         }
     }
 }
