@@ -95,17 +95,15 @@ void Method::computeDisparityImage (const cv::Mat &img1, const cv::Mat &img2, cv
 {    
     // Store in case user wants to compute optimal parameters
     imageWidth = img1.cols;
-    
-    // Compute disparity image
-    QMutexLocker locker(&mutex);
-    var(img1, img2, tmpDisparity);
-    locker.unlock();
-
-    // Normalize to output
-    tmpDisparity.convertTo(disparity, CV_8U);
 
     // Number of disparities
     numDisparities = getMaxDisparity() - getMinDisparity();
+    
+    // Compute disparity image
+    QMutexLocker locker(&mutex);
+    var(img1, img2, disparity);
+    disparity *= numDisparities/256.0;
+    locker.unlock();
 }
 
 

@@ -102,7 +102,7 @@ void Method::computeDisparityImage (const cv::Mat &img1, const cv::Mat &img2, cv
     locker.unlock();
 
     // Normalize to output
-    tmpDisparity.convertTo(disparity, CV_8U, 255/(sgbm.numberOfDisparities*16.));
+    tmpDisparity.convertTo(disparity, CV_8U, 1/16.0);
 
     // Number of disparities
     numDisparities = getNumDisparities();
