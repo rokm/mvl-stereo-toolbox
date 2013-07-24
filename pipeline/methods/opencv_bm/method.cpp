@@ -100,13 +100,13 @@ void Method::computeDisparityImage (const cv::Mat &img1, const cv::Mat &img2, cv
 {
     // Convert to grayscale
     if (img1.channels() == 3) {
-        cv::cvtColor(img1, tmpImg1, CV_RGB2GRAY);
+        cv::cvtColor(img1, tmpImg1, CV_BGR2GRAY);
     } else {
         tmpImg1 = img1;
     }
 
     if (img2.channels() == 3) {
-        cv::cvtColor(img2, tmpImg2, CV_RGB2GRAY);
+        cv::cvtColor(img2, tmpImg2, CV_BGR2GRAY);
     } else {
         tmpImg2 = img2;
     }

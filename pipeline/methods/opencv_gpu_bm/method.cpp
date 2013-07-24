@@ -63,14 +63,14 @@ void Method::computeDisparityImage (const cv::Mat &img1, const cv::Mat &img2, cv
     // Upload to GPU and convert to grayscale, if needed
     if (img1.channels() == 3) {
         cv::gpu::GpuMat gpu_tmp(img1);
-        cv::gpu::cvtColor(gpu_tmp, gpu_img1, CV_RGB2GRAY);
+        cv::gpu::cvtColor(gpu_tmp, gpu_img1, CV_BGR2GRAY);
     } else {
         gpu_img1.upload(img1);
     }
 
     if (img2.channels() == 3) {
         cv::gpu::GpuMat gpu_tmp(img2);
-        cv::gpu::cvtColor(gpu_tmp, gpu_img2, CV_RGB2GRAY);
+        cv::gpu::cvtColor(gpu_tmp, gpu_img2, CV_BGR2GRAY);
     } else {
         gpu_img2.upload(img2);
     }
