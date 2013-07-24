@@ -121,7 +121,7 @@ void WindowRectification::updateImage ()
 void WindowRectification::updateState ()
 {
     if (rectification->getState()) {
-        statusBar->showMessage("Calibration set; rectifying input images.");        
+        statusBar->showMessage(QString("Calibration set; rectifying input images. Estimated baseline: %1 mm").arg(rectification->getStereoBaseline(), 0, 'f', 0));
         pushButtonClear->setEnabled(true);
         pushButtonExport->setEnabled(true);
     } else {

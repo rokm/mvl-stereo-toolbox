@@ -48,6 +48,17 @@ const cv::Mat &StereoRectification::getReprojectionMatrix () const
     return Q;
 }
 
+float StereoRectification::getStereoBaseline () const
+{
+    // Q(3,2) is 1/baseline; units are same as on the pattern, which in
+    // our code is millimeters
+    if (Q.type() == CV_32F) {
+        return 1.0 / Q.at<float>(3, 2);
+    } else {
+        return 1.0 / Q.at<double>(3, 2);
+    }
+}
+
 
 // *********************************************************************
 // *                            Calibration                            *

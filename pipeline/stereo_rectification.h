@@ -43,6 +43,7 @@ public:
     bool getState () const;
 
     const cv::Mat &getReprojectionMatrix () const;
+    float getStereoBaseline () const;
 
 protected:
     void initializeStereoRectification ();
