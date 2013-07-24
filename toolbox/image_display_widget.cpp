@@ -351,7 +351,7 @@ void CalibrationPatternDisplayWidget::paintEvent (QPaintEvent *event)
 DisparityImageDisplayWidget::DisparityImageDisplayWidget (const QString &t, QWidget *parent)
     : ImageDisplayWidget(t, parent)
 {
-    visualizationType = RawDisparity;
+    visualizationType = GrayscaleDisparity;
     
     setMouseTracking(true); // Enable mouse tracking
 }
@@ -380,8 +380,8 @@ int DisparityImageDisplayWidget::getVisualizationType () const
 void DisparityImageDisplayWidget::assignConfigComboBox (QComboBox *comboBox)
 {
     // Populate
-    comboBox->addItem("Raw", RawDisparity);
-    comboBox->setItemData(0, "Raw grayscale disparity.", Qt::ToolTipRole);
+    comboBox->addItem("Grayscale", GrayscaleDisparity);
+    comboBox->setItemData(0, "Grayscale disparity.", Qt::ToolTipRole);
     
 #ifdef HAVE_OPENCV_GPU
     try {
@@ -407,9 +407,9 @@ void DisparityImageDisplayWidget::visualizationChanged (int idx)
 void DisparityImageDisplayWidget::updateDisparityVisualization ()
 {
     switch (visualizationType) {
-        case RawDisparity: {
+        case GrayscaleDisparity: {
             // Raw grayscale disparity
-            ImageDisplayWidget::setImage(disparity);
+            ImageDisplayWidget::setImage(disparity * 255.0/numDisparities);
             break;
         }
 #ifdef HAVE_OPENCV_GPU

@@ -119,7 +119,7 @@ public:
     void setImage (const cv::Mat &, int);
 
     enum VisualizationType {
-        RawDisparity,
+        GrayscaleDisparity,
         ColorGpuDisparity,
     };
 
