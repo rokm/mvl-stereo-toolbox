@@ -36,7 +36,7 @@ Toolbox::Toolbox ()
     : QWidget()
 {
     // Resize window
-    resize(400, 100);
+    resize(200, 100);
 
     // Create pipeline
     pipeline = new StereoPipeline(this);
@@ -238,12 +238,14 @@ void Toolbox::setPushButtonReprojectionActiveState (bool active)
 // *********************************************************************
 void Toolbox::displayError (const QString error)
 {
-    statusLabel->setText(QString("ERROR: %1").arg(error));
+    statusLabel->setText("Status: ERROR");
+    statusLabel->setToolTip(error);
 }
 
 void Toolbox::clearError ()
 {
     statusLabel->setText("Status: operational");
+    statusLabel->setToolTip("");
 }
 
 
