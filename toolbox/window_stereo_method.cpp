@@ -83,8 +83,13 @@ WindowStereoMethod::WindowStereoMethod (StereoPipeline *p, QList<StereoMethod *>
     box->addWidget(label);
     
     comboBox = new QComboBox(this); // Filled in by disparity image display widget!
+    connect(comboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(visualizationMethodChanged(int)));
+    connect(pipeline, SIGNAL(disparityVisualizationMethodChanged(int)), this, SLOT(updateVisualizationMethod(int)));
     box->addWidget(comboBox);
-    comboBoxVisualizationType = comboBox;
+    comboBoxVisualizationMethod = comboBox;
+
+    fillVisualizationMethods();
+    comboBoxVisualizationMethod->setCurrentIndex(pipeline->getDisparityVisualizationMethod());
 
     buttonsLayout->addStretch();
 
@@ -111,8 +116,6 @@ WindowStereoMethod::WindowStereoMethod (StereoPipeline *p, QList<StereoMethod *>
     displayDisparityImage->resize(400, 600); // Make sure scroll area has some size
     splitter->addWidget(displayDisparityImage);
 
-    displayDisparityImage->assignConfigComboBox(comboBoxVisualizationType);
-
     connect(displayDisparityImage, SIGNAL(disparityUnderMouseChanged(float)), this, SLOT(displayDisparity(float)));
 
     // Status bar
@@ -132,7 +135,10 @@ WindowStereoMethod::WindowStereoMethod (StereoPipeline *p, QList<StereoMethod *>
     setMethod(tabWidget->currentIndex());
 
     // Pipeline
-    connect(pipeline, SIGNAL(disparityImageChanged()), this, SLOT(updateImage()));
+    // Use disparityVisualizationImageChanged() instead of disparityImageChanged()
+    // to capture changes due to visualization method switch
+    connect(pipeline, SIGNAL(disparityVisualizationImageChanged()), this, SLOT(updateDisplayBackground()));
+    connect(pipeline, SIGNAL(disparityImageChanged()), this, SLOT(updateDisplayValues()));
 }
 
 WindowStereoMethod::~WindowStereoMethod ()
@@ -150,12 +156,20 @@ void WindowStereoMethod::setMethod (int i)
 }
 
 
-void WindowStereoMethod::updateImage ()
+void WindowStereoMethod::updateDisplayBackground ()
+{
+    const cv::Mat &disparityVisualization = pipeline->getDisparityVisualizationImage();
+
+    // Disparity image
+    displayDisparityImage->setImage(disparityVisualization);
+}
+
+void WindowStereoMethod::updateDisplayValues ()
 {
     const cv::Mat &disparity = pipeline->getDisparityImage();
-    int numDisparities = pipeline->getNumberOfDisparityLevels();
+
     // Disparity image
-    displayDisparityImage->setImage(disparity, numDisparities);
+    displayDisparityImage->setDisparity(disparity);
     
     // If image is valid, display computation time
     if (disparity.data) {
@@ -232,4 +246,43 @@ void WindowStereoMethod::exportParameters ()
             QMessageBox::warning(this, "Error", "Failed to export parameters: " + e);
         }
     }
+}
+
+
+// *********************************************************************
+// *                       Visualization method                        *
+// *********************************************************************
+void WindowStereoMethod::fillVisualizationMethods ()
+{
+    static const struct {
+        int id;
+        const char *text;
+        const char *tooltip;
+    } methods[] = {
+        { StereoPipeline::DisparityVisualizationNone, "None", "No visualization." },
+        { StereoPipeline::DisparityVisualizationGrayscale, "Grayscale", "Grayscale." },
+        { StereoPipeline::DisparityVisualizationColorGpu, "Color (GPU)", "HSV color (GPU)." },
+    };
+    
+    const QList<int> &supportedMethods = pipeline->getSupportedDisparityVisualizationMethods();
+
+    int item = 0;
+    for (unsigned int i = 0; i < sizeof(methods)/sizeof(methods[0]); i++) {
+        if (supportedMethods.contains(methods[i].id)) {
+            comboBoxVisualizationMethod->addItem(methods[i].text, methods[i].id);
+            comboBoxVisualizationMethod->setItemData(item++, methods[i].tooltip, Qt::ToolTipRole);
+        }
+    }
+}
+
+void WindowStereoMethod::visualizationMethodChanged (int index)
+{
+    pipeline->setDisparityVisualizationMethod(comboBoxVisualizationMethod->itemData(index).toInt());
+}
+
+void WindowStereoMethod::updateVisualizationMethod (int method)
+{
+    bool oldState = comboBoxVisualizationMethod->blockSignals(true);
+    comboBoxVisualizationMethod->setCurrentIndex(comboBoxVisualizationMethod->findData(method));
+    comboBoxVisualizationMethod->blockSignals(oldState);
 }

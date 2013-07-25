@@ -82,10 +82,21 @@ public:
     int getDisparityImageComputationTime () const;
 
     // Stereo method thread
-    void setUseStereoMethodThread (bool);
     bool getUseStereoMethodThread () const;
 
     int getStereoDroppedFrames () const;
+
+    // Disparity visualization
+    enum DisparityVisualization {
+        DisparityVisualizationNone,
+        DisparityVisualizationGrayscale,
+        DisparityVisualizationColorGpu,
+    };
+    
+    int getDisparityVisualizationMethod () const;
+    const QList<int> &getSupportedDisparityVisualizationMethods () const;
+
+    const cv::Mat &getDisparityVisualizationImage () const;
 
     // Reprojection
     void setReprojection (StereoReprojection *);
@@ -102,12 +113,16 @@ public slots:
     void setStereoMethodState (bool);
     void setReprojectionState (bool);
 
+    void setUseStereoMethodThread (bool);
+    void setDisparityVisualizationMethod (int);
+
     void setCenterRoiSize (const cv::Size &);
 
 protected slots:
     void beginProcessing ();
     void rectifyImages ();
     void computeDisparityImage ();
+    void computeDisparityImageVisualization ();
     void reprojectDisparityImage ();
 
     void computeDisparityImageInThread ();
@@ -127,9 +142,12 @@ signals:
     void inputImagesChanged ();
     void rectifiedImagesChanged ();
     void disparityImageChanged ();
+    void disparityVisualizationImageChanged ();
     void reprojectedImageChanged ();
 
     void centerRoiChanged ();
+
+    void disparityVisualizationMethodChanged (int);
 
 protected:
     // Plugin management
@@ -169,6 +187,12 @@ protected:
     cv::Mat disparityImage;
     int disparityLevels;
     int disparityImageComputationTime;
+
+    // Disparity visualization
+    QList<int> supportedDisparityVisualizationMethods;
+
+    int disparityVisualizationMethod;
+    cv::Mat disparityVisualizationImage;
 
     // Reprojection
     bool reprojectionActive;

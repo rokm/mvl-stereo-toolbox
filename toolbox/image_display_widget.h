@@ -114,38 +114,18 @@ public:
     DisparityImageDisplayWidget (const QString & = QString(), QWidget * = 0);
     virtual ~DisparityImageDisplayWidget ();
 
-    void assignConfigComboBox (QComboBox *);
-
-    void setImage (const cv::Mat &, int);
-
-    enum VisualizationType {
-        GrayscaleDisparity,
-        ColorGpuDisparity,
-    };
-
-    int getVisualizationType () const;
-
-public slots:
-    void setVisualizationType (int);
-
-protected slots:
-    void visualizationChanged (int);
-
+    void setDisparity (const cv::Mat &);
+    
 protected:
     virtual void mouseMoveEvent (QMouseEvent *);
-
-    void updateDisparityVisualization ();
     
     float getDisparityAtPixel (const QPoint &);
 
 signals:
     void disparityUnderMouseChanged (float);
 
-protected:
-    int visualizationType;
-    
+protected:    
     cv::Mat disparity;
-    int numDisparities;
 };
 
 
@@ -160,8 +140,8 @@ public:
     ReprojectedImageDisplayWidget (const QString & = QString(), QWidget * = 0);
     virtual ~ReprojectedImageDisplayWidget ();
 
-    void setImage (const cv::Mat &, const cv::Mat &);
-
+    void setPoints (const cv::Mat &);
+    
 protected:
     virtual void mouseMoveEvent (QMouseEvent *);
 

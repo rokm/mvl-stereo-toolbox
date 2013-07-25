@@ -37,11 +37,13 @@ public:
     virtual ~WindowReprojection ();
 
 protected slots:
-    void updateImage ();
+    void updateDisplayBackground ();
+    void updateDisplayValues ();
+
     void displayCoordinates (const QVector3D &);
 
-    void methodChanged (int);
-    void updateMethod (int);
+    void reprojectionMethodChanged (int);
+    void updateReprojectionMethod (int);
 
 protected:
     void fillReprojectionMethods ();
@@ -53,7 +55,7 @@ protected:
 
     // GUI
     QComboBox *comboBoxImage;
-    QComboBox *comboBoxMethod;
+    QComboBox *comboBoxReprojectionMethod;
 
     ReprojectedImageDisplayWidget *displayReprojectedImage;
 

@@ -33,10 +33,10 @@ public:
     ~StereoReprojection ();
 
     enum ReprojectionMethod {
-        ToolboxCpu,
-        ToolboxGpu,
-        OpenCvCpu,
-        OpenCvGpu,
+        ReprojectionMethodToolboxCpu,
+        ReprojectionMethodToolboxGpu,
+        ReprojectionMethodOpenCvCpu,
+        ReprojectionMethodOpenCvGpu,
     };
 
     int getReprojectionMethod () const;

@@ -40,13 +40,21 @@ public:
 protected slots:
     void setMethod (int);
     
-    void updateImage ();
+    void updateDisplayBackground ();
+    void updateDisplayValues ();
+
     void displayDisparity (float);
 
     void saveImage ();
 
     void importParameters ();
     void exportParameters ();
+
+    void visualizationMethodChanged (int);
+    void updateVisualizationMethod (int);
+
+protected:
+    void fillVisualizationMethods ();
 
 protected:
     // Pipeline
@@ -56,7 +64,7 @@ protected:
     // GUI
     QPushButton *pushButtonExportParameters;
     QPushButton *pushButtonImportParameters;
-    QComboBox *comboBoxVisualizationType;
+    QComboBox *comboBoxVisualizationMethod;
     QPushButton *pushButtonSaveImage;
     
     DisparityImageDisplayWidget *displayDisparityImage;

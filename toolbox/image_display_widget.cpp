@@ -350,95 +350,13 @@ void CalibrationPatternDisplayWidget::paintEvent (QPaintEvent *event)
 // *********************************************************************
 DisparityImageDisplayWidget::DisparityImageDisplayWidget (const QString &t, QWidget *parent)
     : ImageDisplayWidget(t, parent)
-{
-    visualizationType = GrayscaleDisparity;
-    
+{    
     setMouseTracking(true); // Enable mouse tracking
 }
 
 DisparityImageDisplayWidget::~DisparityImageDisplayWidget ()
 {
 }
-
-
-void DisparityImageDisplayWidget::setVisualizationType (int newType)
-{
-    if (visualizationType != newType) {
-        visualizationType = newType;
-
-        // Update visualization
-        updateDisparityVisualization();
-    }
-}
-
-int DisparityImageDisplayWidget::getVisualizationType () const
-{
-    return visualizationType;
-}
-
-
-void DisparityImageDisplayWidget::assignConfigComboBox (QComboBox *comboBox)
-{
-    // Populate
-    comboBox->addItem("Grayscale", GrayscaleDisparity);
-    comboBox->setItemData(0, "Grayscale disparity.", Qt::ToolTipRole);
-    
-#ifdef HAVE_OPENCV_GPU
-    try {
-        if (cv::gpu::getCudaEnabledDeviceCount()) {
-            // This one requires CUDA...
-            comboBox->addItem("Color (GPU)", ColorGpuDisparity);
-            comboBox->setItemData(1, "HSV disparity (computed on GPU).", Qt::ToolTipRole);
-        }
-    } catch (...) {
-        // Nothing to do :)
-    }
-#endif
-
-    connect(comboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(visualizationChanged(int)));
-}
-
-void DisparityImageDisplayWidget::visualizationChanged (int idx)
-{
-    setVisualizationType(qobject_cast<QComboBox *>(QObject::sender())->itemData(idx).toInt());
-}
-
-
-void DisparityImageDisplayWidget::updateDisparityVisualization ()
-{
-    switch (visualizationType) {
-        case GrayscaleDisparity: {
-            // Raw grayscale disparity
-            ImageDisplayWidget::setImage(disparity * 255.0/numDisparities);
-            break;
-        }
-#ifdef HAVE_OPENCV_GPU
-        case ColorGpuDisparity: {
-            try {
-                // Hue-color-coded disparity
-                cv::gpu::GpuMat gpu_disp(disparity);
-                cv::gpu::GpuMat gpu_disp_color;
-                cv::Mat disp_color;
-            
-                cv::gpu::drawColorDisp(gpu_disp, gpu_disp_color, numDisparities);
-                gpu_disp_color.download(disp_color);
-    
-                ImageDisplayWidget::setImage(disp_color);
-            } catch (...) {
-                // The above calls can fail
-                ImageDisplayWidget::setImage(cv::Mat());                
-            }
-            
-            break;
-        }
-#endif
-        default: {
-            ImageDisplayWidget::setImage(cv::Mat());                
-            break;
-        }
-    }
-}
-
 
 void DisparityImageDisplayWidget::mouseMoveEvent (QMouseEvent *event)
 {
@@ -449,16 +367,9 @@ void DisparityImageDisplayWidget::mouseMoveEvent (QMouseEvent *event)
 }
 
 
-void DisparityImageDisplayWidget::setImage (const cv::Mat &newDisparity, int newNumDisparities)
+void DisparityImageDisplayWidget::setDisparity (const cv::Mat &newDisparity)
 {
-    // Store disparity
     disparity = newDisparity;
-    numDisparities = newNumDisparities;
-    
-    // Set base image, based on visualization type
-    updateDisparityVisualization();
-    
-    // Update disparity under mouse cursor
     emit disparityUnderMouseChanged(getDisparityAtPixel(mapFromGlobal(QCursor::pos())));
 }
 
@@ -466,6 +377,11 @@ float DisparityImageDisplayWidget::getDisparityAtPixel (const QPoint &pos)
 {
     // Make sure there is image displayed
     if (!disparity.data) {
+        return NAN;
+    }
+
+    // Validate dimensions
+    if (image.width() != disparity.cols || image.height() != disparity.rows) {
         return NAN;
     }
     
@@ -526,13 +442,9 @@ void ReprojectedImageDisplayWidget::mouseMoveEvent (QMouseEvent *event)
     return ImageDisplayWidget::mouseMoveEvent(event);
 }
 
-void ReprojectedImageDisplayWidget::setImage (const cv::Mat &newImage, const cv::Mat &newReprojectedPoints)
+void ReprojectedImageDisplayWidget::setPoints (const cv::Mat &newReprojectedPoints)
 {
-    // Set base image
-    ImageDisplayWidget::setImage(newImage);
-
     reprojectedPoints = newReprojectedPoints;
-
     emit coordinatesUnderMouseChanged(getCoordinatesAtPixel(mapFromGlobal(QCursor::pos())));
 }
 
@@ -544,8 +456,7 @@ QVector3D ReprojectedImageDisplayWidget::getCoordinatesAtPixel (const QPoint &po
         return QVector3D();
     }
 
-    // Make sure we have reprojected points matrix set, and that is has
-    // same dimensions as displayed image
+    // Validate dimensions
     if (image.width() != reprojectedPoints.cols || image.height() != reprojectedPoints.rows) {
         return QVector3D();
     }

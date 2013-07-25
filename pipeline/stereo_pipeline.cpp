@@ -50,6 +50,8 @@ StereoPipeline::StereoPipeline (QObject *parent)
     stereoMethodActive = true;
     reprojectionActive = true;
 
+    disparityVisualizationMethod = DisparityVisualizationNone; // By default, turn visualization off
+
     connect(this, SIGNAL(inputImagesChanged()), this, SLOT(rectifyImages()));
     connect(this, SIGNAL(rectifiedImagesChanged()), this, SLOT(computeDisparityImage()));
     connect(this, SIGNAL(disparityImageChanged()), this, SLOT(reprojectDisparityImage()));
@@ -61,6 +63,7 @@ StereoPipeline::StereoPipeline (QObject *parent)
     connect(this, SIGNAL(reprojectionStateChanged(bool)), this, SLOT(reprojectDisparityImage()));
 
     connect(this, SIGNAL(centerRoiChanged()), this, SLOT(computeDisparityImage()));
+    connect(this, SIGNAL(disparityVisualizationMethodChanged(int)), this, SLOT(computeDisparityImageVisualization()));
 
     // Create rectification
     setRectification(new StereoRectification(this));
@@ -70,6 +73,19 @@ StereoPipeline::StereoPipeline (QObject *parent)
 
     // Load plugins in default plugin path
     setPluginDirectory();
+
+    // Create list of supported visualization methods
+    supportedDisparityVisualizationMethods.append(DisparityVisualizationNone);
+    supportedDisparityVisualizationMethods.append(DisparityVisualizationGrayscale);
+#ifdef HAVE_OPENCV_GPU
+    try {
+        if (cv::gpu::getCudaEnabledDeviceCount()) {
+            supportedDisparityVisualizationMethods.append(DisparityVisualizationColorGpu);
+        }
+    } catch (...) {
+        // Nothing to do :)
+    }
+#endif
 }
 
 StereoPipeline::~StereoPipeline ()
@@ -545,8 +561,11 @@ void StereoPipeline::computeDisparityImageInThread ()
             qWarning() << "ERROR WHILE PROCESSING: " << e.what();
         }
     }
-    
+
     emit disparityImageChanged();
+
+    // Visualize disparity
+    computeDisparityImageVisualization();
 }
 
 
@@ -568,6 +587,75 @@ bool StereoPipeline::getUseStereoMethodThread () const
 int StereoPipeline::getStereoDroppedFrames () const
 {
     return stereoDroppedFramesCounter;
+}
+
+
+// *********************************************************************
+// *                   Stereo disparity visualization                  *
+// *********************************************************************
+const cv::Mat &StereoPipeline::getDisparityVisualizationImage () const
+{
+    return disparityVisualizationImage;
+}
+
+void StereoPipeline::setDisparityVisualizationMethod (int newMethod)
+{
+    if (newMethod == disparityVisualizationMethod) {
+        return;
+    }
+
+    // Make sure method is supported
+    if (!supportedDisparityVisualizationMethods.contains(newMethod)) {
+        disparityVisualizationMethod = DisparityVisualizationNone;
+        emit error(QString("Reprojection method %1 not supported!").arg(newMethod));
+    } else {
+        disparityVisualizationMethod = newMethod;
+    }
+
+    // Emit in any case
+    emit disparityVisualizationMethodChanged(disparityVisualizationMethod);
+}
+
+int StereoPipeline::getDisparityVisualizationMethod () const
+{
+    return disparityVisualizationMethod;
+}
+
+const QList<int> &StereoPipeline::getSupportedDisparityVisualizationMethods () const
+{
+    return supportedDisparityVisualizationMethods;
+}
+
+
+void StereoPipeline::computeDisparityImageVisualization ()
+{
+    switch (disparityVisualizationMethod) {
+        case DisparityVisualizationGrayscale: {
+            // Raw grayscale disparity
+            disparityImage.convertTo(disparityVisualizationImage, CV_8U, 255.0/disparityLevels);
+            break;
+        }
+#ifdef HAVE_OPENCV_GPU
+        case DisparityVisualizationColorGpu: {
+            try {
+                // Hue-color-coded disparity
+                cv::gpu::GpuMat gpu_disp(disparityImage);
+                cv::gpu::GpuMat gpu_disp_color;
+                cv::Mat disp_color;
+            
+                cv::gpu::drawColorDisp(gpu_disp, gpu_disp_color, disparityLevels);
+                gpu_disp_color.download(disparityVisualizationImage);
+            } catch (...) {
+                // The above calls can fail
+                disparityVisualizationImage = cv::Mat();
+            }
+            
+            break;
+        }
+#endif
+    }
+
+    emit disparityVisualizationImageChanged();
 }
 
 

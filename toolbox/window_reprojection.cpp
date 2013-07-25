@@ -61,7 +61,7 @@ WindowReprojection::WindowReprojection (StereoPipeline *p, StereoReprojection *r
     comboBox->addItem("Disparity");
     comboBox->addItem("Left");
     comboBox->addItem("Right");
-    connect(comboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(updateImage()));
+    connect(comboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(updateDisplayBackground()));
     box->addWidget(comboBox);
     comboBoxImage = comboBox;
 
@@ -78,13 +78,13 @@ WindowReprojection::WindowReprojection (StereoPipeline *p, StereoReprojection *r
     box->addWidget(label);
     
     comboBox = new QComboBox(this);
-    connect(comboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(methodChanged(int)));
-    connect(reprojection, SIGNAL(reprojectionMethodChanged(int)), this, SLOT(updateMethod(int)));
+    connect(comboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(reprojectionMethodChanged(int)));
+    connect(reprojection, SIGNAL(reprojectionMethodChanged(int)), this, SLOT(updateReprojectionMethod(int)));
     box->addWidget(comboBox);
-    comboBoxMethod = comboBox;
+    comboBoxReprojectionMethod = comboBox;
 
     fillReprojectionMethods();
-    comboBoxMethod->setCurrentIndex(reprojection->getReprojectionMethod());
+    comboBoxReprojectionMethod->setCurrentIndex(reprojection->getReprojectionMethod());
     
     buttonsLayout->addStretch();
 
@@ -104,7 +104,8 @@ WindowReprojection::WindowReprojection (StereoPipeline *p, StereoReprojection *r
     statusBar->addPermanentWidget(labelCoordinates);
 
     // Pipeline
-    connect(pipeline, SIGNAL(reprojectedImageChanged()), this, SLOT(updateImage()));
+    connect(pipeline, SIGNAL(disparityVisualizationImageChanged()), this, SLOT(updateDisplayBackground()));
+    connect(pipeline, SIGNAL(reprojectedImageChanged()), this, SLOT(updateDisplayValues()));
 }
 
 WindowReprojection::~WindowReprojection ()
@@ -112,40 +113,46 @@ WindowReprojection::~WindowReprojection ()
 }
 
 
-void WindowReprojection::updateImage ()
+void WindowReprojection::updateDisplayBackground ()
 {
-    const cv::Mat &reprojectedImage = pipeline->getReprojectedImage();
     const cv::Rect &roi = pipeline->getCenterRoi();
 
     switch (comboBoxImage->currentIndex()) {
         case 0: {
-            // Disparity; already has ROI applied
-            displayReprojectedImage->setImage(pipeline->getDisparityImage(), reprojectedImage);
+            // Disparity visualization; already has ROI applied
+            displayReprojectedImage->setImage(pipeline->getDisparityVisualizationImage());
             break;
         }
         case 1: {
             // Left; apply ROI if needed
             if (roi == cv::Rect()) {
-                displayReprojectedImage->setImage(pipeline->getLeftRectifiedImage(), reprojectedImage);
+                displayReprojectedImage->setImage(pipeline->getLeftRectifiedImage());
             } else {
-                displayReprojectedImage->setImage(pipeline->getLeftRectifiedImage()(roi), reprojectedImage);                
+                displayReprojectedImage->setImage(pipeline->getLeftRectifiedImage()(roi));                
             }
             break;
         }
         case 2: {
             // Right; apply ROI if needed
             if (roi == cv::Rect()) {
-                displayReprojectedImage->setImage(pipeline->getRightRectifiedImage(), reprojectedImage);
+                displayReprojectedImage->setImage(pipeline->getRightRectifiedImage());
             } else {
-                displayReprojectedImage->setImage(pipeline->getRightRectifiedImage()(roi), reprojectedImage);                
+                displayReprojectedImage->setImage(pipeline->getRightRectifiedImage()(roi));                
             }
             break;
         }
     }
+}
+
+void WindowReprojection::updateDisplayValues ()
+{
+    const cv::Mat &reprojectedPoints = pipeline->getReprojectedImage();
+
+    displayReprojectedImage->setPoints(reprojectedPoints);
 
     // If reprojected points are valid, display computation time
-    if (reprojectedImage.data) {
-        statusBar->showMessage(QString("Disparity image (%1x%2) reprojected in %3 milliseconds.").arg(reprojectedImage.cols).arg(reprojectedImage.rows).arg(pipeline->getReprojectionComputationTime()));
+    if (reprojectedPoints.data) {
+        statusBar->showMessage(QString("Disparity image (%1x%2) reprojected in %3 milliseconds.").arg(reprojectedPoints.cols).arg(reprojectedPoints.rows).arg(pipeline->getReprojectionComputationTime()));
     } else {
         statusBar->clearMessage();
     }
@@ -172,10 +179,10 @@ void WindowReprojection::fillReprojectionMethods ()
         const char *text;
         const char *tooltip;
     } methods[] = {
-        { StereoReprojection::ToolboxCpu, "Toolbox CPU", "Toolbox-modified CPU method (handles ROI)." },
-        { StereoReprojection::ToolboxGpu, "Toolbox GPU", "Toolbox-modified GPU method (handles ROI)." },
-        { StereoReprojection::OpenCvCpu, "OpenCV CPU", "Stock OpenCV CPU method." },
-        { StereoReprojection::OpenCvGpu, "OpenCV GPU", "Stock OpenCV GPU method." },
+        { StereoReprojection::ReprojectionMethodToolboxCpu, "Toolbox CPU", "Toolbox-modified CPU method (handles ROI)." },
+        { StereoReprojection::ReprojectionMethodToolboxGpu, "Toolbox GPU", "Toolbox-modified GPU method (handles ROI)." },
+        { StereoReprojection::ReprojectionMethodOpenCvCpu, "OpenCV CPU", "Stock OpenCV CPU method." },
+        { StereoReprojection::ReprojectionMethodOpenCvGpu, "OpenCV GPU", "Stock OpenCV GPU method." },
     };
     
     const QList<int> &supportedMethods = reprojection->getSupportedReprojectionMethods();
@@ -183,20 +190,20 @@ void WindowReprojection::fillReprojectionMethods ()
     int item = 0;
     for (unsigned int i = 0; i < sizeof(methods)/sizeof(methods[0]); i++) {
         if (supportedMethods.contains(methods[i].id)) {
-            comboBoxMethod->addItem(methods[i].text, methods[i].id);
-            comboBoxMethod->setItemData(item++, methods[i].tooltip, Qt::ToolTipRole);
+            comboBoxReprojectionMethod->addItem(methods[i].text, methods[i].id);
+            comboBoxReprojectionMethod->setItemData(item++, methods[i].tooltip, Qt::ToolTipRole);
         }
     }
 }
 
-void WindowReprojection::methodChanged (int index)
+void WindowReprojection::reprojectionMethodChanged (int index)
 {
-    reprojection->setReprojectionMethod(comboBoxMethod->itemData(index).toInt());
+    reprojection->setReprojectionMethod(comboBoxReprojectionMethod->itemData(index).toInt());
 }
 
-void WindowReprojection::updateMethod (int method)
+void WindowReprojection::updateReprojectionMethod (int method)
 {
-    bool oldState = comboBoxMethod->blockSignals(true);
-    comboBoxMethod->setCurrentIndex(comboBoxMethod->findData(method));
-    comboBoxMethod->blockSignals(oldState);
+    bool oldState = comboBoxReprojectionMethod->blockSignals(true);
+    comboBoxReprojectionMethod->setCurrentIndex(comboBoxReprojectionMethod->findData(method));
+    comboBoxReprojectionMethod->blockSignals(oldState);
 }

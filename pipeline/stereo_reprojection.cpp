@@ -41,15 +41,15 @@ void reprojectDisparityImageGpu (const cv::gpu::PtrStepSz<unsigned char>, cv::gp
 StereoReprojection::StereoReprojection (QObject *parent)
 {
     // Create list of supported methods
-    supportedMethods.append(ToolboxCpu);
-    supportedMethods.append(OpenCvCpu);
+    supportedMethods.append(ReprojectionMethodToolboxCpu);
+    supportedMethods.append(ReprojectionMethodOpenCvCpu);
 #ifdef HAVE_OPENCV_GPU
     try {
         if (cv::gpu::getCudaEnabledDeviceCount()) {
 #ifdef HAVE_CUDA
-            supportedMethods.append(ToolboxGpu);
+            supportedMethods.append(ReprojectionMethodToolboxGpu);
 #endif
-            supportedMethods.append(OpenCvGpu);
+            supportedMethods.append(ReprojectionMethodOpenCvGpu);
         }
     } catch (...) {
         // Nothing to do :)
@@ -57,7 +57,7 @@ StereoReprojection::StereoReprojection (QObject *parent)
 #endif
 
     // Default method: Toolbox CPU    
-    reprojectionMethod = ToolboxCpu;
+    reprojectionMethod = ReprojectionMethodToolboxCpu;
 }
 
 StereoReprojection::~StereoReprojection ()
@@ -76,7 +76,7 @@ void StereoReprojection::setReprojectionMethod (int newMethod)
 
     // Make sure method is supported
     if (!supportedMethods.contains(newMethod)) {
-        reprojectionMethod = ToolboxCpu;
+        reprojectionMethod = ReprojectionMethodToolboxCpu;
         emit error(QString("Reprojection method %1 not supported!").arg(newMethod));
     } else {
         reprojectionMethod = newMethod;
@@ -135,18 +135,18 @@ void StereoReprojection::reprojectStereoDisparity (const cv::Mat &disparity, cv:
     }
 
     switch (reprojectionMethod) {
-        case ToolboxCpu: {
+        case ReprojectionMethodToolboxCpu: {
             // Toolbox-modified method; handles ROI offset
             reprojectDisparityImage(disparity, points, Q, offsetX, offsetY);
             break;
         }
-        case OpenCvCpu: {
+        case ReprojectionMethodOpenCvCpu: {
             // Stock OpenCV method; does not handle ROI offset
             cv::reprojectImageTo3D(disparity, points, Q, false, CV_32F);
             break;
         }
 #ifdef HAVE_OPENCV_GPU
-        case OpenCvGpu: {
+        case ReprojectionMethodOpenCvGpu: {
             // OpenCV GPU method; does not handle ROI offset
             cv::gpu::GpuMat gpu_disparity, gpu_points;
             gpu_disparity.upload(disparity);
@@ -155,7 +155,7 @@ void StereoReprojection::reprojectStereoDisparity (const cv::Mat &disparity, cv:
             break;
         }
 #ifdef HAVE_CUDA
-        case ToolboxGpu: {
+        case ReprojectionMethodToolboxGpu: {
             // Toolbox-modified GPU method; handles ROI offset
             cv::gpu::GpuMat gpu_disparity, gpu_points;
             gpu_disparity.upload(disparity);
