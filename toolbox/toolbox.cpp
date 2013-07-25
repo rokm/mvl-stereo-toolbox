@@ -37,6 +37,7 @@ Toolbox::Toolbox ()
 {
     // Resize window
     resize(200, 100);
+    setWindowTitle("MVL Stereo Toolbox");
 
     // Create pipeline
     pipeline = new StereoPipeline(this);

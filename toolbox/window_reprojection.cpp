@@ -115,21 +115,30 @@ WindowReprojection::~WindowReprojection ()
 void WindowReprojection::updateImage ()
 {
     const cv::Mat &reprojectedImage = pipeline->getReprojectedImage();
+    const cv::Rect &roi = pipeline->getCenterRoi();
 
     switch (comboBoxImage->currentIndex()) {
         case 0: {
-            // Disparity
+            // Disparity; already has ROI applied
             displayReprojectedImage->setImage(pipeline->getDisparityImage(), reprojectedImage);
             break;
         }
         case 1: {
-            // Left
-            displayReprojectedImage->setImage(pipeline->getLeftRectifiedImage(), reprojectedImage);
+            // Left; apply ROI if needed
+            if (roi == cv::Rect()) {
+                displayReprojectedImage->setImage(pipeline->getLeftRectifiedImage(), reprojectedImage);
+            } else {
+                displayReprojectedImage->setImage(pipeline->getLeftRectifiedImage()(roi), reprojectedImage);                
+            }
             break;
         }
         case 2: {
-            // Right
-            displayReprojectedImage->setImage(pipeline->getRightRectifiedImage(), reprojectedImage);
+            // Right; apply ROI if needed
+            if (roi == cv::Rect()) {
+                displayReprojectedImage->setImage(pipeline->getRightRectifiedImage(), reprojectedImage);
+            } else {
+                displayReprojectedImage->setImage(pipeline->getRightRectifiedImage()(roi), reprojectedImage);                
+            }
             break;
         }
     }
