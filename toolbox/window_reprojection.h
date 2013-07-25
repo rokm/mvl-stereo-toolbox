@@ -40,6 +40,12 @@ protected slots:
     void updateImage ();
     void displayCoordinates (const QVector3D &);
 
+    void methodChanged (int);
+    void updateMethod (int);
+
+protected:
+    void fillReprojectionMethods ();
+    
 protected:
     // Pipeline
     StereoPipeline *pipeline;
@@ -47,7 +53,7 @@ protected:
 
     // GUI
     QComboBox *comboBoxImage;
-    QPushButton *pushButtonUseGpu;
+    QComboBox *comboBoxMethod;
 
     ReprojectedImageDisplayWidget *displayReprojectedImage;
 

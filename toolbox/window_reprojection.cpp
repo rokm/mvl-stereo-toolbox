@@ -39,7 +39,6 @@ WindowReprojection::WindowReprojection (StereoPipeline *p, StereoReprojection *r
     // Buttons
     QHBoxLayout *buttonsLayout = new QHBoxLayout();
     buttonsLayout->setContentsMargins(0, 0, 0, 0);
-    QPushButton *pushButton;
     QComboBox *comboBox;
     QLabel *label;
     QHBoxLayout *box;    
@@ -55,7 +54,7 @@ WindowReprojection::WindowReprojection (StereoPipeline *p, StereoReprojection *r
     buttonsLayout->addLayout(box);
 
     label = new QLabel("Image: ", this);
-    label->setToolTip("Image to display in background");
+    label->setToolTip("Image to display in background.");
     box->addWidget(label);
     
     comboBox = new QComboBox(this);
@@ -68,15 +67,24 @@ WindowReprojection::WindowReprojection (StereoPipeline *p, StereoReprojection *r
 
     buttonsLayout->addStretch();
 
-    // Use GPU
-    pushButton = new QPushButton("Use GPU", this);
-    pushButton->setToolTip("Use GPU for reprojection.");
-    pushButton->setCheckable(true);
-    pushButton->setChecked(reprojection->getUseGpu());
-    connect(pushButton, SIGNAL(toggled(bool)), reprojection, SLOT(setUseGpu(bool)));
-    connect(reprojection, SIGNAL(useGpuChanged(bool)), pushButton, SLOT(setChecked(bool)));
-    buttonsLayout->addWidget(pushButton);
-    pushButtonUseGpu = pushButton;
+    // Reprojection method
+    box = new QHBoxLayout();
+    box->setContentsMargins(0, 0, 0, 0);
+    box->setSpacing(2);
+    buttonsLayout->addLayout(box);
+
+    label = new QLabel("Reprojection method: ", this);
+    label->setToolTip("Method to use for reprojection.");
+    box->addWidget(label);
+    
+    comboBox = new QComboBox(this);
+    connect(comboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(methodChanged(int)));
+    connect(reprojection, SIGNAL(reprojectionMethodChanged(int)), this, SLOT(updateMethod(int)));
+    box->addWidget(comboBox);
+    comboBoxMethod = comboBox;
+
+    fillReprojectionMethods();
+    comboBoxMethod->setCurrentIndex(reprojection->getReprojectionMethod());
     
     buttonsLayout->addStretch();
 
@@ -142,4 +150,44 @@ void WindowReprojection::displayCoordinates (const QVector3D &coordinates)
     } else {
         labelCoordinates->setText(QString("XYZ: %1, %2, %3").arg(coordinates.x()/1000, 0, 'f', 2).arg(coordinates.y()/1000, 0, 'f', 2).arg(coordinates.z()/1000, 0, 'f', 2));
     }
+}
+
+
+// *********************************************************************
+// *                        Reprojection method                        *
+// *********************************************************************
+void WindowReprojection::fillReprojectionMethods ()
+{
+    static const struct {
+        int id;
+        const char *text;
+        const char *tooltip;
+    } methods[] = {
+        { StereoReprojection::ToolboxCpu, "Toolbox CPU", "Toolbox-modified CPU method (handles ROI)." },
+        { StereoReprojection::ToolboxGpu, "Toolbox GPU", "Toolbox-modified GPU method (handles ROI)." },
+        { StereoReprojection::OpenCvCpu, "OpenCV CPU", "Stock OpenCV CPU method." },
+        { StereoReprojection::OpenCvGpu, "OpenCV GPU", "Stock OpenCV GPU method." },
+    };
+    
+    const QList<int> &supportedMethods = reprojection->getSupportedReprojectionMethods();
+
+    int item = 0;
+    for (unsigned int i = 0; i < sizeof(methods)/sizeof(methods[0]); i++) {
+        if (supportedMethods.contains(methods[i].id)) {
+            comboBoxMethod->addItem(methods[i].text, methods[i].id);
+            comboBoxMethod->setItemData(item++, methods[i].tooltip, Qt::ToolTipRole);
+        }
+    }
+}
+
+void WindowReprojection::methodChanged (int index)
+{
+    reprojection->setReprojectionMethod(comboBoxMethod->itemData(index).toInt());
+}
+
+void WindowReprojection::updateMethod (int method)
+{
+    bool oldState = comboBoxMethod->blockSignals(true);
+    comboBoxMethod->setCurrentIndex(comboBoxMethod->findData(method));
+    comboBoxMethod->blockSignals(oldState);
 }

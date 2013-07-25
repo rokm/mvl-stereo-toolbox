@@ -586,7 +586,7 @@ void StereoPipeline::setReprojection (StereoReprojection *newReprojection)
 {
     // Change reprojection
     if (reprojection) {
-        disconnect(reprojection, SIGNAL(useGpuChanged(bool)), this, SLOT(reprojectDisparityImage()));
+        disconnect(reprojection, SIGNAL(reprojectionMethodChanged(int)), this, SLOT(reprojectDisparityImage()));
         if (reprojection->parent() == this) {
             reprojection->deleteLater(); // Schedule for deletion
         }
@@ -597,7 +597,7 @@ void StereoPipeline::setReprojection (StereoReprojection *newReprojection)
         reprojection->setParent(this);
     }
     
-    connect(reprojection, SIGNAL(useGpuChanged(bool)), this, SLOT(reprojectDisparityImage()));
+    connect(reprojection, SIGNAL(reprojectionMethodChanged(int)), this, SLOT(reprojectDisparityImage()));
 
     // Reproject disparity image
     reprojectDisparityImage();
@@ -654,7 +654,7 @@ void StereoPipeline::reprojectDisparityImage ()
     // Reproject
     try {
         QTime timer; timer.start();
-        reprojection->reprojectStereoDisparity(disparityImage, reprojectedImage);
+        reprojection->reprojectStereoDisparity(disparityImage, reprojectedImage, centerRoi.x, centerRoi.y);
         reprojectionComputationTime = timer.elapsed();
     } catch (std::exception &e) {
         qWarning() << "Failed to reproject:" << QString::fromStdString(e.what());

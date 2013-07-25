@@ -5,6 +5,8 @@ find_package(PkgConfig)
 find_package(OpenCV REQUIRED)
 find_package(Qt4 REQUIRED)
 
+find_package(CUDA 5.0)
+
 set(pipeline_SOURCES
     image_pair_source.cpp
     stereo_calibration_pattern.cpp
@@ -24,6 +26,10 @@ set(pipeline_HEADERS
     stereo_reprojection.h
 )
 
+set(pipeline_CUDA_SOURCES
+    stereo_reprojection.cu
+)
+
 QT4_WRAP_CPP(pipeline_HEADERS_MOC ${pipeline_HEADERS})
 
 include(${QT_USE_FILE})
@@ -36,8 +42,21 @@ if(OPENCV_GPU_FOUND)
     add_definitions(-DHAVE_OPENCV_GPU)
 endif()
 
+if(CUDA_FOUND)
+    add_definitions(-DHAVE_CUDA)
+    set(CUDA_HOST_COMPILER "${CMAKE_CXX_COMPILER}")
+    list(APPEND CUDA_NVCC_FLAGS "-Xcompiler -fPIC")
+    include_directories(${CUDA_TOOLKIT_INCLUDE})
+endif()
+
+if (OPENCV_GPU_FOUND AND CUDA_FOUND)
+    cuda_compile(pipeline_CUDA_OBJECTS ${pipeline_CUDA_SOURCES})
+else ()
+    set(pipeline_CUDA_OBJECTS "")
+endif()
+
 # *** Library ***
-add_library(mvl_stereo_pipeline SHARED ${pipeline_SOURCES} ${pipeline_HEADERS_MOC})
+add_library(mvl_stereo_pipeline SHARED ${pipeline_SOURCES} ${pipeline_HEADERS_MOC} ${pipeline_CUDA_OBJECTS})
 target_link_libraries(mvl_stereo_pipeline ${QT_LIBRARIES})
 target_link_libraries(mvl_stereo_pipeline ${OpenCV_LIBS})
 

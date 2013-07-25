@@ -32,25 +32,35 @@ public:
     StereoReprojection (QObject * = 0);
     ~StereoReprojection ();
 
-    bool getUseGpu () const;
+    enum ReprojectionMethod {
+        ToolboxCpu,
+        ToolboxGpu,
+        OpenCvCpu,
+        OpenCvGpu,
+    };
+
+    int getReprojectionMethod () const;
+    const QList<int> &getSupportedReprojectionMethods () const;
 
     void setReprojectionMatrix (const cv::Mat &);
     const cv::Mat &getReprojectionMatrix () const;
 
-    void reprojectStereoDisparity (const cv::Mat &, cv::Mat &) const;
+    void reprojectStereoDisparity (const cv::Mat &, cv::Mat &, int = 0, int = 0) const;
 
 public slots:
-    void setUseGpu (bool);
+    void setReprojectionMethod (int);
 
 signals:
-    void useGpuChanged (bool);
+    void reprojectionMethodChanged (int);
     void reprojectionMatrixChanged ();
 
     void error (QString);
 
 protected:
     cv::Mat Q;
-    bool useGpu;
+
+    QList<int> supportedMethods;
+    int reprojectionMethod;
 };
 
 
