@@ -195,6 +195,13 @@ void StereoRectification::rectifyImagePair (const cv::Mat &img1, const cv::Mat &
         img1.copyTo(img1r);
         img2.copyTo(img2r);
     } else {
+        if (img1.cols != imageSize.width || img1.rows != imageSize.height || img2.cols != imageSize.width || img2.rows != imageSize.height) {
+            img1r = cv::Mat();
+            img2r = cv::Mat();
+            emit error("Input image size does not match calibrated image size!");
+            return;
+        }
+        
         // Two simple remaps using look-up tables
         if (!roi.width || !roi.height) {
             // Full maps

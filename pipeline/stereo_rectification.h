@@ -55,6 +55,8 @@ protected:
 signals:
     void stateChanged (bool);
 
+    void error (QString) const;
+    
     void roiChanged ();
 
 protected:
