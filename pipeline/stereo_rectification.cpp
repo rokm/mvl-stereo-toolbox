@@ -48,6 +48,12 @@ const cv::Mat &StereoRectification::getReprojectionMatrix () const
     return Q;
 }
 
+
+const cv::Size &StereoRectification::getImageSize () const
+{
+    return imageSize;
+}
+
 float StereoRectification::getStereoBaseline () const
 {
     // Q(3,2) is 1/baseline; units are same as on the pattern, which in
@@ -168,6 +174,9 @@ void StereoRectification::initializeStereoRectification ()
     initUndistortRectifyMap(M1, D1, R1, P1, imageSize, CV_16SC2, map11, map12);
     initUndistortRectifyMap(M2, D2, R2, P2, imageSize, CV_16SC2, map21, map22);
 
+    // Reset ROI
+    roi = cv::Rect();
+
     // Change state
     isValid = true;
     emit stateChanged(isValid);
@@ -187,8 +196,31 @@ void StereoRectification::rectifyImagePair (const cv::Mat &img1, const cv::Mat &
         img2.copyTo(img2r);
     } else {
         // Two simple remaps using look-up tables
-        cv::remap(img1, img1r, map11, map12, cv::INTER_LINEAR);
-        cv::remap(img2, img2r, map21, map22, cv::INTER_LINEAR);
+        if (!roi.width || !roi.height) {
+            // Full maps
+            cv::remap(img1, img1r, map11, map12, cv::INTER_LINEAR);
+            cv::remap(img2, img2r, map21, map22, cv::INTER_LINEAR);
+        } else {
+            // Subsection of maps
+            cv::remap(img1, img1r, map11(roi), map12(roi), cv::INTER_LINEAR);
+            cv::remap(img2, img2r, map21(roi), map22(roi), cv::INTER_LINEAR);
+        }
     }
 }
 
+// *********************************************************************
+// *                                ROI                                *
+// *********************************************************************
+void StereoRectification::setRoi (const cv::Rect &newRoi)
+{
+    if (newRoi != roi) {
+        roi = newRoi;
+
+        emit roiChanged();
+    }
+}
+
+const cv::Rect &StereoRectification::getRoi () const
+{
+    return roi;
+}

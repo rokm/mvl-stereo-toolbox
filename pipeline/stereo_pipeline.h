@@ -68,9 +68,6 @@ public:
     const cv::Mat &getRightRectifiedImage () const;
     int getRectificationTime () const;
 
-    cv::Size getCenterRoiSize () const;
-    const cv::Rect &getCenterRoi () const;
-
     // Stereo method
     void setStereoMethod (StereoMethod *);
     StereoMethod *getStereoMethod ();
@@ -116,8 +113,6 @@ public slots:
     void setUseStereoMethodThread (bool);
     void setDisparityVisualizationMethod (int);
 
-    void setCenterRoiSize (const cv::Size &);
-
 protected slots:
     void beginProcessing ();
     void rectifyImages ();
@@ -127,7 +122,6 @@ protected slots:
 
     void computeDisparityImageInThread ();
 
-    void recomputeCenterRoi ();
     void updateReprojectionMatrix ();
 
 signals:
@@ -144,8 +138,6 @@ signals:
     void disparityImageChanged ();
     void disparityVisualizationImageChanged ();
     void reprojectedImageChanged ();
-
-    void centerRoiChanged ();
 
     void disparityVisualizationMethodChanged (int);
 
@@ -170,10 +162,6 @@ protected:
     cv::Mat rectifiedImageL;
     cv::Mat rectifiedImageR;
     int rectificationTime;
-
-    // Center ROI
-    int centerRoiW, centerRoiH;
-    cv::Rect centerRoi;
 
     // Stereo method
     bool stereoMethodActive;

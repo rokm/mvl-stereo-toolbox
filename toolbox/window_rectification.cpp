@@ -95,14 +95,12 @@ WindowRectification::WindowRectification (StereoPipeline *p, StereoRectification
 
     // Pipeline
     connect(pipeline, SIGNAL(rectifiedImagesChanged()), this, SLOT(updateImage()));
-    connect(pipeline, SIGNAL(centerRoiChanged()), this, SLOT(updateRoi()));
 
     // Roi dialog
     dialogRoi = new RoiDialog(this);
 
     // Rectification
     connect(rectification, SIGNAL(stateChanged(bool)), this, SLOT(updateState()));
-    connect(rectification, SIGNAL(roiChanged()), this, SLOT(updateRoi()));
     updateState();
 
     // Calibration wizard
@@ -121,22 +119,16 @@ void WindowRectification::updateImage ()
 void WindowRectification::updateState ()
 {
     if (rectification->getState()) {
-        statusBar->showMessage(QString("Calibration set; rectifying input images. Estimated baseline: %1 mm").arg(rectification->getStereoBaseline(), 0, 'f', 0));
+        statusBar->showMessage(QString("Calibration set (estimated baseline: %1 mm); rectifying input images (%2 milliseconds).").arg(rectification->getStereoBaseline(), 0, 'f', 0).arg(pipeline->getRectificationTime()));
         pushButtonClear->setEnabled(true);
         pushButtonExport->setEnabled(true);
+        pushButtonRoi->setEnabled(true);
     } else {
         statusBar->showMessage("Calibration not set; passing input images through.");
         pushButtonClear->setEnabled(false);
         pushButtonExport->setEnabled(false);
+        pushButtonRoi->setEnabled(false);
     }
-
-    updateRoi();
-}
-
-void WindowRectification::updateRoi ()
-{
-    displayPair->setImagePairROI(pipeline->getCenterRoi(), pipeline->getCenterRoi());
-    dialogRoi->setRoiSize(pipeline->getCenterRoiSize());
 }
 
 
@@ -193,11 +185,12 @@ void WindowRectification::clearCalibration ()
 
 void WindowRectification::modifyRoi ()
 {
+    // Update image size and ROI
+    dialogRoi->setImageSizeAndRoi(rectification->getImageSize(), rectification->getRoi());
+
+    // Run dialog
     if (dialogRoi->exec() == QDialog::Accepted) {
-        pipeline->setCenterRoiSize(dialogRoi->getRoiSize());
-    } else {
-        // Reset ROI values in the dialog to their actual values
-        dialogRoi->setRoiSize(pipeline->getCenterRoiSize());
+        rectification->setRoi(dialogRoi->getRoi());
     }
 }
 
@@ -239,36 +232,96 @@ void WindowRectification::saveImages ()
 }
 
 
-//
-//
-//
+// *********************************************************************
+// *                             ROI dialog                            *
+// *********************************************************************
 RoiDialog::RoiDialog (QWidget *parent)
     : QDialog(parent)
 {
     QFormLayout *layout = new QFormLayout(this);
 
     QLabel *label;
+    QCheckBox *checkBox;
     QSpinBox *spinBox;
+    QFrame *line;
 
-    // Width
-    label = new QLabel("Width", this);
-    label->setToolTip("ROI width; set to -1 to disable ROI");
+    setWindowTitle("ROI");
+
+    // Enabled
+    checkBox = new QCheckBox("ROI enabled", this);
+    checkBox->setToolTip("ROI enabled or not.");
+    connect(checkBox, SIGNAL(stateChanged(int)), this, SLOT(refreshDialog()));
+    checkBoxEnabled = checkBox;
+
+    layout->addRow(checkBox);
+
+    // Separator
+    line = new QFrame(this);
+    line->setFrameStyle(QFrame::HLine | QFrame::Sunken);
+
+    layout->addRow(line);
+
+    // Center
+    checkBox = new QCheckBox("Center ROI", this);
+    checkBox->setToolTip("Whether to center ROI and compute offsets automatically.");
+    connect(checkBox, SIGNAL(stateChanged(int)), this, SLOT(refreshDialog()));
+    checkBoxCenter = checkBox;
+
+    layout->addRow(checkBox);
+
+    // X
+    label = new QLabel("X", this);
+    label->setToolTip("ROI horizontal offset.");
 
     spinBox = new QSpinBox(this);
-    spinBox->setRange(-1, INT_MAX);
-    spinBoxWidth = spinBox;
+    spinBox->setKeyboardTracking(false);
+    spinBox->setRange(0, INT_MAX);
+    connect(spinBox, SIGNAL(valueChanged(int)), this, SLOT(refreshDialog()));
+    spinBoxX = spinBox;
+
+    layout->addRow(label, spinBox);
+
+    // Y
+    label = new QLabel("Y", this);
+    label->setToolTip("ROI vertical offset.");
+
+    spinBox = new QSpinBox(this);
+    spinBox->setKeyboardTracking(false);
+    spinBox->setRange(0, INT_MAX);
+    connect(spinBox, SIGNAL(valueChanged(int)), this, SLOT(refreshDialog()));
+    spinBoxY = spinBox;
+
+    layout->addRow(label, spinBox);
+    
+    // Width
+    label = new QLabel("Width", this);
+    label->setToolTip("ROI width.");
+
+    spinBox = new QSpinBox(this);
+    spinBox->setKeyboardTracking(false);
+    spinBox->setRange(0, INT_MAX);
+    connect(spinBox, SIGNAL(valueChanged(int)), this, SLOT(refreshDialog()));
+    spinBoxW = spinBox;
 
     layout->addRow(label, spinBox);
 
     // Height
     label = new QLabel("Height", this);
-    label->setToolTip("ROI height; set to -1 to disable ROI");
+    label->setToolTip("ROI height.");
 
     spinBox = new QSpinBox(this);
-    spinBox->setRange(-1, INT_MAX);
-    spinBoxHeight = spinBox;
+    spinBox->setKeyboardTracking(false);
+    spinBox->setRange(0, INT_MAX);
+    connect(spinBox, SIGNAL(valueChanged(int)), this, SLOT(refreshDialog()));
+    spinBoxH = spinBox;
 
     layout->addRow(label, spinBox);
+
+    // Separator
+    line = new QFrame(this);
+    line->setFrameStyle(QFrame::HLine | QFrame::Sunken);
+
+    layout->addRow(line);
 
     // Button box
     QDialogButtonBox *buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, Qt::Horizontal, this);
@@ -281,13 +334,84 @@ RoiDialog::~RoiDialog ()
 {
 }
 
-cv::Size RoiDialog::getRoiSize () const
+
+void RoiDialog::setImageSizeAndRoi (const cv::Size &size, const cv::Rect &currentRoi)
 {
-    return cv::Size(spinBoxWidth->value(), spinBoxHeight->value());
+    // Store image size
+    imageSize = size;
+
+    // Set ROI values
+    spinBoxX->setValue(currentRoi.x);
+    spinBoxY->setValue(currentRoi.y);
+    spinBoxW->setValue(currentRoi.width);
+    spinBoxH->setValue(currentRoi.height);
+    
+    if (currentRoi == cv::Rect()) {
+        checkBoxEnabled->setChecked(false);
+    } else {
+        checkBoxEnabled->setChecked(true);
+
+        if (currentRoi.x == (imageSize.width - currentRoi.width)/2 && currentRoi.y == (imageSize.height - currentRoi.height)/2) {
+            checkBoxCenter->setChecked(true);
+        } else {
+            checkBoxCenter->setChecked(false);
+        }       
+    }
+
+    // Initial refresh
+    refreshDialog();
 }
 
-void RoiDialog::setRoiSize (const cv::Size &size)
+void RoiDialog::refreshDialog ()
 {
-    spinBoxWidth->setValue(size.width);
-    spinBoxHeight->setValue(size.height);
+    // Enable/disable widgets
+    if (checkBoxEnabled->isChecked()) {
+        checkBoxCenter->setEnabled(true);
+        if (checkBoxCenter->isChecked()) {
+            spinBoxX->setEnabled(false);
+            spinBoxY->setEnabled(false);
+        } else {
+            spinBoxX->setEnabled(true);
+            spinBoxY->setEnabled(true);
+        }
+        spinBoxW->setEnabled(true);
+        spinBoxH->setEnabled(true);
+        
+    } else {
+        checkBoxCenter->setEnabled(false);
+        spinBoxX->setEnabled(false);
+        spinBoxY->setEnabled(false);
+        spinBoxW->setEnabled(false);
+        spinBoxH->setEnabled(false);
+    }
+    
+    // Make sure that ROI offset + ROI dimension <= image dimension
+    spinBoxX->setRange(0, imageSize.width - spinBoxW->value());
+    spinBoxY->setRange(0, imageSize.height - spinBoxH->value());
+
+    spinBoxW->setRange(0, imageSize.width - spinBoxX->value());
+    spinBoxH->setRange(0, imageSize.height - spinBoxY->value());
+
+    // Update values
+    if (checkBoxEnabled->isChecked()) {
+        if (checkBoxCenter->isChecked()) {
+            spinBoxX->setValue((imageSize.width - spinBoxW->value())/2);
+            spinBoxY->setValue((imageSize.height - spinBoxH->value())/2);
+        }
+    } else {
+        spinBoxX->setValue(0);
+        spinBoxY->setValue(0);
+        spinBoxW->setValue(imageSize.width);
+        spinBoxH->setValue(imageSize.height);
+    }
+}
+
+
+cv::Rect RoiDialog::getRoi () const
+{
+    if (checkBoxEnabled->isChecked()) {
+        return cv::Rect(spinBoxX->value(), spinBoxY->value(), spinBoxW->value(), spinBoxH->value());
+    } else {
+        return cv::Rect();
+    }
 }

@@ -38,10 +38,14 @@ public:
     void saveStereoCalibration (const QString &) const;
     void clearStereoCalibration ();
 
+    const cv::Rect &getRoi () const;
+    void setRoi (const cv::Rect &);
+
     void rectifyImagePair (const cv::Mat &, const cv::Mat &, cv::Mat &, cv::Mat &) const;
 
     bool getState () const;
 
+    const cv::Size &getImageSize () const;
     const cv::Mat &getReprojectionMatrix () const;
     float getStereoBaseline () const;
 
@@ -74,6 +78,9 @@ protected:
 
     // Rectification maps
     cv::Mat map11, map12, map21, map22;
+
+    // ROI
+    cv::Rect roi;
 };
 
 #endif

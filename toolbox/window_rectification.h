@@ -44,14 +44,13 @@ protected slots:
     void runCalibrationWizard ();
     void importCalibration ();
     void exportCalibration ();
-    void modifyRoi ();
     void clearCalibration ();
+    void modifyRoi ();
 
     void saveImages ();
 
     void updateImage ();
     void updateState ();
-    void updateRoi ();
 
 protected:
     // Pipeline
@@ -85,12 +84,22 @@ public:
     RoiDialog (QWidget * = 0);
     virtual ~RoiDialog ();
 
-    cv::Size getRoiSize () const;
-    void setRoiSize (const cv::Size &);
+    void setImageSizeAndRoi (const cv::Size &, const cv::Rect &);
+
+    cv::Rect getRoi () const;
+
+protected slots:
+    void refreshDialog ();
 
 protected:
-    QSpinBox *spinBoxWidth;
-    QSpinBox *spinBoxHeight;
+    QCheckBox *checkBoxEnabled;
+    QCheckBox *checkBoxCenter;
+    QSpinBox *spinBoxX;
+    QSpinBox *spinBoxY;
+    QSpinBox *spinBoxW;
+    QSpinBox *spinBoxH;
+
+    cv::Size imageSize;
 };
 
 #endif
