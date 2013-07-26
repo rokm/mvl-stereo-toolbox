@@ -38,7 +38,7 @@ static const struct {
     { CV_CAP_VFW, "Native" },// Native: V4L, V4L2 or VFW
     { CV_CAP_IEEE1394, "FireWire" }, // IEEE 1394 FireWire
     { CV_CAP_QT, "QuickTime" }, // QuickTime
-    { CV_CAP_UNICAP, "UniCap" }, // Unicap
+    //{ CV_CAP_UNICAP, "UniCap" }, // Unicap
     { CV_CAP_DSHOW, "DirectShow" }, // DirectShow
     { CV_CAP_MSMF, "MSMF" }, // Microsoft Media Foundation
     { CV_CAP_PVAPI, "PVAPI" }, // Prosilica GigE SDK
