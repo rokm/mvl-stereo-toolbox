@@ -7,9 +7,9 @@ University of Ljubljana, Faculty of Electrical Engineering
 
 1. Introduction
 ~~~~~~~~~~~~~~~
-This is Machine Vision Laboratory (MVL) Stereo Toolbox, a GUI-based
-testing and tuning tool for various aspects of a stereo camera system.
-It was written as a part of a project we were working on, where we needed
+Machine Vision Laboratory (MVL) Stereo Toolbox is a GUI-based testing
+and tuning tool for various aspects of a stereo camera system. It was
+written as a part of a project we were working on, where we needed
 to test several stereo methods with various parameters to find an optimal
 solution to our problem.
 
@@ -36,7 +36,7 @@ of a stereo pipeline. As such, main highlights are:
 2. Installation
 ~~~~~~~~~~~~~~~
 
-MVL Stereo Toolbox has following dependencies
+MVL Stereo Toolbox has following dependencies:
 - C++ compiler and CMake
 - Qt 4.8 (core, gui and network modules are required)
 - OpenCV (tested with 2.4.3, 2.4.5 and 2.4.6)
@@ -52,6 +52,7 @@ dependencies:
 - DC1394 development libraries and headers for dc1394 image pair source (linux-only)
 - libelas for Efficient LArge Scale stereo method plugin (linux-only)
 - OpenCV with GPU module for GPU-based stereo method plugins
+- CUDA (at least 5.0) in combination with OpenCV GPU module for modified GPU-based reprojection method
 
 To build the toolbox, use cmake; in unpacked source directory, issue:
 
