@@ -632,6 +632,7 @@ void CalibrationWizardPageDetection::startProcessing ()
         
     imageCounter = 0;
     patternFound = false;
+    imageSize = cv::Size(); // Reset size
 
     // Process next
     processImage();
