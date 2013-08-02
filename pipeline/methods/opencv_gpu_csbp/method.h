@@ -36,16 +36,24 @@ public:
     Method (QObject * = 0);
     virtual ~Method ();
 
-    // Config widget
+    virtual QString getShortName () const;
     virtual QWidget *createConfigWidget (QWidget * = 0);
-    
-    // Disparity image computation
     virtual void computeDisparityImage (const cv::Mat &, const cv::Mat &, cv::Mat &, int &);
+    virtual void loadParameters (const QString &);
+    virtual void saveParameters (const QString &) const;
 
-    // Parameter import/export
-    virtual void loadParameters (const cv::FileStorage &);
-    virtual void saveParameters (cv::FileStorage &) const;
-    
+    // Generic parameter setting
+    template <typename T> void setParameter (T &parameter, const T &newValue) {
+        // Set only if necessary
+        if (parameter != newValue) {
+            QMutexLocker locker(&mutex);
+            parameter = newValue;
+            locker.unlock();
+            
+            emit parameterChanged();
+        }
+    }
+        
     // Parameters
     int getNumDisparities () const;
 
@@ -90,6 +98,7 @@ signals:
 protected:
     // Block matcher
     cv::gpu::StereoConstantSpaceBP bp;
+    QMutex mutex;
 
     int imageWidth, imageHeight;
 };

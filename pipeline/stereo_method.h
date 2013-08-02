@@ -30,10 +30,7 @@ class QWidget;
 class StereoMethod
 {
 public:
-    StereoMethod ();
-    virtual ~StereoMethod ();
-
-    const QString &getShortName () const;
+    virtual QString getShortName () const = 0;
 
     // Config widget
     virtual QWidget *createConfigWidget (QWidget * = 0) = 0;
@@ -42,32 +39,13 @@ public:
     virtual void computeDisparityImage (const cv::Mat &, const cv::Mat &, cv::Mat &, int &) = 0;
 
     // Parameter import/export
-    void loadParameters (const QString &);
-    virtual void loadParameters (const cv::FileStorage &);
-
-    void saveParameters (const QString &) const;
-    virtual void saveParameters (cv::FileStorage &) const;
-
-    // Generic parameter setting
-    template <typename T> void setParameter (T &parameter, const T &newValue) {
-        // Set only if necessary
-        if (parameter != newValue) {
-            QMutexLocker locker(&mutex);
-            parameter = newValue;
-            locker.unlock();
-            
-            emit parameterChanged();
-        }
-    }
+    virtual void loadParameters (const QString &) = 0;
+    
+    virtual void saveParameters (const QString &) const = 0;
 
     // These are actually signals, but they are not allowed in non-QObject classes
 protected:
     virtual void parameterChanged () = 0;
-
-protected:
-    QString shortName;
-
-    QMutex mutex;
 };
 
 Q_DECLARE_INTERFACE(StereoMethod, "MVL_Stereo_Toolbox.StereoMethod/1.0")

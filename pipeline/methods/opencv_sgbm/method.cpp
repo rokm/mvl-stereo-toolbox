@@ -28,8 +28,6 @@ using namespace StereoMethodSemiGlobalBlockMatching;
 Method::Method (QObject *parent)
     : QObject(parent), StereoMethod()
 {
-    shortName = "SGBM";
-
     // Default image width and channels, used to compute optimal parameters
     imageWidth = 640;
     imageChannels = 1;
@@ -43,12 +41,18 @@ Method::~Method ()
 
 
 // *********************************************************************
-// *                           Config widget                           *
+// *                       StereoMethod interface                      *
 // *********************************************************************
+QString Method::getShortName () const
+{
+    return "SGBM";
+}
+
 QWidget *Method::createConfigWidget (QWidget *parent)
 {
     return new MethodWidget(this, parent);
 }
+
 
 
 // *********************************************************************
@@ -112,10 +116,25 @@ void Method::computeDisparityImage (const cv::Mat &img1, const cv::Mat &img2, cv
 // *********************************************************************
 // *                     Parameter import/export                       *
 // *********************************************************************
-void Method::loadParameters (const cv::FileStorage &storage)
+void Method::loadParameters (const QString &filename)
 {
-    // Chain up to parent, which validates the storage
-    Method::loadParameters(storage);
+    // Open storage
+    cv::FileStorage storage(filename.toStdString(), cv::FileStorage::READ);
+    if (!storage.isOpened()) {
+        throw QString("Cannot open file \"%1\" for reading!").arg(filename);
+    }
+    
+    // Validate data type
+    QString dataType = QString::fromStdString(storage["DataType"]);
+    if (dataType.compare("StereoMethodParameters")) {
+        throw QString("Invalid stereo method parameters configuration!");
+    }
+    
+    // Validate method name
+    QString storedName = QString::fromStdString(storage["MethodName"]);
+    if (storedName.compare(getShortName())) {
+        throw QString("Invalid configuration for method \"%1\"!").arg(getShortName());
+    }
     
     // Load parameters
     sgbm = cv::StereoSGBM();
@@ -140,11 +159,18 @@ void Method::loadParameters (const cv::FileStorage &storage)
     emit parameterChanged();
 }
 
-void Method::saveParameters (cv::FileStorage &storage) const
+void Method::saveParameters (const QString &filename) const
 {
-    // Chain up to parent, which sets up method name
-    StereoMethod::saveParameters(storage);
+    cv::FileStorage storage(filename.toStdString(), cv::FileStorage::WRITE);
+    if (!storage.isOpened()) {
+        throw QString("Cannot open file \"%1\" for writing!").arg(filename);
+    }
 
+    // Data type
+    storage << "DataType" << "StereoMethodParameters";
+    
+    // Store method name, so it can be validate upon loading
+    storage << "MethodName" << getShortName().toStdString();
     // Save parameters
     storage << "MinDisparity" << sgbm.minDisparity;
     storage << "NumDisparities" << sgbm.numberOfDisparities;

@@ -11,7 +11,6 @@ set(CMAKE_AUTOMOC TRUE)
 
 set(pipeline_SOURCES
     stereo_calibration_pattern.cpp
-    stereo_method.cpp
     stereo_pipeline.cpp
     stereo_rectification.cpp
     stereo_reprojection.cpp

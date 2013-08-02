@@ -36,18 +36,13 @@ public:
     Method (QObject * = 0);
     virtual ~Method ();
 
-    // Config widget
+    virtual QString getShortName () const;
     virtual QWidget *createConfigWidget (QWidget * = 0);
-
-    // Disparity image computation
     virtual void computeDisparityImage (const cv::Mat &, const cv::Mat &, cv::Mat &, int &);
+    virtual void loadParameters (const QString &);
+    virtual void saveParameters (const QString &) const;
 
-    // Parameter import/export
-    virtual void loadParameters (const cv::FileStorage &);
-    virtual void saveParameters (cv::FileStorage &) const;
-
-    // Generic parameter setting - we override it because elas object
-    // needs to be reinitialized every time a parameter changes
+    // Generic parameter setting
     template <typename T> void setParameter (T &parameter, const T &newValue) {
         // Set only if necessary
         if (parameter != newValue) {
@@ -144,6 +139,8 @@ protected:
     Elas elas;
 
     bool returnLeft;
+
+    QMutex mutex;
 
     cv::Mat tmpImg1, tmpImg2, tmpDisp1, tmpDisp2;
 };
