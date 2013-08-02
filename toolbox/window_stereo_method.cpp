@@ -26,6 +26,11 @@
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
 
+// Work-around for MSVC
+#ifdef _MSC_VER
+#define isnan(x) _isnan(x)
+#endif
+
 
 WindowStereoMethod::WindowStereoMethod (StereoPipeline *p, QList<StereoMethod *> &m, QWidget *parent)
     : QWidget(parent, Qt::Window), pipeline(p), methods(m)

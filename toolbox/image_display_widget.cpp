@@ -19,6 +19,11 @@
 
 #include "image_display_widget.h"
 
+#ifdef _MSC_VER
+#define round(x) ((x) >= 0 ? (int)((x) + 0.5) : (int)((x) - 0.5))
+#define NAN std::numeric_limits<float>::quiet_NaN()
+#endif
+
 
 // *********************************************************************
 // *                        Image display widget                       *
