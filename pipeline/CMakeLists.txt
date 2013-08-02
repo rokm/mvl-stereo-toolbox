@@ -3,7 +3,7 @@ project(libmvl_stereo_pipeline CXX)
 
 include(GenerateExportHeader)
 
-find_package(PkgConfig)
+find_package(PkgConfig QUIET)
 find_package(OpenCV REQUIRED)
 find_package(Qt4 REQUIRED)
 
@@ -98,7 +98,7 @@ if(PKG_CONFIG_FOUND)
 
     # Unicap image pair source: build if we have libunicap
     pkg_check_modules(UNICAP libunicap)
-    if (UNICAP_FOUND)
+    if(UNICAP_FOUND)
         add_subdirectory(sources/unicap)
     endif()
 
