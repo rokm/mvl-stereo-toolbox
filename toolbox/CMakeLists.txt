@@ -6,6 +6,8 @@ set(TOOLBOX_VERSION 1.0.0)
 find_package(OpenCV REQUIRED)
 find_package(Qt4 REQUIRED)
 
+set(CMAKE_AUTOMOC TRUE)
+
 include_directories(${PROJECT_SOURCE_DIR}/../pipeline)
 
 add_definitions(-DTOOLBOX_VERSION="${TOOLBOX_VERSION}")
@@ -38,9 +40,7 @@ set(toolbox_HEADERS
     window_stereo_method.h
 )
 
-QT4_WRAP_CPP(toolbox_HEADERS_MOC ${toolbox_HEADERS})
-
-add_executable(MVLStereoToolbox ${toolbox_SOURCES} ${toolbox_HEADERS_MOC})
+add_executable(MVLStereoToolbox ${toolbox_SOURCES} ${toolbox_HEADERS})
 
 target_link_libraries(MVLStereoToolbox ${QT_LIBRARIES})
 target_link_libraries(MVLStereoToolbox ${OpenCV_LIBS})

@@ -7,6 +7,8 @@ find_package(Qt4 REQUIRED)
 
 find_package(CUDA 5.0)
 
+set(CMAKE_AUTOMOC TRUE)
+
 set(pipeline_SOURCES
     image_pair_source.cpp
     stereo_calibration_pattern.cpp
@@ -29,8 +31,6 @@ set(pipeline_HEADERS
 set(pipeline_CUDA_SOURCES
     stereo_reprojection.cu
 )
-
-QT4_WRAP_CPP(pipeline_HEADERS_MOC ${pipeline_HEADERS})
 
 include(${QT_USE_FILE})
 add_definitions(${QT_DEFINITIONS})
@@ -56,7 +56,7 @@ else ()
 endif()
 
 # *** Library ***
-add_library(mvl_stereo_pipeline SHARED ${pipeline_SOURCES} ${pipeline_HEADERS_MOC} ${pipeline_CUDA_OBJECTS})
+add_library(mvl_stereo_pipeline SHARED ${pipeline_SOURCES} ${pipeline_HEADERS} ${pipeline_CUDA_OBJECTS})
 target_link_libraries(mvl_stereo_pipeline ${QT_LIBRARIES})
 target_link_libraries(mvl_stereo_pipeline ${OpenCV_LIBS})
 

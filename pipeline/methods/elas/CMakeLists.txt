@@ -22,12 +22,10 @@ set(plugin_HEADERS
     method_widget.h
 )
 
-QT4_WRAP_CPP(plugin_HEADERS_MOC ${plugin_HEADERS})
-
 include(${QT_USE_FILE})
 add_definitions(${QT_DEFINITIONS})
 
-add_library(${plugin_name} SHARED ${plugin_SOURCES} ${plugin_HEADERS_MOC})
+add_library(${plugin_name} SHARED ${plugin_SOURCES} ${plugin_HEADERS})
 target_link_libraries(${plugin_name} ${QT_LIBRARIES} ${OpenCV_LIBS} ${ELAS_LIBRARIES})
 set_target_properties(${plugin_name} PROPERTIES PREFIX "")
 
