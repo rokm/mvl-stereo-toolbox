@@ -20,12 +20,13 @@
 #ifndef STEREO_RECTIFICATION_H
 #define STEREO_RECTIFICATION_H
 
-#include <QtCore>
+#include "mvl_stereo_pipeline_export.h"
 
+#include <QtCore>
 #include <opencv2/core/core.hpp>
 
 
-class StereoRectification : public QObject
+class MVL_STEREO_PIPELINE_EXPORT StereoRectification : public QObject
 {
     Q_OBJECT
 

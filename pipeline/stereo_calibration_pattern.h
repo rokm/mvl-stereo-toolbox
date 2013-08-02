@@ -20,10 +20,12 @@
 #ifndef STEREO_CALIBRATION_PATTERN_H
 #define STEREO_CALIBRATION_PATTERN_H
 
+#include "mvl_stereo_pipeline_export.h"
+
 #include <opencv2/core/core.hpp>
 
 
-class StereoCalibrationPattern
+class MVL_STEREO_PIPELINE_EXPORT StereoCalibrationPattern
 {
 public:
     enum PatternType {

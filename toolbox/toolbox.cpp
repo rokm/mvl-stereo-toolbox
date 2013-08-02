@@ -255,19 +255,20 @@ void Toolbox::clearError ()
 // *********************************************************************
 void Toolbox::loadPlugins ()
 {
-    foreach (PluginFactory *plugin, pipeline->getAvailablePlugins()) {
+    foreach (QObject *plugin, pipeline->getAvailablePlugins()) {
+        PluginFactory *factory = qobject_cast<PluginFactory *>(plugin);
         QObject *object = NULL;
 
         // Create object
         try {
-            object = plugin->createObject(this);
+            object = factory->createObject(this);
         } catch (...) {
             continue;
         }
 
         // Insert object into corresponding list
         if (object) {
-            switch (plugin->getPluginType()) {
+            switch (factory->getPluginType()) {
                 case PluginFactory::PluginStereoMethod: {
                     stereoMethods.append(qobject_cast<StereoMethod *>(object));
                     break;

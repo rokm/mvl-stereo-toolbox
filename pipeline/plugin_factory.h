@@ -1,5 +1,5 @@
 /*
- * Stereo Pipeline: plugin interface
+ * Stereo Pipeline: plugin factory interface
  * Copyright (C) 2013 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
@@ -20,13 +20,13 @@
 #ifndef PLUGIN_FACTORY_H
 #define PLUGIN_FACTORY_H
 
+#include "mvl_stereo_pipeline_export.h"
+
 #include <QtPlugin>
 
 
-class PluginFactory : public QObject
+class MVL_STEREO_PIPELINE_EXPORT PluginFactory
 {
-    Q_OBJECT
-
 public:
     enum PluginType {
         PluginStereoMethod,
@@ -40,5 +40,7 @@ public:
     
     virtual QObject *createObject (QObject * = 0) const = 0;    
 };
+
+Q_DECLARE_INTERFACE(PluginFactory, "MVL_Stereo_Toolbox.PluginFactory/1.0")
 
 #endif

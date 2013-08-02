@@ -23,8 +23,11 @@
 using namespace SourceDC1394;
 
 
-class Plugin : public PluginFactory
+class Plugin : public QObject, public PluginFactory
 {
+    Q_OBJECT
+    Q_INTERFACES(PluginFactory)
+    
     PluginType getPluginType () const {
         return PluginImagePairSource;
     }
@@ -43,3 +46,6 @@ class Plugin : public PluginFactory
 };
 
 Q_EXPORT_PLUGIN2(dc1394, Plugin)
+
+// Because we have Q_OBJECT in source file
+#include "plugin.moc"

@@ -20,8 +20,9 @@
 #ifndef STEREO_PIPELINE_H
 #define STEREO_PIPELINE_H
 
-#include <QtCore>
+#include "mvl_stereo_pipeline_export.h"
 
+#include <QtCore>
 #include <opencv2/core/core.hpp>
 
 
@@ -31,7 +32,7 @@ class StereoRectification;
 class StereoMethod;
 class StereoReprojection;
 
-class StereoPipeline : public QObject
+class MVL_STEREO_PIPELINE_EXPORT StereoPipeline : public QObject
 {
     Q_OBJECT
     
@@ -42,7 +43,7 @@ public:
     // Plugin management
     void setPluginDirectory (const QString & = QString());
     QString getPluginDirectory () const;
-    const QList<PluginFactory *> getAvailablePlugins () const;
+    const QList<QObject *> getAvailablePlugins () const;
 
     // GPU/CUDA management
     int getNumberOfGpuDevices ();
@@ -144,7 +145,7 @@ signals:
 protected:
     // Plugin management
     QDir pluginDirectory;
-    QList<PluginFactory *> plugins;
+    QList<QObject *> plugins;
 
     // Image pair source
     bool imagePairSourceActive;

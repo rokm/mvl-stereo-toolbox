@@ -21,7 +21,6 @@
 #define IMAGE_PAIR_SOURCE_H
 
 #include <QtCore>
-
 #include <opencv2/core/core.hpp>
 
 

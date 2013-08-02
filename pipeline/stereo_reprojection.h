@@ -20,11 +20,13 @@
 #ifndef STEREO_REPROJECTION_H
 #define STEREO_REPROJECTION_H
 
+#include "mvl_stereo_pipeline_export.h"
+
 #include <QtCore>
 #include <opencv2/core/core.hpp>
 
 
-class StereoReprojection : public QObject
+class MVL_STEREO_PIPELINE_EXPORT StereoReprojection : public QObject
 {
     Q_OBJECT
     

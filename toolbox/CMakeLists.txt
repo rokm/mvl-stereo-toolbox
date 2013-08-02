@@ -9,6 +9,7 @@ find_package(Qt4 REQUIRED)
 set(CMAKE_AUTOMOC TRUE)
 
 include_directories(${PROJECT_SOURCE_DIR}/../pipeline)
+include_directories(${PROJECT_BINARY_DIR}/../pipeline)
 
 add_definitions(-DTOOLBOX_VERSION="${TOOLBOX_VERSION}")
 

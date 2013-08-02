@@ -121,7 +121,7 @@ static void recursiveDirectoryScan (QDir dir, QStringList &files)
 void StereoPipeline::setPluginDirectory (const QString &newDirectory)
 {
     // Clear old plugins
-    foreach (PluginFactory *plugin, plugins) {
+    foreach (QObject *plugin, plugins) {
         delete plugin;
     }
     plugins.clear();
@@ -160,10 +160,11 @@ void StereoPipeline::setPluginDirectory (const QString &newDirectory)
         if (plugin) {
             PluginFactory *factory = qobject_cast<PluginFactory *>(plugin);
             if (factory) {
-                factory->setParent(this);
-                plugins.append(factory);
+                plugin->setParent(this);
+                plugins.append(plugin);
             } else {
                 qDebug() << "Failed to cast plugged object to PluginFactory!";
+                delete plugin;
             }
         } else {
             qDebug() << "Failed to load plugin:" << loader.errorString();            
@@ -176,7 +177,7 @@ QString StereoPipeline::getPluginDirectory () const
     return pluginDirectory.absolutePath();
 }
 
-const QList<PluginFactory *> StereoPipeline::getAvailablePlugins () const
+const QList<QObject *> StereoPipeline::getAvailablePlugins () const
 {
     return plugins;
 }

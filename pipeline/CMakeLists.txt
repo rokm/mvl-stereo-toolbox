@@ -35,7 +35,9 @@ set(pipeline_CUDA_SOURCES
 include(${QT_USE_FILE})
 add_definitions(${QT_DEFINITIONS})
 
+# These are mostly for benefit of methods and sources plugins
 include_directories(${PROJECT_SOURCE_DIR})
+include_directories(${PROJECT_BINARY_DIR})
 
 # If we have OpenCV with GPU support, enable the following definition
 if(OPENCV_GPU_FOUND)
@@ -58,7 +60,7 @@ else ()
 endif()
 
 # *** Library ***
-add_library(mvl_stereo_pipeline SHARED ${pipeline_SOURCES} ${pipeline_HEADERS} ${pipeline_CUDA_OBJECTS})
+add_library(mvl_stereo_pipeline SHARED ${pipeline_SOURCES} ${pipeline_HEADERS} ${pipeline_CUDA_SOURCES} ${pipeline_CUDA_OBJECTS})
 target_link_libraries(mvl_stereo_pipeline ${QT_LIBRARIES})
 target_link_libraries(mvl_stereo_pipeline ${OpenCV_LIBS})
 if(CUDA_FOUND)
