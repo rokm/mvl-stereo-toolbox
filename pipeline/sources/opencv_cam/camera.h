@@ -22,7 +22,6 @@
 
 #include <QtCore>
 #include <QtGui>
-#include <dc1394/dc1394.h>
 
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
