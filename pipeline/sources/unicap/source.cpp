@@ -32,9 +32,6 @@ Source::Source (QObject *parent)
 
     // Enumerate cameras
     refreshCameraList();
-
-    // Name
-    shortName = "Unicap";
 }
 
 Source::~Source ()
@@ -47,15 +44,27 @@ Source::~Source ()
 // *********************************************************************
 // *                     ImagePairSource interface                     *
 // *********************************************************************
-QWidget *Source::createConfigWidget (QWidget *parent)
+QString Source::getShortName () const
 {
-    return new SourceWidget(this, parent);
+    return "Unicap";
 }
 
+void Source::getImages (cv::Mat &left, cv::Mat &right)
+{
+    // Copy images under lock
+    QReadLocker lock(&imagesLock);
+    imageLeft.copyTo(left);
+    imageRight.copyTo(right);
+}
 
 void Source::stopSource ()
 {
     startStopCapture(false);
+}
+
+QWidget *Source::createConfigWidget (QWidget *parent)
+{
+    return new SourceWidget(this, parent);
 }
 
 

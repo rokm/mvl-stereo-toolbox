@@ -10,7 +10,6 @@ find_package(CUDA 5.0)
 set(CMAKE_AUTOMOC TRUE)
 
 set(pipeline_SOURCES
-    image_pair_source.cpp
     stereo_calibration_pattern.cpp
     stereo_method.cpp
     stereo_pipeline.cpp

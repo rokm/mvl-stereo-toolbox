@@ -38,8 +38,9 @@ public:
     Source (QObject * = 0);
     virtual ~Source ();
 
+    virtual QString getShortName () const;
+    virtual void getImages (cv::Mat &, cv::Mat &);
     virtual void stopSource ();
-
     virtual QWidget *createConfigWidget (QWidget * = 0);
 
     ImageFile *getLeftImageFile ();
@@ -74,6 +75,12 @@ protected:
     ImageFile *rightImageFile;
 
     bool leftImageReady, rightImageReady;
+
+    // Images
+    QReadWriteLock imagesLock;
+    
+    cv::Mat imageLeft;
+    cv::Mat imageRight;
 };
 
 }

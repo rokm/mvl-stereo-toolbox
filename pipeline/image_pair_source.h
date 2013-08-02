@@ -28,14 +28,10 @@
 class ImagePairSource
 {
 public:
-    ImagePairSource ();
-    virtual ~ImagePairSource ();
+    virtual QString getShortName () const = 0;
 
-    const QString &getShortName () const;
-
-    virtual void getImages (cv::Mat &, cv::Mat &);
-
-    virtual void stopSource ();
+    virtual void getImages (cv::Mat &, cv::Mat &) = 0;
+    virtual void stopSource () = 0;
 
     // Config widget
     virtual QWidget *createConfigWidget (QWidget * = 0) = 0;
@@ -44,15 +40,6 @@ public:
 protected:
     virtual void imagesChanged () = 0;
     virtual void error (const QString) = 0;
-
-protected:
-    QString shortName;
-    
-    // Images
-    QReadWriteLock imagesLock;
-    
-    cv::Mat imageLeft;
-    cv::Mat imageRight;
 };
 
 Q_DECLARE_INTERFACE(ImagePairSource, "MVL_Stereo_Toolbox.ImagePairSource/1.0")

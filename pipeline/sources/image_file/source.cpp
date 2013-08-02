@@ -29,8 +29,6 @@ using namespace SourceImageFile;
 Source::Source (QObject *parent)
     : QObject(parent), ImagePairSource()
 {
-    shortName = "IMAGE";
-
     refreshPeriod = 1000;
     refreshTimer = new QTimer(this);
     connect(refreshTimer, SIGNAL(timeout()), this, SLOT(periodicRefresh()));
@@ -49,11 +47,21 @@ Source::~Source ()
 }
 
 
-QWidget *Source::createConfigWidget (QWidget *parent)
+// *********************************************************************
+// *                     ImagePairSource interface                     *
+// *********************************************************************
+QString Source::getShortName () const
 {
-    return new SourceWidget(this, parent);
+    return "IMAGE";
 }
 
+void Source::getImages (cv::Mat &left, cv::Mat &right)
+{
+    // Copy images under lock
+    QReadLocker lock(&imagesLock);
+    imageLeft.copyTo(left);
+    imageRight.copyTo(right);
+}
 
 void Source::stopSource ()
 {
@@ -61,7 +69,15 @@ void Source::stopSource ()
     setPeriodicRefreshState(false);
 }
 
+QWidget *Source::createConfigWidget (QWidget *parent)
+{
+    return new SourceWidget(this, parent);
+}
 
+
+// *********************************************************************
+// *                           Image loading                           *
+// *********************************************************************
 void Source::loadImagePair (const QString &left, const QString &right, bool remote)
 {
     // Loading images stops the periodic update
