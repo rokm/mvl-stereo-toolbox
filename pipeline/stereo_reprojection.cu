@@ -21,7 +21,7 @@
 #include <opencv2/gpu/device/vec_traits.hpp>
 
 __constant__ float cq[16];
-__constant__ ushort off_x, off_y;
+__constant__ unsigned short off_x, off_y;
 
 __global__ void reproject_kernel (const cv::gpu::PtrStepSz<unsigned char> disparity, cv::gpu::PtrStepSz<float3> points)
 {
