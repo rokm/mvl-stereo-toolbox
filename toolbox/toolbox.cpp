@@ -43,9 +43,6 @@ Toolbox::Toolbox ()
     pipeline = new StereoPipeline(this);
     pipeline->setUseStereoMethodThread(true);
 
-    // Enable disparity visualization
-    pipeline->setDisparityVisualizationMethod(StereoPipeline::DisparityVisualizationGrayscale);
-
     // If available, initialize first GPU
     if (pipeline->getNumberOfGpuDevices()) {
         qDebug() << "";

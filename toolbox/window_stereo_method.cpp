@@ -89,7 +89,7 @@ WindowStereoMethod::WindowStereoMethod (StereoPipeline *p, QList<StereoMethod *>
     comboBoxVisualizationMethod = comboBox;
 
     fillVisualizationMethods();
-    comboBoxVisualizationMethod->setCurrentIndex(pipeline->getDisparityVisualizationMethod());
+    pipeline->setDisparityVisualizationMethod(StereoPipeline::DisparityVisualizationGrayscale); // Set grayscale as default
 
     buttonsLayout->addStretch();
 
