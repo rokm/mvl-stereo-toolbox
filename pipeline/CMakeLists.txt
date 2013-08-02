@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 2.8)
 project(libmvl_stereo_pipeline CXX)
 
+include(GenerateExportHeader)
+
 find_package(PkgConfig)
 find_package(OpenCV REQUIRED)
 find_package(Qt4 REQUIRED)
@@ -43,7 +45,9 @@ endif()
 if(CUDA_FOUND)
     add_definitions(-DHAVE_CUDA)
     set(CUDA_HOST_COMPILER "${CMAKE_CXX_COMPILER}")
-    list(APPEND CUDA_NVCC_FLAGS "-Xcompiler -fPIC")
+    if (CMAKE_COMPILER_IS_GNUCXX)
+        list(APPEND CUDA_NVCC_FLAGS "-Xcompiler -fPIC")
+    endif()
     include_directories(${CUDA_TOOLKIT_INCLUDE})
 endif()
 
@@ -57,9 +61,14 @@ endif()
 add_library(mvl_stereo_pipeline SHARED ${pipeline_SOURCES} ${pipeline_HEADERS} ${pipeline_CUDA_OBJECTS})
 target_link_libraries(mvl_stereo_pipeline ${QT_LIBRARIES})
 target_link_libraries(mvl_stereo_pipeline ${OpenCV_LIBS})
+if(CUDA_FOUND)
+    target_link_libraries(mvl_stereo_pipeline ${CUDA_CUDART_LIBRARY})
+endif()
+
+generate_export_header(mvl_stereo_pipeline)
 
 install(TARGETS mvl_stereo_pipeline DESTINATION ${CMAKE_INSTALL_LIBDIR})
-install(FILES ${pipeline_HEADERS} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/mvl_stereo_pipeline)
+install(FILES ${pipeline_HEADERS} ${PROJECT_BINARY_DIR}/mvl_stereo_pipeline_export.h DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/mvl_stereo_pipeline)
 
 # Pkg-config for library; only if we have pkg-config installed
 if(PKG_CONFIG_FOUND)
