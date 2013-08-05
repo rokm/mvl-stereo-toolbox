@@ -189,7 +189,11 @@ const QList<QObject *> StereoPipeline::getAvailablePlugins () const
 int StereoPipeline::getNumberOfGpuDevices ()
 {
 #ifdef HAVE_OPENCV_GPU
-    return cv::gpu::getCudaEnabledDeviceCount();
+    try {
+        return cv::gpu::getCudaEnabledDeviceCount();
+    } catch (...) {
+        return 0;
+    }
 #else
     return 0;
 #endif
@@ -199,8 +203,11 @@ int StereoPipeline::getNumberOfGpuDevices ()
 void StereoPipeline::setGpuDevice (int dev)
 {
 #ifdef HAVE_OPENCV_GPU
-    cv::gpu::setDevice(dev);
-    cv::gpu::GpuMat mat(4, 4, CV_32FC1); // Create a dummy matrix to initialize GPU
+    try {
+        cv::gpu::setDevice(dev);
+        cv::gpu::GpuMat mat(4, 4, CV_32FC1); // Create a dummy matrix to initialize GPU
+    } catch (...) {
+    }
 #endif
 }
 
