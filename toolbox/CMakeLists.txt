@@ -46,3 +46,5 @@ add_executable(MVLStereoToolbox ${toolbox_SOURCES} ${toolbox_HEADERS})
 target_link_libraries(MVLStereoToolbox ${QT_LIBRARIES})
 target_link_libraries(MVLStereoToolbox ${OpenCV_LIBS})
 target_link_libraries(MVLStereoToolbox mvl_stereo_pipeline)
+
+install(TARGETS MVLStereoToolbox DESTINATION ${CMAKE_INSTALL_BINDIR})
