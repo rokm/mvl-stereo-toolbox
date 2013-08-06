@@ -366,24 +366,29 @@ int StereoPipeline::getRectificationTime () const
 // Processing
 void StereoPipeline::rectifyImages ()
 {
-    // Make sure rectification is marked as active
-    if (!rectificationActive) {
-        emit processingCompleted();
-        return;
-    }
-    
     // Make sure we have rectification object set
     if (!rectification) {
         emit error("Stereo rectification object not set!");
         return;
     }
 
+    // Make sure we have input images set
+    if (inputImageL.empty() || inputImageR.empty()) {
+        return;
+    }
+    
     // Make sure input images are of same size
     if (inputImageL.cols != inputImageR.cols || inputImageL.rows != inputImageR.rows) {
         emit error("Input images do not have same dimensions!");
         return;
     }
 
+    // Make sure rectification is marked as active
+    if (!rectificationActive) {
+        emit processingCompleted();
+        return;
+    }
+    
     QTime timer; timer.start();
     rectification->rectifyImagePair(inputImageL, inputImageR, rectifiedImageL, rectifiedImageR);
     rectificationTime = timer.elapsed();
@@ -459,6 +464,11 @@ int StereoPipeline::getDisparityImageComputationTime () const
 // Processing
 void StereoPipeline::computeDisparityImage ()
 {
+    // Make sure we have rectified images ready
+    if (rectifiedImageL.empty() || rectifiedImageR.empty()) {
+        return;
+    }
+
     // Make sure stereo method is marked as active
     if (!stereoMethodActive) {
         emit processingCompleted();
@@ -472,7 +482,7 @@ void StereoPipeline::computeDisparityImage ()
     }
 
     if (useStereoMethodThread) {
-        // Start processing not processing already; otherwise drop
+        // Start processing if not processing already; otherwise drop
         if (!stereoMethodWatcher.isRunning()) {
             stereoDroppedFramesCounter = 0;
             QFuture<void> future = QtConcurrent::run(this, &StereoPipeline::computeDisparityImageInThread);
@@ -505,7 +515,8 @@ void StereoPipeline::computeDisparityImageInThread ()
             disparityImageComputationTime = timer.elapsed();
         } catch (std::exception &e) {
             disparityImage = cv::Mat(); // Clear
-            qWarning() << "ERROR WHILE PROCESSING: " << e.what();
+            qWarning() << "Stereo method error: " << e.what();
+            emit error(QString("Stereo method error: %1").arg(QString::fromStdString(e.what())));
         }
     }
 
@@ -674,18 +685,23 @@ int StereoPipeline::getReprojectionComputationTime () const
 // Processing
 void StereoPipeline::reprojectDisparityImage ()
 {
-    // Make sure reprojection is marked as active
-    if (!reprojectionActive) {
-        emit processingCompleted();
-        return;
-    }
-    
     // Make sure we have reprojection object set
     if (!reprojection) {
         emit error("Stereo reprojection object not set!");
         return;
     }
 
+    // Make sure we have disparity image
+    if (disparityImage.empty()) {
+        return;
+    }
+
+    // Make sure reprojection is marked as active
+    if (!reprojectionActive) {
+        emit processingCompleted();
+        return;
+    }
+    
     // Reproject
     try {
         QTime timer; timer.start();
