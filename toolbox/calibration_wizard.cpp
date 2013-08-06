@@ -1533,6 +1533,11 @@ void CalibrationWizardPageCalibration::setVisible (bool visible)
 {
     QWizardPage::setVisible(visible);
 
+    // On Windows, this function gets called without wizard being set...
+    if (!wizard()) {
+        return;
+    }
+
     if (visible) {
         wizard()->setButtonText(QWizard::CustomButton1, tr("&Calibrate"));
         wizard()->setOption(QWizard::HaveCustomButton1, true);
@@ -1739,6 +1744,11 @@ const cv::Size &CalibrationWizardPageStereoCalibration::getImageSize () const
 void CalibrationWizardPageStereoCalibration::setVisible (bool visible)
 {
     QWizardPage::setVisible(visible);
+
+    // On Windows, this function gets called without wizard being set...
+    if (!wizard()) {
+        return;
+    }
 
     if (visible) {
         wizard()->setButtonText(QWizard::CustomButton1, tr("&Calibrate"));
