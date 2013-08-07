@@ -177,10 +177,10 @@ void WindowStereoMethod::updateDisplayValues ()
     displayDisparityImage->setDisparity(disparity);
     
     // If image is valid, display computation time
-    if (disparity.data) {
+    if (!disparity.empty()) {
         statusBar->showMessage(QString("Disparity image (%1x%2) computed in %3 milliseconds; dropped %4 frames.").arg(disparity.cols).arg(disparity.rows).arg(pipeline->getDisparityImageComputationTime()).arg(pipeline->getStereoDroppedFrames()));
     } else {
-        statusBar->clearMessage();
+        statusBar->showMessage(QString("Disparity image not available."));
     }
 }
 

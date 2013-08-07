@@ -381,7 +381,7 @@ void DisparityImageDisplayWidget::setDisparity (const cv::Mat &newDisparity)
 float DisparityImageDisplayWidget::getDisparityAtPixel (const QPoint &pos)
 {
     // Make sure there is image displayed
-    if (!disparity.data) {
+    if (disparity.empty()) {
         return NAN;
     }
 

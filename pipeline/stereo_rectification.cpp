@@ -186,7 +186,7 @@ void StereoRectification::initializeStereoRectification ()
 void StereoRectification::rectifyImagePair (const cv::Mat &img1, const cv::Mat &img2, cv::Mat &img1r, cv::Mat &img2r) const
 {
     // Make sure images are valid
-    if (!img1.data || !img2.data) {
+    if (img1.empty() || img2.empty()) {
         return;
     }
     

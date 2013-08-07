@@ -141,10 +141,10 @@ void WindowReprojection::updateDisplayValues ()
     displayReprojectedImage->setPoints(reprojectedPoints);
 
     // If reprojected points are valid, display computation time
-    if (reprojectedPoints.data) {
+    if (!reprojectedPoints.empty()) {
         statusBar->showMessage(QString("Disparity image (%1x%2) reprojected in %3 milliseconds.").arg(reprojectedPoints.cols).arg(reprojectedPoints.rows).arg(pipeline->getReprojectionComputationTime()));
     } else {
-        statusBar->clearMessage();
+        statusBar->showMessage("Reprojection not available.");
     }
 }
 
