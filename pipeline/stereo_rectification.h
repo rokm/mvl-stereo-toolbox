@@ -39,6 +39,8 @@ public:
     void saveStereoCalibration (const QString &) const;
     void clearStereoCalibration ();
 
+    bool getPerformRectification () const;
+
     const cv::Rect &getRoi () const;
     void setRoi (const cv::Rect &);
 
@@ -50,11 +52,16 @@ public:
     const cv::Mat &getReprojectionMatrix () const;
     float getStereoBaseline () const;
 
+public slots:
+    void setPerformRectification (bool);
+
 protected:
     void initializeStereoRectification ();
 
 signals:
     void stateChanged (bool);
+    
+    void performRectificationChanged (bool);
 
     void error (QString) const;
     
@@ -62,6 +69,8 @@ signals:
 
 protected:
     bool isValid;
+    
+    bool performRectification;
 
     // Raw calibration parameters
     cv::Size imageSize;

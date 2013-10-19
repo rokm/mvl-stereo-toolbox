@@ -305,6 +305,7 @@ void StereoPipeline::setRectification (StereoRectification *newRectification)
     // Change rectification
     if (rectification) {
         disconnect(rectification, SIGNAL(stateChanged(bool)), this, SLOT(rectifyImages()));
+        disconnect(rectification, SIGNAL(performRectificationChanged(bool)), this, SLOT(rectifyImages()));
         disconnect(rectification, SIGNAL(stateChanged(bool)), this, SLOT(updateReprojectionMatrix()));
         disconnect(rectification, SIGNAL(roiChanged()), this, SLOT(rectifyImages()));
         if (rectification->parent() == this) {
@@ -318,6 +319,7 @@ void StereoPipeline::setRectification (StereoRectification *newRectification)
     }
     
     connect(rectification, SIGNAL(stateChanged(bool)), this, SLOT(rectifyImages()));
+    connect(rectification, SIGNAL(performRectificationChanged(bool)), this, SLOT(rectifyImages()));
     connect(rectification, SIGNAL(stateChanged(bool)), this, SLOT(updateReprojectionMatrix()));
     connect(rectification, SIGNAL(roiChanged()), this, SLOT(rectifyImages()));
 

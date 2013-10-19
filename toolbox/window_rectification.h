@@ -68,6 +68,7 @@ protected:
     ImagePairDisplayWidget *displayPair;
 
     QStatusBar *statusBar;
+    QCheckBox *checkBoxRectifyImages;
 
     // ROI dialog
     RoiDialog *dialogRoi;

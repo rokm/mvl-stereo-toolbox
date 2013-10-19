@@ -27,6 +27,7 @@ StereoRectification::StereoRectification (QObject *parent)
     : QObject(parent)
 {
     isValid = false;
+    performRectification = true;
 
     isVerticalStereo = false;
 }
@@ -190,7 +191,7 @@ void StereoRectification::rectifyImagePair (const cv::Mat &img1, const cv::Mat &
         return;
     }
     
-    if (!isValid) {
+    if (!isValid || !performRectification) {
         // Pass-through
         img1.copyTo(img1r);
         img2.copyTo(img2r);
@@ -230,4 +231,21 @@ void StereoRectification::setRoi (const cv::Rect &newRoi)
 const cv::Rect &StereoRectification::getRoi () const
 {
     return roi;
+}
+
+// *********************************************************************
+// *                     Perform-rectification flag                    *
+// *********************************************************************
+void StereoRectification::setPerformRectification (bool enable)
+{
+    if (performRectification != enable) {
+        performRectification = enable;
+        
+        emit performRectificationChanged(performRectification);
+    }
+}
+
+bool StereoRectification::getPerformRectification () const
+{
+    return performRectification;
 }

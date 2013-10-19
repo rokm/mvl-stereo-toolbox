@@ -93,6 +93,14 @@ WindowRectification::WindowRectification (StereoPipeline *p, StereoRectification
     statusBar = new QStatusBar(this);
     layout->addWidget(statusBar, 2, 0, 1, 2);
 
+    checkBoxRectifyImages = new QCheckBox("Rectify images", statusBar);
+    checkBoxRectifyImages->setToolTip("Allows image rectification to be turned off even when stereo calibration is loaded. Useful in\n"
+                                "cases when input images are already rectified, and calibration is used for reprojection.");
+    checkBoxRectifyImages->setChecked(rectification->getPerformRectification());
+    connect(checkBoxRectifyImages, SIGNAL(toggled(bool)), rectification, SLOT(setPerformRectification(bool)));
+    connect(rectification, SIGNAL(performRectificationChanged(bool)), checkBoxRectifyImages, SLOT(setChecked(bool)));
+    statusBar->addPermanentWidget(checkBoxRectifyImages);
+
     // Pipeline
     connect(pipeline, SIGNAL(rectifiedImagesChanged()), this, SLOT(updateImage()));
 
@@ -119,7 +127,11 @@ void WindowRectification::updateImage ()
 void WindowRectification::updateState ()
 {
     if (rectification->getState()) {
-        statusBar->showMessage(QString("Calibration set (estimated baseline: %1 mm); rectifying input images (%2 milliseconds).").arg(rectification->getStereoBaseline(), 0, 'f', 0).arg(pipeline->getRectificationTime()));
+        if (rectification->getPerformRectification()) {
+            statusBar->showMessage(QString("Calibration set (estimated baseline: %1 mm); rectifying input images (%2 milliseconds).").arg(rectification->getStereoBaseline(), 0, 'f', 0).arg(pipeline->getRectificationTime()));
+        } else {
+            statusBar->showMessage(QString("Calibration set (estimated baseline: %1 mm); passing input images through.").arg(rectification->getStereoBaseline(), 0, 'f', 0));
+        }
         pushButtonClear->setEnabled(true);
         pushButtonExport->setEnabled(true);
         pushButtonRoi->setEnabled(true);
