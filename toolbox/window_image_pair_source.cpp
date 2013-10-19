@@ -187,8 +187,8 @@ void WindowImagePairSource::snapshotImages ()
     // the filename...
     cv::Mat tmpImg1, tmpImg2;
 
-    pipeline->getLeftRectifiedImage().copyTo(tmpImg1);
-    pipeline->getRightRectifiedImage().copyTo(tmpImg2);
+    pipeline->getLeftImage().copyTo(tmpImg1);
+    pipeline->getRightImage().copyTo(tmpImg2);
     
     // Get basename if not already set
     if (snapshotBaseName.isEmpty()) {
