@@ -193,8 +193,13 @@ void StereoRectification::rectifyImagePair (const cv::Mat &img1, const cv::Mat &
     
     if (!isValid || !performRectification) {
         // Pass-through
-        img1.copyTo(img1r);
-        img2.copyTo(img2r);
+        if (!roi.width || !roi.height) {
+            img1.copyTo(img1r);
+            img2.copyTo(img2r);
+        } else {
+            img1(roi).copyTo(img1r);
+            img2(roi).copyTo(img2r);
+        }
     } else {
         if (img1.cols != imageSize.width || img1.rows != imageSize.height || img2.cols != imageSize.width || img2.rows != imageSize.height) {
             img1r = cv::Mat();
