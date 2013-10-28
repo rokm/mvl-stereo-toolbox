@@ -1,5 +1,5 @@
 /*
- * OpenCV GPU Dense Optical Flow - Farneback: plugin
+ * OpenCV GPU Dense Optical Flow - Lukas-Kanade with pyramids: config widget
  * Copyright (C) 2013 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
@@ -17,35 +17,38 @@
  * 
  */
 
-#include <plugin_factory.h>
-#include "method.h"
+#ifndef STEREO_METHOD_FLOW_PYRLK_GPU_CONFIG_WIDGET_H
+#define STEREO_METHOD_FLOW_PYRLK_GPU_CONFIG_WIDGET_H
 
-using namespace StereoMethodFlowFarnebackGpu;
+#include <QtGui>
 
 
-class Plugin : public QObject, PluginFactory
+namespace StereoMethodFlowPyrLKGpu {
+    
+class Method;
+
+class MethodWidget : public QWidget
 {
     Q_OBJECT
-    Q_INTERFACES(PluginFactory)
     
-    PluginType getPluginType () const {
-        return PluginStereoMethod;
-    }
-    
-    QString getShortName () const {
-        return "Flow_Farneback_GPU";
-    }
-    
-    QString getDescription () const {
-        return "OpenCV GPU Optical Flow - Farneback";
-    }
-    
-    QObject *createObject (QObject *parent = 0) const {
-        return new Method(parent);
-    }
+public:
+    MethodWidget (Method *, QWidget * = 0);
+    virtual ~MethodWidget ();
+
+protected slots:
+    void updateParameters ();
+
+protected:
+    Method *method;
+
+    QCheckBox *checkBoxReverseImages;
+
+    QSpinBox *spinBoxWindowWidth;
+    QSpinBox *spinBoxWindowHeight;
+    QSpinBox *spinBoxMaxLevel;
+    QSpinBox *spinBoxNumberOfIterations;
 };
 
-Q_EXPORT_PLUGIN2(opencv_gpu_flow_farneback, Plugin)
+}
 
-// Because we have Q_OBJECT in source file
-#include "plugin.moc"
+#endif

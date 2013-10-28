@@ -45,7 +45,7 @@ class Plugin : public QObject, PluginFactory
     }
 };
 
-Q_EXPORT_PLUGIN2(opencv_bm, Plugin)
+Q_EXPORT_PLUGIN2(opencv_gpu_flow_brox, Plugin)
 
 // Because we have Q_OBJECT in source file
 #include "plugin.moc"
