@@ -31,6 +31,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
     QLabel *label;
     QSpinBox *spinBox;
     QDoubleSpinBox *spinBoxD;
+    QCheckBox *checkBox;
     QFrame *line;
 
     QString tooltip;
@@ -48,6 +49,16 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
     line->setFrameStyle(QFrame::HLine | QFrame::Sunken);
 
     layout->addRow(line);
+
+    // Reverse images
+    tooltip = "Reverse input images.";
+    
+    checkBox = new QCheckBox("Reverse images", this);
+    checkBox->setToolTip(tooltip);
+    connect(checkBox, SIGNAL(toggled(bool)), method, SLOT(setReverseImages(bool)));
+    checkBoxReverseImages = checkBox;
+
+    layout->addRow(checkBox);
 
     // Alpha
     tooltip = "Flow smoothness";
@@ -153,6 +164,11 @@ MethodWidget::~MethodWidget ()
 void MethodWidget::updateParameters ()
 {
     bool oldState;
+
+    // Reverse images
+    oldState = checkBoxReverseImages->blockSignals(true);
+    checkBoxReverseImages->setChecked(method->getReverseImages());
+    checkBoxReverseImages->blockSignals(oldState);
 
     // Alpha
     oldState = spinBoxAlpha->blockSignals(true);

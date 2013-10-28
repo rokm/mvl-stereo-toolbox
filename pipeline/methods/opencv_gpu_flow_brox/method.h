@@ -55,6 +55,7 @@ public:
     }
 
     // Parameters
+    bool getReverseImages () const;
     double getAlpha () const;
     double getGamma () const;
     double getScaleFactor () const;
@@ -63,6 +64,7 @@ public:
     int getSolverIterations () const;
 
 public slots:
+    void setReverseImages (bool);
     void setAlpha (double);
     void setGamma (double);
     void setScaleFactor (double);
@@ -77,8 +79,9 @@ signals:
 protected:
     // Optical flow
     cv::gpu::BroxOpticalFlow flow;
+    bool reverseImages;
     QMutex mutex;
-
+    
     cv::Mat tmpImg1a, tmpImg2a, tmpImg1b, tmpImg2b;
     cv::Mat tmpDisp;
 };

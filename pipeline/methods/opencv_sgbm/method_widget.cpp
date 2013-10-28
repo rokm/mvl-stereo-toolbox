@@ -257,7 +257,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
     
     checkBox = new QCheckBox("Full DP", this);
     checkBox->setToolTip(tooltip);
-    connect(checkBox, SIGNAL(stateChanged(int)), this, SLOT(fullDPChanged(int)));
+    connect(checkBox, SIGNAL(toggled(bool)), method, SLOT(setFullDP(bool)));
     checkBoxFullDP = checkBox;
 
     layout->addRow(checkBox);
@@ -273,11 +273,6 @@ MethodWidget::~MethodWidget ()
 void MethodWidget::presetChanged (int index)
 {
     method->usePreset(comboBoxPreset->itemData(index).toInt());
-}
-
-void MethodWidget::fullDPChanged (int state)
-{
-    method->setFullDP(state == Qt::Checked);
 }
 
 

@@ -39,7 +39,6 @@ protected slots:
     void presetChanged (int);
 
     void preFilterTypeChanged (int);
-    void trySmallerWindowsChanged (int);
 
     void updateParameters ();
 

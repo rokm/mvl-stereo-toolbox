@@ -26,7 +26,7 @@ using namespace StereoMethodFlowBroxGpu;
 
 
 Method::Method (QObject *parent)
-    : QObject(parent), StereoMethod(), flow(0.197f, 0.5f, 0.8f, 10, 77, 10)
+    : QObject(parent), StereoMethod(), flow(0.197f, 0.5f, 0.8f, 10, 77, 10), reverseImages(false)
 {
 }
 
@@ -76,7 +76,13 @@ void Method::computeDisparityImage (const cv::Mat &img1, const cv::Mat &img2, cv
     gpu_img2.upload(tmpImg2b);
     
     // Compute flow
-    flow(gpu_img2, gpu_img1, gpu_disp_u, gpu_disp_v);
+    QMutexLocker locker(&mutex);
+    if (reverseImages) {
+        flow(gpu_img1, gpu_img2, gpu_disp_u, gpu_disp_v);
+    } else {
+        flow(gpu_img2, gpu_img1, gpu_disp_u, gpu_disp_v);
+    }
+    locker.unlock();
 
     // Download u-disparity
     gpu_disp_u.download(tmpDisp);
@@ -114,7 +120,8 @@ void Method::loadParameters (const QString &filename)
         throw QString("Invalid configuration for method \"%1\"!").arg(getShortName());
     }
     
-    // Load parameters    
+    // Load parameters
+    storage["ReverseImages"] >> reverseImages;
     storage["Alpha"] >> flow.alpha;
     storage["Gamma"] >> flow.gamma;
     storage["ScaleFactor"] >> flow.scale_factor;
@@ -140,6 +147,7 @@ void Method::saveParameters (const QString &filename) const
     storage << "MethodName" << getShortName().toStdString();
 
     // Save parameters
+    storage << "ReverseImages" << reverseImages;
     storage << "Alpha" << flow.alpha;
     storage << "Gamma" << flow.gamma;
     storage << "ScaleFactor" << flow.scale_factor;
@@ -153,6 +161,17 @@ void Method::saveParameters (const QString &filename) const
 // *********************************************************************
 // *                         Method parameters                         *
 // *********************************************************************
+// Reverse images
+bool Method::getReverseImages () const
+{
+    return reverseImages;
+}
+
+void Method::setReverseImages (bool newValue)
+{
+    setParameter<bool>(reverseImages, newValue);
+}
+
 // Alpha
 double Method::getAlpha () const
 {

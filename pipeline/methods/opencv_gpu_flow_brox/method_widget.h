@@ -41,6 +41,8 @@ protected slots:
 protected:
     Method *method;
 
+    QCheckBox *checkBoxReverseImages;
+
     QDoubleSpinBox *spinBoxAlpha;
     QDoubleSpinBox *spinBoxGamma;
     QDoubleSpinBox *spinBoxScaleFactor;

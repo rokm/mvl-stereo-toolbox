@@ -202,7 +202,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
     
     checkBox = new QCheckBox("Add corners", this);
     checkBox->setToolTip(tooltip);
-    connect(checkBox, SIGNAL(stateChanged(int)), this, SLOT(addCornersChanged(int)));
+    connect(checkBox, SIGNAL(toggled(bool)), method, SLOT(setAddCorners(bool)));
     checkBoxAddCorners = checkBox;
 
     layout->addRow(checkBox);
@@ -376,7 +376,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
     
     checkBox = new QCheckBox("Median filter", this);
     checkBox->setToolTip(tooltip);
-    connect(checkBox, SIGNAL(stateChanged(int)), this, SLOT(medianFilterChanged(int)));
+    connect(checkBox, SIGNAL(toggled(bool)), method, SLOT(setFilterMedian(bool)));
     checkBoxFilterMedian = checkBox;
 
     layout->addRow(checkBox);
@@ -386,7 +386,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
     
     checkBox = new QCheckBox("Adaptive mean filter", this);
     checkBox->setToolTip(tooltip);
-    connect(checkBox, SIGNAL(stateChanged(int)), this, SLOT(adaptiveMeanFilterChanged(int)));
+    connect(checkBox, SIGNAL(toggled(bool)), method, SLOT(setFilterAdaptiveMean(bool)));
     checkBoxFilterAdaptiveMean = checkBox;
 
     layout->addRow(checkBox);
@@ -396,7 +396,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
     
     checkBox = new QCheckBox("Post-process only left", this);
     checkBox->setToolTip(tooltip);
-    connect(checkBox, SIGNAL(stateChanged(int)), this, SLOT(postProcessOnlyLeftChanged(int)));
+    connect(checkBox, SIGNAL(toggled(bool)), method, SLOT(setPostProcessOnlyLeft(bool)));
     checkBoxPostProcessOnlyLeft = checkBox;
 
     layout->addRow(checkBox);
@@ -406,7 +406,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
     
     checkBox = new QCheckBox("Subsampling", this);
     checkBox->setToolTip(tooltip);
-    connect(checkBox, SIGNAL(stateChanged(int)), this, SLOT(subsamplingChanged(int)));
+    connect(checkBox, SIGNAL(toggled(bool)), method, SLOT(setSubsampling(bool)));
     checkBoxSubsampling = checkBox;
 
     layout->addRow(checkBox);
@@ -422,7 +422,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
     
     checkBox = new QCheckBox("Return left disp. image", this);
     checkBox->setToolTip(tooltip);
-    connect(checkBox, SIGNAL(stateChanged(int)), this, SLOT(returnLeftChanged(int)));
+    connect(checkBox, SIGNAL(toggled(bool)), method, SLOT(setReturnLeft(bool)));
     checkBoxReturnLeft = checkBox;
 
     layout->addRow(checkBox);
@@ -438,36 +438,6 @@ MethodWidget::~MethodWidget ()
 void MethodWidget::presetChanged (int index)
 {
     method->usePreset(comboBoxPreset->itemData(index).toInt());
-}
-
-void MethodWidget::addCornersChanged (int state)
-{
-    method->setAddCorners(state == Qt::Checked);
-}
-
-void MethodWidget::medianFilterChanged (int state)
-{
-    method->setFilterMedian(state == Qt::Checked);
-}
-
-void MethodWidget::adaptiveMeanFilterChanged (int state)
-{
-    method->setFilterAdaptiveMean(state == Qt::Checked);
-}
-
-void MethodWidget::postProcessOnlyLeftChanged (int state)
-{
-    method->setPostProcessOnlyLeft(state == Qt::Checked);
-}
-
-void MethodWidget::subsamplingChanged (int state)
-{
-    method->setSubsampling(state == Qt::Checked);
-}
-
-void MethodWidget::returnLeftChanged (int state)
-{
-    method->setReturnLeft(state == Qt::Checked);
 }
 
 void MethodWidget::updateParameters ()

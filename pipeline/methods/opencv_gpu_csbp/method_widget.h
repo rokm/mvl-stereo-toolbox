@@ -38,8 +38,6 @@ public:
 protected slots:
     void presetChanged (int);
 
-    void localCostChanged (int);
-
     void updateParameters ();
 
 protected:

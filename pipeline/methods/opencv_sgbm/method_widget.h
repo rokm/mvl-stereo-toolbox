@@ -37,8 +37,6 @@ public:
 
 protected slots:
     void presetChanged (int);
-
-    void fullDPChanged (int);
     
     void updateParameters ();
 

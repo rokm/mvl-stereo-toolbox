@@ -37,13 +37,6 @@ public:
 
 protected slots:
     void presetChanged (int);
-
-    void addCornersChanged (int);
-    void medianFilterChanged (int);
-    void adaptiveMeanFilterChanged (int);
-    void postProcessOnlyLeftChanged (int);
-    void subsamplingChanged (int);
-    void returnLeftChanged (int);
     
     void updateParameters ();
 

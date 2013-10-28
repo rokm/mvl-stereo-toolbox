@@ -219,7 +219,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
     
     checkBox = new QCheckBox("Local cost", this);
     checkBox->setToolTip(tooltip);
-    connect(checkBox, SIGNAL(stateChanged(int)), this, SLOT(localCostChanged(int)));
+    connect(checkBox, SIGNAL(toggled(bool)), method, SLOT(setUseLocalCost(bool)));
     checkBoxUseLocalCost = checkBox;
 
     layout->addRow(checkBox);
@@ -235,11 +235,6 @@ MethodWidget::~MethodWidget ()
 void MethodWidget::presetChanged (int index)
 {
     method->usePreset(comboBoxPreset->itemData(index).toInt());
-}
-
-void MethodWidget::localCostChanged (int state)
-{
-    method->setUseLocalCost(state == Qt::Checked);
 }
 
 

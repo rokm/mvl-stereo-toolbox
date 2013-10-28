@@ -250,7 +250,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
     
     checkBox = new QCheckBox("Try smaller windows", this);
     checkBox->setToolTip(tooltip);
-    connect(checkBox, SIGNAL(stateChanged(int)), this, SLOT(trySmallerWindowsChanged(int)));
+    connect(checkBox, SIGNAL(toggled(bool)), method, SLOT(setTrySmallerWindows(bool)));
     checkBoxTrySmallerWindow = checkBox;
 
     layout->addRow(checkBox);
@@ -293,12 +293,6 @@ void MethodWidget::preFilterTypeChanged (int index)
 {
     method->setPreFilterType(comboBoxPreFilterType->itemData(index).toInt());
 }
-
-void MethodWidget::trySmallerWindowsChanged (int state)
-{
-    method->setTrySmallerWindows(state == Qt::Checked);
-}
-
 
 void MethodWidget::updateParameters ()
 {
