@@ -78,6 +78,8 @@ protected:
     // Block matcher
     cv::gpu::StereoBM_GPU bm;
     QMutex mutex;
+
+    cv::Mat tmpImg1, tmpImg2;
 };
 
 }

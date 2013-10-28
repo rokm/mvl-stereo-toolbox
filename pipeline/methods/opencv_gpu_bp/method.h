@@ -92,6 +92,8 @@ protected:
     cv::gpu::StereoBeliefPropagation bp;
     QMutex mutex;
 
+    cv::Mat tmpDisp;
+
     int imageWidth, imageHeight;
 };
 

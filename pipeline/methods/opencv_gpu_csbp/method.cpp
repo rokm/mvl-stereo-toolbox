@@ -86,25 +86,24 @@ void Method::computeDisparityImage (const cv::Mat &img1, const cv::Mat &img2, cv
     // Store in case user wants to estimate optimal parameters
     imageWidth = img1.cols;
     imageHeight = img1.rows;
-    
+
     if (1) {
-        QMutexLocker locker(&mutex);
         // Make sure that GPU matrices are destroyed as soon as they are
         // not needed anymore via scoping...
         cv::gpu::GpuMat gpu_img1(img1);
         cv::gpu::GpuMat gpu_img2(img2);
 
         // Compute disparity image
+        QMutexLocker locker(&mutex);
         bp(gpu_img1, gpu_img2, gpu_disp);
         locker.unlock();
     }
     
-    // Convert and download
-    cv::gpu::GpuMat gpu_disp8u;
-    gpu_disp.convertTo(gpu_disp8u, CV_8U);
-    gpu_disp8u.download(disparity);
+    // Download
+    gpu_disp.download(tmpDisp);
 
-    // Number of disparities
+    // Convert and return
+    tmpDisp.convertTo(disparity, CV_8U);
     numDisparities = getNumDisparities();
 }
 

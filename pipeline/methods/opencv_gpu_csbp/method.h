@@ -100,6 +100,7 @@ protected:
     cv::gpu::StereoConstantSpaceBP bp;
     QMutex mutex;
 
+    cv::Mat tmpDisp;
     int imageWidth, imageHeight;
 };
 

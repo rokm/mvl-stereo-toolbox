@@ -65,20 +65,22 @@ void Method::computeDisparityImage (const cv::Mat &img1, const cv::Mat &img2, cv
 {
     cv::gpu::GpuMat gpu_img1, gpu_img2, gpu_disp;
     
-    // Upload to GPU and convert to grayscale, if needed
+    // Convert to float grayscale
     if (img1.channels() == 3) {
-        cv::gpu::GpuMat gpu_tmp(img1);
-        cv::gpu::cvtColor(gpu_tmp, gpu_img1, CV_BGR2GRAY);
+        cv::cvtColor(img1, tmpImg1, CV_BGR2GRAY);
     } else {
-        gpu_img1.upload(img1);
+        tmpImg1 = img1;
     }
 
     if (img2.channels() == 3) {
-        cv::gpu::GpuMat gpu_tmp(img2);
-        cv::gpu::cvtColor(gpu_tmp, gpu_img2, CV_BGR2GRAY);
+        cv::cvtColor(img2, tmpImg2, CV_BGR2GRAY);
     } else {
-        gpu_img2.upload(img2);
+        tmpImg2 = img2;
     }
+
+    // Upload to GPU
+    gpu_img1.upload(tmpImg1);
+    gpu_img2.upload(tmpImg2);
 
     // Compute disparity image
     QMutexLocker locker(&mutex);

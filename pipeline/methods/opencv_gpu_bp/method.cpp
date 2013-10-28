@@ -97,12 +97,11 @@ void Method::computeDisparityImage (const cv::Mat &img1, const cv::Mat &img2, cv
         locker.unlock();
     }
     
-    // Convert and download
-    cv::gpu::GpuMat gpu_disp8u;
-    gpu_disp.convertTo(gpu_disp8u, CV_8U);
-    gpu_disp8u.download(disparity);
+    // Download
+    gpu_disp.download(tmpDisp);
 
-    // Number of disparities
+    // Convert and return
+    tmpDisp.convertTo(disparity, CV_8U);
     numDisparities = getNumDisparities();
 }
 

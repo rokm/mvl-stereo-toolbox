@@ -76,10 +76,11 @@ signals:
 
 protected:
     // Optical flow
-    cv::Mat tmpImg1a, tmpImg2a, tmpImg1b, tmpImg2b;
-    cv::Mat tmpDisp;
     cv::gpu::BroxOpticalFlow flow;
     QMutex mutex;
+
+    cv::Mat tmpImg1a, tmpImg2a, tmpImg1b, tmpImg2b;
+    cv::Mat tmpDisp;
 };
 
 };
