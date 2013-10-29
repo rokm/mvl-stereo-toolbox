@@ -134,12 +134,10 @@ void WindowRectification::updateState ()
         }
         pushButtonClear->setEnabled(true);
         pushButtonExport->setEnabled(true);
-        pushButtonRoi->setEnabled(true);
     } else {
         statusBar->showMessage("Calibration not set; passing input images through.");
         pushButtonClear->setEnabled(false);
         pushButtonExport->setEnabled(false);
-        pushButtonRoi->setEnabled(false);
     }
 }
 
