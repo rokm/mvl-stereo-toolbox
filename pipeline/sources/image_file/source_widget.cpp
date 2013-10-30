@@ -137,7 +137,8 @@ QWidget *SourceWidget::createImageFrame (bool left)
 
 void SourceWidget::loadImagePair ()
 {
-    QStringList filenames = QFileDialog::getOpenFileNames(this, "Load left and right image", QString(), "Images (*.png *.jpg *.pgm *.ppm *.tif *.bmp)");
+    // Get filename
+    QStringList filenames = QFileDialog::getOpenFileNames(this, "Load left and right image", QFileInfo(source->getLeftImageFile()->getImageFilename()).filePath(), "Images (*.png *.jpg *.pgm *.ppm *.tif *.bmp)");
 
     // Take first two images
     if (filenames.size() >= 2) {

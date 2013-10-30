@@ -122,7 +122,7 @@ void ImageFileWidget::updateImageInformation ()
 
 void ImageFileWidget::loadFile ()
 {
-    QString filename = QFileDialog::getOpenFileName(this, "Load image", QString(), "Images (*.png *.jpg *.pgm *.ppm *.tif *.bmp)");
+    QString filename = QFileDialog::getOpenFileName(this, "Load image", QFileInfo(file->getImageFilename()).filePath(), "Images (*.png *.jpg *.pgm *.ppm *.tif *.bmp)");
     if (!filename.isEmpty()) {
         file->setImageFileOrUrl(filename, false);
     }

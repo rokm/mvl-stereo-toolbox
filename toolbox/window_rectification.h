@@ -75,6 +75,9 @@ protected:
 
     // Wizard
     CalibrationWizard *wizard;
+
+    // Cached calibration file filename
+    QString lastCalibrationFilename;
 };
 
 class RoiDialog : public QDialog

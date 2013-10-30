@@ -166,8 +166,9 @@ void WindowRectification::runCalibrationWizard ()
 
 void WindowRectification::importCalibration ()
 {
-    QString fileName = QFileDialog::getOpenFileName(this, "Load calibration from file", QString(), "OpenCV storage file (*.xml *.yml *.yaml)");
+    QString fileName = QFileDialog::getOpenFileName(this, "Load calibration from file", lastCalibrationFilename, "OpenCV storage file (*.xml *.yml *.yaml)");
     if (!fileName.isNull()) {
+        lastCalibrationFilename = fileName; // Store filename
         try {
             rectification->loadStereoCalibration(fileName);
         } catch (QString e) {
@@ -178,8 +179,9 @@ void WindowRectification::importCalibration ()
 
 void WindowRectification::exportCalibration ()
 {
-    QString fileName = QFileDialog::getSaveFileName(this, "Save calibration to file", QString(), "OpenCV storage file (*.xml *.yml *.yaml)");
+    QString fileName = QFileDialog::getSaveFileName(this, "Save calibration to file", lastCalibrationFilename, "OpenCV storage file (*.xml *.yml *.yaml)");
     if (!fileName.isNull()) {
+        lastCalibrationFilename = fileName; // Store filename
         try {
             rectification->saveStereoCalibration(fileName);
         } catch (QString e) {
