@@ -55,9 +55,6 @@ void ImageFile::setImageFileOrUrl (const QString &name, bool remote)
     // Set
     fileNameOrUrl = name;
     isRemote = remote;
-
-    // Load image via periodic refresh function
-    refreshImage();
 }
 
 

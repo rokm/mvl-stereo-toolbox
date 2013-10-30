@@ -86,6 +86,9 @@ void Source::loadImagePair (const QString &left, const QString &right, bool remo
     // Set images
     leftImageFile->setImageFileOrUrl(left, remote);
     rightImageFile->setImageFileOrUrl(right, remote);
+
+    // Get images
+    periodicRefresh();
 }
 
 
@@ -148,6 +151,10 @@ void Source::setRefreshPeriod (int newPeriod)
 
 void Source::periodicRefresh ()
 {
+    // Clear both
+    leftImageReady = false;
+    rightImageReady = false;
+    
     // Get images
     leftImageFile->refreshImage();
     rightImageFile->refreshImage();
@@ -165,8 +172,7 @@ void Source::synchronizeFrames ()
     bool requireLeft = !leftImageFile->getImageFilename().isEmpty();
     bool requireRight = !rightImageFile->getImageFilename().isEmpty();
 
-    // We do frame synchronization only if periodic refresh is running
-    if (!getPeriodicRefreshState() || ((!requireLeft || leftImageReady) && (!requireRight || rightImageReady))) {
+    if (((!requireLeft || leftImageReady) && (!requireRight || rightImageReady))) {
         if (requireLeft) {
             leftImageFile->copyFrame(imageLeft);
         } else {

@@ -124,7 +124,10 @@ void ImageFileWidget::loadFile ()
 {
     QString filename = QFileDialog::getOpenFileName(this, "Load image", QFileInfo(file->getImageFilename()).filePath(), "Images (*.png *.jpg *.pgm *.ppm *.tif *.bmp)");
     if (!filename.isEmpty()) {
+        // Set filename
         file->setImageFileOrUrl(filename, false);
+        // Get image
+        file->refreshImage();
     }
 }
 
@@ -135,6 +138,8 @@ void ImageFileWidget::loadUrl ()
     if (dialogUrl->exec() == QDialog::Accepted) {
         // Set URL
         file->setImageFileOrUrl(dialogUrl->getUrl(), true);
+        // Get image
+        file->refreshImage();
     }
 }
 
