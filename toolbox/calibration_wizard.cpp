@@ -1554,6 +1554,8 @@ void CalibrationWizardPageCalibration::initializePage ()
     cv::Size imageSize = field(fieldPrefix + "ImageSize").value<cv::Size>();
     boxCameraParameters->setPrincipalPointX(imageSize.width/2);
     boxCameraParameters->setPrincipalPointY(imageSize.height/2);
+
+    calibrationComplete = false;
 }
 
 bool CalibrationWizardPageCalibration::isComplete () const
@@ -1786,6 +1788,8 @@ void CalibrationWizardPageStereoCalibration::initializePage ()
 
         boxCalibrationFlags->setFlags(cv::CALIB_RATIONAL_MODEL | cv::CALIB_FIX_INTRINSIC); // Default flags
     }
+
+    calibrationComplete = false;
 }
 
 bool CalibrationWizardPageStereoCalibration::isComplete () const
