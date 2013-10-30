@@ -27,7 +27,8 @@ using namespace SourceImageFile;
 SourceWidget::SourceWidget (Source *s, QWidget *parent)
     : QWidget(parent), source(s)
 {
-    QFormLayout *layout = new QFormLayout(this);
+    // Build layout
+    QVBoxLayout *baseLayout = new QVBoxLayout(this);
 
     QLabel *label;
     QPushButton *button;
@@ -39,13 +40,23 @@ SourceWidget::SourceWidget (Source *s, QWidget *parent)
     label = new QLabel("<b><u>Image file source</u><b>", this);
     label->setAlignment(Qt::AlignHCenter);
 
-    layout->addRow(label);
+    baseLayout->addWidget(label);
 
     // Separator
     line = new QFrame(this);
     line->setFrameStyle(QFrame::HLine | QFrame::Sunken);
 
-    layout->addRow(line);
+    baseLayout->addWidget(line);
+
+    // Scrollable area with layout
+    QScrollArea *scrollArea = new QScrollArea(this);
+    scrollArea->setWidgetResizable(true);
+    scrollArea->setWidget(new QWidget(this));
+
+    baseLayout->addWidget(scrollArea);
+    
+    QFormLayout *layout = new QFormLayout(scrollArea->widget());
+    
 
     // Load from files
     tooltip = "Load new pair of images from harddisk.";

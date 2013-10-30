@@ -104,16 +104,11 @@ WindowStereoMethod::WindowStereoMethod (StereoPipeline *p, QList<StereoMethod *>
     layout->addWidget(splitter);
     
     // Methods
-    QScrollArea *scrollArea = new QScrollArea(this);
-    scrollArea->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    scrollArea->resize(400, 600); // Make sure scroll area has some size
-    splitter->addWidget(scrollArea);
-    
-    QTabWidget *tabWidget = new QTabWidget(scrollArea);
-    tabWidget->setTabPosition(QTabWidget::West);
+    QTabWidget *tabWidget = new QTabWidget(this);
+    tabWidget->setUsesScrollButtons(true);
+    tabWidget->setTabPosition(QTabWidget::West);    
 
-    scrollArea->setWidget(tabWidget);
-    scrollArea->setWidgetResizable(true);
+    splitter->addWidget(tabWidget);
     
     // Disparity image
     displayDisparityImage = new DisparityImageDisplayWidget("Disparity image", this);

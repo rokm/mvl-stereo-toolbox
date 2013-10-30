@@ -29,7 +29,10 @@ using namespace StereoMethodVar;
 MethodWidget::MethodWidget (Method *m, QWidget *parent)
     : QWidget(parent), method(m)
 {
-    QFormLayout *layout = new QFormLayout(this);
+    connect(method, SIGNAL(parameterChanged()), this, SLOT(updateParameters()));
+
+    // Build layout
+    QVBoxLayout *baseLayout = new QVBoxLayout(this);
 
     QLabel *label;
     QComboBox *comboBox;
@@ -39,19 +42,27 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
     QCheckBox *checkBox;
     QString tooltip;
 
-    connect(method, SIGNAL(parameterChanged()), this, SLOT(updateParameters()));
-
     // Name
     label = new QLabel("<b><u>OpenCV variational matching</u></b>", this);
     label->setAlignment(Qt::AlignHCenter);
 
-    layout->addRow(label);
+    baseLayout->addWidget(label);
 
     // Separator
     line = new QFrame(this);
     line->setFrameStyle(QFrame::HLine | QFrame::Sunken);
 
-    layout->addRow(line);
+    baseLayout->addWidget(line);
+
+    // Scrollable area with layout
+    QScrollArea *scrollArea = new QScrollArea(this);
+    scrollArea->setWidgetResizable(true);
+    scrollArea->setWidget(new QWidget(this));
+
+    baseLayout->addWidget(scrollArea);
+
+    QFormLayout *layout = new QFormLayout(scrollArea->widget());
+
 
     // Preset
     tooltip = "Presets for quick initialization.";

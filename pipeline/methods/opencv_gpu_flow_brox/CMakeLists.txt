@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8)
-project(method_opencv_gpu_flow_bronx CXX)
+project(method_opencv_gpu_flow_brox CXX)
 
 find_package(OpenCV REQUIRED core imgproc gpu)
 find_package(Qt4 REQUIRED)

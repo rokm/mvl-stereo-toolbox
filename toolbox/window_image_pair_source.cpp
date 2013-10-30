@@ -88,18 +88,12 @@ WindowImagePairSource::WindowImagePairSource (StereoPipeline *p, QList<ImagePair
     displayImageRight->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     imagesLayout->addWidget(displayImageRight);
 
-    // Sources tab widget
-    QScrollArea *scrollArea = new QScrollArea(this);
-    scrollArea->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    splitter->addWidget(scrollArea);
-    splitter->setCollapsible(1, true);
-    
-    QTabWidget *tabWidget = new QTabWidget(scrollArea);
+    // Sources tab widget    
+    QTabWidget *tabWidget = new QTabWidget(this);
     tabWidget->setTabPosition(QTabWidget::West);
+    tabWidget->setUsesScrollButtons(true);
 
-    scrollArea->setWidget(tabWidget);
-    scrollArea->setWidgetResizable(true);
-
+    splitter->addWidget(tabWidget);
 
     // Status bar
     statusBar = new QStatusBar(this);

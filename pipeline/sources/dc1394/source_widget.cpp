@@ -30,7 +30,8 @@ SourceWidget::SourceWidget (Source *s, QWidget *parent)
     configLeftDevice = NULL;
     configRightDevice = NULL;
 
-    QFormLayout *layout = new QFormLayout(this);
+    // Build layout
+    QVBoxLayout *baseLayout = new QVBoxLayout(this);
 
     QLabel *label;
     QFrame *line;
@@ -41,13 +42,23 @@ SourceWidget::SourceWidget (Source *s, QWidget *parent)
     label = new QLabel("<b><u>DC1394 source</u></b>", this);
     label->setAlignment(Qt::AlignHCenter);
     
-    layout->addRow(label);
+    baseLayout->addWidget(label);
 
     // Separator
     line = new QFrame(this);
     line->setFrameStyle(QFrame::HLine | QFrame::Sunken);
 
-    layout->addRow(line);
+    baseLayout->addWidget(line);
+
+    // Scrollable area with layout
+    QScrollArea *scrollArea = new QScrollArea(this);
+    scrollArea->setWidgetResizable(true);
+    scrollArea->setWidget(new QWidget(this));
+
+    baseLayout->addWidget(scrollArea);
+    
+    QFormLayout *layout = new QFormLayout(scrollArea->widget());
+    
 
     // Rescan
     tooltip = "Rescan bus for DC1394 devices.";
