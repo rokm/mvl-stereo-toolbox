@@ -31,7 +31,7 @@ Method::Method (QObject *parent)
     // Default image width, used to compute optimal parameters
     imageWidth = 640;
 
-    usePreset(OpenCVBasic);
+    usePreset(OpenCV);
 }
 
 Method::~Method ()
@@ -60,19 +60,9 @@ QWidget *Method::createConfigWidget (QWidget *parent)
 void Method::usePreset (int type)
 {
     switch (type) {
-        case OpenCVBasic: {
-            // OpenCV basic
+        case OpenCV: {
+            // OpenCV (the method does not really use presets)
             bm = cv::StereoBM(cv::StereoBM::BASIC_PRESET);
-            break;
-        }
-        case OpenCVFishEye: {
-            // OpenCV fish eye
-            bm = cv::StereoBM(cv::StereoBM::FISH_EYE_PRESET);
-            break;
-        }
-        case OpenCVNarrow: {
-            // OpenCV narrow
-            bm = cv::StereoBM(cv::StereoBM::NARROW_PRESET);
             break;
         }
         case StereoMatch: {

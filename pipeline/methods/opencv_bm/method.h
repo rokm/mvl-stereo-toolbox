@@ -73,9 +73,7 @@ public:
     int getDisp12MaxDiff () const;
 
     enum {
-        OpenCVBasic,
-        OpenCVFishEye,
-        OpenCVNarrow,
+        OpenCV,
         StereoMatch,
     } PresetType;
 

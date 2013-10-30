@@ -68,14 +68,10 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
     label->setToolTip(tooltip);
 
     comboBox = new QComboBox(this);
-    comboBox->addItem("OpenCV - Basic", Method::OpenCVBasic);
-    comboBox->setItemData(0, "Initial OpenCV settings with \"Basic\" preset.", Qt::ToolTipRole);
-    comboBox->addItem("OpenCV - FishEye", Method::OpenCVFishEye);
-    comboBox->setItemData(1, "Initial OpenCV settings with \"FishEye\" preset.", Qt::ToolTipRole);
-    comboBox->addItem("OpenCV - Narrow", Method::OpenCVNarrow);
-    comboBox->setItemData(2, "Initial OpenCV settings with \"Narrow\" preset.", Qt::ToolTipRole);
+    comboBox->addItem("OpenCV", Method::OpenCV);
+    comboBox->setItemData(0, "Initial OpenCV settings.", Qt::ToolTipRole);
     comboBox->addItem("StereoMatch", Method::StereoMatch);
-    comboBox->setItemData(3, "Settings from \"Stereo Match\" example.", Qt::ToolTipRole);
+    comboBox->setItemData(1, "Settings from \"Stereo Match\" example.", Qt::ToolTipRole);
     connect(comboBox, SIGNAL(activated(int)), this, SLOT(presetChanged(int)));
     comboBoxPreset = comboBox;
 
