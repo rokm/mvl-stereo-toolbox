@@ -122,20 +122,25 @@ WindowRectification::~WindowRectification ()
 void WindowRectification::updateImage ()
 {
     displayPair->setImagePair(pipeline->getLeftRectifiedImage(), pipeline->getRightRectifiedImage());
-}
 
-void WindowRectification::updateState ()
-{
+    // Update status bar
     if (rectification->getState()) {
         if (rectification->getPerformRectification()) {
             statusBar->showMessage(QString("Calibration set (estimated baseline: %1 mm); rectifying input images (%2 milliseconds).").arg(rectification->getStereoBaseline(), 0, 'f', 0).arg(pipeline->getRectificationTime()));
         } else {
             statusBar->showMessage(QString("Calibration set (estimated baseline: %1 mm); passing input images through.").arg(rectification->getStereoBaseline(), 0, 'f', 0));
         }
+    } else {
+        statusBar->showMessage("Calibration not set; passing input images through.");
+    }
+}
+
+void WindowRectification::updateState ()
+{
+    if (rectification->getState()) {
         pushButtonClear->setEnabled(true);
         pushButtonExport->setEnabled(true);
     } else {
-        statusBar->showMessage("Calibration not set; passing input images through.");
         pushButtonClear->setEnabled(false);
         pushButtonExport->setEnabled(false);
     }
