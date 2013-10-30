@@ -84,7 +84,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
     spinBox->setKeyboardTracking(false);
     spinBox->setRange(1, INT_MAX);
     spinBox->setSingleStep(1);
-    connect(spinBox, SIGNAL(valueChanged(int)), method, SLOT(setWindowWidth(int)));
+    connect(spinBox, SIGNAL(valueChanged(int)), method, SLOT(setWindowHeight(int)));
     spinBoxWindowHeight = spinBox;
 
     layout->addRow(label, spinBox);
