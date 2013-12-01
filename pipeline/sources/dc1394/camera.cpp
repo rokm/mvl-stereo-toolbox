@@ -523,7 +523,7 @@ void CameraCaptureWorker::convertToOpenCVImage (dc1394video_frame_t *frame, cv::
         dc1394_convert_to_RGB8(frame->image, tmpImg.ptr<uint8_t>(), frame->size[0], frame->size[1], frame->yuv_byte_order, frame->color_coding, frame->data_depth);
 
         // ... and then RGB to BGR, which is what OpenCV needs
-        cv::cvtColor(tmpImg, image, CV_RGB2BGR);
+        cv::cvtColor(tmpImg, image, cv::COLOR_RGB2BGR);
     } else {
         // Convert into Mono8
         image.create(frame->size[1], frame->size[0], CV_8UC1); // (Re)allocate, if necessary
