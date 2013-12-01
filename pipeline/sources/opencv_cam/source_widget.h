@@ -20,7 +20,7 @@
 #ifndef IMAGE_SOURCE_OPENCV_CAM_CONFIG_WIDGET_H
 #define IMAGE_SOURCE_OPENCV_CAM_CONFIG_WIDGET_H
 
-#include <QtGui>
+#include <QtWidgets>
 
 
 namespace SourceOpenCvCam {

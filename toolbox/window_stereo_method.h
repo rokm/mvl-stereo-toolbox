@@ -20,8 +20,7 @@
 #ifndef WINDOW_STEREO_METHOD_H
 #define WINDOW_STEREO_METHOD_H
 
-#include <QtCore>
-#include <QtGui>
+#include <QtWidgets>
 
 
 class StereoPipeline;

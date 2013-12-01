@@ -20,7 +20,7 @@
 #ifndef STEREO_METHOD_FLOW_FARNEBACK_GPU_CONFIG_WIDGET_H
 #define STEREO_METHOD_FLOW_FARNEBACK_GPU_CONFIG_WIDGET_H
 
-#include <QtGui>
+#include <QtWidgets>
 
 
 namespace StereoMethodFlowFarnebackGpu {

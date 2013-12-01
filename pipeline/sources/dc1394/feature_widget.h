@@ -20,8 +20,7 @@
 #ifndef FEATURE_WIDGET_H
 #define FEATURE_WIDGET_H
 
-#include <QtCore>
-#include <QtGui>
+#include <QtWidgets>
 
 #include <dc1394/dc1394.h>
 

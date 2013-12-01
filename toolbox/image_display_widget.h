@@ -20,8 +20,7 @@
 #ifndef IMAGE_DISPLAY_WIDGET_H
 #define IMAGE_DISPLAY_WIDGET_H
 
-#include <QtCore>
-#include <QtGui>
+#include <QtWidgets>
 #include <opencv2/core/core.hpp>
 
 #ifdef HAVE_OPENCV_GPU

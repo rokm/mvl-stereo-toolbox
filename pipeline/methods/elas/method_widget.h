@@ -20,7 +20,7 @@
 #ifndef STEREO_METHOD_ELAS_CONFIG_WIDGET_H
 #define STEREO_METHOD_ELAS_CONFIG_WIDGET_H
 
-#include <QtGui>
+#include <QtWidgets>
 
 
 namespace StereoMethodELAS {

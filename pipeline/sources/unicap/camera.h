@@ -20,8 +20,7 @@
 #ifndef CAMERA_UNICAP_H
 #define CAMERA_UNICAP_H
 
-#include <QtCore>
-#include <QtGui>
+#include <QtWidgets>
 #include <unicap.h>
 
 #include <opencv2/core/core.hpp>

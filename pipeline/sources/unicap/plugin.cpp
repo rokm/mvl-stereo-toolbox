@@ -26,6 +26,7 @@ using namespace SourceUnicap;
 class Plugin : public QObject, PluginFactory
 {
     Q_OBJECT
+    Q_PLUGIN_METADATA(IID "mvl-stereo-toolbox.Plugin.Source.Unicap")
     Q_INTERFACES(PluginFactory)
 
     PluginType getPluginType () const {
@@ -44,8 +45,6 @@ class Plugin : public QObject, PluginFactory
         return new Source(parent);
     }
 };
-
-Q_EXPORT_PLUGIN2(unicap, Plugin)
 
 // Because we have Q_OBJECT in source file
 #include "plugin.moc"

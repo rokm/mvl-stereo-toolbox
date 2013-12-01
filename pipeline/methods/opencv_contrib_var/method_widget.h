@@ -20,10 +20,10 @@
 #ifndef STEREO_METHOD_VAR_CONFIG_WIDGET_H
 #define STEREO_METHOD_VAR_CONFIG_WIDGET_H
 
-#include <QtGui>
+#include <QtWidgets>
+
 
 namespace StereoMethodVar {
-
     
 class Method;
 

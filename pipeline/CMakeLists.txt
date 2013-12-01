@@ -3,13 +3,13 @@ project(libmvl_stereo_pipeline CXX)
 
 include(GenerateExportHeader)
 
+set(CMAKE_AUTOMOC TRUE)
+
 find_package(PkgConfig QUIET)
 find_package(OpenCV REQUIRED)
-find_package(Qt4 REQUIRED)
+find_package(Qt5Core REQUIRED)
 
 find_package(CUDA 5.0)
-
-set(CMAKE_AUTOMOC TRUE)
 
 set(pipeline_SOURCES
     stereo_calibration_pattern.cpp
@@ -31,9 +31,6 @@ set(pipeline_HEADERS
 set(pipeline_CUDA_SOURCES
     stereo_reprojection.cu
 )
-
-include(${QT_USE_FILE})
-add_definitions(${QT_DEFINITIONS})
 
 # These are mostly for benefit of methods and sources plugins
 include_directories(${PROJECT_SOURCE_DIR})
@@ -61,7 +58,7 @@ endif()
 
 # *** Library ***
 add_library(mvl_stereo_pipeline SHARED ${pipeline_SOURCES} ${pipeline_HEADERS} ${pipeline_CUDA_SOURCES} ${pipeline_CUDA_OBJECTS})
-target_link_libraries(mvl_stereo_pipeline ${QT_LIBRARIES})
+qt5_use_modules(mvl_stereo_pipeline Core Concurrent)
 target_link_libraries(mvl_stereo_pipeline ${OpenCV_LIBS})
 if(CUDA_FOUND)
     target_link_libraries(mvl_stereo_pipeline ${CUDA_CUDART_LIBRARY})

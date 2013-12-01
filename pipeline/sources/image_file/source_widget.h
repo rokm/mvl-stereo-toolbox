@@ -20,7 +20,7 @@
 #ifndef SOURCE_IMAGE_FILE_CONFIG_WIDGET_H
 #define SOURCE_IMAGE_FILE_CONFIG_WIDGET_H
 
-#include <QtGui>
+#include <QtWidgets>
 
 
 namespace SourceImageFile {

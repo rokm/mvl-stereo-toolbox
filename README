@@ -38,8 +38,8 @@ of a stereo pipeline. As such, main highlights are:
 
 MVL Stereo Toolbox has following dependencies:
 - C++ compiler and CMake
-- Qt 4.8 (core, gui and network modules are required)
-- OpenCV (tested with 2.4.3, 2.4.5 and 2.4.6)
+- Qt 5
+- OpenCV (tested with 2.4.3, 2.4.5, 2.4.6 and 2.4.7)
 
 The above will build stereo pipeline model and toolbox GUI. In addition,
 stereo method plugins for all CPU-based methods provided in OpenCV are

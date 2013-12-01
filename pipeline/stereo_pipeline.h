@@ -23,6 +23,7 @@
 #include "mvl_stereo_pipeline_export.h"
 
 #include <QtCore>
+#include <QtConcurrent>
 #include <opencv2/core/core.hpp>
 
 

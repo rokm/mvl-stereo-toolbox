@@ -20,8 +20,7 @@
 #ifndef CAMERA_DC1394_H
 #define CAMERA_DC1394_H
 
-#include <QtCore>
-#include <QtGui>
+#include <QtWidgets>
 #include <dc1394/dc1394.h>
 
 #include <opencv2/core/core.hpp>

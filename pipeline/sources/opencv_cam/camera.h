@@ -20,8 +20,8 @@
 #ifndef CAMERA_OPENCV_H
 #define CAMERA_OPENCV_H
 
-#include <QtCore>
-#include <QtGui>
+#include <QtWidgets>
+#include <QtConcurrent>
 
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>

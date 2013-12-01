@@ -20,7 +20,7 @@
 #ifndef CAMERA_DC1394_CONFIG_WIDGET_H
 #define CAMERA_DC1394_CONFIG_WIDGET_H
 
-#include <QtGui>
+#include <QtWidgets>
 
 
 namespace SourceDC1394 {

@@ -20,8 +20,7 @@
 #ifndef WINDOW_IMAGE_PAIR_SOURCE_H
 #define WINDOW_IMAGE_PAIR_SOURCE_H
 
-#include <QtCore>
-#include <QtGui>
+#include <QtWidgets>
 
 
 class StereoPipeline;

@@ -20,7 +20,7 @@
 #ifndef CAMERA_UNICAP_CONFIG_WIDGET_H
 #define CAMERA_UNICAP_CONFIG_WIDGET_H
 
-#include <QtGui>
+#include <QtWidgets>
 #include <unicap.h>
 
 

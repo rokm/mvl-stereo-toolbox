@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.8)
 project(method_opencv_gpu_flow_farneback CXX)
 
 find_package(OpenCV REQUIRED core imgproc gpu)
-find_package(Qt4 REQUIRED)
+find_package(Qt5Core REQUIRED)
 
 set(plugin_name ${PROJECT_NAME})
 
@@ -17,11 +17,9 @@ set(plugin_HEADERS
     method_widget.h
 )
 
-include(${QT_USE_FILE})
-add_definitions(${QT_DEFINITIONS})
-
 add_library(${plugin_name} SHARED ${plugin_SOURCES} ${plugin_HEADERS})
-target_link_libraries(${plugin_name} ${QT_LIBRARIES} ${OpenCV_LIBS})
+qt5_use_modules(${plugin_name} Widgets)
+target_link_libraries(${plugin_name} ${OpenCV_LIBS})
 set_target_properties(${plugin_name} PROPERTIES PREFIX "")
 
 install(TARGETS ${plugin_name} DESTINATION ${MVL_STEREO_PIPELINE_PLUGIN_DIR})

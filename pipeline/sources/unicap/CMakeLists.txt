@@ -3,7 +3,7 @@ project(source_unicap CXX)
 
 find_package(PkgConfig REQUIRED)
 find_package(OpenCV REQUIRED core imgproc)
-find_package(Qt4 REQUIRED)
+find_package(Qt5Core REQUIRED)
 
 pkg_check_modules(UNICAP REQUIRED libunicap)
 include_directories(${UNICAP_INCLUDE_DIRS})
@@ -28,11 +28,9 @@ set(plugin_HEADERS
     source_widget.h
 )
 
-include(${QT_USE_FILE})
-add_definitions(${QT_DEFINITIONS})
-
 add_library(${plugin_name} SHARED ${plugin_SOURCES} ${plugin_HEADERS})
-target_link_libraries(${plugin_name} ${QT_LIBRARIES} ${OpenCV_LIBS} ${UNICAP_LIBRARIES})
+qt5_use_modules(${plugin_name} Widgets)
+target_link_libraries(${plugin_name} ${OpenCV_LIBS} ${UNICAP_LIBRARIES})
 set_target_properties(${plugin_name} PROPERTIES PREFIX "")
 
 install(TARGETS ${plugin_name} DESTINATION ${MVL_STEREO_PIPELINE_PLUGIN_DIR})

@@ -20,8 +20,7 @@
 #ifndef WINDOW_RECTIFICATION_H
 #define WINDOW_RECTIFICATION_H
 
-#include <QtCore>
-#include <QtGui>
+#include <QtWidgets>
 
 #include <opencv2/core/core.hpp>
 

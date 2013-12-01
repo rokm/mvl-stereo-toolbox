@@ -20,8 +20,7 @@
 #ifndef PROPERTY_WIDGET_H
 #define PROPERTY_WIDGET_H
 
-#include <QtCore>
-#include <QtGui>
+#include <QtWidgets>
 #include <unicap.h>
 
 

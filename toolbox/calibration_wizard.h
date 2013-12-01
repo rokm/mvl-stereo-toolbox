@@ -20,7 +20,8 @@
 #ifndef CALIBRATION_WIZARD_H
 #define CALIBRATION_WIZARD_H
 
-#include <QtGui>
+#include <QtWidgets>
+#include <QtConcurrent>
 
 #include <stereo_calibration_pattern.h>
 

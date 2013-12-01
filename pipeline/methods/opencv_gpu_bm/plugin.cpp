@@ -26,6 +26,7 @@ using namespace StereoMethodBlockMatchingGPU;
 class Plugin : public QObject, PluginFactory
 {
     Q_OBJECT
+    Q_PLUGIN_METADATA(IID "mvl-stereo-toolbox.Plugin.StereoMethod.OpenCV_BM_GPU")
     Q_INTERFACES(PluginFactory)
     
     PluginType getPluginType () const {
@@ -44,8 +45,6 @@ class Plugin : public QObject, PluginFactory
         return new Method(parent);
     }
 };
-
-Q_EXPORT_PLUGIN2(opencv_gpu_bm, Plugin)
 
 // Because we have Q_OBJECT in source file
 #include "plugin.moc"

@@ -26,6 +26,7 @@ using namespace SourceDC1394;
 class Plugin : public QObject, public PluginFactory
 {
     Q_OBJECT
+    Q_PLUGIN_METADATA(IID "mvl-stereo-toolbox.Plugin.Source.DC1394")
     Q_INTERFACES(PluginFactory)
     
     PluginType getPluginType () const {
@@ -44,8 +45,6 @@ class Plugin : public QObject, public PluginFactory
         return new Source(parent);
     }
 };
-
-Q_EXPORT_PLUGIN2(dc1394, Plugin)
 
 // Because we have Q_OBJECT in source file
 #include "plugin.moc"

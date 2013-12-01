@@ -20,8 +20,7 @@
 #ifndef WINDOW_REPROJECTION_H
 #define WINDOW_REPROJECTION_H
 
-#include <QtCore>
-#include <QtGui>
+#include <QtWidgets>
 
 
 class StereoReprojection;
