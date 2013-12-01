@@ -58,14 +58,14 @@ void Method::computeDisparityImage (const cv::Mat &img1, const cv::Mat &img2, cv
 
     // Convert to float grayscale
     if (img1.channels() == 3) {
-        cv::cvtColor(img1, tmpImg1a, CV_BGR2GRAY);
+        cv::cvtColor(img1, tmpImg1a, cv::COLOR_BGR2GRAY);
     } else {
         tmpImg1a = img1;
     }
     tmpImg1a.convertTo(tmpImg1b, CV_32F, 1.0/255.0);
 
     if (img2.channels() == 3) {
-        cv::cvtColor(img2, tmpImg2a, CV_BGR2GRAY);
+        cv::cvtColor(img2, tmpImg2a, cv::COLOR_BGR2GRAY);
     } else {
         tmpImg2a = img2;
     }

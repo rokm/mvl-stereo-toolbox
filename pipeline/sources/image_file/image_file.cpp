@@ -94,7 +94,7 @@ void ImageFile::loadLocalImage ()
         frameBuffer = cv::imread(fileNameOrUrl.toStdString(), -1);
         if (frameBuffer.channels() == 4) {
             // Strip alpha channel
-            cv::cvtColor(frameBuffer, frameBuffer, CV_BGRA2BGR);
+            cv::cvtColor(frameBuffer, frameBuffer, cv::COLOR_BGRA2BGR);
         }
     } catch (std::exception e) {
         imageLoadingError(QString("Error while loading images: %1").arg(QString::fromStdString(e.what())));
@@ -131,7 +131,7 @@ void ImageFile::processRemoteReply (QNetworkReply *reply)
             cv::imdecode(cv::Mat(1, payload.size(), CV_8UC1, payload.data()), -1, &frameBuffer);
             if (frameBuffer.channels() == 4) {
                 // Strip alpha channel
-                cv::cvtColor(frameBuffer, frameBuffer, CV_BGRA2BGR);
+                cv::cvtColor(frameBuffer, frameBuffer, cv::COLOR_BGRA2BGR);
             }
         } catch (std::exception e) {
             imageLoadingError(QString("Error while decoding retrieved image: %1").arg(QString::fromStdString(e.what())));

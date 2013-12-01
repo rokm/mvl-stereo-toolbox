@@ -133,7 +133,7 @@ bool StereoCalibrationPattern::findInImage (const cv::Mat &img, std::vector<cv::
                 if (scaledImg.channels() == 1) {
                     scaledImgGray = scaledImg;
                 } else {
-                    cv::cvtColor(scaledImg, scaledImgGray, CV_BGR2GRAY);
+                    cv::cvtColor(scaledImg, scaledImgGray, cv::COLOR_BGR2GRAY);
                 }
                 
                 cv::cornerSubPix(scaledImgGray, points, cv::Size(11,11), cv::Size(-1,-1), cv::TermCriteria(cv::TermCriteria::COUNT + cv::TermCriteria::EPS, 30, 0.01));
