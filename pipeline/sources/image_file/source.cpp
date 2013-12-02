@@ -183,8 +183,13 @@ void Source::synchronizeFrames ()
         } else {
             imageRight = cv::Mat();
         }
-        leftImageReady = false;
-        rightImageReady = false;
+        
+        // Reset only if both left and right image are valid (otherwise
+        // setting left/right image individually will not work)
+        if (requireLeft && requireRight) {
+            leftImageReady = false;
+            rightImageReady = false;
+        }
 
         emit imagesChanged();
     }
