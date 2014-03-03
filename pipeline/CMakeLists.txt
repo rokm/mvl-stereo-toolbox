@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 2.8)
 project(libmvl_stereo_pipeline CXX)
+set(PROJECT_VERSION "1.0.0")
 
 include(GenerateExportHeader)
 
