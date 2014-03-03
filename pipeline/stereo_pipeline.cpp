@@ -11,10 +11,10 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  */
 
 #include "stereo_pipeline.h"
@@ -138,7 +138,7 @@ void StereoPipeline::setPluginDirectory (const QString &newDirectory)
             pluginDirectory = QDir(MVL_STEREO_PIPELINE_PLUGIN_DIR);
         }
     }
-    
+
     // Set new directory
     qDebug() << "Plugin path:" << pluginDirectory.absolutePath();
 
@@ -152,7 +152,7 @@ void StereoPipeline::setPluginDirectory (const QString &newDirectory)
             continue;
         }
 
-        // Load plugin       
+        // Load plugin
         QPluginLoader loader(fileName);
         loader.setLoadHints(QLibrary::ResolveAllSymbolsHint);
 
@@ -167,7 +167,7 @@ void StereoPipeline::setPluginDirectory (const QString &newDirectory)
                 delete plugin;
             }
         } else {
-            qDebug() << "Failed to load plugin:" << loader.errorString();            
+            qDebug() << "Failed to load plugin:" << loader.errorString();
         }
     }
 }
@@ -258,6 +258,10 @@ ImagePairSource *StereoPipeline::getImagePairSource ()
 void StereoPipeline::setImagePairSourceState (bool newState)
 {
     if (newState != imagePairSourceActive) {
+        if (!newState && imagePairSource) {
+            imagePairSource->stopSource(); // Stop the source
+        }
+
         imagePairSourceActive = newState;
         emit imagePairSourceStateChanged(newState);
     }
@@ -289,7 +293,7 @@ void StereoPipeline::beginProcessing ()
         emit processingCompleted();
         return;
     }
-    
+
     // Get images from source
     imagePairSource->getImages(inputImageL, inputImageR);
     emit inputImagesChanged();
@@ -312,12 +316,12 @@ void StereoPipeline::setRectification (StereoRectification *newRectification)
             rectification->deleteLater(); // Schedule for deletion
         }
     }
-    
+
     rectification = newRectification;
     if (!rectification->parent()) {
         rectification->setParent(this);
     }
-    
+
     connect(rectification, SIGNAL(stateChanged(bool)), this, SLOT(rectifyImages()));
     connect(rectification, SIGNAL(performRectificationChanged(bool)), this, SLOT(rectifyImages()));
     connect(rectification, SIGNAL(stateChanged(bool)), this, SLOT(updateReprojectionMatrix()));
@@ -378,7 +382,7 @@ void StereoPipeline::rectifyImages ()
     if (inputImageL.empty() || inputImageR.empty()) {
         return;
     }
-    
+
     // Make sure input images are of same size
     if (inputImageL.cols != inputImageR.cols || inputImageL.rows != inputImageR.rows) {
         emit error("Input images do not have same dimensions!");
@@ -390,7 +394,7 @@ void StereoPipeline::rectifyImages ()
         emit processingCompleted();
         return;
     }
-    
+
     QTime timer; timer.start();
     rectification->rectifyImagePair(inputImageL, inputImageR, rectifiedImageL, rectifiedImageR);
     rectificationTime = timer.elapsed();
@@ -413,12 +417,12 @@ void StereoPipeline::setStereoMethod (StereoMethod *newMethod)
             dynamic_cast<QObject *>(stereoMethod)->deleteLater(); // Schedule for deletion
         }
     }
-    
+
     stereoMethod = newMethod;
     if (!dynamic_cast<QObject *>(stereoMethod)->parent()) {
         dynamic_cast<QObject *>(stereoMethod)->deleteLater();
     }
-    
+
     connect(dynamic_cast<QObject *>(stereoMethod), SIGNAL(parameterChanged()), this, SLOT(computeDisparityImage()));
 
     // Compute new disparity image
@@ -476,7 +480,7 @@ void StereoPipeline::computeDisparityImage ()
         emit processingCompleted();
         return;
     }
-    
+
     // Make sure we have stereo method set
     if (!stereoMethod) {
         emit error("Stereo method not set!");
@@ -602,14 +606,14 @@ void StereoPipeline::computeDisparityImageVisualization ()
                 cv::gpu::GpuMat gpu_disp(disparityImage);
                 cv::gpu::GpuMat gpu_disp_color;
                 cv::Mat disp_color;
-            
+
                 cv::gpu::drawColorDisp(gpu_disp, gpu_disp_color, disparityLevels);
                 gpu_disp_color.download(disparityVisualizationImage);
             } catch (...) {
                 // The above calls can fail
                 disparityVisualizationImage = cv::Mat();
             }
-            
+
             break;
         }
 #endif
@@ -639,12 +643,12 @@ void StereoPipeline::setReprojection (StereoReprojection *newReprojection)
             reprojection->deleteLater(); // Schedule for deletion
         }
     }
-    
+
     reprojection = newReprojection;
     if (!reprojection->parent()) {
         reprojection->setParent(this);
     }
-    
+
     connect(reprojection, SIGNAL(reprojectionMethodChanged(int)), this, SLOT(reprojectDisparityImage()));
 
     // Reproject disparity image
@@ -703,7 +707,7 @@ void StereoPipeline::reprojectDisparityImage ()
         emit processingCompleted();
         return;
     }
-    
+
     // Reproject
     try {
         QTime timer; timer.start();
