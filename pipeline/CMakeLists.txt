@@ -72,7 +72,7 @@ install(FILES ${pipeline_HEADERS} ${PROJECT_BINARY_DIR}/mvl_stereo_pipeline_expo
 
 # Pkg-config for library; only if we have pkg-config installed
 if(PKG_CONFIG_FOUND)
-    configure_file(${PROJECT_SOURCE_DIR}/libmvl_stereo_pipeline.pc.in ${PROJECT_BINARY_DIR}/libmvl_stereo_pipeline.pc)
+    configure_file(${PROJECT_SOURCE_DIR}/libmvl_stereo_pipeline.pc.in ${PROJECT_BINARY_DIR}/libmvl_stereo_pipeline.pc @ONLY)
     install(FILES ${PROJECT_BINARY_DIR}/libmvl_stereo_pipeline.pc DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig)
 endif()
 
