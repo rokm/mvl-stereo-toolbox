@@ -11,10 +11,10 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  */
 
 #ifndef TOOLBOX_H
@@ -24,6 +24,7 @@
 
 
 class ImagePairSource;
+class PluginManager;
 class StereoRectification;
 class StereoMethod;
 class StereoPipeline;
@@ -61,7 +62,7 @@ protected:
 protected slots:
     void displayError (const QString);
     void clearError ();
-    
+
 protected:
     WindowImagePairSource *windowImagePairSource;
     WindowRectification *windowRectification;
@@ -78,9 +79,10 @@ protected:
     QPushButton *pushButtonReprojectionActive;
 
     QLabel *statusLabel;
-    
+
     StereoPipeline *pipeline;
 
+    PluginManager *plugin_manager;
     QList<ImagePairSource *> imagePairSources;
     QList<StereoMethod *> stereoMethods;
 };

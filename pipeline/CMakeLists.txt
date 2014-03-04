@@ -13,6 +13,7 @@ find_package(Qt5Core REQUIRED)
 find_package(CUDA 5.0)
 
 set(pipeline_SOURCES
+    plugin_manager.cpp
     stereo_calibration_pattern.cpp
     stereo_pipeline.cpp
     stereo_rectification.cpp
@@ -22,6 +23,7 @@ set(pipeline_SOURCES
 set(pipeline_HEADERS
     image_pair_source.h
     plugin_factory.h
+    plugin_manager.h
     stereo_calibration_pattern.h
     stereo_method.h
     stereo_pipeline.h

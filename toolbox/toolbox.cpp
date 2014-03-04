@@ -11,16 +11,17 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  */
 
 #include "toolbox.h"
 
 #include <image_pair_source.h>
 #include <plugin_factory.h>
+#include <plugin_manager.h>
 #include <stereo_method.h>
 #include <stereo_pipeline.h>
 #include <stereo_rectification.h>
@@ -38,6 +39,9 @@ Toolbox::Toolbox ()
     // Resize window
     resize(200, 100);
     setWindowTitle("MVL Stereo Toolbox");
+
+    // Plugin manager
+    plugin_manager = new PluginManager(this);
 
     // Create pipeline
     pipeline = new StereoPipeline(this);
@@ -81,7 +85,7 @@ void Toolbox::createGui ()
 
     connect(pipeline, SIGNAL(error(const QString)), this, SLOT(displayError(const QString)));
     connect(pipeline, SIGNAL(processingCompleted()), this, SLOT(clearError()));
-    
+
     layout->addWidget(statusLabel, row, 0, 1, 2);
     row++;
 
@@ -95,14 +99,14 @@ void Toolbox::createGui ()
     // Image pair source
     pushButtonImagePairSource = new QPushButton("Image pair source", this);
     connect(pushButtonImagePairSource, SIGNAL(clicked()), this, SLOT(showWindowImagePairSource()));
-    
+
     pushButtonImagePairSourceActive = new QPushButton("Active", this);
     pushButtonImagePairSourceActive->setCheckable(true);
 
     pushButtonImagePairSourceActive->setChecked(pipeline->getImagePairSourceState());
     connect(pushButtonImagePairSourceActive, SIGNAL(toggled(bool)), pipeline, SLOT(setImagePairSourceState(bool)));
     connect(pipeline, SIGNAL(imagePairSourceStateChanged(bool)), this, SLOT(setPushButtonImagePairSourceActiveState(bool)));
-    
+
     layout->addWidget(pushButtonImagePairSource, row, 0);
     layout->addWidget(pushButtonImagePairSourceActive, row, 1);
     row++;
@@ -117,7 +121,7 @@ void Toolbox::createGui ()
     pushButtonRectificationActive->setChecked(pipeline->getRectificationState());
     connect(pushButtonRectificationActive, SIGNAL(toggled(bool)), pipeline, SLOT(setRectificationState(bool)));
     connect(pipeline, SIGNAL(rectificationStateChanged(bool)), this, SLOT(setPushButtonRectificationActiveState(bool)));
-        
+
     layout->addWidget(pushButtonRectification, row, 0);
     layout->addWidget(pushButtonRectificationActive, row, 1);
     row++;
@@ -132,7 +136,7 @@ void Toolbox::createGui ()
     pushButtonStereoMethodActive->setChecked(pipeline->getStereoMethodState());
     connect(pushButtonStereoMethodActive, SIGNAL(toggled(bool)), pipeline, SLOT(setStereoMethodState(bool)));
     connect(pipeline, SIGNAL(stereoMethodStateChanged(bool)), this, SLOT(setPushButtonStereoMethodActiveState(bool)));
-        
+
     layout->addWidget(pushButtonStereoMethod, row, 0);
     layout->addWidget(pushButtonStereoMethodActive, row, 1);
     row++;
@@ -255,7 +259,7 @@ void Toolbox::clearError ()
 // *********************************************************************
 void Toolbox::loadPlugins ()
 {
-    foreach (QObject *plugin, pipeline->getAvailablePlugins()) {
+    foreach (QObject *plugin, plugin_manager->getAvailablePlugins()) {
         PluginFactory *factory = qobject_cast<PluginFactory *>(plugin);
         QObject *object = NULL;
 

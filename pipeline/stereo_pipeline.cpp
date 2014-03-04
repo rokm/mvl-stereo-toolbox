@@ -68,9 +68,6 @@ StereoPipeline::StereoPipeline (QObject *parent)
     // Create reprojection
     setReprojection(new StereoReprojection(this));
 
-    // Load plugins in default plugin path
-    setPluginDirectory();
-
     // Create list of supported visualization methods
     supportedDisparityVisualizationMethods.append(DisparityVisualizationNone);
     supportedDisparityVisualizationMethods.append(DisparityVisualizationGrayscale);
@@ -97,89 +94,6 @@ StereoPipeline::~StereoPipeline ()
     if (stereoMethodWatcher.isRunning()) {
         stereoMethodWatcher.waitForFinished();
     }
-}
-
-
-// *********************************************************************
-// *                         Plugin management                         *
-// *********************************************************************
-static void recursiveDirectoryScan (QDir dir, QStringList &files)
-{
-    // List all files in current directory
-    dir.setFilter(QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks);
-    foreach (QString fileName, dir.entryList()) {
-        files.append(dir.absoluteFilePath(fileName));
-    }
-
-    // List all directories and recursively scan them
-    dir.setFilter(QDir::AllDirs | QDir::NoDotAndDotDot | QDir::NoSymLinks);
-    foreach (QString dirName, dir.entryList()) {
-        recursiveDirectoryScan(dir.absoluteFilePath(dirName), files);
-    }
-}
-
-void StereoPipeline::setPluginDirectory (const QString &newDirectory)
-{
-    // Clear old plugins
-    foreach (QObject *plugin, plugins) {
-        delete plugin;
-    }
-    plugins.clear();
-
-    // If path is not provided, use default, which can be overriden
-    // by environment variable
-    if (!newDirectory.isEmpty()) {
-        pluginDirectory = QDir(newDirectory);
-    } else {
-        QByteArray pluginEnvVariable = qgetenv ("MVL_STEREO_TOOLBOX_PLUGIN_DIR");
-        if (!pluginEnvVariable.isEmpty()) {
-            pluginDirectory = QDir(pluginEnvVariable);
-        } else {
-            pluginDirectory = QDir(MVL_STEREO_PIPELINE_PLUGIN_DIR);
-        }
-    }
-
-    // Set new directory
-    qDebug() << "Plugin path:" << pluginDirectory.absolutePath();
-
-    // Recursively scan for plugins
-    QStringList files;
-    recursiveDirectoryScan(pluginDirectory.absolutePath(), files);
-
-    foreach (QString fileName, files) {
-        // Make sure it is a library
-        if (!QLibrary::isLibrary(fileName)) {
-            continue;
-        }
-
-        // Load plugin
-        QPluginLoader loader(fileName);
-        loader.setLoadHints(QLibrary::ResolveAllSymbolsHint);
-
-        QObject *plugin = loader.instance();
-        if (plugin) {
-            PluginFactory *factory = qobject_cast<PluginFactory *>(plugin);
-            if (factory) {
-                plugin->setParent(this);
-                plugins.append(plugin);
-            } else {
-                qDebug() << "Failed to cast plugged object to PluginFactory!";
-                delete plugin;
-            }
-        } else {
-            qDebug() << "Failed to load plugin:" << loader.errorString();
-        }
-    }
-}
-
-QString StereoPipeline::getPluginDirectory () const
-{
-    return pluginDirectory.absolutePath();
-}
-
-const QList<QObject *> StereoPipeline::getAvailablePlugins () const
-{
-    return plugins;
 }
 
 

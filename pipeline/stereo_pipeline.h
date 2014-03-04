@@ -11,10 +11,10 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  */
 
 #ifndef STEREO_PIPELINE_H
@@ -28,7 +28,6 @@
 
 
 class ImagePairSource;
-class PluginFactory;
 class StereoRectification;
 class StereoMethod;
 class StereoReprojection;
@@ -36,21 +35,16 @@ class StereoReprojection;
 class MVL_STEREO_PIPELINE_EXPORT StereoPipeline : public QObject
 {
     Q_OBJECT
-    
+
 public:
     StereoPipeline (QObject * = 0);
     virtual ~StereoPipeline ();
-
-    // Plugin management
-    void setPluginDirectory (const QString & = QString());
-    QString getPluginDirectory () const;
-    const QList<QObject *> getAvailablePlugins () const;
 
     // GPU/CUDA management
     int getNumberOfGpuDevices ();
     void setGpuDevice (int);
     int getGpuDevice () const;
-    
+
     // Image pair source
     void setImagePairSource (ImagePairSource *);
     ImagePairSource *getImagePairSource ();
@@ -59,7 +53,7 @@ public:
 
     const cv::Mat &getLeftImage () const;
     const cv::Mat &getRightImage () const;
-    
+
     // Rectification
     void setRectification (StereoRectification *);
     StereoRectification *getRectification ();
@@ -75,7 +69,7 @@ public:
     StereoMethod *getStereoMethod ();
 
     bool getStereoMethodState () const;
-    
+
     const cv::Mat &getDisparityImage () const;
     int getNumberOfDisparityLevels () const;
     int getDisparityImageComputationTime () const;
@@ -91,7 +85,7 @@ public:
         DisparityVisualizationGrayscale,
         DisparityVisualizationColorGpu,
     };
-    
+
     int getDisparityVisualizationMethod () const;
     const QList<int> &getSupportedDisparityVisualizationMethods () const;
 
@@ -144,10 +138,6 @@ signals:
     void disparityVisualizationMethodChanged (int);
 
 protected:
-    // Plugin management
-    QDir pluginDirectory;
-    QList<QObject *> plugins;
-
     // Image pair source
     bool imagePairSourceActive;
     ImagePairSource *imagePairSource;
@@ -172,7 +162,7 @@ protected:
     bool useStereoMethodThread;
     QFutureWatcher<void> stereoMethodWatcher;
     int stereoDroppedFramesCounter;
-    
+
     // Cached disparity image
     cv::Mat disparityImage;
     int disparityLevels;
@@ -187,7 +177,7 @@ protected:
     // Reprojection
     bool reprojectionActive;
     StereoReprojection *reprojection;
-    
+
     // Cached reprojected image
     cv::Mat reprojectedImage;
     int reprojectionComputationTime;
