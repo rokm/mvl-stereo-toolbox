@@ -11,10 +11,10 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  */
 
 #include "property_widget.h"
@@ -28,7 +28,7 @@ PropertyWidget::PropertyWidget (Camera *c, int p, bool integer_value, QWidget *p
 {
     // Integer vs. double
     if (integer_value) {
-        setRange(INT_MIN, +INT_MAX);
+        setRange(-9999, 9999);
         setDecimals(0);
     } else {
         setRange(0, 1.0);
@@ -37,7 +37,7 @@ PropertyWidget::PropertyWidget (Camera *c, int p, bool integer_value, QWidget *p
     }
 
     setKeyboardTracking(false);
-    
+
     connect(camera, SIGNAL(propertyChanged()), this, SLOT(updateProperty()));
     connect(this, SIGNAL(valueChanged(double)), this, SLOT(spinBoxValueChanged(double)));
 
@@ -54,7 +54,7 @@ PropertyWidget::PropertyWidget (Camera *c, int p, bool integer_value, QWidget *p
     updateTimer = new QTimer(this);
     connect(updateTimer, SIGNAL(timeout()), this, SLOT(updateProperty()));
     updateTimer->start(1000);
-    
+
     updateProperty();
 }
 

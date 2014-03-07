@@ -11,10 +11,10 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  */
 
 #include "window_rectification.h"
@@ -41,7 +41,7 @@ WindowRectification::WindowRectification (StereoPipeline *p, StereoRectification
     QHBoxLayout *buttonsLayout = new QHBoxLayout();
     buttonsLayout->setContentsMargins(0, 0, 0, 0);
     QPushButton *pushButton;
-    
+
     layout->addLayout(buttonsLayout, 0, 0, 1, 2);
 
     buttonsLayout->addStretch();
@@ -165,7 +165,7 @@ void WindowRectification::runCalibrationWizard ()
             wizard->field(fieldPrefix + "R").value<cv::Mat>(),
             wizard->field(fieldPrefix + "T").value<cv::Mat>(),
             wizard->field(fieldPrefix + "ImageSize").value<cv::Size>()
-        );        
+        );
     }
 }
 
@@ -223,7 +223,7 @@ void WindowRectification::saveImages ()
 
     pipeline->getLeftRectifiedImage().copyTo(tmpImg1);
     pipeline->getRightRectifiedImage().copyTo(tmpImg2);
-    
+
     // Get filename
     QString fileName = QFileDialog::getSaveFileName(this, "Save rectified images");
     if (!fileName.isNull()) {
@@ -292,7 +292,7 @@ RoiDialog::RoiDialog (QWidget *parent)
 
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
-    spinBox->setRange(0, INT_MAX);
+    spinBox->setRange(0, 9999);
     connect(spinBox, SIGNAL(valueChanged(int)), this, SLOT(refreshDialog()));
     spinBoxX = spinBox;
 
@@ -304,19 +304,19 @@ RoiDialog::RoiDialog (QWidget *parent)
 
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
-    spinBox->setRange(0, INT_MAX);
+    spinBox->setRange(0, 9999);
     connect(spinBox, SIGNAL(valueChanged(int)), this, SLOT(refreshDialog()));
     spinBoxY = spinBox;
 
     layout->addRow(label, spinBox);
-    
+
     // Width
     label = new QLabel("Width", this);
     label->setToolTip("ROI width.");
 
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
-    spinBox->setRange(0, INT_MAX);
+    spinBox->setRange(0, 9999);
     connect(spinBox, SIGNAL(valueChanged(int)), this, SLOT(refreshDialog()));
     spinBoxW = spinBox;
 
@@ -328,7 +328,7 @@ RoiDialog::RoiDialog (QWidget *parent)
 
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
-    spinBox->setRange(0, INT_MAX);
+    spinBox->setRange(0, 9999);
     connect(spinBox, SIGNAL(valueChanged(int)), this, SLOT(refreshDialog()));
     spinBoxH = spinBox;
 
@@ -342,7 +342,7 @@ RoiDialog::RoiDialog (QWidget *parent)
 
     // Button box
     QDialogButtonBox *buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, Qt::Horizontal, this);
-    layout->addRow(buttonBox);    
+    layout->addRow(buttonBox);
     connect(buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
     connect(buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
 }
@@ -362,7 +362,7 @@ void RoiDialog::setImageSizeAndRoi (const cv::Size &size, const cv::Rect &curren
     spinBoxY->setValue(currentRoi.y);
     spinBoxW->setValue(currentRoi.width);
     spinBoxH->setValue(currentRoi.height);
-    
+
     if (currentRoi == cv::Rect()) {
         checkBoxEnabled->setChecked(false);
     } else {
@@ -372,7 +372,7 @@ void RoiDialog::setImageSizeAndRoi (const cv::Size &size, const cv::Rect &curren
             checkBoxCenter->setChecked(true);
         } else {
             checkBoxCenter->setChecked(false);
-        }       
+        }
     }
 
     // Initial refresh
@@ -393,7 +393,7 @@ void RoiDialog::refreshDialog ()
         }
         spinBoxW->setEnabled(true);
         spinBoxH->setEnabled(true);
-        
+
     } else {
         checkBoxCenter->setEnabled(false);
         spinBoxX->setEnabled(false);
@@ -401,7 +401,7 @@ void RoiDialog::refreshDialog ()
         spinBoxW->setEnabled(false);
         spinBoxH->setEnabled(false);
     }
-    
+
     // Make sure that ROI offset + ROI dimension <= image dimension
     spinBoxX->setRange(0, imageSize.width - spinBoxW->value());
     spinBoxY->setRange(0, imageSize.height - spinBoxH->value());

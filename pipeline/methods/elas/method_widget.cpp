@@ -1,7 +1,7 @@
 /*
  * Efficient LArge-scale Stereo: config widget
  * Copyright (C) 2013 Rok Mandeljc
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -11,10 +11,10 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  */
 
 #include "method_widget.h"
@@ -58,13 +58,13 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
     scrollArea->setWidget(new QWidget(this));
 
     baseLayout->addWidget(scrollArea);
-    
+
     QFormLayout *layout = new QFormLayout(scrollArea->widget());
 
 
     // Preset
     tooltip = "Presets for quick initialization.";
-    
+
     label = new QLabel("Preset", this);
     label->setToolTip(tooltip);
 
@@ -92,7 +92,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
 
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
-    spinBox->setRange(-INT_MAX, INT_MAX);
+    spinBox->setRange(-9999, 9999);
     connect(spinBox, SIGNAL(valueChanged(int)), method, SLOT(setMinDisparity(int)));
     spinBoxMinDisparity = spinBox;
 
@@ -106,7 +106,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
 
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
-    spinBox->setRange(-INT_MAX, INT_MAX);
+    spinBox->setRange(-9999, 9999);
     connect(spinBox, SIGNAL(valueChanged(int)), method, SLOT(setMaxDisparity(int)));
     spinBoxMaxDisparity = spinBox;
 
@@ -126,7 +126,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
 
     spinBoxD = new QDoubleSpinBox(this);
     spinBoxD->setKeyboardTracking(false);
-    spinBoxD->setRange(0.0, DBL_MAX);
+    spinBoxD->setRange(0.0, 9999.0);
     connect(spinBoxD, SIGNAL(valueChanged(double)), method, SLOT(setSupportThreshold(double)));
     spinBoxSupportThreshold = spinBoxD;
 
@@ -140,7 +140,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
 
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
-    spinBox->setRange(-INT_MAX, INT_MAX);
+    spinBox->setRange(-9999, 9999);
     connect(spinBox, SIGNAL(valueChanged(int)), method, SLOT(setSupportTexture(int)));
     spinBoxSupportTexture = spinBox;
 
@@ -154,7 +154,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
 
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
-    spinBox->setRange(-INT_MAX, INT_MAX);
+    spinBox->setRange(-9999, 9999);
     connect(spinBox, SIGNAL(valueChanged(int)), method, SLOT(setCandidateStepSize(int)));
     spinBoxCandidateStepSize = spinBox;
 
@@ -168,7 +168,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
 
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
-    spinBox->setRange(-INT_MAX, INT_MAX);
+    spinBox->setRange(-9999, 9999);
     connect(spinBox, SIGNAL(valueChanged(int)), method, SLOT(setInconsistentWindowSize(int)));
     spinBoxInconsistentWindowSize = spinBox;
 
@@ -182,7 +182,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
 
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
-    spinBox->setRange(-INT_MAX, INT_MAX);
+    spinBox->setRange(-9999, 9999);
     connect(spinBox, SIGNAL(valueChanged(int)), method, SLOT(setInconsistentThreshold(int)));
     spinBoxInconsistentThreshold = spinBox;
 
@@ -196,7 +196,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
 
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
-    spinBox->setRange(-INT_MAX, INT_MAX);
+    spinBox->setRange(-9999, 9999);
     connect(spinBox, SIGNAL(valueChanged(int)), method, SLOT(setInconsistentMinSupport(int)));
     spinBoxInconsistentMinSupport = spinBox;
 
@@ -210,7 +210,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
 
     // Add corners
     tooltip = "Add support points at image corners with nearest neighbor disparities.";
-    
+
     checkBox = new QCheckBox("Add corners", this);
     checkBox->setToolTip(tooltip);
     connect(checkBox, SIGNAL(toggled(bool)), method, SLOT(setAddCorners(bool)));
@@ -226,7 +226,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
 
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
-    spinBox->setRange(1, INT_MAX);
+    spinBox->setRange(1, 9999);
     connect(spinBox, SIGNAL(valueChanged(int)), method, SLOT(setGridSize(int)));
     spinBoxGridSize = spinBox;
 
@@ -237,7 +237,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
     line->setFrameStyle(QFrame::HLine | QFrame::Sunken);
 
     layout->addRow(line);
-    
+
     // Beta
     tooltip = "Image likelihood parameter.";
 
@@ -246,12 +246,12 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
 
     spinBoxD = new QDoubleSpinBox(this);
     spinBoxD->setKeyboardTracking(false);
-    spinBoxD->setRange(0.0, DBL_MAX);
+    spinBoxD->setRange(0.0, 9999.0);
     connect(spinBoxD, SIGNAL(valueChanged(double)), method, SLOT(setBeta(double)));
     spinBoxBeta = spinBoxD;
 
     layout->addRow(label, spinBoxD);
-    
+
     // Gamma
     tooltip = "Prior constant.";
 
@@ -260,7 +260,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
 
     spinBoxD = new QDoubleSpinBox(this);
     spinBoxD->setKeyboardTracking(false);
-    spinBoxD->setRange(0.0, DBL_MAX);
+    spinBoxD->setRange(0.0, 9999.0);
     connect(spinBoxD, SIGNAL(valueChanged(double)), method, SLOT(setGamma(double)));
     spinBoxGamma = spinBoxD;
 
@@ -274,7 +274,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
 
     spinBoxD = new QDoubleSpinBox(this);
     spinBoxD->setKeyboardTracking(false);
-    spinBoxD->setRange(0.0, DBL_MAX);
+    spinBoxD->setRange(0.0, 9999.0);
     connect(spinBoxD, SIGNAL(valueChanged(double)), method, SLOT(setSigma(double)));
     spinBoxSigma = spinBoxD;
 
@@ -288,7 +288,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
 
     spinBoxD = new QDoubleSpinBox(this);
     spinBoxD->setKeyboardTracking(false);
-    spinBoxD->setRange(0.0, DBL_MAX);
+    spinBoxD->setRange(0.0, 9999.0);
     connect(spinBoxD, SIGNAL(valueChanged(double)), method, SLOT(setSigmaRadius(double)));
     spinBoxSigmaRadius = spinBoxD;
 
@@ -308,7 +308,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
 
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
-    spinBox->setRange(0, INT_MAX);
+    spinBox->setRange(0, 9999);
     connect(spinBox, SIGNAL(valueChanged(int)), method, SLOT(setMatchTexture(int)));
     spinBoxMatchTexture = spinBox;
 
@@ -322,7 +322,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
 
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
-    spinBox->setRange(0, INT_MAX);
+    spinBox->setRange(0, 9999);
     connect(spinBox, SIGNAL(valueChanged(int)), method, SLOT(setLRThreshold(int)));
     spinBoxLRThreshold = spinBox;
 
@@ -342,7 +342,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
 
     spinBoxD = new QDoubleSpinBox(this);
     spinBoxD->setKeyboardTracking(false);
-    spinBoxD->setRange(0.0, DBL_MAX);
+    spinBoxD->setRange(0.0, 9999.0);
     connect(spinBoxD, SIGNAL(valueChanged(double)), method, SLOT(setSpeckleSimThreshold(double)));
     spinBoxSpeckleSimThreshold = spinBoxD;
 
@@ -356,7 +356,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
 
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
-    spinBox->setRange(0, INT_MAX);
+    spinBox->setRange(0, 9999);
     connect(spinBox, SIGNAL(valueChanged(int)), method, SLOT(setSpeckleSize(int)));
     spinBoxSpeckleSize = spinBox;
 
@@ -370,7 +370,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
 
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
-    spinBox->setRange(0, INT_MAX);
+    spinBox->setRange(0, 9999);
     connect(spinBox, SIGNAL(valueChanged(int)), method, SLOT(setInterpolationGapWidth(int)));
     spinBoxInterpolationGapWidth = spinBox;
 
@@ -384,7 +384,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
 
     // Median filter
     tooltip = "Optional median filter (approximated).";
-    
+
     checkBox = new QCheckBox("Median filter", this);
     checkBox->setToolTip(tooltip);
     connect(checkBox, SIGNAL(toggled(bool)), method, SLOT(setFilterMedian(bool)));
@@ -394,7 +394,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
 
     // Adaptive mean filter
     tooltip = "Optional adaptive mean filter (approximated).";
-    
+
     checkBox = new QCheckBox("Adaptive mean filter", this);
     checkBox->setToolTip(tooltip);
     connect(checkBox, SIGNAL(toggled(bool)), method, SLOT(setFilterAdaptiveMean(bool)));
@@ -404,7 +404,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
 
     // Postprocess only left
     tooltip = "Save time by not post-processing the right disparity image.";
-    
+
     checkBox = new QCheckBox("Post-process only left", this);
     checkBox->setToolTip(tooltip);
     connect(checkBox, SIGNAL(toggled(bool)), method, SLOT(setPostProcessOnlyLeft(bool)));
@@ -414,7 +414,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
 
     // Subsampling
     tooltip = "Save time by only computing disparities for each 2nd pixel.";
-    
+
     checkBox = new QCheckBox("Subsampling", this);
     checkBox->setToolTip(tooltip);
     connect(checkBox, SIGNAL(toggled(bool)), method, SLOT(setSubsampling(bool)));
@@ -430,7 +430,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
 
     // Return left
     tooltip = "If checked, method returns left disparity image. If unchecked, right disparity image is returned.";
-    
+
     checkBox = new QCheckBox("Return left disp. image", this);
     checkBox->setToolTip(tooltip);
     connect(checkBox, SIGNAL(toggled(bool)), method, SLOT(setReturnLeft(bool)));
@@ -459,7 +459,7 @@ void MethodWidget::updateParameters ()
     oldState = spinBoxMinDisparity->blockSignals(true);
     spinBoxMinDisparity->setValue(method->getMinDisparity());
     spinBoxMinDisparity->blockSignals(oldState);
-    
+
     // Max disparity
     oldState = spinBoxMaxDisparity->blockSignals(true);
     spinBoxMaxDisparity->setValue(method->getMaxDisparity());
@@ -506,7 +506,7 @@ void MethodWidget::updateParameters ()
     oldState = spinBoxGridSize->blockSignals(true);
     spinBoxGridSize->setValue(method->getGridSize());
     spinBoxGridSize->blockSignals(oldState);
-    
+
 
     // Beta
     oldState = spinBoxBeta->blockSignals(true);

@@ -11,10 +11,10 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  */
 
 #include "method_widget.h"
@@ -57,13 +57,13 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
     scrollArea->setWidget(new QWidget(this));
 
     baseLayout->addWidget(scrollArea);
-    
+
     QFormLayout *layout = new QFormLayout(scrollArea->widget());
-    
+
 
     // Reverse images
     tooltip = "Reverse input images.";
-    
+
     checkBox = new QCheckBox("Reverse images", this);
     checkBox->setToolTip(tooltip);
     connect(checkBox, SIGNAL(toggled(bool)), method, SLOT(setReverseImages(bool)));
@@ -79,7 +79,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
 
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
-    spinBox->setRange(1, INT_MAX);
+    spinBox->setRange(1, 9999);
     spinBox->setSingleStep(1);
     connect(spinBox, SIGNAL(valueChanged(int)), method, SLOT(setNumberOfLevels(int)));
     spinBoxNumberOfLevels = spinBox;
@@ -92,7 +92,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
 
     label = new QLabel("Pyramid scale", this);
     label->setToolTip(tooltip);
-    
+
     spinBoxD = new QDoubleSpinBox(this);
     spinBoxD->setKeyboardTracking(false);
     spinBoxD->setRange(0, 1.0);
@@ -105,7 +105,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
 
     // Reverse images
     tooltip = "Fast pyramids.";
-    
+
     checkBox = new QCheckBox("Fast pyramids", this);
     checkBox->setToolTip(tooltip);
     connect(checkBox, SIGNAL(toggled(bool)), method, SLOT(setFastPyramids(bool)));
@@ -122,7 +122,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
 
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
-    spinBox->setRange(1, INT_MAX);
+    spinBox->setRange(1, 9999);
     spinBox->setSingleStep(1);
     connect(spinBox, SIGNAL(valueChanged(int)), method, SLOT(setWindowSize(int)));
     spinBoxWindowSize = spinBox;
@@ -137,7 +137,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
 
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
-    spinBox->setRange(1, INT_MAX);
+    spinBox->setRange(1, 9999);
     spinBox->setSingleStep(1);
     connect(spinBox, SIGNAL(valueChanged(int)), method, SLOT(setNumberOfIterations(int)));
     spinBoxNumberOfIterations = spinBox;
@@ -154,7 +154,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
 
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
-    spinBox->setRange(1, INT_MAX);
+    spinBox->setRange(1, 9999);
     spinBox->setSingleStep(1);
     connect(spinBox, SIGNAL(valueChanged(int)), method, SLOT(setPolyN(int)));
     spinBoxPolyN = spinBox;
@@ -167,10 +167,10 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
 
     label = new QLabel("Poly Sigma", this);
     label->setToolTip(tooltip);
-    
+
     spinBoxD = new QDoubleSpinBox(this);
     spinBoxD->setKeyboardTracking(false);
-    spinBoxD->setRange(0, DBL_MAX);
+    spinBoxD->setRange(0, 9999.0);
     spinBoxD->setDecimals(4);
     spinBoxD->setSingleStep(1);
     connect(spinBoxD, SIGNAL(valueChanged(double)), method, SLOT(setPolySigma(double)));
@@ -182,7 +182,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
     tooltip = "Use the Gaussian filter instead of a box filter of the same size for optical flow estimation; usually, this\n"
               "option gives z more accurate flow than with a box filter, at the cost of lower speed; normally, window size\n"
               "for a Gaussian window should be set to a larger value to achieve the same level of robustness.";
-    
+
     checkBox = new QCheckBox("Gaussian filter", this);
     checkBox->setToolTip(tooltip);
     connect(checkBox, SIGNAL(toggled(bool)), method, SLOT(setUseGaussianFilter(bool)));
@@ -221,7 +221,7 @@ void MethodWidget::updateParameters ()
     oldState = checkBoxFastPyramids->blockSignals(true);
     checkBoxFastPyramids->setChecked(method->getFastPyramids());
     checkBoxFastPyramids->blockSignals(oldState);
-    
+
     // Window size
     oldState = spinBoxWindowSize->blockSignals(true);
     spinBoxWindowSize->setValue(method->getWindowSize());
@@ -236,7 +236,7 @@ void MethodWidget::updateParameters ()
     oldState = spinBoxPolyN->blockSignals(true);
     spinBoxPolyN->setValue(method->getPolyN());
     spinBoxPolyN->blockSignals(oldState);
-    
+
     // PolySigma
     oldState = spinBoxPolySigma->blockSignals(true);
     spinBoxPolySigma->setValue(method->getPolySigma());

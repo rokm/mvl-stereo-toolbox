@@ -11,10 +11,10 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  */
 
 #include "method_widget.h"
@@ -57,13 +57,13 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
     scrollArea->setWidget(new QWidget(this));
 
     baseLayout->addWidget(scrollArea);
-    
+
     QFormLayout *layout = new QFormLayout(scrollArea->widget());
-    
+
 
     // Reverse images
     tooltip = "Reverse input images.";
-    
+
     checkBox = new QCheckBox("Reverse images", this);
     checkBox->setToolTip(tooltip);
     connect(checkBox, SIGNAL(toggled(bool)), method, SLOT(setReverseImages(bool)));
@@ -76,7 +76,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
 
     label = new QLabel("Alpha", this);
     label->setToolTip(tooltip);
-    
+
     spinBoxD = new QDoubleSpinBox(this);
     spinBoxD->setKeyboardTracking(false);
     spinBoxD->setRange(0, 1.0);
@@ -92,7 +92,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
 
     label = new QLabel("Gamma", this);
     label->setToolTip(tooltip);
-    
+
     spinBoxD = new QDoubleSpinBox(this);
     spinBoxD->setKeyboardTracking(false);
     spinBoxD->setRange(0, 1.0);
@@ -108,7 +108,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
 
     label = new QLabel("Scale factor", this);
     label->setToolTip(tooltip);
-    
+
     spinBoxD = new QDoubleSpinBox(this);
     spinBoxD->setKeyboardTracking(false);
     spinBoxD->setRange(0, 10);
@@ -116,7 +116,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
     spinBoxD->setSingleStep(0.1);
     connect(spinBoxD, SIGNAL(valueChanged(double)), method, SLOT(setScaleFactor(double)));
     spinBoxScaleFactor = spinBoxD;
-    
+
     layout->addRow(label, spinBoxD);
 
     // Inner iterations
@@ -127,7 +127,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
 
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
-    spinBox->setRange(0, INT_MAX);
+    spinBox->setRange(0, 9999);
     spinBox->setSingleStep(1);
     connect(spinBox, SIGNAL(valueChanged(int)), method, SLOT(setInnerIterations(int)));
     spinBoxInnerIterations = spinBox;
@@ -142,7 +142,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
 
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
-    spinBox->setRange(0, INT_MAX);
+    spinBox->setRange(0, 9999);
     spinBox->setSingleStep(1);
     connect(spinBox, SIGNAL(valueChanged(int)), method, SLOT(setOuterIterations(int)));
     spinBoxOuterIterations = spinBox;
@@ -157,7 +157,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
 
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
-    spinBox->setRange(0, INT_MAX);
+    spinBox->setRange(0, 9999);
     spinBox->setSingleStep(1);
     connect(spinBox, SIGNAL(valueChanged(int)), method, SLOT(setSolverIterations(int)));
     spinBoxSolverIterations = spinBox;
@@ -190,7 +190,7 @@ void MethodWidget::updateParameters ()
     oldState = spinBoxGamma->blockSignals(true);
     spinBoxGamma->setValue(method->getGamma());
     spinBoxGamma->blockSignals(oldState);
-    
+
     // Scale factor
     oldState = spinBoxScaleFactor->blockSignals(true);
     spinBoxScaleFactor->setValue(method->getScaleFactor());
@@ -205,7 +205,7 @@ void MethodWidget::updateParameters ()
     oldState = spinBoxOuterIterations->blockSignals(true);
     spinBoxOuterIterations->setValue(method->getOuterIterations());
     spinBoxOuterIterations->blockSignals(oldState);
-    
+
     // Solver iterations
     oldState = spinBoxSolverIterations->blockSignals(true);
     spinBoxSolverIterations->setValue(method->getSolverIterations());

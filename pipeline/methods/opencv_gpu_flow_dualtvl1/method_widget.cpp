@@ -11,10 +11,10 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  */
 
 #include "method_widget.h"
@@ -30,7 +30,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
 
     // Build layout
     QVBoxLayout *baseLayout = new QVBoxLayout(this);
-    
+
     QLabel *label;
     QSpinBox *spinBox;
     QCheckBox *checkBox;
@@ -57,13 +57,13 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
     scrollArea->setWidget(new QWidget(this));
 
     baseLayout->addWidget(scrollArea);
-    
+
     QFormLayout *layout = new QFormLayout(scrollArea->widget());
 
-    
+
     // Reverse images
     tooltip = "Reverse input images.";
-    
+
     checkBox = new QCheckBox("Reverse images", this);
     checkBox->setToolTip(tooltip);
     connect(checkBox, SIGNAL(toggled(bool)), method, SLOT(setReverseImages(bool)));
@@ -76,10 +76,10 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
 
     label = new QLabel("Tau", this);
     label->setToolTip(tooltip);
-    
+
     spinBoxD = new QDoubleSpinBox(this);
     spinBoxD->setKeyboardTracking(false);
-    spinBoxD->setRange(0, DBL_MAX);
+    spinBoxD->setRange(0, 9999.0);
     spinBoxD->setDecimals(4);
     spinBoxD->setSingleStep(0.1);
     connect(spinBoxD, SIGNAL(valueChanged(double)), method, SLOT(setTau(double)));
@@ -95,10 +95,10 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
 
     label = new QLabel("Lambda", this);
     label->setToolTip(tooltip);
-    
+
     spinBoxD = new QDoubleSpinBox(this);
     spinBoxD->setKeyboardTracking(false);
-    spinBoxD->setRange(0, DBL_MAX);
+    spinBoxD->setRange(0, 9999.0);
     spinBoxD->setDecimals(4);
     spinBoxD->setSingleStep(0.1);
     connect(spinBoxD, SIGNAL(valueChanged(double)), method, SLOT(setLambda(double)));
@@ -114,10 +114,10 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
 
     label = new QLabel("Theta", this);
     label->setToolTip(tooltip);
-    
+
     spinBoxD = new QDoubleSpinBox(this);
     spinBoxD->setKeyboardTracking(false);
-    spinBoxD->setRange(0, DBL_MAX);
+    spinBoxD->setRange(0, 9999.0);
     spinBoxD->setDecimals(4);
     spinBoxD->setSingleStep(0.1);
     connect(spinBoxD, SIGNAL(valueChanged(double)), method, SLOT(setTheta(double)));
@@ -133,7 +133,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
 
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
-    spinBox->setRange(1, INT_MAX);
+    spinBox->setRange(1, 9999);
     spinBox->setSingleStep(1);
     connect(spinBox, SIGNAL(valueChanged(int)), method, SLOT(setNumberOfScales(int)));
     spinBoxNumberOfScales = spinBox;
@@ -151,7 +151,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
 
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
-    spinBox->setRange(1, INT_MAX);
+    spinBox->setRange(1, 9999);
     spinBox->setSingleStep(1);
     connect(spinBox, SIGNAL(valueChanged(int)), method, SLOT(setNumberOfWarps(int)));
     spinBoxNumberOfWarps = spinBox;
@@ -165,10 +165,10 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
 
     label = new QLabel("Epsilon", this);
     label->setToolTip(tooltip);
-    
+
     spinBoxD = new QDoubleSpinBox(this);
     spinBoxD->setKeyboardTracking(false);
-    spinBoxD->setRange(0, DBL_MAX);
+    spinBoxD->setRange(0, 9999.0);
     spinBoxD->setDecimals(6);
     spinBoxD->setSingleStep(0.1);
     connect(spinBoxD, SIGNAL(valueChanged(double)), method, SLOT(setEpsilon(double)));
@@ -184,7 +184,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
 
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
-    spinBox->setRange(1, INT_MAX);
+    spinBox->setRange(1, 9999);
     spinBox->setSingleStep(1);
     connect(spinBox, SIGNAL(valueChanged(int)), method, SLOT(setNumberOfIterations(int)));
     spinBoxNumberOfIterations = spinBox;
@@ -237,7 +237,7 @@ void MethodWidget::updateParameters ()
     oldState = spinBoxEpsilon->blockSignals(true);
     spinBoxEpsilon->setValue(method->getEpsilon());
     spinBoxEpsilon->blockSignals(oldState);
-    
+
     // Number of iterations
     oldState = spinBoxNumberOfIterations->blockSignals(true);
     spinBoxNumberOfIterations->setValue(method->getNumberOfIterations());

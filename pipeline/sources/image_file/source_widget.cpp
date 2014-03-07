@@ -11,10 +11,10 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  */
 
 #include "source_widget.h"
@@ -54,13 +54,13 @@ SourceWidget::SourceWidget (Source *s, QWidget *parent)
     scrollArea->setWidget(new QWidget(this));
 
     baseLayout->addWidget(scrollArea);
-    
+
     QFormLayout *layout = new QFormLayout(scrollArea->widget());
-    
+
 
     // Load from files
     tooltip = "Load new pair of images from harddisk.";
-    
+
     button = new QPushButton("Load image pair", this);
     button->setToolTip(tooltip);
     connect(button, SIGNAL(clicked()), this, SLOT(loadImagePair()));
@@ -70,7 +70,7 @@ SourceWidget::SourceWidget (Source *s, QWidget *parent)
 
     // Periodic refresh
     tooltip = "Enable/disable perodic refresh";
-    
+
     button = new QPushButton("Periodic refresh", this);
     button->setToolTip(tooltip);
     button->setCheckable(true);
@@ -88,10 +88,10 @@ SourceWidget::SourceWidget (Source *s, QWidget *parent)
 
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
-    spinBox->setRange(1, INT_MAX);
+    spinBox->setRange(1, 9999);
     spinBox->setSingleStep(1000);
     spinBox->setValue(1000);
-    spinBox->setSuffix(" ms"); // 
+    spinBox->setSuffix(" ms"); //
     connect(spinBox, SIGNAL(valueChanged(int)), source, SLOT(setRefreshPeriod(int)));
     connect(source, SIGNAL(refreshPeriodChanged(int)), spinBox, SLOT(setValue(int)));
     spinBoxRefreshPeriod = spinBox;
@@ -124,7 +124,7 @@ QWidget *SourceWidget::createImageFrame (bool left)
     QString tooltip;
 
     QFormLayout *layout;
-   
+
     // Image frame
     imageFrame = new QFrame(this);
     imageFrame->setFrameStyle(QFrame::Box | QFrame::Sunken);
@@ -141,7 +141,7 @@ QWidget *SourceWidget::createImageFrame (bool left)
     } else {
         layout->addRow(source->getRightImageFile()->createConfigWidget(this));
     }
-    
+
     return imageFrame;
 }
 

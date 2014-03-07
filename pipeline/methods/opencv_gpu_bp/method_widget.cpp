@@ -1,7 +1,7 @@
 /*
  * OpenCV GPU Belief Propagation: config widget
  * Copyright (C) 2013 Rok Mandeljc
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -11,12 +11,12 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  */
- 
+
 #include "method_widget.h"
 #include "method.h"
 
@@ -60,13 +60,13 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
     scrollArea->setWidget(new QWidget(this));
 
     baseLayout->addWidget(scrollArea);
-    
+
     QFormLayout *layout = new QFormLayout(scrollArea->widget());
-    
+
 
     // Preset
     tooltip = "Presets for quick initialization.";
-    
+
     label = new QLabel("Preset", this);
     label->setToolTip(tooltip);
 
@@ -94,7 +94,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
 
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
-    spinBox->setRange(0, INT_MAX);
+    spinBox->setRange(0, 9999);
     connect(spinBox, SIGNAL(valueChanged(int)), method, SLOT(setNumDisparities(int)));
     spinBoxNumDisparities = spinBox;
 
@@ -108,7 +108,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
 
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
-    spinBox->setRange(1, INT_MAX);
+    spinBox->setRange(1, 9999);
     connect(spinBox, SIGNAL(valueChanged(int)), method, SLOT(setIterations(int)));
     spinBoxIterations = spinBox;
 
@@ -122,7 +122,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
 
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
-    spinBox->setRange(1, INT_MAX);
+    spinBox->setRange(1, 9999);
     connect(spinBox, SIGNAL(valueChanged(int)), method, SLOT(setLevels(int)));
     spinBoxLevels = spinBox;
 
@@ -142,7 +142,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
 
     spinBoxD = new QDoubleSpinBox(this);
     spinBoxD->setKeyboardTracking(false);
-    spinBoxD->setRange(0.0, DBL_MAX);
+    spinBoxD->setRange(0.0, 9999.0);
     connect(spinBoxD, SIGNAL(valueChanged(double)), method, SLOT(setMaxDataTerm(double)));
     spinBoxMaxDataTerm = spinBoxD;
 
@@ -156,7 +156,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
 
     spinBoxD = new QDoubleSpinBox(this);
     spinBoxD->setKeyboardTracking(false);
-    spinBoxD->setRange(0.0, DBL_MAX);
+    spinBoxD->setRange(0.0, 9999.0);
     connect(spinBoxD, SIGNAL(valueChanged(double)), method, SLOT(setDataWeight(double)));
     spinBoxDataWeight = spinBoxD;
 
@@ -170,7 +170,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
 
     spinBoxD = new QDoubleSpinBox(this);
     spinBoxD->setKeyboardTracking(false);
-    spinBoxD->setRange(0.0, DBL_MAX);
+    spinBoxD->setRange(0.0, 9999.0);
     connect(spinBoxD, SIGNAL(valueChanged(double)), method, SLOT(setMaxDiscTerm(double)));
     spinBoxMaxDiscTerm = spinBoxD;
 
@@ -184,7 +184,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
 
     spinBoxD = new QDoubleSpinBox(this);
     spinBoxD->setKeyboardTracking(false);
-    spinBoxD->setRange(0.0, DBL_MAX);
+    spinBoxD->setRange(0.0, 9999.0);
     connect(spinBoxD, SIGNAL(valueChanged(double)), method, SLOT(setDiscSingleJump(double)));
     spinBoxDiscSingleJump = spinBoxD;
 

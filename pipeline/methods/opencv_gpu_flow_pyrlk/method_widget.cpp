@@ -11,10 +11,10 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  */
 
 #include "method_widget.h"
@@ -56,13 +56,13 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
     scrollArea->setWidget(new QWidget(this));
 
     baseLayout->addWidget(scrollArea);
-    
+
     QFormLayout *layout = new QFormLayout(scrollArea->widget());
-    
+
 
     // Reverse images
     tooltip = "Reverse input images.";
-    
+
     checkBox = new QCheckBox("Reverse images", this);
     checkBox->setToolTip(tooltip);
     connect(checkBox, SIGNAL(toggled(bool)), method, SLOT(setReverseImages(bool)));
@@ -78,7 +78,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
 
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
-    spinBox->setRange(1, INT_MAX);
+    spinBox->setRange(1, 9999);
     spinBox->setSingleStep(1);
     connect(spinBox, SIGNAL(valueChanged(int)), method, SLOT(setWindowWidth(int)));
     spinBoxWindowWidth = spinBox;
@@ -93,7 +93,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
 
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
-    spinBox->setRange(1, INT_MAX);
+    spinBox->setRange(1, 9999);
     spinBox->setSingleStep(1);
     connect(spinBox, SIGNAL(valueChanged(int)), method, SLOT(setWindowHeight(int)));
     spinBoxWindowHeight = spinBox;
@@ -108,7 +108,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
 
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
-    spinBox->setRange(1, INT_MAX);
+    spinBox->setRange(1, 9999);
     spinBox->setSingleStep(1);
     connect(spinBox, SIGNAL(valueChanged(int)), method, SLOT(setMaxLevel(int)));
     spinBoxMaxLevel = spinBox;
@@ -123,7 +123,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
 
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
-    spinBox->setRange(1, INT_MAX);
+    spinBox->setRange(1, 9999);
     spinBox->setSingleStep(1);
     connect(spinBox, SIGNAL(valueChanged(int)), method, SLOT(setNumberOfIterations(int)));
     spinBoxNumberOfIterations = spinBox;
@@ -161,7 +161,7 @@ void MethodWidget::updateParameters ()
     oldState = spinBoxMaxLevel->blockSignals(true);
     spinBoxMaxLevel->setValue(method->getMaxLevel());
     spinBoxMaxLevel->blockSignals(oldState);
-    
+
     // Number of iterations
     oldState = spinBoxNumberOfIterations->blockSignals(true);
     spinBoxNumberOfIterations->setValue(method->getNumberOfIterations());

@@ -11,10 +11,10 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  */
 
 #include "method_widget.h"
@@ -66,7 +66,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
 
     // Preset
     tooltip = "Presets for quick initialization.";
-    
+
     label = new QLabel("Preset", this);
     label->setToolTip(tooltip);
 
@@ -89,13 +89,13 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
     // Levels
     tooltip = "The number of pyramid layers, including the initial image. levels=1 means that no extra layers are \n"
               "created and only the original images are used. This parameter is ignored if flag USE_AUTO_PARAMS is set.";
-    
+
     label = new QLabel("Levels", this);
     label->setToolTip(tooltip);
 
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
-    spinBox->setRange(1, INT_MAX);
+    spinBox->setRange(1, 9999);
     connect(spinBox, SIGNAL(valueChanged(int)), method, SLOT(setLevels(int)));
     spinBoxLevels = spinBox;
 
@@ -105,7 +105,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
     tooltip = "Specifies the image scale (<1) to build the pyramids for each image. pyrScale=0.5 means the classical \n"
               "pyramid, where each next layer is twice smaller than the previous. (This parameter is ignored if flag \n"
               "USE_AUTO_PARAMS is set).";
-    
+
     label = new QLabel("Pyramid scale", this);
     label->setToolTip(tooltip);
 
@@ -122,13 +122,13 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
     tooltip = "The number of iterations the algorithm does at each pyramid level. (If the flag USE_SMART_ID is set, the \n"
               "number of iterations will be redistributed in such a way, that more iterations will be done on more \n"
               "coarser levels.)";
-    
+
     label = new QLabel("Number of iterations", this);
     label->setToolTip(tooltip);
 
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
-    spinBox->setRange(0, INT_MAX);
+    spinBox->setRange(0, 9999);
     connect(spinBox, SIGNAL(valueChanged(int)), method, SLOT(setNumIterations(int)));
     spinBoxNumIterations = spinBox;
 
@@ -136,13 +136,13 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
 
     // Min disparity
     tooltip = "Minimum possible disparity value. Could be negative in case the left and right input images change places.";
-    
+
     label = new QLabel("Min disparity", this);
     label->setToolTip(tooltip);
 
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
-    spinBox->setRange(INT_MIN, INT_MAX);
+    spinBox->setRange(-9999, 9999);
     connect(spinBox, SIGNAL(valueChanged(int)), method, SLOT(setMinDisparity(int)));
     spinBoxMinDisparity = spinBox;
 
@@ -150,13 +150,13 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
 
     // Max disparity
     tooltip = "Maximum possible disparity value.";
-    
+
     label = new QLabel("Max disparity", this);
     label->setToolTip(tooltip);
 
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
-    spinBox->setRange(INT_MIN, INT_MAX);
+    spinBox->setRange(-9999, 9999);
     connect(spinBox, SIGNAL(valueChanged(int)), method, SLOT(setMaxDisparity(int)));
     spinBoxMaxDisparity = spinBox;
 
@@ -166,7 +166,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
     tooltip = "Size of the pixel neighbourhood used to find polynomial expansion in each pixel. The larger values mean that \n"
               "the image will be approximated with smoother surfaces, yielding more robust algorithm and more blurred motion \n"
               "field. Typically, poly_n = 3, 5 or 7";
-    
+
     label = new QLabel("PolyN", this);
     label->setToolTip(tooltip);
 
@@ -181,7 +181,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
     // PolySigma
     tooltip = "Standard deviation of the Gaussian that is used to smooth derivatives that are used as a basis for the polynomial \n"
               "expansion. For poly_n = 5 you can set poly_sigma = 1.1, for poly_n = 7 a good value would be poly_sigma = 1.5.";
-              
+
     label = new QLabel("PolySigma", this);
     label->setToolTip(tooltip);
 
@@ -195,13 +195,13 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
 
     // Fi
     tooltip = "The smoothness parameter, or the weight coefficient for the smoothness term.";
-    
+
     label = new QLabel("Fi", this);
     label->setToolTip(tooltip);
 
     spinBoxD = new QDoubleSpinBox(this);
     spinBoxD->setKeyboardTracking(false);
-    spinBoxD->setRange(0.0, DBL_MAX);
+    spinBoxD->setRange(0.0, 9999.0);
     connect(spinBoxD, SIGNAL(valueChanged(double)), method, SLOT(setFi(double)));
     spinBoxFi = spinBoxD;
 
@@ -210,13 +210,13 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
     // Lambda
     tooltip = "The threshold parameter for edge-preserving smoothness (ignored if PENALIZATION_CHARBONNIER or \n"
               "PENALIZATION_PERONA_MALIK is used).";
-    
+
     label = new QLabel("Lambda", this);
     label->setToolTip(tooltip);
 
     spinBoxD = new QDoubleSpinBox(this);
     spinBoxD->setKeyboardTracking(false);
-    spinBoxD->setRange(0.0, DBL_MAX);
+    spinBoxD->setRange(0.0, 9999.0);
     spinBoxD->setSingleStep(0.01);
     connect(spinBoxD, SIGNAL(valueChanged(double)), method, SLOT(setLambda(double)));
     spinBoxLambda = spinBoxD;
@@ -225,7 +225,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
 
     // Penalization
     tooltip = "Penalization option (ignored if flag USE_AUTO_PARAMS is set).";
-    
+
     label = new QLabel("Penalization", this);
     label->setToolTip(tooltip);
 
@@ -243,7 +243,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
 
     // Cycle
     tooltip = "Type of the multigrid cycle (ignored if flag USE_AUTO_PARAMS is set).";
-    
+
     label = new QLabel("Cycle", this);
     label->setToolTip(tooltip);
 

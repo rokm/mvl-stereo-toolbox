@@ -1,7 +1,7 @@
 /*
  * OpenCV GPU Block Matching: config widget
  * Copyright (C) 2013 Rok Mandeljc
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -11,12 +11,12 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  */
- 
+
 #include "method_widget.h"
 #include "method.h"
 
@@ -61,7 +61,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
     scrollArea->setWidget(new QWidget(this));
 
     baseLayout->addWidget(scrollArea);
-    
+
     QFormLayout *layout = new QFormLayout(scrollArea->widget());
 
 
@@ -82,7 +82,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
 
     // Preset
     tooltip = "Parameter presetting.";
-    
+
     label = new QLabel("Preset", this);
     label->setToolTip(tooltip);
 
@@ -104,7 +104,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
 
     // Num disparities
     tooltip = "Number of disparities. It must be a multiple of 8 and less or equal to 256.";
-    
+
     label = new QLabel("Num. disparities", this);
     label->setToolTip(tooltip);
 
@@ -125,7 +125,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
 
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
-    spinBox->setRange(2, INT_MAX);
+    spinBox->setRange(2, 9999);
     connect(spinBox, SIGNAL(valueChanged(int)), method, SLOT(setWindowSize(int)));
     spinBoxWindowSize = spinBox;
 
@@ -141,7 +141,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
 
     spinBoxD = new QDoubleSpinBox(this);
     spinBoxD->setKeyboardTracking(false);
-    spinBoxD->setRange(0.0, DBL_MAX);
+    spinBoxD->setRange(0.0, 9999.0);
     connect(spinBoxD, SIGNAL(valueChanged(double)), method, SLOT(setAverageTextureThreshold(double)));
     spinBoxAverageTextureThreshold = spinBoxD;
 

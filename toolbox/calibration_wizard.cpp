@@ -11,10 +11,10 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  */
 
 #include "calibration_wizard.h"
@@ -34,7 +34,7 @@ CalibrationWizard::CalibrationWizard (QWidget *parent)
     setWizardStyle(ClassicStyle);
 
     resize(800, 600);
-    
+
     setOption(QWizard::NoBackButtonOnStartPage, true);
 
     setPixmap(QWizard::LogoPixmap, QPixmap(":/images/calibration.png"));
@@ -141,7 +141,7 @@ int CalibrationWizardPageIntroduction::nextId () const
 // *********************************************************************
 CalibrationWizardPageImages::CalibrationWizardPageImages (const QString &fieldPrefixString, QWidget *parent)
     : QWizardPage(parent), fieldPrefix(fieldPrefixString)
-{    
+{
     setSubTitle("Calibration image sequence and pattern");
 
     QLabel *label;
@@ -191,7 +191,7 @@ CalibrationWizardPageImages::CalibrationWizardPageImages (const QString &fieldPr
     // *** Calibration pattern ***
     box = new QGroupBox("Calibration pattern", this);
     layout->addWidget(box, 1, 1, 1, 1);
-    
+
     // Layout
     QFormLayout *patternLayout = new QFormLayout(box);
 
@@ -201,7 +201,7 @@ CalibrationWizardPageImages::CalibrationWizardPageImages (const QString &fieldPr
                       " - chessboard: number of inside corners in horizontal direction\n"
                       " - circle grid: number of circles in horizontal direction\n"
                       " - asymmetric circle grid: number of circles in first column (*vertical* direction!)");
-    
+
     spinBoxPatternWidth = new QSpinBox(this);
     spinBoxPatternWidth->setRange(1, 1000);
     spinBoxPatternWidth->setValue(19);
@@ -213,7 +213,7 @@ CalibrationWizardPageImages::CalibrationWizardPageImages (const QString &fieldPr
                       " - chessboard: number of inside corners in vertical direction\n"
                       " - circle grid: number of circles in vertical direction\n"
                       " - asymmetric circle grid: total number of circles in first *two* rows (*horizontal* direction!)");
-    
+
     spinBoxPatternHeight = new QSpinBox(this);
     spinBoxPatternHeight->setRange(1, 1000);
     spinBoxPatternHeight->setValue(12);
@@ -303,7 +303,7 @@ void CalibrationWizardPageImages::addImages ()
         if (listFile.open(QIODevice::ReadOnly)) {
             QTextStream stream(&listFile);
             QString line;
-            
+
             // Clear file names
             fileNames.clear();
 
@@ -490,7 +490,7 @@ bool CalibrationWizardPageRightCameraImages::isComplete () const
 // *********************************************************************
 CalibrationWizardPageDetection::CalibrationWizardPageDetection (const QString &fieldPrefixString, bool pairs, QWidget *parent)
     : QWizardPage(parent), fieldPrefix(fieldPrefixString), processImagePairs(pairs)
-{   
+{
     setSubTitle("Calibration pattern detection");
 
     QLabel *label;
@@ -538,7 +538,7 @@ CalibrationWizardPageDetection::CalibrationWizardPageDetection (const QString &f
     pushButtonAuto->setCheckable(true);
     connect(pushButtonAuto, SIGNAL(toggled(bool)), this, SLOT(autoPatternToggled(bool)));
     buttonBox->addWidget(pushButtonAuto);
-    
+
     pushButtonDiscard = new QPushButton("Discard", this);
     connect(pushButtonDiscard, SIGNAL(clicked()), this, SLOT(discardPatternClicked()));
     buttonBox->addWidget(pushButtonDiscard);
@@ -613,7 +613,7 @@ void CalibrationWizardPageDetection::initializePage ()
         (StereoCalibrationPattern::PatternType)field(fieldPrefix + "PatternType").toInt(),
         field(fieldPrefix + "ScaleLevels").toInt(),
         field(fieldPrefix + "ScaleIncrement").toDouble()
-    ); 
+    );
 }
 
 
@@ -629,7 +629,7 @@ void CalibrationWizardPageDetection::startProcessing ()
     pushButtonAccept->setText("Accept");
     pushButtonAccept->setEnabled(true);
     pushButtonDiscard->setEnabled(true);
-        
+
     imageCounter = 0;
     patternFound = false;
     imageSize = cv::Size(); // Reset size
@@ -644,7 +644,7 @@ void CalibrationWizardPageDetection::doAutomaticProcessing ()
     if (!autoProcess) {
         return;
     }
-    
+
     // Auto accept / discard
     if (patternFound) {
         acceptPattern();
@@ -670,7 +670,7 @@ void CalibrationWizardPageDetection::acceptPattern ()
         // is rejected, then the first image's points will have to
         // be removed from the list by the discard function.
         patternImagePoints.push_back(currentImagePoints);
-            
+
         // For pairs, we append world coordinates vector only on odd
         // counter numbers (so when second image of the pair is accepted)
         if (imageCounter % 2) {
@@ -682,7 +682,7 @@ void CalibrationWizardPageDetection::acceptPattern ()
         // Append world coordinates
         patternWorldPoints.push_back(calibrationPattern.computePlanarCoordinates());
     }
-    
+
     // Process next
     imageCounter++;
     processImage();
@@ -696,7 +696,7 @@ void CalibrationWizardPageDetection::discardPattern ()
             // this means that first image was accepted and we need to
             // remove its image coordinates from the list.
             patternImagePoints.pop_back();
-    
+
             // Skip the image
             imageCounter++;
         } else {
@@ -708,7 +708,7 @@ void CalibrationWizardPageDetection::discardPattern ()
         // Just skip the image
         imageCounter++;
     }
-    
+
     // Process next
     processImage();
 }
@@ -737,7 +737,7 @@ void CalibrationWizardPageDetection::processImage ()
         } else {
             labelStatus->setText(QString("<b>Image</b> %1 / %2. <b>Accepted</b> %3. <b>Current:</b> %4").arg(imageCounter).arg(images.size()).arg(patternWorldPoints.size()).arg(currentFileBasename));
         }
-        
+
         // Enable both buttons
         pushButtonAccept->show();
         pushButtonAccept->setEnabled(true);
@@ -755,7 +755,7 @@ void CalibrationWizardPageDetection::processImage ()
 
             displayImage->setText("Failed to load image!");
             displayImage->setImage(cv::Mat());
-            
+
             pushButtonAccept->hide();
             pushButtonAccept->setEnabled(false);
             return;
@@ -1063,14 +1063,14 @@ int StereoCalibrationFlagsWidget::getFlags () const
     flags |= (checkBoxFixIntrinsic->checkState() == Qt::Checked) * cv::CALIB_FIX_INTRINSIC;
     flags |= (checkBoxFixFocalLength->checkState() == Qt::Checked) * cv::CALIB_FIX_FOCAL_LENGTH;
     flags |= (checkBoxSameFocalLength->checkState() == Qt::Checked) * cv::CALIB_SAME_FOCAL_LENGTH;
-    
+
     return flags;
 }
 
 void StereoCalibrationFlagsWidget::setFlags (int flags)
 {
     CalibrationFlagsWidget::setFlags(flags);
-    
+
     checkBoxFixIntrinsic->setChecked(flags & cv::CALIB_FIX_INTRINSIC);
     checkBoxFixFocalLength->setChecked(flags & cv::CALIB_FIX_FOCAL_LENGTH);
     checkBoxSameFocalLength->setChecked(flags & cv::CALIB_SAME_FOCAL_LENGTH);
@@ -1083,7 +1083,7 @@ void StereoCalibrationFlagsWidget::setFlags (int flags)
 // *********************************************************************
 CameraParametersWidget::CameraParametersWidget (const QString &title, QWidget *parent)
     : QGroupBox(title, parent)
-{   
+{
     QFormLayout *groupBoxLayout = new QFormLayout(this);
     QLabel *label;
     QDoubleSpinBox *spinBoxD;
@@ -1093,7 +1093,7 @@ CameraParametersWidget::CameraParametersWidget (const QString &title, QWidget *p
     label->setToolTip("Focal length (horizontal) in pixel units");
 
     spinBoxD = new QDoubleSpinBox(this);
-    spinBoxD->setRange(-DBL_MAX, DBL_MAX);
+    spinBoxD->setRange(0, 9999.0);
     spinBoxD->setValue(0);
     spinBoxD->setDecimals(2);
     spinBoxD->setSuffix(" px");
@@ -1106,7 +1106,7 @@ CameraParametersWidget::CameraParametersWidget (const QString &title, QWidget *p
     label->setToolTip("Focal length (vertical) in pixel units");
 
     spinBoxD = new QDoubleSpinBox(this);
-    spinBoxD->setRange(-DBL_MAX, DBL_MAX);
+    spinBoxD->setRange(0, 9999.0);
     spinBoxD->setValue(0);
     spinBoxD->setDecimals(2);
     spinBoxD->setSuffix(" px");
@@ -1119,7 +1119,7 @@ CameraParametersWidget::CameraParametersWidget (const QString &title, QWidget *p
     label->setToolTip("Horizontal coordinate of principal point");
 
     spinBoxD = new QDoubleSpinBox(this);
-    spinBoxD->setRange(-DBL_MAX, DBL_MAX);
+    spinBoxD->setRange(0, 9999.0);
     spinBoxD->setValue(0);
     spinBoxD->setDecimals(2);
     spinBoxD->setSuffix(" px");
@@ -1132,7 +1132,7 @@ CameraParametersWidget::CameraParametersWidget (const QString &title, QWidget *p
     label->setToolTip("Vertical coordinate of principal point");
 
     spinBoxD = new QDoubleSpinBox(this);
-    spinBoxD->setRange(-DBL_MAX, DBL_MAX);
+    spinBoxD->setRange(0, 9999.0);
     spinBoxD->setValue(0);
     spinBoxD->setDecimals(2);
     spinBoxD->setSuffix(" px");
@@ -1145,7 +1145,7 @@ CameraParametersWidget::CameraParametersWidget (const QString &title, QWidget *p
     label->setToolTip("Radial distortion coefficient");
 
     spinBoxD = new QDoubleSpinBox(this);
-    spinBoxD->setRange(-DBL_MAX, DBL_MAX);
+    spinBoxD->setRange(-9999.0, 9999.0);
     spinBoxD->setValue(0);
     spinBoxD->setDecimals(4);
     spinBoxK1 = spinBoxD;
@@ -1157,7 +1157,7 @@ CameraParametersWidget::CameraParametersWidget (const QString &title, QWidget *p
     label->setToolTip("Radial distortion coefficient");
 
     spinBoxD = new QDoubleSpinBox(this);
-    spinBoxD->setRange(-DBL_MAX, DBL_MAX);
+    spinBoxD->setRange(-9999.0, 9999.0);
     spinBoxD->setValue(0);
     spinBoxD->setDecimals(4);
     spinBoxK2 = spinBoxD;
@@ -1169,7 +1169,7 @@ CameraParametersWidget::CameraParametersWidget (const QString &title, QWidget *p
     label->setToolTip("Radial distortion coefficient");
 
     spinBoxD = new QDoubleSpinBox(this);
-    spinBoxD->setRange(-DBL_MAX, DBL_MAX);
+    spinBoxD->setRange(-9999.0, 9999.0);
     spinBoxD->setValue(0);
     spinBoxD->setDecimals(4);
     spinBoxP1 = spinBoxD;
@@ -1182,7 +1182,7 @@ CameraParametersWidget::CameraParametersWidget (const QString &title, QWidget *p
     label->setToolTip("Tangential distortion coefficient");
 
     spinBoxD = new QDoubleSpinBox(this);
-    spinBoxD->setRange(-DBL_MAX, DBL_MAX);
+    spinBoxD->setRange(-9999.0, 9999.0);
     spinBoxD->setValue(0);
     spinBoxD->setDecimals(4);
     spinBoxP2 = spinBoxD;
@@ -1195,7 +1195,7 @@ CameraParametersWidget::CameraParametersWidget (const QString &title, QWidget *p
     label->setToolTip("Radial distortion coefficient");
 
     spinBoxD = new QDoubleSpinBox(this);
-    spinBoxD->setRange(-DBL_MAX, DBL_MAX);
+    spinBoxD->setRange(-9999.0, 9999.0);
     spinBoxD->setValue(0);
     spinBoxD->setDecimals(4);
     spinBoxK3 = spinBoxD;
@@ -1207,7 +1207,7 @@ CameraParametersWidget::CameraParametersWidget (const QString &title, QWidget *p
     label->setToolTip("Radial distortion coefficient");
 
     spinBoxD = new QDoubleSpinBox(this);
-    spinBoxD->setRange(-DBL_MAX, DBL_MAX);
+    spinBoxD->setRange(-9999.0, 9999.0);
     spinBoxD->setValue(0);
     spinBoxD->setDecimals(4);
     spinBoxK4 = spinBoxD;
@@ -1219,7 +1219,7 @@ CameraParametersWidget::CameraParametersWidget (const QString &title, QWidget *p
     label->setToolTip("Radial distortion coefficient");
 
     spinBoxD = new QDoubleSpinBox(this);
-    spinBoxD->setRange(-DBL_MAX, DBL_MAX);
+    spinBoxD->setRange(-9999.0, 9999.0);
     spinBoxD->setValue(0);
     spinBoxD->setDecimals(4);
     spinBoxK5 = spinBoxD;
@@ -1231,7 +1231,7 @@ CameraParametersWidget::CameraParametersWidget (const QString &title, QWidget *p
     label->setToolTip("Radial distortion coefficient");
 
     spinBoxD = new QDoubleSpinBox(this);
-    spinBoxD->setRange(-DBL_MAX, DBL_MAX);
+    spinBoxD->setRange(-9999.0, 9999.0);
     spinBoxD->setValue(0);
     spinBoxD->setDecimals(4);
     spinBoxK6 = spinBoxD;
@@ -1479,11 +1479,11 @@ CalibrationWizardPageCalibration::CalibrationWizardPageCalibration (const QStrin
     // Busy dialog
     dialogBusy = new QProgressDialog("Calibrating... please wait", QString(), 0, 0, this);
     dialogBusy->setModal(true);
-    
+
     // Worker thread
     calibrationComplete = false;
     connect(&calibrationWatcher, SIGNAL(finished()), this, SLOT(calibrationFinished()));
-    
+
     QLabel *label;
 
     // Layout
@@ -1501,13 +1501,13 @@ CalibrationWizardPageCalibration::CalibrationWizardPageCalibration (const QStrin
     // Camera parameters
     boxCameraParameters = new CameraParametersWidget("Parameters", this);
     layout->addWidget(boxCameraParameters, 1, 0, 1, 1);
-    
+
     // Calibration Flags
     boxCalibrationFlags = new CalibrationFlagsWidget("Flags", this);
     layout->addWidget(boxCalibrationFlags, 1, 1, 1, 1);
 
     boxCalibrationFlags->setFlags(cv::CALIB_RATIONAL_MODEL); // Default flags
-    
+
     // Fields
     registerField(fieldPrefix + "CameraMatrix", this, "cameraMatrix");
     registerField(fieldPrefix + "DistCoeffs", this, "distCoeffs");
@@ -1586,7 +1586,7 @@ void CalibrationWizardPageCalibration::calibrationFinished ()
     if (calibrationComplete) {
         QMessageBox::information(this, "Calibration finished", QString("Calibration finished!\nRMSE: %1").arg(calibrationRMSE));
     }
-    
+
     // We might be ready
     emit completeChanged();
 }
@@ -1604,7 +1604,7 @@ bool CalibrationWizardPageCalibration::calibrationFunction ()
     int flags = boxCalibrationFlags->getFlags();
     cameraMatrix = boxCameraParameters->getCameraMatrix();
     distCoeffs = cv::Mat(boxCameraParameters->getDistCoeffs()).clone();
-   
+
     try {
         calibrationRMSE = cv::calibrateCamera(worldPoints, imagePoints, imageSize, cameraMatrix, distCoeffs, cv::noArray(), cv::noArray(), flags);
     } catch (cv::Exception e) {
@@ -1663,11 +1663,11 @@ CalibrationWizardPageStereoCalibration::CalibrationWizardPageStereoCalibration (
     // Busy dialog
     dialogBusy = new QProgressDialog("Calibrating... please wait", QString(), 0, 0, this);
     dialogBusy->setModal(true);
-    
+
     // Worker thread
     calibrationComplete = false;
     connect(&calibrationWatcher, SIGNAL(finished()), this, SLOT(calibrationFinished()));
-    
+
     QLabel *label;
 
     // Layout
@@ -1834,7 +1834,7 @@ bool CalibrationWizardPageStereoCalibration::calibrationFunction ()
     std::vector<std::vector<cv::Point2f> > imagePoints = field(fieldPrefix + "PatternImagePoints").value< std::vector<std::vector<cv::Point2f> > >();
     std::vector<std::vector<cv::Point3f> > objectPoints = field(fieldPrefix + "PatternWorldPoints").value< std::vector<std::vector<cv::Point3f> > >();
     cv::Size imageSize = field(fieldPrefix + "ImageSize").value<cv::Size>();
-    
+
     // Perform calibration here - we use OpenCV directly and bypass
     // the pipeline's stereo calibration function, so that calibration
     // can be cancelled at any point without affecting the pipeline...
@@ -1856,7 +1856,7 @@ bool CalibrationWizardPageStereoCalibration::calibrationFunction ()
     distCoeffs2 = cv::Mat(boxRightCameraParameters->getDistCoeffs()).clone();
 
     cv::Mat E, F;
-   
+
     try {
         calibrationRMSE = cv::stereoCalibrate(objectPoints, imagePoints1, imagePoints2,
                                               cameraMatrix1, distCoeffs1,
@@ -1958,10 +1958,10 @@ void CalibrationWizardPageResult::initializePage ()
 
     // Load and undistort first image
     QStringList images = field(fieldPrefix + "Images").toStringList();
-    
+
     cv::Mat image = cv::imread(images[0].toStdString(), -1);
     cv::Mat undistortedImage;
-    
+
     cv::undistort(image, undistortedImage, M, D);
 
     // Display undistorted image
@@ -2097,16 +2097,16 @@ void CalibrationWizardPageStereoResult::initializePage ()
 
     cv::initUndistortRectifyMap(M1, D1, R1, P1, imageSize, CV_16SC2, map11, map12);
     cv::initUndistortRectifyMap(M2, D2, R2, P2, imageSize, CV_16SC2, map21, map22);
-    
+
     // Load and rectify a pair
     QStringList images = field(fieldPrefix + "Images").toStringList();
-    
+
     cv::Mat image1 = cv::imread(images[0].toStdString(), -1);
     cv::Mat image2 = cv::imread(images[1].toStdString(), -1);
-    
+
     // Two simple remaps using look-up tables
     cv::Mat rectifiedImage1, rectifiedImage2;
-    
+
     cv::remap(image1, rectifiedImage1, map11, map12, cv::INTER_LINEAR);
     cv::remap(image2, rectifiedImage2, map21, map22, cv::INTER_LINEAR);
 
