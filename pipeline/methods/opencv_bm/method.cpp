@@ -11,10 +11,10 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  */
 
 #include "method.h"
@@ -59,6 +59,8 @@ QWidget *Method::createConfigWidget (QWidget *parent)
 // *********************************************************************
 void Method::usePreset (int type)
 {
+    QMutexLocker locker(&mutex);
+
     switch (type) {
         case OpenCV: {
             // OpenCV (the method does not really use presets)
@@ -78,11 +80,12 @@ void Method::usePreset (int type)
             bm.state->speckleWindowSize = 100;
             bm.state->speckleRange = 32;
             bm.state->disp12MaxDiff = 1;
-            
+
             break;
         }
     };
 
+    locker.unlock();
     emit parameterChanged();
 }
 
@@ -107,7 +110,7 @@ void Method::computeDisparityImage (const cv::Mat &img1, const cv::Mat &img2, cv
 
     // Store in case user wants to compute optimal parameters
     imageWidth = img1.cols;
-    
+
     // Compute disparity image
     tmpDisparity.create(img1.rows, img1.cols, CV_16SC1);
 
@@ -137,26 +140,26 @@ void Method::loadParameters (const QString &filename)
     if (!storage.isOpened()) {
         throw QString("Cannot open file \"%1\" for reading!").arg(filename);
     }
-    
+
     // Validate data type
     QString dataType = QString::fromStdString(storage["DataType"]);
     if (dataType.compare("StereoMethodParameters")) {
         throw QString("Invalid stereo method parameters configuration!");
     }
-    
+
     // Validate method name
     QString storedName = QString::fromStdString(storage["MethodName"]);
     if (storedName.compare(getShortName())) {
         throw QString("Invalid configuration for method \"%1\"!").arg(getShortName());
     }
-    
+
     // Load parameters
     bm = cv::StereoBM();
-    
+
     storage["PreFilterType"] >> bm.state->preFilterType;
     storage["PreFilterSize"] >> bm.state->preFilterSize;
     storage["PreFilterCap"] >> bm.state->preFilterCap;
-    
+
     storage["SADWindowSize"] >> bm.state->SADWindowSize;
     storage["MinDisparity"] >> bm.state->minDisparity;
     storage["NumDisparities"] >> bm.state->numberOfDisparities;
@@ -182,7 +185,7 @@ void Method::saveParameters (const QString &filename) const
 
     // Data type
     storage << "DataType" << "StereoMethodParameters";
-    
+
     // Store method name, so it can be validate upon loading
     storage << "MethodName" << getShortName().toStdString();
 
@@ -190,7 +193,7 @@ void Method::saveParameters (const QString &filename) const
     storage << "PreFilterType" << bm.state->preFilterType;
     storage << "PreFilterSize" << bm.state->preFilterSize;
     storage << "PreFilterCap" << bm.state->preFilterCap;
-    
+
     storage << "SADWindowSize" << bm.state->SADWindowSize;
     storage << "MinDisparity" << bm.state->minDisparity;
     storage << "NumDisparities" << bm.state->numberOfDisparities;
@@ -239,7 +242,7 @@ void Method::setPreFilterSize (int newValue)
 
     setParameter(bm.state->preFilterSize, newValue);
 }
-    
+
 // Pre-filter clipping
 int Method::getPreFilterCap () const
 {
@@ -253,7 +256,7 @@ void Method::setPreFilterCap (int newValue)
 
     setParameter(bm.state->preFilterCap, newValue);
 }
-        
+
 
 // Sum-of-absolute difference window size
 int Method::getSADWindowSize () const
@@ -269,7 +272,7 @@ void Method::setSADWindowSize (int newValue)
 
     setParameter(bm.state->SADWindowSize, newValue);
 }
-    
+
 // Minimum disparity
 int Method::getMinDisparity () const
 {
@@ -292,11 +295,11 @@ void Method::setNumDisparities (int newValue)
     // Validate
     newValue = qRound(newValue / 16.0) * 16; // Must be divisible by 16
     newValue = qMax(16, newValue);
-    
+
     setParameter(bm.state->numberOfDisparities, newValue);
 }
-    
-  
+
+
 // Post-filtering texture threshold
 int Method::getTextureThreshold () const
 {
@@ -332,7 +335,7 @@ void Method::setSpeckleWindowSize (int newValue)
     setParameter(bm.state->speckleWindowSize, newValue);
 }
 
-// Acceptable range of variation in window    
+// Acceptable range of variation in window
 int Method::getSpeckleRange () const
 {
     return bm.state->speckleRange;
@@ -342,7 +345,7 @@ void Method::setSpeckleRange (int newValue)
 {
     setParameter(bm.state->speckleRange, newValue);
 }
- 
+
 // Whether to try smaller windows or not (more accurate results, but slower)
 bool Method::getTrySmallerWindows () const
 {

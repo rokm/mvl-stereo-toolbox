@@ -1,7 +1,7 @@
 /*
  * OpenCV GPU Block Matching: method
  * Copyright (C) 2013 Rok Mandeljc
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -11,12 +11,12 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  */
- 
+
 #include "method.h"
 #include "method_widget.h"
 
@@ -53,7 +53,10 @@ QWidget *Method::createConfigWidget (QWidget *parent)
 // *********************************************************************
 void Method::resetToDefaults ()
 {
+    QMutexLocker locker(&mutex);
     bm = cv::gpu::StereoBM_GPU();
+    locker.unlock();
+
     emit parameterChanged();
 }
 
@@ -64,7 +67,7 @@ void Method::resetToDefaults ()
 void Method::computeDisparityImage (const cv::Mat &img1, const cv::Mat &img2, cv::Mat &disparity, int &numDisparities)
 {
     cv::gpu::GpuMat gpu_img1, gpu_img2, gpu_disp;
-    
+
     // Convert to float grayscale
     if (img1.channels() == 3) {
         cv::cvtColor(img1, tmpImg1, cv::COLOR_BGR2GRAY);
@@ -104,27 +107,27 @@ void Method::loadParameters (const QString &filename)
     if (!storage.isOpened()) {
         throw QString("Cannot open file \"%1\" for reading!").arg(filename);
     }
-    
+
     // Validate data type
     QString dataType = QString::fromStdString(storage["DataType"]);
     if (dataType.compare("StereoMethodParameters")) {
         throw QString("Invalid stereo method parameters configuration!");
     }
-    
+
     // Validate method name
     QString storedName = QString::fromStdString(storage["MethodName"]);
     if (storedName.compare(getShortName())) {
         throw QString("Invalid configuration for method \"%1\"!").arg(getShortName());
     }
-    
+
     // Load parameters
     bm = cv::gpu::StereoBM_GPU();
-    
+
     storage["Preset"] >> bm.preset;
     storage["NumDisparities"] >> bm.ndisp;
     storage["WindowSize"] >> bm.winSize;
     storage["AverageTextureThreshold"] >> bm.avergeTexThreshold;
-    
+
     emit parameterChanged();
 }
 
@@ -137,7 +140,7 @@ void Method::saveParameters (const QString &filename) const
 
     // Data type
     storage << "DataType" << "StereoMethodParameters";
-    
+
     // Store method name, so it can be validate upon loading
     storage << "MethodName" << getShortName().toStdString();
 
@@ -182,7 +185,7 @@ void Method::setNumDisparities (int newValue)
 
     setParameter(bm.ndisp, newValue);
 }
-    
+
 // Window size
 int Method::getWindowSize () const
 {
@@ -193,7 +196,7 @@ void Method::setWindowSize (int newValue)
 {
     setParameter(bm.winSize, newValue);
 }
-        
+
 
 // Average texture threshold
 double Method::getAverageTextureThreshold () const

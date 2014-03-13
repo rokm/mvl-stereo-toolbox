@@ -11,12 +11,12 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  */
- 
+
 #include "method.h"
 #include "method_widget.h"
 
@@ -58,6 +58,8 @@ QWidget *Method::createConfigWidget (QWidget *parent)
 // *********************************************************************
 void Method::usePreset (int type)
 {
+    QMutexLocker locker(&mutex);
+
     switch (type) {
         case OpenCVInit: {
             // OpenCV stock
@@ -72,6 +74,7 @@ void Method::usePreset (int type)
         }
     };
 
+    locker.unlock();
     emit parameterChanged();
 }
 
@@ -98,7 +101,7 @@ void Method::computeDisparityImage (const cv::Mat &img1, const cv::Mat &img2, cv
         bp(gpu_img1, gpu_img2, gpu_disp);
         locker.unlock();
     }
-    
+
     // Download
     gpu_disp.download(tmpDisp);
 
@@ -118,24 +121,24 @@ void Method::loadParameters (const QString &filename)
     if (!storage.isOpened()) {
         throw QString("Cannot open file \"%1\" for reading!").arg(filename);
     }
-    
+
     // Validate data type
     QString dataType = QString::fromStdString(storage["DataType"]);
     if (dataType.compare("StereoMethodParameters")) {
         throw QString("Invalid stereo method parameters configuration!");
     }
-    
+
     // Validate method name
     QString storedName = QString::fromStdString(storage["MethodName"]);
     if (storedName.compare(getShortName())) {
         throw QString("Invalid configuration for method \"%1\"!").arg(getShortName());
     }
-    
+
     // Load parameters
     bp = cv::gpu::StereoConstantSpaceBP();
 
     storage["NumDisparities"] >> bp.ndisp;
-    
+
     storage["Iterations"] >> bp.iters;
     storage["Levels"] >> bp.levels;
     storage["NrPlane"] >> bp.nr_plane;
@@ -147,7 +150,7 @@ void Method::loadParameters (const QString &filename)
     storage["MinDispThreshold"] >> bp.min_disp_th;
 
     storage["UseLocalCost"] >> bp.use_local_init_data_cost;
-    
+
     emit parameterChanged();
 }
 
@@ -160,13 +163,13 @@ void Method::saveParameters (const QString &filename) const
 
     // Data type
     storage << "DataType" << "StereoMethodParameters";
-    
+
     // Store method name, so it can be validate upon loading
     storage << "MethodName" << getShortName().toStdString();
 
     // Save parameters
     storage << "NumDisparities" << bp.ndisp;
-    
+
     storage << "Iterations" << bp.iters;
     storage << "Levels" << bp.levels;
     storage << "NrPlane" << bp.nr_plane;
@@ -205,7 +208,7 @@ void Method::setIterations (int newValue)
 {
     setParameter(bp.iters, newValue);
 }
-   
+
 // Levels
 int Method::getLevels () const
 {

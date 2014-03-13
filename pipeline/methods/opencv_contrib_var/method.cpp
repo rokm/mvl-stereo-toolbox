@@ -11,12 +11,12 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  */
- 
+
 #include "method.h"
 #include "method_widget.h"
 
@@ -59,6 +59,8 @@ QWidget *Method::createConfigWidget (QWidget *parent)
 // *********************************************************************
 void Method::usePreset (int type)
 {
+    QMutexLocker locker(&mutex);
+
     switch (type) {
         case OpenCV: {
             // OpenCV
@@ -87,6 +89,7 @@ void Method::usePreset (int type)
         }
     };
 
+    locker.unlock();
     emit parameterChanged();
 }
 
@@ -96,13 +99,13 @@ void Method::usePreset (int type)
 // *                    Disparity image computation                    *
 // *********************************************************************
 void Method::computeDisparityImage (const cv::Mat &img1, const cv::Mat &img2, cv::Mat &disparity, int &numDisparities)
-{    
+{
     // Store in case user wants to compute optimal parameters
     imageWidth = img1.cols;
 
     // Number of disparities
     numDisparities = getMaxDisparity() - getMinDisparity();
-    
+
     // Compute disparity image
     QMutexLocker locker(&mutex);
     var(img1, img2, disparity);
@@ -121,22 +124,22 @@ void Method::loadParameters (const QString &filename)
     if (!storage.isOpened()) {
         throw QString("Cannot open file \"%1\" for reading!").arg(filename);
     }
-    
+
     // Validate data type
     QString dataType = QString::fromStdString(storage["DataType"]);
     if (dataType.compare("StereoMethodParameters")) {
         throw QString("Invalid stereo method parameters configuration!");
     }
-    
+
     // Validate method name
     QString storedName = QString::fromStdString(storage["MethodName"]);
     if (storedName.compare(getShortName())) {
         throw QString("Invalid configuration for method \"%1\"!").arg(getShortName());
     }
-    
+
     // Load parameters
     var = cv::StereoVar();
-    
+
     storage["Levels"] >> var.levels;
     storage["PyrScale"] >> var.pyrScale;
     storage["NumIterations"] >> var.nIt;
@@ -149,7 +152,7 @@ void Method::loadParameters (const QString &filename)
     storage["Penalization"] >> var.penalization;
     storage["Cycle"] >> var.cycle;
     storage["Flags"] >> var.flags;
-    
+
     emit parameterChanged();
 }
 
@@ -162,7 +165,7 @@ void Method::saveParameters (const QString &filename) const
 
     // Data type
     storage << "DataType" << "StereoMethodParameters";
-    
+
     // Store method name, so it can be validate upon loading
     storage << "MethodName" << getShortName().toStdString();
 
@@ -206,7 +209,7 @@ void Method::setPyrScale (double newValue)
 {
     setParameter(var.pyrScale, newValue);
 }
-    
+
 // Number of iterations
 int Method::getNumIterations () const
 {
@@ -217,7 +220,7 @@ void Method::setNumIterations (int newValue)
 {
     setParameter(var.nIt, newValue);
 }
-        
+
 
 // Minimum disparity
 int Method::getMinDisparity () const
@@ -229,7 +232,7 @@ void Method::setMinDisparity (int newValue)
 {
     setParameter(var.minDisp, newValue);
 }
-    
+
 // Maximum disparity
 int Method::getMaxDisparity () const
 {
@@ -284,7 +287,7 @@ void Method::setLambda (double newValue)
 {
     setParameter(var.lambda, (float)newValue);
 }
- 
+
 // Penalization
 int Method::getPenalization () const
 {
