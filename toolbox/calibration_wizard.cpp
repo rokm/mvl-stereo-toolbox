@@ -328,8 +328,8 @@ void CalibrationWizardPageImages::addImages ()
         }
     }
 
-    // Set images
-    setImages(fileNames);
+    // Append images
+    appendImages(fileNames);
 }
 
 void CalibrationWizardPageImages::clearImages ()
@@ -358,6 +358,11 @@ void CalibrationWizardPageImages::setImages (const QStringList &fileNames)
 {
     listWidgetImages->clear();
 
+    appendImages(fileNames);
+}
+
+void CalibrationWizardPageImages::appendImages (const QStringList &fileNames)
+{
     // Display them in the list
     foreach (const QString &fileName, fileNames) {
         QFileInfo info(fileName);
@@ -374,7 +379,6 @@ void CalibrationWizardPageImages::setImages (const QStringList &fileNames)
     // Revalidate
     emit completeChanged();
 }
-
 
 int CalibrationWizardPageImages::getPatternType () const
 {

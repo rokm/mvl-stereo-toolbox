@@ -11,10 +11,10 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  */
 
 #ifndef CALIBRATION_WIZARD_H
@@ -47,7 +47,7 @@ Q_DECLARE_METATYPE(cv::Mat);
 class CalibrationWizard : public QWizard
 {
     Q_OBJECT
-    
+
 public:
     CalibrationWizard (QWidget * = 0);
     virtual ~CalibrationWizard ();
@@ -66,7 +66,7 @@ public:
         PageStereoDetection,
         PageStereoCalibration,
         PageStereoResult,
-    };    
+    };
 };
 
 
@@ -111,7 +111,9 @@ protected slots:
 protected:
     QStringList getImages () const;
     void setImages (const QStringList &);
-    
+
+    void appendImages (const QStringList &);
+
     int getPatternType () const;
     void setPatternType (int);
 
@@ -177,7 +179,7 @@ class CalibrationWizardPageDetection : public QWizardPage
     Q_PROPERTY(std::vector<std::vector<cv::Point2f> > patternImagePoints READ getPatternImagePoints);
     Q_PROPERTY(std::vector<std::vector<cv::Point3f> > patternWorldPoints READ getPatternWorldPoints);
     Q_PROPERTY(cv::Size imageSize READ getImageSize);
-    
+
 public:
     CalibrationWizardPageDetection (const QString &, bool, QWidget * = 0);
     virtual ~CalibrationWizardPageDetection ();
@@ -334,14 +336,14 @@ protected:
 class CalibrationFlagsWidget : public QGroupBox
 {
     Q_OBJECT
-    
+
 public:
     CalibrationFlagsWidget (const QString & = "Flags", QWidget * = 0);
     ~CalibrationFlagsWidget ();
 
     virtual int getFlags () const;
     virtual void setFlags (int);
-    
+
 protected:
     QCheckBox *checkBoxUseIntrinsicGuess;
     QCheckBox *checkBoxFixPrincipalPoint;
@@ -367,7 +369,7 @@ public:
 
     virtual int getFlags () const;
     virtual void setFlags (int);
-    
+
 protected:
     QCheckBox *checkBoxFixIntrinsic;
     QCheckBox *checkBoxFixFocalLength;
@@ -471,7 +473,7 @@ public:
     const cv::Mat &getR () const;
     const cv::Mat &getT () const;
     const cv::Size &getImageSize () const;
-    
+
 private slots:
     void setVisible (bool);
 
@@ -483,7 +485,7 @@ protected slots:
 
 signals:
     void error (QString);
-    
+
 protected:
     QString fieldPrefix;
 
@@ -499,7 +501,7 @@ protected:
     // Error
     double calibrationRMSE;
     double averageReprojectionError;
-    
+
     // Data
     cv::Mat cameraMatrix1;
     cv::Mat distCoeffs1;
@@ -567,7 +569,7 @@ protected:
 
     CameraParametersWidget *boxLeftCameraParameters;
     CameraParametersWidget *boxRightCameraParameters;
-    
+
     ImagePairDisplayWidget *displayImage;
 };
 
