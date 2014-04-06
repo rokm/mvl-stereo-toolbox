@@ -150,6 +150,8 @@ public:
     virtual int nextId () const;
     virtual bool isComplete () const;
 
+    virtual void initializePage ();
+
     virtual QStringList getImages () const;
 
     enum {
@@ -185,6 +187,8 @@ class CalibrationWizardPageRightCameraImages : public CalibrationWizardPageImage
 public:
     CalibrationWizardPageRightCameraImages (QWidget * = 0);
     virtual ~CalibrationWizardPageRightCameraImages ();
+
+    virtual void initializePage ();
 
     virtual int nextId () const;
     virtual bool isComplete () const;
@@ -408,6 +412,7 @@ class CalibrationWizardPageCalibration : public QWizardPage
 
     Q_PROPERTY(cv::Mat cameraMatrix READ getCameraMatrix);
     Q_PROPERTY(cv::Mat distCoeffs READ getDistCoeffs);
+    Q_PROPERTY(int calibrationFlags READ getCalibrationFlags WRITE setCalibrationFlags);
 
 public:
     CalibrationWizardPageCalibration (const QString &, QWidget * = 0);
@@ -418,6 +423,9 @@ public:
 
     cv::Mat getCameraMatrix () const;
     cv::Mat getDistCoeffs () const;
+
+    void setCalibrationFlags (int);
+    int getCalibrationFlags (void) const;
 
 private slots:
     void setVisible (bool);
@@ -468,6 +476,8 @@ public:
     virtual ~CalibrationWizardPageRightCameraCalibration ();
 
     virtual int nextId () const;
+
+    virtual void initializePage ();
 };
 
 // Stereo

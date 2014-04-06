@@ -460,6 +460,25 @@ bool CalibrationWizardPageStereoImages::isComplete () const
     return true;
 }
 
+
+void CalibrationWizardPageStereoImages::initializePage ()
+{
+    CalibrationWizardPageImages::initializePage();
+
+    if (!field("JointCalibration").toBool()) {
+        // If in not in joint calibration, copy pattern settings from right camera
+        QString rightCameraPrefix = "RightCamera";
+
+        QStringList patternParameters;
+        patternParameters << "PatternWidth" << "PatternHeight" << "ElementSize" << "PatternType" << "ScaleLevels" << "ScaleIncrement";
+
+        foreach (QString fieldName, patternParameters) {
+            setField(fieldPrefix + fieldName, field(rightCameraPrefix + fieldName));
+        }
+    }
+}
+
+
 QStringList CalibrationWizardPageStereoImages::getImages () const
 {
     QStringList images;
@@ -586,6 +605,22 @@ bool CalibrationWizardPageRightCameraImages::isComplete () const
     }
 
     return true;
+}
+
+
+void CalibrationWizardPageRightCameraImages::initializePage ()
+{
+    CalibrationWizardPageImages::initializePage();
+
+    // Copy pattern parameters from left camera
+    QString leftCameraPrefix = "LeftCamera";
+
+    QStringList patternParameters;
+    patternParameters << "PatternWidth" << "PatternHeight" << "ElementSize" << "PatternType" << "ScaleLevels" << "ScaleIncrement";
+
+    foreach (QString fieldName, patternParameters) {
+        setField(fieldPrefix + fieldName, field(leftCameraPrefix + fieldName));
+    }
 }
 
 
@@ -1341,7 +1376,6 @@ CameraParametersWidget::CameraParametersWidget (const QString &title, QWidget *p
     spinBoxK6 = spinBoxD;
 
     groupBoxLayout->addRow(label, spinBoxD);
-
 }
 
 CameraParametersWidget::~CameraParametersWidget ()
@@ -1615,6 +1649,9 @@ CalibrationWizardPageCalibration::CalibrationWizardPageCalibration (const QStrin
     // Fields
     registerField(fieldPrefix + "CameraMatrix", this, "cameraMatrix");
     registerField(fieldPrefix + "DistCoeffs", this, "distCoeffs");
+
+    // Needed for transfer between pages
+    registerField(fieldPrefix + "CalibrationFlags", this, "calibrationFlags");
 }
 
 CalibrationWizardPageCalibration::~CalibrationWizardPageCalibration ()
@@ -1630,6 +1667,17 @@ cv::Mat CalibrationWizardPageCalibration::getCameraMatrix () const
 cv::Mat CalibrationWizardPageCalibration::getDistCoeffs () const
 {
     return distCoeffs;
+}
+
+
+void CalibrationWizardPageCalibration::setCalibrationFlags (int flags)
+{
+    boxCalibrationFlags->setFlags(flags);
+}
+
+int CalibrationWizardPageCalibration::getCalibrationFlags () const
+{
+    return boxCalibrationFlags->getFlags();
 }
 
 
@@ -1755,6 +1803,16 @@ int CalibrationWizardPageRightCameraCalibration::nextId () const
 {
     return CalibrationWizard::PageRightCameraResult;
 }
+
+void CalibrationWizardPageRightCameraCalibration::initializePage ()
+{
+    CalibrationWizardPageCalibration::initializePage();
+
+    // Copy calibration flags setting from left camera
+    QString leftCameraPrefix = "LeftCamera";
+    setField(fieldPrefix + "CalibrationFlags", field(leftCameraPrefix + "CalibrationFlags"));
+}
+
 
 // *********************************************************************
 // *                     Page: calibration: stereo                     *
