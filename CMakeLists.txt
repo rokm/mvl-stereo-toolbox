@@ -4,6 +4,7 @@ project(MVLStereoToolbox CXX)
 include(GNUInstallDirs)
 
 if(CMAKE_COMPILER_IS_GNUCXX)
+    add_definitions(-std=c++0x)
     add_definitions(-Wall -Wextra -Wno-unused-parameter)
 endif()
 
