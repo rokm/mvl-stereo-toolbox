@@ -97,7 +97,7 @@ class CalibrationWizardPageImages : public QWizardPage
 {
     Q_OBJECT
 
-    Q_PROPERTY(QStringList images READ getImages WRITE setImages);
+    Q_PROPERTY(QStringList images READ getImages WRITE setImages NOTIFY imagesChanged);
     Q_PROPERTY(int patternType READ getPatternType WRITE setPatternType);
 
 public:
@@ -109,13 +109,16 @@ protected slots:
     void clearImages ();
 
 protected:
-    QStringList getImages () const;
+    virtual QStringList getImages () const;
     void setImages (const QStringList &);
 
     void appendImages (const QStringList &);
 
     int getPatternType () const;
     void setPatternType (int);
+
+signals:
+    void imagesChanged ();
 
 protected:
     QString fieldPrefix;
@@ -137,12 +140,32 @@ protected:
 // Stereo
 class CalibrationWizardPageStereoImages : public CalibrationWizardPageImages
 {
+    Q_OBJECT
+    Q_PROPERTY(int imagesOrder READ getImagesOrder WRITE setImagesOrder);
+
 public:
     CalibrationWizardPageStereoImages (QWidget * = 0);
     virtual ~CalibrationWizardPageStereoImages ();
 
     virtual int nextId () const;
     virtual bool isComplete () const;
+
+    virtual QStringList getImages () const;
+
+    enum {
+        Interleaved,
+        Grouped
+    } ImagesOrder;
+
+    int getImagesOrder () const;
+    void setImagesOrder (int order);
+
+protected slots:
+    void updateImageEntries ();
+
+protected:
+    QRadioButton *radioButtonInterleaved;
+    QRadioButton *radioButtonGrouped;
 };
 
 // Left camera

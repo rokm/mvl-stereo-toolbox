@@ -187,7 +187,6 @@ CalibrationWizardPageImages::CalibrationWizardPageImages (const QString &fieldPr
 
     imagesLayout->addWidget(listWidgetImages, 1, 0, 1, 2);
 
-
     // *** Calibration pattern ***
     box = new QGroupBox("Calibration pattern", this);
     layout->addWidget(box, 1, 1, 1, 1);
@@ -281,6 +280,8 @@ CalibrationWizardPageImages::CalibrationWizardPageImages (const QString &fieldPr
     registerField(fieldPrefix + "PatternType", this, "patternType"); // Because default implementation returns selected index, not value
     registerField(fieldPrefix + "ScaleLevels", spinBoxScaleLevels);
     registerField(fieldPrefix + "ScaleIncrement", spinBoxScaleIncrement, "value");  // QWizard does not know QDoubleSpinBox!
+
+    connect(this, SIGNAL(imagesChanged()), this, SIGNAL(completeChanged()));
 }
 
 CalibrationWizardPageImages::~CalibrationWizardPageImages ()
@@ -335,20 +336,16 @@ void CalibrationWizardPageImages::addImages ()
 void CalibrationWizardPageImages::clearImages ()
 {
     listWidgetImages->clear();
-    emit completeChanged();
+    emit imagesChanged();
 }
-
 
 QStringList CalibrationWizardPageImages::getImages () const
 {
+    int numItems = listWidgetImages->count();
     QStringList images;
 
-    foreach (QListWidgetItem *item, listWidgetImages->findItems("*", Qt::MatchWrap | Qt::MatchWildcard)) {
-        QFileInfo info(item->text());
-
-        if (info.isReadable()) {
-            images.append(item->text());
-        }
+    for (int i = 0; i < numItems; i++) {
+        images.append(listWidgetImages->item(i)->text());
     }
 
     return images;
@@ -377,7 +374,7 @@ void CalibrationWizardPageImages::appendImages (const QStringList &fileNames)
     }
 
     // Revalidate
-    emit completeChanged();
+    emit imagesChanged();
 }
 
 int CalibrationWizardPageImages::getPatternType () const
@@ -398,6 +395,43 @@ CalibrationWizardPageStereoImages::CalibrationWizardPageStereoImages (QWidget *p
     : CalibrationWizardPageImages("Stereo", parent)
 {
     setTitle("Stereo calibration");
+
+    // *** Images order ***
+    QGroupBox *groupBox = new QGroupBox(tr("Images order"), this);
+    QHBoxLayout *groupBoxLayout = new QHBoxLayout(groupBox);
+
+    // Interleaved
+    radioButtonInterleaved = new QRadioButton(tr("Interleaved"));
+    radioButtonInterleaved->setToolTip(tr("Interleaved (L R L R L R ...)"));
+    radioButtonInterleaved->setChecked(true); // Default
+    connect(radioButtonInterleaved, &QRadioButton::toggled, this, [this] (bool checked) {
+        if (checked) {
+            setImagesOrder(Interleaved);
+        }
+    });
+    groupBoxLayout->addWidget(radioButtonInterleaved);
+
+    // Grouped
+    radioButtonGrouped = new QRadioButton(tr("Grouped"));
+    radioButtonGrouped->setToolTip(tr("Grouped (L L L ... R R R ...)"));
+    connect(radioButtonGrouped, &QRadioButton::toggled, this, [this] (bool checked) {
+        if (checked) {
+            setImagesOrder(Grouped);
+        }
+    });
+    groupBoxLayout->addWidget(radioButtonGrouped);
+
+    // Stretch
+    groupBoxLayout->addStretch(1);
+
+    // Add to layout, store pointer, etc.
+    //layout()->addWidget(groupBox, 2, 0, 1, 2);
+    layout()->addWidget(groupBox);
+
+    connect(this, SIGNAL(imagesChanged()), this, SLOT(updateImageEntries()));
+
+    // Keep track of this setting via fields mechanism
+    registerField(fieldPrefix + "ImagesOrder", this, "imagesOrder");
 }
 
 CalibrationWizardPageStereoImages::~CalibrationWizardPageStereoImages ()
@@ -424,6 +458,72 @@ bool CalibrationWizardPageStereoImages::isComplete () const
     }
 
     return true;
+}
+
+QStringList CalibrationWizardPageStereoImages::getImages () const
+{
+    QStringList images;
+
+    if (radioButtonInterleaved->isChecked()) {
+        // Interleaved; we can use parent's function
+        images = CalibrationWizardPageImages::getImages();
+    } else {
+        // Grouped; interleave them ourselves
+        int numPairs = listWidgetImages->count() / 2;
+
+        for (int i = 0; i < numPairs; i++) {
+            images.append(listWidgetImages->item(i)->text());
+            images.append(listWidgetImages->item(numPairs + i)->text());
+        }
+    }
+
+    return images;
+}
+
+
+void CalibrationWizardPageStereoImages::setImagesOrder (int order)
+{
+    if (order == Interleaved) {
+        radioButtonInterleaved->setChecked(true);
+    } else {
+        radioButtonGrouped->setChecked(true);
+    }
+
+    updateImageEntries();
+}
+
+int CalibrationWizardPageStereoImages::getImagesOrder () const
+{
+    if (radioButtonInterleaved->isChecked()) {
+        return Interleaved;
+    } else {
+        return Grouped;
+    }
+}
+
+void CalibrationWizardPageStereoImages::updateImageEntries ()
+{
+    int numItems = listWidgetImages->count();
+
+    for (int i = 0; i < numItems; i++) {
+        QListWidgetItem *item = listWidgetImages->item(i);
+
+        if (radioButtonInterleaved->isChecked()) {
+            // Interleaved
+            if (i % 2) {
+                item->setBackground(palette().alternateBase());
+            } else {
+                item->setBackground(palette().base());
+            }
+        } else {
+            // Grouped
+            if (i < numItems/2) {
+                item->setBackground(palette().base());
+            } else {
+                item->setBackground(palette().alternateBase());
+            }
+        }
+    }
 }
 
 
