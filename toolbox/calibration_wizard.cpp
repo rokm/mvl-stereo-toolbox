@@ -2005,9 +2005,9 @@ bool CalibrationWizardPageStereoCalibration::calibrationFunction ()
     std::vector<std::vector<cv::Point2f> > imagePoints1;
     std::vector<std::vector<cv::Point2f> > imagePoints2;
 
-    for (unsigned int i = 0; i < imagePoints.size(); i += 2) {
-        imagePoints1.push_back(imagePoints[i]);
-        imagePoints2.push_back(imagePoints[i+1]);
+    for (unsigned int i = 0; i < objectPoints.size(); i++) {
+        imagePoints1.push_back(imagePoints[2*i]);
+        imagePoints2.push_back(imagePoints[2*i+1]);
     }
 
     // Get values from the config widgets
