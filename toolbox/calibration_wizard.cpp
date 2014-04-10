@@ -762,6 +762,14 @@ bool CalibrationWizardPageDetection::isComplete () const
     return patternWorldPoints.size() >= 6;
 }
 
+bool CalibrationWizardPageDetection::validatePage ()
+{
+    // Stop the auto-detection
+    pushButtonAuto->setChecked(false);
+
+    return QWizardPage::validatePage();
+}
+
 
 void CalibrationWizardPageDetection::startProcessing ()
 {

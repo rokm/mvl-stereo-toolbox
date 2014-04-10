@@ -214,6 +214,7 @@ public:
     virtual void initializePage ();
 
     virtual bool isComplete () const;
+    virtual bool validatePage ();
 
     const std::vector<std::vector<cv::Point2f> > &getPatternImagePoints () const;
     const std::vector<std::vector<cv::Point3f> > &getPatternWorldPoints () const;
