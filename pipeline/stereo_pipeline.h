@@ -100,6 +100,9 @@ public:
     const cv::Mat &getReprojectedImage () const;
     int getReprojectionComputationTime () const;
 
+    // Date export
+    static void writeMatrixToBinaryFile (const cv::Mat &, const QString &);
+
 public slots:
     void setImagePairSourceState (bool);
     void setRectificationState (bool);

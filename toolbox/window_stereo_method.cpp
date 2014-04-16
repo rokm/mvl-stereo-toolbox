@@ -11,10 +11,10 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  */
 
 #include "window_stereo_method.h"
@@ -41,15 +41,15 @@ WindowStereoMethod::WindowStereoMethod (StereoPipeline *p, QList<StereoMethod *>
     QVBoxLayout *layout = new QVBoxLayout(this);
     layout->setContentsMargins(2, 2, 2, 2);
     layout->setSpacing(2);
-    
+
     // Buttons
     QHBoxLayout *buttonsLayout = new QHBoxLayout();
     buttonsLayout->setContentsMargins(0, 0, 0, 0);
     QPushButton *pushButton;
     QComboBox *comboBox;
     QLabel *label;
-    QHBoxLayout *box;    
-    
+    QHBoxLayout *box;
+
     layout->addLayout(buttonsLayout);
 
     buttonsLayout->addStretch();
@@ -86,7 +86,7 @@ WindowStereoMethod::WindowStereoMethod (StereoPipeline *p, QList<StereoMethod *>
     label = new QLabel("Vizualization type: ", this);
     label->setToolTip("Disparity image vizualization type");
     box->addWidget(label);
-    
+
     comboBox = new QComboBox(this); // Filled in by disparity image display widget!
     connect(comboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(visualizationMethodChanged(int)));
     connect(pipeline, SIGNAL(disparityVisualizationMethodChanged(int)), this, SLOT(updateVisualizationMethod(int)));
@@ -102,14 +102,14 @@ WindowStereoMethod::WindowStereoMethod (StereoPipeline *p, QList<StereoMethod *>
     QSplitter *splitter = new QSplitter(Qt::Horizontal, this);
     splitter->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     layout->addWidget(splitter);
-    
+
     // Methods
     QTabWidget *tabWidget = new QTabWidget(this);
     tabWidget->setUsesScrollButtons(true);
-    tabWidget->setTabPosition(QTabWidget::West);    
+    tabWidget->setTabPosition(QTabWidget::West);
 
     splitter->addWidget(tabWidget);
-    
+
     // Disparity image
     displayDisparityImage = new DisparityImageDisplayWidget("Disparity image", this);
     displayDisparityImage->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -151,7 +151,7 @@ void WindowStereoMethod::setMethod (int i)
         qWarning() << "Method" << i << "does not exist!";
         return;
     }
-    
+
     pipeline->setStereoMethod(methods[i]);
 }
 
@@ -170,7 +170,7 @@ void WindowStereoMethod::updateDisplayValues ()
 
     // Disparity image
     displayDisparityImage->setDisparity(disparity);
-    
+
     // If image is valid, display computation time
     if (!disparity.empty()) {
         statusBar->showMessage(QString("Disparity image (%1x%2) computed in %3 milliseconds; dropped %4 frames.").arg(disparity.cols).arg(disparity.rows).arg(pipeline->getDisparityImageComputationTime()).arg(pipeline->getStereoDroppedFrames()));
@@ -196,26 +196,59 @@ void WindowStereoMethod::saveImage ()
 {
     // Make snapshot of image - because it can take a while to get
     // the filename...
-    cv::Mat tmpImg;
+    cv::Mat tmpDisparity;
+    cv::Mat tmpDisparityVisualization;
 
-    pipeline->getDisparityImage().copyTo(tmpImg);
+    pipeline->getDisparityImage().copyTo(tmpDisparity);
+    pipeline->getDisparityVisualizationImage().copyTo(tmpDisparityVisualization);
 
     // Get filename
-    QString fileName = QFileDialog::getSaveFileName(this, "Save disparity image");
+    const QStringList fileFilters = {
+        QString("Image files (*.png *.jpg *.pgm *.ppm *.tif *.bmp)"),
+        QString("Binary files (*.bin)"),
+        QString("OpenCV storage files (*.xml *.yml *.yaml")
+    };
+    QString selectedFilter;
+    QString fileName = QFileDialog::getSaveFileName(this, "Save disparity image", QString(),  fileFilters.join(";;"), &selectedFilter);
     if (!fileName.isNull()) {
         QFileInfo tmpFileName(fileName);
 
-        // Extension
+        // If extension is not given, set default based on selected filter
         QString ext = tmpFileName.completeSuffix();
         if (ext.isEmpty()) {
-            fileName += ".png";
+            if (selectedFilter == fileFilters[0]) {
+                ext = "png";
+            } else if (selectedFilter == fileFilters[1]) {
+                ext = "bin";
+            } else {
+                ext = "yml";
+            }
+            fileName += "." + ext;
         }
 
-        // Create filename
-        try {
-            cv::imwrite(fileName.toStdString(), tmpImg);
-        } catch (cv::Exception e) {
-            qWarning() << "Failed to save image:" << QString::fromStdString(e.what());
+        // Create file
+        if (ext == "xml" || ext == "yml" || ext == "yaml") {
+            // Save raw disparity in OpenCV storage format
+            try {
+                cv::FileStorage fs(fileName.toStdString(), cv::FileStorage::WRITE);
+                fs << "disparity" << tmpDisparity;
+            } catch (cv::Exception e) {
+                qWarning() << "Failed to save matrix:" << QString::fromStdString(e.what());
+            }
+        } else if (ext == "bin") {
+            // Save raw disparity in custom binary matrix format
+            try {
+                StereoPipeline::writeMatrixToBinaryFile(tmpDisparity, fileName);
+            } catch (QString e) {
+                qWarning() << "Failed to save binary file:" << e;
+            }
+        } else {
+            // Save disparity visualization as image using cv::imwrite
+            try {
+                cv::imwrite(fileName.toStdString(), tmpDisparityVisualization);
+            } catch (cv::Exception e) {
+                qWarning() << "Failed to save image:" << QString::fromStdString(e.what());
+            }
         }
     }
 }
@@ -263,7 +296,7 @@ void WindowStereoMethod::fillVisualizationMethods ()
         { StereoPipeline::DisparityVisualizationGrayscale, "Grayscale", "Grayscale." },
         { StereoPipeline::DisparityVisualizationColorGpu, "Color (GPU)", "HSV color (GPU)." },
     };
-    
+
     const QList<int> &supportedMethods = pipeline->getSupportedDisparityVisualizationMethods();
 
     int item = 0;

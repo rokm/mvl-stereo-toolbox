@@ -11,10 +11,10 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  */
 
 #include "window_reprojection.h"
@@ -35,14 +35,15 @@ WindowReprojection::WindowReprojection (StereoPipeline *p, StereoReprojection *r
     QVBoxLayout *layout = new QVBoxLayout(this);
     layout->setContentsMargins(2, 2, 2, 2);
     layout->setSpacing(2);
-    
+
     // Buttons
     QHBoxLayout *buttonsLayout = new QHBoxLayout();
     buttonsLayout->setContentsMargins(0, 0, 0, 0);
     QComboBox *comboBox;
     QLabel *label;
-    QHBoxLayout *box;    
-    
+    QHBoxLayout *box;
+    QPushButton *pushButton;
+
     layout->addLayout(buttonsLayout);
 
     buttonsLayout->addStretch();
@@ -56,7 +57,7 @@ WindowReprojection::WindowReprojection (StereoPipeline *p, StereoReprojection *r
     label = new QLabel("Image: ", this);
     label->setToolTip("Image to display in background.");
     box->addWidget(label);
-    
+
     comboBox = new QComboBox(this);
     comboBox->addItem("Disparity");
     comboBox->addItem("Left");
@@ -76,7 +77,7 @@ WindowReprojection::WindowReprojection (StereoPipeline *p, StereoReprojection *r
     label = new QLabel("Reprojection method: ", this);
     label->setToolTip("Method to use for reprojection.");
     box->addWidget(label);
-    
+
     comboBox = new QComboBox(this);
     connect(comboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(reprojectionMethodChanged(int)));
     connect(reprojection, SIGNAL(reprojectionMethodChanged(int)), this, SLOT(updateReprojectionMethod(int)));
@@ -85,7 +86,16 @@ WindowReprojection::WindowReprojection (StereoPipeline *p, StereoReprojection *r
 
     fillReprojectionMethods();
     comboBoxReprojectionMethod->setCurrentIndex(reprojection->getReprojectionMethod());
-    
+
+    buttonsLayout->addStretch();
+
+    // Save reprojection data
+    pushButton = new QPushButton("Save result", this);
+    pushButton->setToolTip("Save reprojected points data.");
+    connect(pushButton, SIGNAL(clicked()), this, SLOT(saveReprojectionResult()));
+    buttonsLayout->addWidget(pushButton);
+    pushButtonSaveReprojection = pushButton;
+
     buttonsLayout->addStretch();
 
     // Reprojected image viewer
@@ -174,7 +184,7 @@ void WindowReprojection::fillReprojectionMethods ()
         { StereoReprojection::ReprojectionMethodOpenCvCpu, "OpenCV CPU", "Stock OpenCV CPU method." },
         { StereoReprojection::ReprojectionMethodOpenCvGpu, "OpenCV GPU", "Stock OpenCV GPU method." },
     };
-    
+
     const QList<int> &supportedMethods = reprojection->getSupportedReprojectionMethods();
 
     int item = 0;
@@ -196,4 +206,57 @@ void WindowReprojection::updateReprojectionMethod (int method)
     bool oldState = comboBoxReprojectionMethod->blockSignals(true);
     comboBoxReprojectionMethod->setCurrentIndex(comboBoxReprojectionMethod->findData(method));
     comboBoxReprojectionMethod->blockSignals(oldState);
+}
+
+
+// *********************************************************************
+// *                     Save reprojection result                      *
+// *********************************************************************
+void WindowReprojection::saveReprojectionResult ()
+{
+    // Make snapshot of image - because it can take a while to get
+    // the filename...
+    cv::Mat tmpReprojection;
+
+    pipeline->getReprojectedImage().copyTo(tmpReprojection);
+
+    // Get filename
+    const QStringList fileFilters = {
+        QString("Binary files (*.bin)"),
+        QString("OpenCV storage files (*.xml *.yml *.yaml")
+    };
+    QString selectedFilter = fileFilters[0];
+    QString fileName = QFileDialog::getSaveFileName(this, "Save reprojection result", QString(),  fileFilters.join(";;"), &selectedFilter);
+    if (!fileName.isNull()) {
+        QFileInfo tmpFileName(fileName);
+
+        // If extension is not given, set default based on selected filter
+        QString ext = tmpFileName.completeSuffix();
+        if (ext.isEmpty()) {
+            if (selectedFilter == fileFilters[0]) {
+                ext = "bin";
+            } else {
+                ext = "yml";
+            }
+            fileName += "." + ext;
+        }
+
+        // Create file
+        if (ext == "xml" || ext == "yml" || ext == "yaml") {
+            // Save reprojected points in OpenCV storage format
+            try {
+                cv::FileStorage fs(fileName.toStdString(), cv::FileStorage::WRITE);
+                fs << "points" << tmpReprojection;
+            } catch (cv::Exception e) {
+                qWarning() << "Failed to save matrix:" << QString::fromStdString(e.what());
+            }
+        } else {
+            // Save reprojected points in custom binary matrix format
+            try {
+                StereoPipeline::writeMatrixToBinaryFile(tmpReprojection, fileName);
+            } catch (QString e) {
+                qWarning() << "Failed to save binary file:" << e;
+            }
+        }
+    }
 }

@@ -635,3 +635,54 @@ void StereoPipeline::reprojectDisparityImage ()
 
     emit reprojectedImageChanged();
 }
+
+
+// *********************************************************************
+// *                            Data export                            *
+// *********************************************************************
+void StereoPipeline::writeMatrixToBinaryFile (const cv::Mat &matrix, const QString &fileName)
+{
+    QFile file(fileName);
+    if (!file.open(QIODevice::WriteOnly)) {
+        throw QString("Failed to open file!");
+    }
+
+    QDataStream stream(&file);
+    stream.setVersion(QDataStream::Qt_5_0);
+    stream.setByteOrder(QDataStream::LittleEndian);
+    stream.setFloatingPointPrecision(QDataStream::SinglePrecision);
+
+    // Signature - binary matrix dump
+    stream << (quint8)'B';
+    stream << (quint8)'M';
+    stream << (quint8)'D';
+    stream << (quint8)' ';
+
+    stream << (quint32)matrix.cols; // Width
+    stream << (quint32)matrix.rows; // Height
+    stream << (quint16)matrix.channels(); // Number of channels
+    stream << (quint16)matrix.depth(); // Depth
+
+    for (int y = 0; y < matrix.rows; y++) {
+        for (int x = 0; x < matrix.cols; x++) {
+            switch (matrix.type()) {
+                case CV_8UC1: {
+                    const unsigned char &entry = matrix.at<unsigned char>(y, x);
+                    stream << entry;
+                    break;
+                }
+                case CV_32FC3: {
+                    const cv::Vec3f &entry = matrix.at<cv::Vec3f>(y, x);
+                    stream << entry[0] << entry[1] << entry[2];
+                    break;
+                }
+                default: {
+                    throw QString("Unhandled matrix format %1!").arg(matrix.type());
+                }
+            }
+        }
+    }
+
+}
+
+
