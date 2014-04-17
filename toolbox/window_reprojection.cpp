@@ -221,10 +221,10 @@ void WindowReprojection::saveReprojectionResult ()
     pipeline->getReprojectedImage().copyTo(tmpReprojection);
 
     // Get filename
-    const QStringList fileFilters = {
-        QString("Binary files (*.bin)"),
-        QString("OpenCV storage files (*.xml *.yml *.yaml")
-    };
+    QStringList fileFilters;
+    fileFilters.append("Binary files (*.bin)");
+    fileFilters.append("OpenCV storage files (*.xml *.yml *.yaml");
+
     QString selectedFilter = fileFilters[0];
     QString fileName = QFileDialog::getSaveFileName(this, "Save reprojection result", QString(),  fileFilters.join(";;"), &selectedFilter);
     if (!fileName.isNull()) {

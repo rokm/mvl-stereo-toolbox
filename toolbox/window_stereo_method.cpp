@@ -203,11 +203,11 @@ void WindowStereoMethod::saveImage ()
     pipeline->getDisparityVisualizationImage().copyTo(tmpDisparityVisualization);
 
     // Get filename
-    const QStringList fileFilters = {
-        QString("Image files (*.png *.jpg *.pgm *.ppm *.tif *.bmp)"),
-        QString("Binary files (*.bin)"),
-        QString("OpenCV storage files (*.xml *.yml *.yaml")
-    };
+    QStringList fileFilters;
+    fileFilters.append("Image files (*.png *.jpg *.pgm *.ppm *.tif *.bmp)");
+    fileFilters.append("Binary files (*.bin)");
+    fileFilters.append("OpenCV storage files (*.xml *.yml *.yaml");
+
     QString selectedFilter;
     QString fileName = QFileDialog::getSaveFileName(this, "Save disparity image", QString(),  fileFilters.join(";;"), &selectedFilter);
     if (!fileName.isNull()) {
