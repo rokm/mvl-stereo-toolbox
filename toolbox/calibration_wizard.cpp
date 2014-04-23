@@ -20,6 +20,8 @@
 #include "calibration_wizard.h"
 #include "image_display_widget.h"
 
+#include "stereo_rectification.h"
+
 #include <opencv2/calib3d/calib3d.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 
@@ -2283,4 +2285,47 @@ void CalibrationWizardPageStereoResult::initializePage ()
     // Display undistorted image
     displayImage->setImagePair(rectifiedImage1, rectifiedImage2);
     displayImage->setImagePairROI(validRoi1, validRoi2);
+}
+
+void CalibrationWizardPageStereoResult::setVisible (bool visible)
+{
+    QWizardPage::setVisible(visible);
+
+    // On Windows, this function gets called without wizard being set...
+    if (!wizard()) {
+        return;
+    }
+
+    if (visible) {
+        wizard()->setButtonText(QWizard::CustomButton1, tr("&Export"));
+        wizard()->setOption(QWizard::HaveCustomButton1, true);
+        connect(wizard(), SIGNAL(customButtonClicked(int)), this, SLOT(exportCalibrationClicked()));
+    } else {
+        wizard()->setOption(QWizard::HaveCustomButton1, false);
+        disconnect(wizard(), SIGNAL(customButtonClicked(int)), this, SLOT(exportCalibrationClicked()));
+    }
+}
+
+
+void CalibrationWizardPageStereoResult::exportCalibrationClicked ()
+{
+    QString fileName = QFileDialog::getSaveFileName(this, "Export calibration to file", QString(), "OpenCV storage file (*.xml *.yml *.yaml)");
+    if (!fileName.isNull()) {
+        try {
+            QString fieldPrefix = "Stereo";
+
+            // Export
+            StereoRectification::exportStereoCalibration(fileName,
+                field(fieldPrefix + "CameraMatrix1").value<cv::Mat>(),
+                field(fieldPrefix + "DistCoeffs1").value<cv::Mat>(),
+                field(fieldPrefix + "CameraMatrix2").value<cv::Mat>(),
+                field(fieldPrefix + "DistCoeffs2").value<cv::Mat>(),
+                field(fieldPrefix + "R").value<cv::Mat>(),
+                field(fieldPrefix + "T").value<cv::Mat>(),
+                field(fieldPrefix + "ImageSize").value<cv::Size>()
+            );
+        } catch (QString e) {
+            QMessageBox::warning(this, "Error", "Failed to export calibration: " + e);
+        }
+    }
 }

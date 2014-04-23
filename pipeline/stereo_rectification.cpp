@@ -11,10 +11,10 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  */
 
 #include "stereo_rectification.h"
@@ -68,6 +68,61 @@ float StereoRectification::getStereoBaseline () const
 
 
 // *********************************************************************
+// *                     Calibration import/export                     *
+// *********************************************************************
+void StereoRectification::exportStereoCalibration (const QString &filename, const cv::Mat &cameraMatrix1, const cv::Mat &distCoeffs1, const cv::Mat &cameraMatrix2, const cv::Mat &distCoeffs2, const cv::Mat &rotation, const cv::Mat &translation, const cv::Size &imageSize)
+{
+    // NOTE: we store "raw" parameters, i.e. the ones from which
+    // rectification is yet to be computed...
+    cv::FileStorage storage(filename.toStdString(), cv::FileStorage::WRITE);
+    if (storage.isOpened()) {
+        storage << "DataType" << "StereoCalibration";
+
+        storage << "M1" << cameraMatrix1;
+        storage << "M2" << cameraMatrix2;
+
+        storage << "D1" << distCoeffs1;
+        storage << "D2" << distCoeffs2;
+
+        storage << "imageSize" << imageSize;
+
+        storage << "R" << rotation;
+        storage << "T" << translation;
+    } else {
+        throw QString("Failed to open file '%1' for writing!").arg(filename);
+    }
+}
+
+void StereoRectification::importStereoCalibration (const QString &filename, cv::Mat &cameraMatrix1, cv::Mat &distCoeffs1, cv::Mat &cameraMatrix2, cv::Mat &distCoeffs2, cv::Mat &rotation, cv::Mat &translation, cv::Size &imageSize)
+{
+    // Load
+    cv::FileStorage storage(filename.toStdString(), cv::FileStorage::READ);
+    if (!storage.isOpened()) {
+        throw QString("Failed to open file '%1' for reading!").arg(filename);
+    }
+
+    // Validate data type
+    QString dataType = QString::fromStdString(storage["DataType"]);
+    if (dataType.compare("StereoCalibration")) {
+        throw QString("Invalid stereo calibration data!");
+    }
+
+    // Load calibration
+    storage["M1"] >> cameraMatrix1;
+    storage["M2"] >> cameraMatrix2;
+    storage["D1"] >> distCoeffs1;
+    storage["D2"] >> distCoeffs2;
+
+    std::vector<int> size;
+    storage["imageSize"] >> size;
+    imageSize = cv::Size(size[0], size[1]);
+
+    storage["R"] >> rotation;
+    storage["T"] >> translation;
+}
+
+
+// *********************************************************************
 // *                            Calibration                            *
 // *********************************************************************
 void StereoRectification::setStereoCalibration (const cv::Mat &cameraMatrix1, const cv::Mat &distCoeffs1, const cv::Mat &cameraMatrix2, const cv::Mat &distCoeffs2, const cv::Mat &rotation, const cv::Mat &translation, const cv::Size &size)
@@ -96,30 +151,8 @@ void StereoRectification::loadStereoCalibration (const QString &filename)
     // Reset state
     isValid = false;
 
-    // Load
-    cv::FileStorage storage(filename.toStdString(), cv::FileStorage::READ);
-    if (!storage.isOpened()) {
-        throw QString("Failed to open file '%1' for reading!").arg(filename);
-    }
-    
-    // Validate data type
-    QString dataType = QString::fromStdString(storage["DataType"]);
-    if (dataType.compare("StereoCalibration")) {
-        throw QString("Invalid stereo calibration data!");
-    }    
-
-    // Load calibration
-    storage["M1"] >> M1;
-    storage["M2"] >> M2;
-    storage["D1"] >> D1;
-    storage["D2"] >> D2;
-
-    std::vector<int> size;
-    storage["imageSize"] >> size;
-    imageSize = cv::Size(size[0], size[1]);
-        
-    storage["R"] >> R;
-    storage["T"] >> T;
+    // Import
+    importStereoCalibration(filename, M1, D1, M2, D2, R, T, imageSize);
 
     // Initialize rectification from loaded calibration
     initializeStereoRectification();
@@ -127,32 +160,15 @@ void StereoRectification::loadStereoCalibration (const QString &filename)
 
 void StereoRectification::saveStereoCalibration (const QString &filename) const
 {
-    // NOTE: we store "raw" parameters, i.e. the ones from which
-    // rectification is yet to be computed...
-    cv::FileStorage storage(filename.toStdString(), cv::FileStorage::WRITE);
-    if (storage.isOpened()) {
-        storage << "DataType" << "StereoCalibration";
-        
-        storage << "M1" << M1;
-        storage << "M2" << M2;
-
-        storage << "D1" << D1;
-        storage << "D2" << D2;
-
-        storage << "imageSize" << imageSize;
-        
-        storage << "R" << R;
-        storage << "T" << T;
-    } else {
-        throw QString("Failed to open file '%1' for writing!").arg(filename);
-    }
+    // Export
+    exportStereoCalibration(filename, M1, D1, M2, D2, R, T, imageSize);
 }
 
 void StereoRectification::clearStereoCalibration ()
 {
     isValid = false;
     isVerticalStereo = false;
-    
+
     emit stateChanged(isValid);
 }
 
@@ -190,7 +206,7 @@ void StereoRectification::rectifyImagePair (const cv::Mat &img1, const cv::Mat &
     if (img1.empty() || img2.empty()) {
         return;
     }
-    
+
     if (!isValid || !performRectification) {
         // Pass-through
         if (!roi.width || !roi.height) {
@@ -207,7 +223,7 @@ void StereoRectification::rectifyImagePair (const cv::Mat &img1, const cv::Mat &
             emit error("Input image size does not match calibrated image size!");
             return;
         }
-        
+
         // Two simple remaps using look-up tables
         if (!roi.width || !roi.height) {
             // Full maps
@@ -245,7 +261,7 @@ void StereoRectification::setPerformRectification (bool enable)
 {
     if (performRectification != enable) {
         performRectification = enable;
-        
+
         emit performRectificationChanged(performRectification);
     }
 }

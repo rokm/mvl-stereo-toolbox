@@ -11,10 +11,10 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  */
 
 #ifndef STEREO_RECTIFICATION_H
@@ -39,6 +39,10 @@ public:
     void saveStereoCalibration (const QString &) const;
     void clearStereoCalibration ();
 
+    // Static import/export functions
+    static void exportStereoCalibration (const QString &, const cv::Mat &, const cv::Mat &, const cv::Mat &, const cv::Mat &, const cv::Mat &, const cv::Mat &, const cv::Size &);
+    static void importStereoCalibration (const QString &, cv::Mat &, cv::Mat &, cv::Mat &, cv::Mat &, cv::Mat &, cv::Mat &, cv::Size &);
+
     bool getPerformRectification () const;
 
     const cv::Rect &getRoi () const;
@@ -60,21 +64,21 @@ protected:
 
 signals:
     void stateChanged (bool);
-    
+
     void performRectificationChanged (bool);
 
     void error (QString) const;
-    
+
     void roiChanged ();
 
 protected:
     bool isValid;
-    
+
     bool performRectification;
 
     // Raw calibration parameters
     cv::Size imageSize;
-        
+
     cv::Mat M1, M2; // Camera matrices
     cv::Mat D1, D2; // Distortion coefficients
 

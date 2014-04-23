@@ -598,6 +598,10 @@ public:
 
     virtual void initializePage ();
 
+private slots:
+    void setVisible (bool);
+    void exportCalibrationClicked ();
+
 protected:
     QString fieldPrefix;
 
