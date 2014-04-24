@@ -11,10 +11,10 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  */
 
 #ifndef IMAGE_SOURCE_DC1394_H
@@ -26,7 +26,7 @@
 
 
 namespace SourceDC1394 {
-    
+
 class Camera;
 
 class Source : public QAbstractListModel, public ImagePairSource
@@ -65,7 +65,7 @@ protected:
     void releaseCamera (Camera *&);
     void setActive (int, bool);
     void setActive (const dc1394camera_id_t &, bool);
-    
+
 protected slots:
     void synchronizeFrames ();
 
@@ -75,14 +75,14 @@ signals:
 
     // Signals from interface
     void imagesChanged ();
-    void error (QString);
+    void error (const QString);
 
 protected:
     dc1394_t *fw;
-    
+
     QList<dc1394camera_id_t> entries;
     QVector<bool> active;
-    
+
     Camera *leftCamera;
     Camera *rightCamera;
 
@@ -90,7 +90,7 @@ protected:
 
     // Images
     QReadWriteLock imagesLock;
-    
+
     cv::Mat imageLeft;
     cv::Mat imageRight;
 };

@@ -62,7 +62,7 @@ protected slots:
 signals:
     // Signals from interface
     void imagesChanged ();
-    void error (QString);
+    void error (const QString);
 
     void playbackStateChanged (bool);
     void videoFileReadyChanged (bool);

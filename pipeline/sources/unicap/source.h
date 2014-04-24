@@ -11,10 +11,10 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  */
 
 #ifndef IMAGE_SOURCE_UNICAP_H
@@ -55,7 +55,7 @@ public:
     virtual int rowCount (const QModelIndex &) const;
     virtual Qt::ItemFlags flags (const QModelIndex &index) const;
     virtual QVariant data (const QModelIndex &index, int role) const;
-    
+
 public slots:
     void refreshCameraList ();
     void startStopCapture (bool);
@@ -65,7 +65,7 @@ protected:
     void releaseCamera (Camera *&);
     void setActive (int, bool);
     void setActive (const unicap_device_t &, bool);
-    
+
 protected slots:
     void synchronizeFrames ();
 
@@ -75,8 +75,8 @@ signals:
 
     // Signals from interface
     void imagesChanged ();
-    void error (QString);
-    
+    void error (const QString);
+
 protected:
     QVector<unicap_device_t> entries;
     QVector<bool> active;
@@ -88,7 +88,7 @@ protected:
 
     // Images
     QReadWriteLock imagesLock;
-    
+
     cv::Mat imageLeft;
     cv::Mat imageRight;
 };

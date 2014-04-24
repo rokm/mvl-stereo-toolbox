@@ -11,10 +11,10 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  */
 
 #ifndef IMAGE_SOURCE_OPENCV_CAM_H
@@ -52,7 +52,7 @@ public:
     virtual int rowCount (const QModelIndex &) const;
     virtual Qt::ItemFlags flags (const QModelIndex &index) const;
     virtual QVariant data (const QModelIndex &index, int role) const;
-    
+
 public slots:
     void refreshCameraList ();
     void startStopCapture (bool);
@@ -72,12 +72,12 @@ signals:
 
     // Signals from interface
     void imagesChanged ();
-    void error (QString);
-    
+    void error (const QString);
+
 protected:
     QVector<ocv_camera_id_t> entries;
     QVector<bool> active;
-    
+
     Camera *leftCamera;
     Camera *rightCamera;
 
@@ -85,7 +85,7 @@ protected:
 
     // Images
     QReadWriteLock imagesLock;
-    
+
     cv::Mat imageLeft;
     cv::Mat imageRight;
 };

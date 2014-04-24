@@ -11,10 +11,10 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  */
 
 #ifndef SOURCE_IMAGE_FILE_H
@@ -26,7 +26,7 @@
 
 
 namespace SourceImageFile {
-    
+
 class ImageFile;
 
 class Source : public QObject, public ImagePairSource
@@ -50,7 +50,7 @@ public:
 
     bool getPeriodicRefreshState () const;
     int getRefreshPeriod () const;
-    
+
 public slots:
     void setPeriodicRefreshState (bool);
     void setRefreshPeriod (int);
@@ -58,15 +58,15 @@ public slots:
 protected slots:
     void periodicRefresh ();
     void synchronizeFrames ();
-    
+
 signals:
     void periodicRefreshStateChanged (bool);
     void refreshPeriodChanged (int);
 
     // Signals from interface
     void imagesChanged ();
-    void error (QString);
-    
+    void error (const QString);
+
 protected:
     QTimer *refreshTimer;
     int refreshPeriod;
@@ -78,7 +78,7 @@ protected:
 
     // Images
     QReadWriteLock imagesLock;
-    
+
     cv::Mat imageLeft;
     cv::Mat imageRight;
 };
