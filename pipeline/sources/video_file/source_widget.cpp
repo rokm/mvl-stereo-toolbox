@@ -110,8 +110,12 @@ SourceWidget::SourceWidget (Source *s, QWidget *parent)
 
     // Position slider
     sliderPosition = new QSlider(Qt::Horizontal, this);
+    sliderPosition->setSingleStep(1);
+    sliderPosition->setPageStep(100);
     layout->addWidget(sliderPosition, 5, 0, 1, 3);
-    connect(sliderPosition, SIGNAL(valueChanged(int)), source, SLOT(setVideoPosition(int)));
+    connect(sliderPosition, &QSlider::valueChanged, source, [this] (int value) {
+        source->setVideoPosition(value - 1);
+    });
 
     // Separator
     line = new QFrame(this);
