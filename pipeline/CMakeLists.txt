@@ -82,8 +82,11 @@ endif()
 set(MVL_STEREO_PIPELINE_PLUGIN_DIR "${CMAKE_INSTALL_FULL_LIBDIR}/mvl-stereo-pipeline" CACHE PATH "Path to MVL Stereo Pipeline plugins")
 add_definitions(-DMVL_STEREO_PIPELINE_PLUGIN_DIR="${MVL_STEREO_PIPELINE_PLUGIN_DIR}")
 
-# File image pair source: always build
+# Image file pair source: always build
 add_subdirectory(sources/image_file)
+
+# Video file source: always build
+add_subdirectory(sources/video_file)
 
 # OpenCV Cam image pair source: always build
 add_subdirectory(sources/opencv_cam)
