@@ -187,6 +187,13 @@ void WindowRectification::exportCalibration ()
     QString fileName = QFileDialog::getSaveFileName(this, "Save calibration to file", lastCalibrationFilename, "OpenCV storage file (*.xml *.yml *.yaml)");
     if (!fileName.isNull()) {
         lastCalibrationFilename = fileName; // Store filename
+
+        QString ext = QFileInfo(fileName).completeSuffix();
+        if (ext.isEmpty()) {
+            ext = "yml";
+            fileName += "." + ext;
+        }
+
         try {
             rectification->saveStereoCalibration(fileName);
         } catch (QString e) {

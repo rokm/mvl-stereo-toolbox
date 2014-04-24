@@ -2311,6 +2311,12 @@ void CalibrationWizardPageStereoResult::exportCalibrationClicked ()
 {
     QString fileName = QFileDialog::getSaveFileName(this, "Export calibration to file", QString(), "OpenCV storage file (*.xml *.yml *.yaml)");
     if (!fileName.isNull()) {
+        QString ext = QFileInfo(fileName).completeSuffix();
+        if (ext.isEmpty()) {
+            ext = "yml";
+            fileName += "." + ext;
+        }
+
         try {
             QString fieldPrefix = "Stereo";
 

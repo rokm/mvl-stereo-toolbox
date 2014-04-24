@@ -228,10 +228,8 @@ void WindowReprojection::saveReprojectionResult ()
     QString selectedFilter = fileFilters[0];
     QString fileName = QFileDialog::getSaveFileName(this, "Save reprojection result", QString(),  fileFilters.join(";;"), &selectedFilter);
     if (!fileName.isNull()) {
-        QFileInfo tmpFileName(fileName);
-
         // If extension is not given, set default based on selected filter
-        QString ext = tmpFileName.completeSuffix();
+        QString ext = QFileInfo(fileName).completeSuffix();
         if (ext.isEmpty()) {
             if (selectedFilter == fileFilters[0]) {
                 ext = "bin";
