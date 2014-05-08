@@ -11,10 +11,10 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  */
 
 #ifndef WINDOW_RECTIFICATION_H
@@ -63,7 +63,9 @@ protected:
     QPushButton *pushButtonClear;
     QPushButton *pushButtonRoi;
     QPushButton *pushButtonSaveImages;
-    
+
+    QComboBox *comboBoxVisualizationMethod;
+
     ImagePairDisplayWidget *displayPair;
 
     QStatusBar *statusBar;
@@ -77,6 +79,13 @@ protected:
 
     // Cached calibration file filename
     QString lastCalibrationFilename;
+
+    // Visualization type
+    enum {
+        VisualizationImagePair = 0,
+        VisualizationAnaglyph = 1,
+    };
+    cv::Mat anaglyphImage;
 };
 
 class RoiDialog : public QDialog

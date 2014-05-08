@@ -84,6 +84,7 @@ public:
         DisparityVisualizationNone,
         DisparityVisualizationGrayscale,
         DisparityVisualizationColorGpu,
+        DisparityVisualizationColorCpu
     };
 
     int getDisparityVisualizationMethod () const;
@@ -100,8 +101,12 @@ public:
     const cv::Mat &getReprojectedImage () const;
     int getReprojectionComputationTime () const;
 
-    // Date export
+    // Data export
     static void writeMatrixToBinaryFile (const cv::Mat &, const QString &);
+
+    // Additional visualization
+    static void createColorCodedDisparityCpu (const cv::Mat &, cv::Mat &, int);
+    static void createAnaglyph (const cv::Mat &, const cv::Mat &, cv::Mat &);
 
 public slots:
     void setImagePairSourceState (bool);

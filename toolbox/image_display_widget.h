@@ -11,12 +11,12 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  */
- 
+
 #ifndef IMAGE_DISPLAY_WIDGET_H
 #define IMAGE_DISPLAY_WIDGET_H
 
@@ -39,7 +39,7 @@ public:
     ImageDisplayWidget (const QString & = QString(), QWidget * = 0);
     virtual ~ImageDisplayWidget ();
 
-    void setImage (const cv::Mat &);
+    virtual void setImage (const cv::Mat &);
     void setText (const QString &);
 
     static QImage convertCvMatToQImage (const cv::Mat &src);
@@ -64,6 +64,8 @@ public:
     ImagePairDisplayWidget (const QString & = QString(), QWidget * = 0);
     virtual ~ImagePairDisplayWidget ();
 
+    virtual void setImage (const cv::Mat &);
+
     void setImagePairROI (const cv::Rect &, const cv::Rect &);
     void setImagePair (const cv::Mat &, const cv::Mat &);
 
@@ -71,9 +73,11 @@ protected:
     virtual void paintEvent (QPaintEvent *);
 
 protected:
+    bool displayPair;
+
     cv::Rect roiLeft;
     cv::Rect roiRight;
-    
+
     QImage imageLeft;
     QImage imageRight;
 };
@@ -114,16 +118,16 @@ public:
     virtual ~DisparityImageDisplayWidget ();
 
     void setDisparity (const cv::Mat &);
-    
+
 protected:
     virtual void mouseMoveEvent (QMouseEvent *);
-    
+
     float getDisparityAtPixel (const QPoint &);
 
 signals:
     void disparityUnderMouseChanged (float);
 
-protected:    
+protected:
     cv::Mat disparity;
 };
 
@@ -140,7 +144,7 @@ public:
     virtual ~ReprojectedImageDisplayWidget ();
 
     void setPoints (const cv::Mat &);
-    
+
 protected:
     virtual void mouseMoveEvent (QMouseEvent *);
 

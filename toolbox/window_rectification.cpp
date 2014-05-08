@@ -38,51 +38,77 @@ WindowRectification::WindowRectification (StereoPipeline *p, StereoRectification
     layout->setSpacing(2);
 
     // Buttons
-    QHBoxLayout *buttonsLayout = new QHBoxLayout();
+    QGridLayout *buttonsLayout = new QGridLayout();
     buttonsLayout->setContentsMargins(0, 0, 0, 0);
     QPushButton *pushButton;
 
     layout->addLayout(buttonsLayout, 0, 0, 1, 2);
 
-    buttonsLayout->addStretch();
-
+    // Calibration buttons
     pushButton = new QPushButton("Calibrate");
     pushButton->setToolTip("Run calibration wizard.");
     connect(pushButton, SIGNAL(clicked()), this, SLOT(runCalibrationWizard()));
-    buttonsLayout->addWidget(pushButton);
+    buttonsLayout->addWidget(pushButton, 0, 0, 1, 1);
     pushButtonWizard = pushButton;
 
-    pushButton = new QPushButton("Import calib.");
-    pushButton->setToolTip("Import calibration from file.");
-    connect(pushButton, SIGNAL(clicked()), this, SLOT(importCalibration()));
-    buttonsLayout->addWidget(pushButton);
-    pushButtonImport = pushButton;
-
-    pushButton = new QPushButton("Export calib.");
-    pushButton->setToolTip("Export current calibration to file.");
-    connect(pushButton, SIGNAL(clicked()), this, SLOT(exportCalibration()));
-    buttonsLayout->addWidget(pushButton);
-    pushButtonExport = pushButton;
-
-    pushButton = new QPushButton("Clear calib.");
+    pushButton = new QPushButton("Clear calibration");
     pushButton->setToolTip("Clear current calibration.");
     connect(pushButton, SIGNAL(clicked()), this, SLOT(clearCalibration()));
-    buttonsLayout->addWidget(pushButton);
+    buttonsLayout->addWidget(pushButton, 0, 1, 1, 1);
     pushButtonClear = pushButton;
 
+    pushButton = new QPushButton("Import calibration");
+    pushButton->setToolTip("Import calibration from file.");
+    connect(pushButton, SIGNAL(clicked()), this, SLOT(importCalibration()));
+    buttonsLayout->addWidget(pushButton, 1, 0, 1, 1);
+    pushButtonImport = pushButton;
+
+    pushButton = new QPushButton("Export calibration");
+    pushButton->setToolTip("Export current calibration to file.");
+    connect(pushButton, SIGNAL(clicked()), this, SLOT(exportCalibration()));
+    buttonsLayout->addWidget(pushButton, 1, 1, 1, 1);
+    pushButtonExport = pushButton;
+
+    // Spacer
+    buttonsLayout->addItem(new QSpacerItem(100, 100, QSizePolicy::Expanding, QSizePolicy::Expanding), 0, 2, 2, 1);
+
+    // ROI
     pushButton = new QPushButton("ROI");
     pushButton->setToolTip("Modify ROI on rectified images.");
     connect(pushButton, SIGNAL(clicked()), this, SLOT(modifyRoi()));
-    buttonsLayout->addWidget(pushButton);
+    buttonsLayout->addWidget(pushButton, 0, 3, 2, 1);
     pushButtonRoi = pushButton;
 
-    pushButton = new QPushButton("Save rectified images");
-    pushButton->setToolTip("Save rectified image pair.");
-    connect(pushButton, SIGNAL(clicked()), this, SLOT(saveImages()));
-    buttonsLayout->addWidget(pushButton);
-    pushButtonSaveImages = pushButton;
+    // Spacer
+    buttonsLayout->addItem(new QSpacerItem(100, 100, QSizePolicy::Expanding, QSizePolicy::Expanding), 0, 4, 2, 1);
 
-    buttonsLayout->addStretch();
+    // Visualization type
+    QHBoxLayout *box = new QHBoxLayout();
+    box->setContentsMargins(0, 0, 0, 0);
+    box->setSpacing(2);
+    buttonsLayout->addLayout(box, 0, 5, 1, 1);
+
+    QLabel *label = new QLabel("Vizualization type: ", this);
+    label->setToolTip("Rectified pair vizualization type");
+    box->addWidget(label);
+
+    QComboBox *comboBox = new QComboBox(this); // Filled in by disparity image display widget!
+    box->addWidget(comboBox);
+    comboBoxVisualizationMethod = comboBox;
+
+    comboBoxVisualizationMethod->addItem("Image pair", 0);
+    comboBoxVisualizationMethod->setItemData(0, "Image pair", Qt::ToolTipRole);
+    comboBoxVisualizationMethod->addItem("Anaglyph", 1);
+    comboBoxVisualizationMethod->setItemData(1, "Anaglyph", Qt::ToolTipRole);
+
+    connect(comboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(updateImage()));
+
+    // Save
+    pushButton = new QPushButton("Save rectified pair / anaglyph");
+    pushButton->setToolTip("Save rectified image pair or anaglyph, depending on visualization settings.");
+    connect(pushButton, SIGNAL(clicked()), this, SLOT(saveImages()));
+    buttonsLayout->addWidget(pushButton, 1, 5, 1, 1);
+    pushButtonSaveImages = pushButton;
 
     // Rectified image pair
     displayPair = new ImagePairDisplayWidget("Rectified image pair", this);
@@ -121,7 +147,17 @@ WindowRectification::~WindowRectification ()
 
 void WindowRectification::updateImage ()
 {
-    displayPair->setImagePair(pipeline->getLeftRectifiedImage(), pipeline->getRightRectifiedImage());
+    // Set image, based on selected visualization type
+    int visualizationType = comboBoxVisualizationMethod->itemData(comboBoxVisualizationMethod->currentIndex()).toInt();
+
+    if (visualizationType == VisualizationImagePair) {
+        // Image pair
+        displayPair->setImagePair(pipeline->getLeftRectifiedImage(), pipeline->getRightRectifiedImage());
+    } else if (visualizationType == VisualizationAnaglyph) {
+        // Anaglyph
+        StereoPipeline::createAnaglyph(pipeline->getLeftRectifiedImage(), pipeline->getRightRectifiedImage(), anaglyphImage);
+        displayPair->setImage(anaglyphImage);
+    }
 
     // Update status bar
     if (rectification->getState()) {
@@ -231,17 +267,32 @@ void WindowRectification::saveImages ()
     pipeline->getLeftRectifiedImage().copyTo(tmpImg1);
     pipeline->getRightRectifiedImage().copyTo(tmpImg2);
 
+    // Save image pair or anaglyph, based on selected visualization type
+    int visualizationType = comboBoxVisualizationMethod->itemData(comboBoxVisualizationMethod->currentIndex()).toInt();
+
+    QString dialogTitle;
+    if (visualizationType == VisualizationImagePair) {
+        dialogTitle = "Save rectified image pair";
+    } else if (visualizationType == VisualizationAnaglyph) {
+        dialogTitle = "Save anaglyph";
+    }
+
     // Get filename
-    QString fileName = QFileDialog::getSaveFileName(this, "Save rectified images");
-    if (!fileName.isNull()) {
-        QFileInfo tmpFileName(fileName);
+    QString fileName = QFileDialog::getSaveFileName(this, dialogTitle);
+    if (fileName.isNull()) {
+        return;
+    }
 
-        // Extension
-        QString ext = tmpFileName.completeSuffix();
-        if (ext.isEmpty()) {
-            ext = "jpg";
-        }
 
+    QFileInfo tmpFileName(fileName);
+
+    // Extension
+    QString ext = tmpFileName.completeSuffix();
+    if (ext.isEmpty()) {
+        ext = "jpg";
+    }
+
+    if (visualizationType == VisualizationImagePair) {
         // Create filename
         QString fileNameLeft = tmpFileName.absolutePath() + "/" + tmpFileName.baseName() + "L" + "." + ext;
         QString fileNameRight = tmpFileName.absolutePath() + "/" + tmpFileName.baseName() + "R" + "." + ext;
@@ -250,7 +301,18 @@ void WindowRectification::saveImages ()
             cv::imwrite(fileNameLeft.toStdString(), tmpImg1);
             cv::imwrite(fileNameRight.toStdString(), tmpImg2);
         } catch (cv::Exception e) {
-            QMessageBox::warning(this, "Error", "Failed to save images: " + QString::fromStdString(e.what()));
+            QMessageBox::warning(this, "Error", "Failed to save rectified image pair: " + QString::fromStdString(e.what()));
+        }
+    } else if (visualizationType == VisualizationAnaglyph) {
+        QString fileNameAnaglyph = tmpFileName.absolutePath() + "/" + tmpFileName.baseName() + "." + ext;
+
+        cv::Mat tmpAnaglyph;
+        StereoPipeline::createAnaglyph(tmpImg1, tmpImg2, tmpAnaglyph);
+
+        try {
+            cv::imwrite(fileNameAnaglyph.toStdString(), tmpAnaglyph);
+        } catch (cv::Exception e) {
+            QMessageBox::warning(this, "Error", "Failed to save anaglyph: " + QString::fromStdString(e.what()));
         }
     }
 }

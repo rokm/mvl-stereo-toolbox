@@ -293,6 +293,7 @@ void WindowStereoMethod::fillVisualizationMethods ()
         { StereoPipeline::DisparityVisualizationNone, "None", "No visualization." },
         { StereoPipeline::DisparityVisualizationGrayscale, "Grayscale", "Grayscale." },
         { StereoPipeline::DisparityVisualizationColorGpu, "Color (GPU)", "HSV color (GPU)." },
+        { StereoPipeline::DisparityVisualizationColorCpu, "Color (CPU)", "HSV color (CPU)." },
     };
 
     const QList<int> &supportedMethods = pipeline->getSupportedDisparityVisualizationMethods();

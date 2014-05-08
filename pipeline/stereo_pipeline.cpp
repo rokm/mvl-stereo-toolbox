@@ -80,6 +80,7 @@ StereoPipeline::StereoPipeline (QObject *parent)
         // Nothing to do :)
     }
 #endif
+    supportedDisparityVisualizationMethods.append(DisparityVisualizationColorCpu);
 }
 
 StereoPipeline::~StereoPipeline ()
@@ -508,6 +509,10 @@ const QList<int> &StereoPipeline::getSupportedDisparityVisualizationMethods () c
 void StereoPipeline::computeDisparityImageVisualization ()
 {
     switch (disparityVisualizationMethod) {
+        case DisparityVisualizationNone: {
+            disparityVisualizationImage = cv::Mat();
+            break;
+        }
         case DisparityVisualizationGrayscale: {
             // Raw grayscale disparity
             disparityImage.convertTo(disparityVisualizationImage, CV_8U, 255.0/disparityLevels);
@@ -531,6 +536,10 @@ void StereoPipeline::computeDisparityImageVisualization ()
             break;
         }
 #endif
+        case DisparityVisualizationColorCpu :{
+            createColorCodedDisparityCpu(disparityImage, disparityVisualizationImage, disparityLevels);
+            break;
+        }
     }
 
     emit disparityVisualizationImageChanged();
@@ -685,4 +694,99 @@ void StereoPipeline::writeMatrixToBinaryFile (const cv::Mat &matrix, const QStri
 
 }
 
+
+// *********************************************************************
+// *                 Additional visualization functions                *
+// *********************************************************************
+void StereoPipeline::createColorCodedDisparityCpu (const cv::Mat &disparity, cv::Mat &image, int numLevels)
+{
+    image.create(disparity.rows, disparity.cols, CV_8UC3);
+
+    for (int i = 0; i < disparity.rows; i++) {
+        for (int j = 0; j < disparity.cols; j++) {
+            unsigned char d = disparity.at<unsigned char>(i, j);
+
+            unsigned int H = ((numLevels - d) * 240)/numLevels;
+            const float S = 1;
+            const float V = 1;
+
+            unsigned int hi = (H/60) % 6;
+            float f = H/60.f - H/60;
+            float p = V * (1 - S);
+            float q = V * (1 - f * S);
+            float t = V * (1 - (1 - f) * S);
+
+            float x, y, z;
+
+            switch (hi) {
+                case 0: {
+                    // R = V, G = t, B = p
+                    x = p;
+                    y = t;
+                    z = V;
+                    break;
+                }
+                case 1: {
+                    // R = q, G = V, B = p
+                    x = p;
+                    y = V;
+                    z = q;
+                    break;
+                }
+                case 2: {
+                    // R = p, G = V, B = t
+                    x = t;
+                    y = V;
+                    z = p;
+                    break;
+                }
+                case 3: {
+                    // R = p, G = q, B = V
+                    x = V;
+                    y = q;
+                    z = p;
+                    break;
+                }
+                case 4: {
+                    // R = t, G = p, B = V
+                    x = V;
+                    y = p;
+                    z = t;
+                    break;
+                }
+                case 5: {
+                    // R = V, G = p, B = q
+                    x = q;
+                    y = p;
+                    z = V;
+                    break;
+                }
+            }
+
+            unsigned char b = (unsigned char)(std::max(0.0f, std::min(x, 1.0f)) * 255.f);
+            unsigned char g = (unsigned char)(std::max(0.0f, std::min(y, 1.0f)) * 255.f);
+            unsigned char r = (unsigned char)(std::max(0.0f, std::min(z, 1.0f)) * 255.f);
+
+            image.at<cv::Vec3b>(i, j) = cv::Vec3b(b, g, r);
+        }
+    }
+}
+
+void StereoPipeline::createAnaglyph (const cv::Mat &left, const cv::Mat &right, cv::Mat &anaglyph)
+{
+    // Split left and right image into channels - BGR!
+    cv::Mat leftChannels[3];
+    cv::Mat rightChannels[3];
+
+    cv::split(left, leftChannels);
+    cv::split(right, rightChannels);
+
+    // Construct anaglyph
+    cv::Mat anaglyphChannels[3];
+    anaglyphChannels[0] = rightChannels[0]; // B
+    anaglyphChannels[1] = rightChannels[1]; // G
+    anaglyphChannels[2] = leftChannels[2]; // R
+
+    cv::merge(anaglyphChannels, 3, anaglyph);
+}
 

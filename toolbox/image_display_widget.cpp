@@ -11,10 +11,10 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  */
 
 #include "image_display_widget.h"
@@ -73,7 +73,7 @@ QImage ImageDisplayWidget::convertCvMatToQImage (const cv::Mat &src)
             }
         }
     }
-    
+
     return dest;
 }
 
@@ -98,7 +98,7 @@ void ImageDisplayWidget::setText (const QString &newText)
 
 
 void ImageDisplayWidget::paintEvent (QPaintEvent *event)
-{    
+{
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);
 
@@ -111,15 +111,15 @@ void ImageDisplayWidget::paintEvent (QPaintEvent *event)
         // Display text
         painter.drawText(area, Qt::AlignCenter, text);
     } else {
-        // Display image        
+        // Display image
         int w = image.width();
         int h = image.height();
-        
+
         double scale = qMin((double)width() / w, (double)height() / h);
 
         w *= scale;
         h *= scale;
-        
+
         painter.translate((width() - w)/2, (height() - h)/2);
         painter.drawImage(QRect(0, 0, w, h), image);
     }
@@ -135,6 +135,7 @@ void ImageDisplayWidget::paintEvent (QPaintEvent *event)
 ImagePairDisplayWidget::ImagePairDisplayWidget (const QString &t, QWidget *parent)
     : ImageDisplayWidget(t, parent)
 {
+    displayPair = true;
 }
 
 ImagePairDisplayWidget::~ImagePairDisplayWidget ()
@@ -152,8 +153,19 @@ void ImagePairDisplayWidget::setImagePairROI (const cv::Rect &left, const cv::Re
     update();
 }
 
+
+void ImagePairDisplayWidget::setImage (const cv::Mat &image)
+{
+    displayPair = false;
+
+    ImageDisplayWidget::setImage(image);
+}
+
+
 void ImagePairDisplayWidget::setImagePair (const cv::Mat &left, const cv::Mat &right)
 {
+    displayPair = true;
+
     // Convert cv::Mat to QImage
     imageLeft = convertCvMatToQImage(left);
     imageRight = convertCvMatToQImage(right);
@@ -163,7 +175,11 @@ void ImagePairDisplayWidget::setImagePair (const cv::Mat &left, const cv::Mat &r
 }
 
 void ImagePairDisplayWidget::paintEvent (QPaintEvent *event)
-{    
+{
+    if (!displayPair) {
+        return ImageDisplayWidget::paintEvent(event);
+    }
+
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);
 
@@ -176,39 +192,39 @@ void ImagePairDisplayWidget::paintEvent (QPaintEvent *event)
         // Display text
         painter.drawText(area, Qt::AlignCenter, text);
     } else {
-        // Display image        
+        // Display image
         int w = imageLeft.width() + imageRight.width();
         int h = qMax(imageLeft.height(), imageRight.height());
 
         int iw, ih;
-        
+
         double scale = qMin((double)width() / w, (double)height() / h);
 
         w *= scale;
         h *= scale;
 
-        // *** Draw images ***        
+        // *** Draw images ***
         // Move to left image
         painter.translate((width() - w)/2, (height() - h)/2);
 
         // Left image
         iw = imageLeft.width() * scale;
         ih = imageLeft.height() * scale;
-        
+
         painter.drawImage(QRect(0, (h - ih)/2, iw, ih), imageLeft);
 
         if ((roiLeft.width && roiLeft.height) && (roiLeft.width != imageLeft.width() || roiLeft.height != imageLeft.height())) {
             painter.setPen(QPen(Qt::red, 2));
             painter.drawRect(roiLeft.x*scale, roiLeft.y*scale, roiLeft.width*scale, roiLeft.height*scale);
         }
-        
+
         // Move to right image
         painter.translate(iw, 0);
 
         // Right image
         iw = imageRight.width() * scale;
         ih = imageRight.height() * scale;
-        
+
         painter.drawImage(QRect(0, (h - ih)/2, iw, ih), imageRight);
 
         if ((roiRight.width && roiRight.height) && (roiRight.width != imageRight.width() || roiRight.height != imageRight.height())) {
@@ -216,7 +232,7 @@ void ImagePairDisplayWidget::paintEvent (QPaintEvent *event)
             painter.drawRect(roiRight.x*scale, roiRight.y*scale, roiRight.width*scale, roiRight.height*scale);
         }
 
-        // Draw horizontal lines        
+        // Draw horizontal lines
         painter.resetTransform();
         painter.translate((width() - w)/2, (height() - h)/2);
 
@@ -224,13 +240,13 @@ void ImagePairDisplayWidget::paintEvent (QPaintEvent *event)
         int numColors = 4, c = 0; // Pen color counter
         for (int i = 0; i < maxHeight; i += 16) {
             painter.setPen(QPen(QColor(0, 255*(c+1)/numColors, 0, 255), 1.5));
-            
+
             painter.drawLine(0, i*scale, w, i*scale);
 
             // Alternate the pen colors
             c = (c + 1) % numColors;
         }
-            
+
     }
 
     // Draw frame on top of it all
@@ -262,7 +278,7 @@ void CalibrationPatternDisplayWidget::setPattern (bool found, const std::vector<
 }
 
 void CalibrationPatternDisplayWidget::paintEvent (QPaintEvent *event)
-{    
+{
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);
 
@@ -275,10 +291,10 @@ void CalibrationPatternDisplayWidget::paintEvent (QPaintEvent *event)
         // Display text
         painter.drawText(area, Qt::AlignCenter, text);
     } else {
-        // Display image        
+        // Display image
         int w = image.width();
         int h = image.height();
-        
+
         double scale = qMin((double)width() / w, (double)height() / h);
 
         w *= scale;
@@ -299,8 +315,8 @@ void CalibrationPatternDisplayWidget::paintEvent (QPaintEvent *event)
         QPointF lineOffsetA2 = QPointF(r,r) / sqrtf(2.0);
         QPointF lineOffsetB1 = QPointF(-r,r) / sqrtf(2.0);
         QPointF lineOffsetB2 = QPointF(r,-r) / sqrtf(2.0);
-        
-        for (unsigned int i = 0; i < patternPoints.size(); i++) {            
+
+        for (unsigned int i = 0; i < patternPoints.size(); i++) {
             // Select color based on which row we are drawing
             if (patternFound) {
                 int row = i / patternSize.width;
@@ -315,7 +331,7 @@ void CalibrationPatternDisplayWidget::paintEvent (QPaintEvent *event)
             } else {
                 color = Qt::red;
             }
-            
+
             // Point coordinates
             currentPoint = QPointF(patternPoints[i].x, patternPoints[i].y);
 
@@ -326,12 +342,12 @@ void CalibrationPatternDisplayWidget::paintEvent (QPaintEvent *event)
             // Draw crossed lines
             painter.drawLine(currentPoint + lineOffsetA1, currentPoint + lineOffsetA2);
             painter.drawLine(currentPoint + lineOffsetB1, currentPoint + lineOffsetB2);
-            
+
             // Draw connecting line; only if pattern has been found
             if (!patternFound) {
                 continue;
             }
-            
+
             if (i > 0) {
                 if (i % patternSize.width) {
                     painter.setPen(QPen(color, 2.0, Qt::SolidLine));
@@ -355,7 +371,7 @@ void CalibrationPatternDisplayWidget::paintEvent (QPaintEvent *event)
 // *********************************************************************
 DisparityImageDisplayWidget::DisparityImageDisplayWidget (const QString &t, QWidget *parent)
     : ImageDisplayWidget(t, parent)
-{    
+{
     setMouseTracking(true); // Enable mouse tracking
 }
 
@@ -366,7 +382,7 @@ DisparityImageDisplayWidget::~DisparityImageDisplayWidget ()
 void DisparityImageDisplayWidget::mouseMoveEvent (QMouseEvent *event)
 {
     emit disparityUnderMouseChanged(getDisparityAtPixel(event->pos()));
-    
+
     // Chain up to parent
     return ImageDisplayWidget::mouseMoveEvent(event);
 }
@@ -389,12 +405,12 @@ float DisparityImageDisplayWidget::getDisparityAtPixel (const QPoint &pos)
     if (image.width() != disparity.cols || image.height() != disparity.rows) {
         return NAN;
     }
-    
+
     // This part is same as in base class's display... it computes
     // display scaling and vertical/horizontal offsets
     int w = disparity.cols;
     int h = disparity.rows;
-        
+
     double scale = qMin((double)width() / w, (double)height() / h);
 
     w *= scale;
@@ -436,13 +452,13 @@ ReprojectedImageDisplayWidget::ReprojectedImageDisplayWidget (const QString &t, 
 
 ReprojectedImageDisplayWidget::~ReprojectedImageDisplayWidget ()
 {
-    
+
 }
 
 void ReprojectedImageDisplayWidget::mouseMoveEvent (QMouseEvent *event)
 {
     emit coordinatesUnderMouseChanged(getCoordinatesAtPixel(event->pos()));
-    
+
     // Chain up to parent
     return ImageDisplayWidget::mouseMoveEvent(event);
 }
@@ -465,12 +481,12 @@ QVector3D ReprojectedImageDisplayWidget::getCoordinatesAtPixel (const QPoint &po
     if (image.width() != reprojectedPoints.cols || image.height() != reprojectedPoints.rows) {
         return QVector3D();
     }
-    
+
     // This part is same as in base class's display... it computes
     // display scaling and vertical/horizontal offsets
     int w = image.width();
     int h = image.height();
-        
+
     double scale = qMin((double)width() / w, (double)height() / h);
 
     w *= scale;
