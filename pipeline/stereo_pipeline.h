@@ -102,7 +102,7 @@ public:
     int getReprojectionComputationTime () const;
 
     // Data export
-    static void writeMatrixToBinaryFile (const cv::Mat &, const QString &);
+    static void writeMatrixToBinaryFile (const cv::Mat &, const QString &, bool = true);
 
     // Additional visualization
     static void createColorCodedDisparityCpu (const cv::Mat &, cv::Mat &, int);

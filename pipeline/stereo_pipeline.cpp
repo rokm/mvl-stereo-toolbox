@@ -679,7 +679,7 @@ static QDataStream &operator << (QDataStream &stream, const cv::Mat &matrix)
     return stream;
 }
 
-void StereoPipeline::writeMatrixToBinaryFile (const cv::Mat &matrix, const QString &fileName)
+void StereoPipeline::writeMatrixToBinaryFile (const cv::Mat &matrix, const QString &fileName, bool compress)
 {
     QFile file(fileName);
     if (!file.open(QIODevice::WriteOnly)) {
@@ -695,10 +695,24 @@ void StereoPipeline::writeMatrixToBinaryFile (const cv::Mat &matrix, const QStri
     stream << (quint8)'B';
     stream << (quint8)'M';
     stream << (quint8)'D';
-    stream << (quint8)' ';
+    stream << (quint8)(compress ? 'C' : ' ');
 
-    // Dump matrix
-    stream << matrix;
+    if (!compress) {
+        // Dump matrix directly to output stream
+        stream << matrix;
+    } else {
+        // Dump matrix to temporary stream, and compress the underlying
+        // byte array
+        QByteArray tmpData;
+        QDataStream tmpStream(&tmpData, QIODevice::WriteOnly);
+        tmpStream.setVersion(QDataStream::Qt_5_0);
+        tmpStream.setByteOrder(QDataStream::LittleEndian);
+        tmpStream.setFloatingPointPrecision(QDataStream::SinglePrecision);
+
+        tmpStream << matrix;
+
+        stream << qCompress(tmpData);
+    }
 }
 
 
