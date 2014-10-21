@@ -229,7 +229,15 @@ void SourceWidget::changePlaybackState (bool active)
 
 void SourceWidget::videoPositionChanged (int frame, int length)
 {
-    labelVideoPosition->setText(QString("Position: %1/%2").arg(frame).arg(length));
+    qint64 milliseconds = frame * 1000 / source->getVideoFps();
+    int h = milliseconds / (1000 * 60 * 60);
+    milliseconds -= h * (1000 * 60 * 60);
+    int m = milliseconds / (1000 * 60);
+    milliseconds -= m * (1000 * 60);
+    int s = milliseconds / (1000);
+    milliseconds -= s * (1000);
+
+    labelVideoPosition->setText(QString("Position: %1/%2    %3:%4:%5.%6").arg(frame).arg(length).arg(h, 2, 10, QChar('0')).arg(m, 2, 10, QChar('0')).arg(s, 2, 10, QChar('0')).arg(milliseconds, 3, 10, QChar('0')));
 
     sliderPosition->blockSignals(true);
     sliderPosition->setValue(frame);
