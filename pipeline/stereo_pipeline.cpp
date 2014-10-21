@@ -649,24 +649,8 @@ void StereoPipeline::reprojectDisparityImage ()
 // *********************************************************************
 // *                            Data export                            *
 // *********************************************************************
-void StereoPipeline::writeMatrixToBinaryFile (const cv::Mat &matrix, const QString &fileName)
+static QDataStream &operator << (QDataStream &stream, const cv::Mat &matrix)
 {
-    QFile file(fileName);
-    if (!file.open(QIODevice::WriteOnly)) {
-        throw QString("Failed to open file!");
-    }
-
-    QDataStream stream(&file);
-    stream.setVersion(QDataStream::Qt_5_0);
-    stream.setByteOrder(QDataStream::LittleEndian);
-    stream.setFloatingPointPrecision(QDataStream::SinglePrecision);
-
-    // Signature - binary matrix dump
-    stream << (quint8)'B';
-    stream << (quint8)'M';
-    stream << (quint8)'D';
-    stream << (quint8)' ';
-
     stream << (quint32)matrix.cols; // Width
     stream << (quint32)matrix.rows; // Height
     stream << (quint16)matrix.channels(); // Number of channels
@@ -692,6 +676,29 @@ void StereoPipeline::writeMatrixToBinaryFile (const cv::Mat &matrix, const QStri
         }
     }
 
+    return stream;
+}
+
+void StereoPipeline::writeMatrixToBinaryFile (const cv::Mat &matrix, const QString &fileName)
+{
+    QFile file(fileName);
+    if (!file.open(QIODevice::WriteOnly)) {
+        throw QString("Failed to open file!");
+    }
+
+    QDataStream stream(&file);
+    stream.setVersion(QDataStream::Qt_5_0);
+    stream.setByteOrder(QDataStream::LittleEndian);
+    stream.setFloatingPointPrecision(QDataStream::SinglePrecision);
+
+    // Signature - binary matrix dump
+    stream << (quint8)'B';
+    stream << (quint8)'M';
+    stream << (quint8)'D';
+    stream << (quint8)' ';
+
+    // Dump matrix
+    stream << matrix;
 }
 
 
