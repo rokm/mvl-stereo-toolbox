@@ -209,7 +209,7 @@ void WindowStereoMethod::saveImage ()
     fileFilters.append("OpenCV storage files (*.xml *.yml *.yaml");
 
     QString selectedFilter;
-    QString fileName = QFileDialog::getSaveFileName(this, "Save disparity image", QString(),  fileFilters.join(";;"), &selectedFilter);
+    QString fileName = QFileDialog::getSaveFileName(this, "Save disparity image", lastSavedFile,  fileFilters.join(";;"), &selectedFilter);
     if (!fileName.isNull()) {
         // If extension is not given, set default based on selected filter
         QString ext = QFileInfo(fileName).completeSuffix();
@@ -248,6 +248,8 @@ void WindowStereoMethod::saveImage ()
                 qWarning() << "Failed to save image:" << QString::fromStdString(e.what());
             }
         }
+
+        lastSavedFile = fileName;
     }
 }
 

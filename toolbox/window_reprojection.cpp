@@ -226,7 +226,7 @@ void WindowReprojection::saveReprojectionResult ()
     fileFilters.append("OpenCV storage files (*.xml *.yml *.yaml");
 
     QString selectedFilter = fileFilters[0];
-    QString fileName = QFileDialog::getSaveFileName(this, "Save reprojection result", QString(),  fileFilters.join(";;"), &selectedFilter);
+    QString fileName = QFileDialog::getSaveFileName(this, "Save reprojection result", lastSavedFile,  fileFilters.join(";;"), &selectedFilter);
     if (!fileName.isNull()) {
         // If extension is not given, set default based on selected filter
         QString ext = QFileInfo(fileName).completeSuffix();
@@ -256,5 +256,7 @@ void WindowReprojection::saveReprojectionResult ()
                 qWarning() << "Failed to save binary file:" << e;
             }
         }
+
+        lastSavedFile = fileName;
     }
 }

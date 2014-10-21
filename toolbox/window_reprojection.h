@@ -63,6 +63,8 @@ protected:
 
     QLabel *labelCoordinates;
     QStatusBar *statusBar;
+
+    QString lastSavedFile;
 };
 
 #endif
