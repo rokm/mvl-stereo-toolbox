@@ -69,9 +69,6 @@ void PluginManager::setPluginDirectory (const QString &newDirectory)
         }
     }
 
-    // Set new directory
-    qDebug() << "Plugin path:" << pluginDirectory.absolutePath();
-
     // Recursively scan for plugins
     QStringList files;
     recursiveDirectoryScan(pluginDirectory.absolutePath(), files);
