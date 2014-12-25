@@ -21,7 +21,7 @@
 #include "source_widget.h"
 #include "camera.h"
 
-#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/videoio/videoio.hpp>
 
 using namespace SourceOpenCvCam;
 
@@ -35,14 +35,14 @@ static const struct {
     int id;
     const char *description;
 } interfaces_list[] = {
-    { CV_CAP_VFW, "Native" },// Native: V4L, V4L2 or VFW
-    { CV_CAP_IEEE1394, "FireWire" }, // IEEE 1394 FireWire
-    { CV_CAP_QT, "QuickTime" }, // QuickTime
-    //{ CV_CAP_UNICAP, "UniCap" }, // Unicap
-    { CV_CAP_DSHOW, "DirectShow" }, // DirectShow
-    { CV_CAP_MSMF, "MSMF" }, // Microsoft Media Foundation
-    { CV_CAP_PVAPI, "PVAPI" }, // Prosilica GigE SDK
-    { CV_CAP_GIGANETIX, "GIGANETIX" }, // GigEVisionSSDK
+    { cv::CAP_VFW, "Native" },// Native: V4L, V4L2 or VFW
+    { cv::CAP_IEEE1394, "FireWire" }, // IEEE 1394 FireWire
+    { cv::CAP_QT, "QuickTime" }, // QuickTime
+    //{ cv::CAP_UNICAP, "UniCap" }, // Unicap
+    { cv::CAP_DSHOW, "DirectShow" }, // DirectShow
+    { cv::CAP_MSMF, "MSMF" }, // Microsoft Media Foundation
+    { cv::CAP_PVAPI, "PVAPI" }, // Prosilica GigE SDK
+    { cv::CAP_GIGANETIX, "GIGANETIX" }, // GigEVisionSSDK
 };
 
 

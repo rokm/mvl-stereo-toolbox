@@ -77,15 +77,15 @@ void CameraWidget::addPropertyWidgets ()
         const char *name;
         bool integer_value;
     } properties[] = {
-        { CV_CAP_PROP_FRAME_WIDTH, "Frame width", true },
-        { CV_CAP_PROP_FRAME_HEIGHT, "Frame height", true },
-        //{ CV_CAP_PROP_FPS, "FPS", false },
-        { CV_CAP_PROP_BRIGHTNESS, "Brightness", false },
-        { CV_CAP_PROP_CONTRAST, "Contrast", false },
-        { CV_CAP_PROP_SATURATION, "Saturation", false },
-        { CV_CAP_PROP_HUE, "Hue", false },
-        { CV_CAP_PROP_GAIN, "Gain", false },
-        { CV_CAP_PROP_EXPOSURE, "Exposure", false },
+        { cv::CAP_PROP_FRAME_WIDTH, "Frame width", true },
+        { cv::CAP_PROP_FRAME_HEIGHT, "Frame height", true },
+        //{ cv::CAP_PROP_FPS, "FPS", false },
+        { cv::CAP_PROP_BRIGHTNESS, "Brightness", false },
+        { cv::CAP_PROP_CONTRAST, "Contrast", false },
+        { cv::CAP_PROP_SATURATION, "Saturation", false },
+        { cv::CAP_PROP_HUE, "Hue", false },
+        { cv::CAP_PROP_GAIN, "Gain", false },
+        { cv::CAP_PROP_EXPOSURE, "Exposure", false },
     };
 
     QLabel *label;
