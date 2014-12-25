@@ -41,11 +41,8 @@ include_directories(${PROJECT_BINARY_DIR})
 
 include_directories(${OpenCV_INCLUDE_DIRS})
 
-# If we have OpenCV with GPU support, enable the following definition
-if(OPENCV_GPU_FOUND)
-    add_definitions(-DHAVE_OPENCV_GPU)
-endif()
-
+# If we have OpenCV with CUDA and CUDA compiler, enable our own CUDA
+# sources
 if(CUDA_FOUND)
     add_definitions(-DHAVE_CUDA)
     set(CUDA_HOST_COMPILER "${CMAKE_CXX_COMPILER}")
@@ -55,7 +52,7 @@ if(CUDA_FOUND)
     include_directories(${CUDA_TOOLKIT_INCLUDE})
 endif()
 
-if (OPENCV_GPU_FOUND AND CUDA_FOUND)
+if (OPENCV_CUDEV_FOUND AND CUDA_FOUND)
     cuda_compile(pipeline_CUDA_OBJECTS ${pipeline_CUDA_SOURCES})
 else ()
     set(pipeline_CUDA_OBJECTS "")

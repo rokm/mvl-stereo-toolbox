@@ -17,13 +17,14 @@
  * 
  */
 
-#include <opencv2/gpu/device/common.hpp>
-#include <opencv2/gpu/device/vec_traits.hpp>
+#include <opencv2/cudev.hpp>
+#include <opencv2/core/cuda/common.hpp>
+
 
 __constant__ float cq[16];
 __constant__ unsigned short off_x, off_y;
 
-__global__ void reproject_kernel (const cv::gpu::PtrStepSz<unsigned char> disparity, cv::gpu::PtrStepSz<float3> points)
+__global__ void reproject_kernel (const cv::cuda::PtrStepSz<unsigned char> disparity, cv::cuda::PtrStepSz<float3> points)
 {
     const int x = blockIdx.x * blockDim.x + threadIdx.x;
     const int y = blockIdx.y * blockDim.y + threadIdx.y;
@@ -41,7 +42,7 @@ __global__ void reproject_kernel (const cv::gpu::PtrStepSz<unsigned char> dispar
 
     const float iW = 1.f / (qw + cq[14] * d);
 
-    float3 v = cv::gpu::device::VecTraits<float3>::all(1.0f);
+    float3 v = cv::cudev::VecTraits<float3>::all(1.0f);
     v.x = (qx + cq[2] * d) * iW;
     v.y = (qy + cq[6] * d) * iW;
     v.z = (qz + cq[10] * d) * iW;
@@ -50,10 +51,10 @@ __global__ void reproject_kernel (const cv::gpu::PtrStepSz<unsigned char> dispar
 }
 
 
-void reprojectDisparityImageGpu (const cv::gpu::PtrStepSz<unsigned char> disparity, cv::gpu::PtrStepSz<float3> points, const float *q, unsigned short offsetX, unsigned short offsetY)
+void reprojectDisparityImageCuda (const cv::cuda::PtrStepSz<unsigned char> disparity, cv::cuda::PtrStepSz<float3> points, const float *q, unsigned short offsetX, unsigned short offsetY)
 {
     dim3 block(32, 8);
-    dim3 grid(cv::gpu::divUp(disparity.cols, block.x), cv::gpu::divUp(disparity.rows, block.y));
+    dim3 grid(cv::cudev::divUp(disparity.cols, block.x), cv::cudev::divUp(disparity.rows, block.y));
 
     cudaSafeCall(cudaMemcpyToSymbol(cq, q, 16 * sizeof(float)));
     cudaSafeCall(cudaMemcpyToSymbol(off_x, &offsetX, sizeof(offsetX)));

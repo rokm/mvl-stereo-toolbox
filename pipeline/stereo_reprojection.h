@@ -36,9 +36,9 @@ public:
 
     enum ReprojectionMethod {
         ReprojectionMethodToolboxCpu,
-        ReprojectionMethodToolboxGpu,
+        ReprojectionMethodToolboxCuda,
         ReprojectionMethodOpenCvCpu,
-        ReprojectionMethodOpenCvGpu,
+        ReprojectionMethodOpenCvCuda,
     };
 
     int getReprojectionMethod () const;

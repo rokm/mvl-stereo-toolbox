@@ -180,9 +180,9 @@ void WindowReprojection::fillReprojectionMethods ()
         const char *tooltip;
     } methods[] = {
         { StereoReprojection::ReprojectionMethodToolboxCpu, "Toolbox CPU", "Toolbox-modified CPU method (handles ROI)." },
-        { StereoReprojection::ReprojectionMethodToolboxGpu, "Toolbox GPU", "Toolbox-modified GPU method (handles ROI)." },
+        { StereoReprojection::ReprojectionMethodToolboxCuda, "Toolbox CUDA", "Toolbox-modified CUDA method (handles ROI)." },
         { StereoReprojection::ReprojectionMethodOpenCvCpu, "OpenCV CPU", "Stock OpenCV CPU method." },
-        { StereoReprojection::ReprojectionMethodOpenCvGpu, "OpenCV GPU", "Stock OpenCV GPU method." },
+        { StereoReprojection::ReprojectionMethodOpenCvCuda, "OpenCV CUDA", "Stock OpenCV CUDA method." },
     };
 
     const QList<int> &supportedMethods = reprojection->getSupportedReprojectionMethods();

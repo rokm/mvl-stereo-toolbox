@@ -19,10 +19,11 @@
 
 #include "stereo_reprojection.h"
 
+#include <opencv2/opencv_modules.hpp>
 #include <opencv2/calib3d/calib3d.hpp>
 
-#ifdef HAVE_OPENCV_GPU
-#include <opencv2/gpu/gpu.hpp>
+#ifdef HAVE_OPENCV_CUDA
+#include <opencv2/cuda.hpp>
 #ifdef HAVE_CUDA
 #include <cuda_runtime.h>
 #endif
@@ -31,9 +32,9 @@
 
 // Forward-declarations for toolbox-modified methods
 void reprojectDisparityImage (const cv::Mat &, cv::Mat &, const cv::Mat &, int, int);
-#ifdef HAVE_OPENCV_GPU
+#ifdef HAVE_OPENCV_CUDA
 #ifdef HAVE_CUDA
-void reprojectDisparityImageGpu (const cv::gpu::PtrStepSz<unsigned char>, cv::gpu::PtrStepSz<float3>, const float *, unsigned short, unsigned short);
+void reprojectDisparityImageCuda (const cv::cuda::PtrStepSz<unsigned char>, cv::cuda::PtrStepSz<float3>, const float *, unsigned short, unsigned short);
 #endif
 #endif
 
@@ -43,13 +44,15 @@ StereoReprojection::StereoReprojection (QObject *parent)
     // Create list of supported methods
     supportedMethods.append(ReprojectionMethodToolboxCpu);
     supportedMethods.append(ReprojectionMethodOpenCvCpu);
-#ifdef HAVE_OPENCV_GPU
+#ifdef HAVE_OPENCV_CUDA
     try {
-        if (cv::gpu::getCudaEnabledDeviceCount()) {
+        if (cv::cuda::getCudaEnabledDeviceCount()) {
 #ifdef HAVE_CUDA
-            supportedMethods.append(ReprojectionMethodToolboxGpu);
+            supportedMethods.append(ReprojectionMethodToolboxCuda);
 #endif
-            supportedMethods.append(ReprojectionMethodOpenCvGpu);
+#ifdef HAVE_OPENCV_CUDASTEREO
+            supportedMethods.append(ReprojectionMethodOpenCvCuda);
+#endif
         }
     } catch (...) {
         // Nothing to do :)
@@ -145,22 +148,22 @@ void StereoReprojection::reprojectStereoDisparity (const cv::Mat &disparity, cv:
             cv::reprojectImageTo3D(disparity, points, Q, false, CV_32F);
             break;
         }
-#ifdef HAVE_OPENCV_GPU
-        case ReprojectionMethodOpenCvGpu: {
-            // OpenCV GPU method; does not handle ROI offset
-            cv::gpu::GpuMat gpu_disparity, gpu_points;
+#ifdef HAVE_OPENCV_CUDASTEREO
+        case ReprojectionMethodOpenCvCuda: {
+            // OpenCV CUDA method; does not handle ROI offset
+            cv::cuda::GpuMat gpu_disparity, gpu_points;
             gpu_disparity.upload(disparity);
-            cv::gpu::reprojectImageTo3D(gpu_disparity, gpu_points, Q, 3);
+            //cv::cuda::reprojectImageTo3D(gpu_disparity, gpu_points, Q, 3);
             gpu_points.download(points);
             break;
         }
 #ifdef HAVE_CUDA
-        case ReprojectionMethodToolboxGpu: {
-            // Toolbox-modified GPU method; handles ROI offset
-            cv::gpu::GpuMat gpu_disparity, gpu_points;
+        case ReprojectionMethodToolboxCuda: {
+            // Toolbox-modified CUDA method; handles ROI offset
+            cv::cuda::GpuMat gpu_disparity, gpu_points;
             gpu_disparity.upload(disparity);
             gpu_points.create(disparity.size(), CV_32FC3);
-            reprojectDisparityImageGpu(gpu_disparity, gpu_points, Q.ptr<float>(), offsetX, offsetY);
+            reprojectDisparityImageCuda(gpu_disparity, gpu_points, Q.ptr<float>(), offsetX, offsetY);
             gpu_points.download(points);
             break;
         }
