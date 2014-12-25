@@ -1,5 +1,5 @@
 /*
- * OpenCV GPU Block Matching: method
+ * OpenCV CUDA Block Matching: method
  * Copyright (C) 2013 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
@@ -20,11 +20,15 @@
 #include "method.h"
 #include "method_widget.h"
 
-using namespace StereoMethodBlockMatchingGPU;
+#include <opencv2/imgproc.hpp>
+
+
+using namespace StereoMethodBlockMatchingCUDA;
 
 
 Method::Method (QObject *parent)
-    : QObject(parent), StereoMethod()
+    : QObject(parent), StereoMethod(),
+      bm(cv::cuda::createStereoBM())
 {
 }
 
@@ -54,7 +58,13 @@ QWidget *Method::createConfigWidget (QWidget *parent)
 void Method::resetToDefaults ()
 {
     QMutexLocker locker(&mutex);
-    bm = cv::gpu::StereoBM_GPU();
+
+    bm->setNumDisparities(64);
+    bm->setBlockSize(19);
+    bm->setPreFilterType(0);
+    bm->setPreFilterCap(31);
+    bm->setTextureThreshold(3);
+
     locker.unlock();
 
     emit parameterChanged();
@@ -66,7 +76,7 @@ void Method::resetToDefaults ()
 // *********************************************************************
 void Method::computeDisparityImage (const cv::Mat &img1, const cv::Mat &img2, cv::Mat &disparity, int &numDisparities)
 {
-    cv::gpu::GpuMat gpu_img1, gpu_img2, gpu_disp;
+    cv::cuda::GpuMat gpu_img1, gpu_img2, gpu_disp;
 
     // Convert to float grayscale
     if (img1.channels() == 3) {
@@ -87,7 +97,7 @@ void Method::computeDisparityImage (const cv::Mat &img1, const cv::Mat &img2, cv
 
     // Compute disparity image
     QMutexLocker locker(&mutex);
-    bm(gpu_img1, gpu_img2, gpu_disp);
+    bm->compute(gpu_img1, gpu_img2, gpu_disp);
     locker.unlock();
 
     // Download
@@ -121,12 +131,15 @@ void Method::loadParameters (const QString &filename)
     }
 
     // Load parameters
-    bm = cv::gpu::StereoBM_GPU();
+    QMutexLocker locker(&mutex);
 
-    storage["Preset"] >> bm.preset;
-    storage["NumDisparities"] >> bm.ndisp;
-    storage["WindowSize"] >> bm.winSize;
-    storage["AverageTextureThreshold"] >> bm.avergeTexThreshold;
+    bm->setPreFilterType((int)storage["PreFilterType"]);
+    bm->setPreFilterCap((int)storage["PreFilterCap"]);
+    bm->setNumDisparities((int)storage["NumDisparities"]);
+    bm->setBlockSize((int)storage["WindowSize"]);
+    bm->setTextureThreshold((float)storage["AverageTextureThreshold"]);
+
+    locker.unlock();
 
     emit parameterChanged();
 }
@@ -145,36 +158,58 @@ void Method::saveParameters (const QString &filename) const
     storage << "MethodName" << getShortName().toStdString();
 
     // Save parameters
-    storage << "Preset" << bm.preset;
-    storage << "NumDisparities" << bm.ndisp;
-    storage << "WindowSize" << bm.winSize;
-    storage << "AverageTextureThreshold" << bm.avergeTexThreshold;
+    storage << "PreFilterType" << bm->getPreFilterType();
+    storage << "PreFilterCap" << bm->getPreFilterCap();
+    storage << "NumDisparities" << bm->getNumDisparities();
+    storage << "WindowSize" << bm->getBlockSize();
+    storage << "AverageTextureThreshold" << bm->getTextureThreshold();
 }
 
 
 // *********************************************************************
 // *                         Method parameters                         *
 // *********************************************************************
-// Preset
-int Method::getPreset () const
+// Pre-filter type
+int Method::getPreFilterType () const
 {
-    return bm.preset;
+    return bm->getPreFilterType();
 }
 
-void Method::setPreset (int newValue)
+void Method::setPreFilterType (int newValue)
 {
     // Validate
-    if (newValue != cv::gpu::StereoBM_GPU::BASIC_PRESET && newValue != cv::gpu::StereoBM_GPU::PREFILTER_XSOBEL) {
-        newValue = cv::gpu::StereoBM_GPU::BASIC_PRESET;
+    if (newValue != cv::StereoBM::PREFILTER_NORMALIZED_RESPONSE && newValue != cv::StereoBM::PREFILTER_XSOBEL) {
+        newValue = cv::StereoBM::PREFILTER_NORMALIZED_RESPONSE;
     }
 
-    setParameter(bm.preset, newValue);
+    // Set
+    QMutexLocker locker(&mutex);
+    bm->setPreFilterType(newValue);
+    locker.unlock();
+        
+    emit parameterChanged();
+}
+
+// Pre-filter cap
+int Method::getPreFilterCap () const
+{
+    return bm->getPreFilterCap();
+}
+
+void Method::setPreFilterCap (int newValue)
+{
+    // Set
+    QMutexLocker locker(&mutex);
+    bm->setPreFilterCap(newValue);
+    locker.unlock();
+        
+    emit parameterChanged();
 }
 
 // Number of disparities
 int Method::getNumDisparities () const
 {
-    return bm.ndisp;
+    return bm->getNumDisparities();
 }
 
 void Method::setNumDisparities (int newValue)
@@ -183,28 +218,48 @@ void Method::setNumDisparities (int newValue)
     newValue = qRound(newValue / 8.0) * 8; // Must be divisible by 8
     newValue = qMax(8, newValue);
 
-    setParameter(bm.ndisp, newValue);
+    // Set
+    QMutexLocker locker(&mutex);
+    bm->setNumDisparities(newValue);
+    locker.unlock();
+        
+    emit parameterChanged();
 }
 
 // Window size
 int Method::getWindowSize () const
 {
-    return bm.winSize;
+    return bm->getBlockSize();
 }
 
 void Method::setWindowSize (int newValue)
 {
-    setParameter(bm.winSize, newValue);
+    // Validate
+    if (newValue % 2 == 0) {
+        newValue++; // Must be odd number
+    }
+    
+    // Set
+    QMutexLocker locker(&mutex);
+    bm->setBlockSize(newValue);
+    locker.unlock();
+        
+    emit parameterChanged();
 }
 
 
 // Average texture threshold
 double Method::getAverageTextureThreshold () const
 {
-    return bm.avergeTexThreshold;
+    return bm->getTextureThreshold();
 }
 
 void Method::setAverageTextureThreshold (double newValue)
 {
-    setParameter(bm.avergeTexThreshold, (float)newValue);
+    // Set
+    QMutexLocker locker(&mutex);
+    bm->setTextureThreshold(newValue);
+    locker.unlock();
+        
+    emit parameterChanged();
 }

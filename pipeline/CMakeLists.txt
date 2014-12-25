@@ -115,9 +115,9 @@ endif()
 add_subdirectory(methods/opencv_bm)
 add_subdirectory(methods/opencv_sgbm)
 
-# OpenCV GPU stereo methods: build if we have OpenCV with GPU module
-#if(OPENCV_GPU_FOUND)
-#    add_subdirectory(methods/opencv_gpu_bm)
+# OpenCV CUDA stereo methods: build if corresponding module is available
+if(OPENCV_CUDASTEREO_FOUND)
+    add_subdirectory(methods/opencv_cuda_bm)
 #    add_subdirectory(methods/opencv_gpu_bp)
 #    add_subdirectory(methods/opencv_gpu_csbp)
-#endif()
+endif()

@@ -1,5 +1,5 @@
 /*
- * OpenCV GPU Block Matching: method
+ * OpenCV CUDA Block Matching: method
  * Copyright (C) 2013 Rok Mandeljc
  * 
  * This program is free software: you can redistribute it and/or modify
@@ -17,15 +17,15 @@
  * 
  */
  
-#ifndef STEREO_METHOD_BLOCK_MATCHING_GPU_H
-#define STEREO_METHOD_BLOCK_MATCHING_GPU_H
+#ifndef STEREO_METHOD_BLOCK_MATCHING_CUDA_H
+#define STEREO_METHOD_BLOCK_MATCHING_CUDA_H
 
 #include <stereo_method.h>
 
-#include <opencv2/gpu/gpu.hpp>
+#include <opencv2/cudastereo.hpp>
 
 
-namespace StereoMethodBlockMatchingGPU {
+namespace StereoMethodBlockMatchingCUDA {
     
 class Method : public QObject, public StereoMethod
 {
@@ -42,20 +42,9 @@ public:
     virtual void loadParameters (const QString &);
     virtual void saveParameters (const QString &) const;
 
-    // Generic parameter setting
-    template <typename T> void setParameter (T &parameter, const T &newValue) {
-        // Set only if necessary
-        if (parameter != newValue) {
-            QMutexLocker locker(&mutex);
-            parameter = newValue;
-            locker.unlock();
-            
-            emit parameterChanged();
-        }
-    }
-    
     // Parameters
-    int getPreset () const;
+    int getPreFilterType () const;
+    int getPreFilterCap () const;
     int getNumDisparities () const;
     int getWindowSize () const;
 
@@ -64,7 +53,8 @@ public:
 public slots:
     void resetToDefaults ();
 
-    void setPreset (int);
+    void setPreFilterType (int);
+    void setPreFilterCap (int);
     void setNumDisparities (int);
     void setWindowSize (int);
         
@@ -76,7 +66,7 @@ signals:
 
 protected:
     // Block matcher
-    cv::gpu::StereoBM_GPU bm;
+    cv::Ptr<cv::cuda::StereoBM> bm;
     QMutex mutex;
 
     cv::Mat tmpImg1, tmpImg2;

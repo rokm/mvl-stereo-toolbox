@@ -1,5 +1,5 @@
 /*
- * OpenCV GPU Block Matching: config widget
+ * OpenCV CUDA Block Matching: config widget
  * Copyright (C) 2013 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
@@ -23,7 +23,7 @@
 #include <cfloat>
 #include <climits>
 
-using namespace StereoMethodBlockMatchingGPU;
+using namespace StereoMethodBlockMatchingCUDA;
 
 
 MethodWidget::MethodWidget (Method *m, QWidget *parent)
@@ -44,7 +44,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
     QString tooltip;
 
     // Name
-    label = new QLabel("<b><u>OpenCV GPU block matching</u></b>", this);
+    label = new QLabel("<b><u>OpenCV CUDA block matching</u></b>", this);
     label->setAlignment(Qt::AlignHCenter);
 
     baseLayout->addWidget(label);
@@ -80,21 +80,35 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
 
     layout->addRow(line);
 
-    // Preset
-    tooltip = "Parameter presetting.";
+    // Pre-filter
+    tooltip = "Pre-filter setting.";
 
-    label = new QLabel("Preset", this);
+    label = new QLabel("Pre-filter", this);
     label->setToolTip(tooltip);
 
     comboBox = new QComboBox(this);
-    comboBox->addItem("BASIC_PRESET", cv::gpu::StereoBM_GPU::BASIC_PRESET);
-    comboBox->setItemData(0, "Basic mode without pre-processing.", Qt::ToolTipRole);
-    comboBox->addItem("PREFILTER_XSOBEL", cv::gpu::StereoBM_GPU::PREFILTER_XSOBEL);
+    comboBox->addItem("NONE", cv::StereoBM::PREFILTER_NORMALIZED_RESPONSE);
+    comboBox->setItemData(0, "Basic mode without pre-filtering.", Qt::ToolTipRole);
+    comboBox->addItem("XSOBEL", cv::StereoBM::PREFILTER_XSOBEL);
     comboBox->setItemData(1, "Sobel pre-filtering mode.", Qt::ToolTipRole);
-    connect(comboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(presetChanged(int)));
-    comboBoxPreset = comboBox;
+    connect(comboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(preFilterTypeChanged(int)));
+    comboBoxPreFilterType = comboBox;
 
     layout->addRow(label, comboBox);
+
+    // Pre-filter cap
+    tooltip = "Truncation value for the pre-filtered image pixels; up to ~31.";
+
+    label = new QLabel("Pre-filter cap", this);
+    label->setToolTip(tooltip);
+
+    spinBox = new QSpinBox(this);
+    spinBox->setKeyboardTracking(false);
+    spinBox->setRange(1, 63);
+    connect(spinBox, SIGNAL(valueChanged(int)), method, SLOT(setPreFilterCap(int)));
+    spinBoxPreFilterCap = spinBox;
+
+    layout->addRow(label, spinBox);
 
     // Separator
     line = new QFrame(this);
@@ -125,7 +139,8 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
 
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
-    spinBox->setRange(2, 9999);
+    spinBox->setRange(3, 63);
+    spinBox->setSingleStep(2); // Must not be divisible by 2
     connect(spinBox, SIGNAL(valueChanged(int)), method, SLOT(setWindowSize(int)));
     spinBoxWindowSize = spinBox;
 
@@ -155,9 +170,9 @@ MethodWidget::~MethodWidget ()
 {
 }
 
-void MethodWidget::presetChanged (int index)
+void MethodWidget::preFilterTypeChanged (int index)
 {
-    method->setPreset(comboBoxPreset->itemData(index).toInt());
+    method->setPreFilterType(comboBoxPreFilterType->itemData(index).toInt());
 }
 
 
@@ -165,10 +180,15 @@ void MethodWidget::updateParameters ()
 {
     bool oldState;
 
-    // Preset
-    oldState = comboBoxPreset->blockSignals(true);
-    comboBoxPreset->setCurrentIndex(comboBoxPreset->findData(method->getPreset()));
-    comboBoxPreset->blockSignals(oldState);
+    // Pre-filter type
+    oldState = comboBoxPreFilterType->blockSignals(true);
+    comboBoxPreFilterType->setCurrentIndex(comboBoxPreFilterType->findData(method->getPreFilterType()));
+    comboBoxPreFilterType->blockSignals(oldState);
+
+    // Pre-filter cap
+    oldState = spinBoxPreFilterCap->blockSignals(true);
+    spinBoxPreFilterCap->setValue(method->getPreFilterCap());
+    spinBoxPreFilterCap->blockSignals(oldState);
 
 
     // Num. disparities

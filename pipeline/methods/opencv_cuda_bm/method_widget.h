@@ -1,5 +1,5 @@
 /*
- * OpenCV GPU Block Matching: plugin
+ * OpenCV CUDA Block Matching: config widget
  * Copyright (C) 2013 Rok Mandeljc
  * 
  * This program is free software: you can redistribute it and/or modify
@@ -17,34 +17,40 @@
  * 
  */
 
-#include <plugin_factory.h>
-#include "method.h"
+#ifndef STEREO_METHOD_BLOCK_MATCHING_CUDA_CONFIG_WIDGET_H
+#define STEREO_METHOD_BLOCK_MATCHING_CUDA_CONFIG_WIDGET_H
 
-using namespace StereoMethodBlockMatchingGPU;
+#include <QtWidgets>
 
 
-class Plugin : public QObject, PluginFactory
+namespace StereoMethodBlockMatchingCUDA {
+
+class Method;
+
+class MethodWidget : public QWidget
 {
     Q_OBJECT
-    Q_PLUGIN_METADATA(IID "mvl-stereo-toolbox.Plugin.StereoMethod.OpenCV_BM_GPU")
-    Q_INTERFACES(PluginFactory)
     
-    PluginType getPluginType () const {
-        return PluginStereoMethod;
-    }
-    
-    QString getShortName () const {
-        return "BM_GPU";
-    }
-    
-    QString getDescription () const {
-        return "OpenCV GPU Block Matching";
-    }
-    
-    QObject *createObject (QObject *parent = 0) const {
-        return new Method(parent);
-    }
+public:
+    MethodWidget (Method *, QWidget * = 0);
+    virtual ~MethodWidget ();
+
+protected slots:
+    void preFilterTypeChanged (int);
+
+    void updateParameters ();
+
+protected:
+    Method *method;
+
+    QPushButton *buttonDefaults;
+    QComboBox *comboBoxPreFilterType;
+    QSpinBox *spinBoxPreFilterCap;
+    QSpinBox *spinBoxNumDisparities;
+    QSpinBox *spinBoxWindowSize;
+    QDoubleSpinBox *spinBoxAverageTextureThreshold;
 };
 
-// Because we have Q_OBJECT in source file
-#include "plugin.moc"
+}
+
+#endif

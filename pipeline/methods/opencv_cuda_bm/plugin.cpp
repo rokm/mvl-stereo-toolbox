@@ -1,5 +1,5 @@
 /*
- * OpenCV GPU Block Matching: config widget
+ * OpenCV CUDA Block Matching: plugin
  * Copyright (C) 2013 Rok Mandeljc
  * 
  * This program is free software: you can redistribute it and/or modify
@@ -17,39 +17,34 @@
  * 
  */
 
-#ifndef STEREO_METHOD_BLOCK_MATCHING_GPU_CONFIG_WIDGET_H
-#define STEREO_METHOD_BLOCK_MATCHING_GPU_CONFIG_WIDGET_H
+#include <plugin_factory.h>
+#include "method.h"
 
-#include <QtWidgets>
+using namespace StereoMethodBlockMatchingCUDA;
 
 
-namespace StereoMethodBlockMatchingGPU {
-
-class Method;
-
-class MethodWidget : public QWidget
+class Plugin : public QObject, PluginFactory
 {
     Q_OBJECT
+    Q_PLUGIN_METADATA(IID "mvl-stereo-toolbox.Plugin.StereoMethod.OpenCV_BM_CUDA")
+    Q_INTERFACES(PluginFactory)
     
-public:
-    MethodWidget (Method *, QWidget * = 0);
-    virtual ~MethodWidget ();
-
-protected slots:
-    void presetChanged (int);
-
-    void updateParameters ();
-
-protected:
-    Method *method;
-
-    QPushButton *buttonDefaults;
-    QComboBox *comboBoxPreset;
-    QSpinBox *spinBoxNumDisparities;
-    QSpinBox *spinBoxWindowSize;
-    QDoubleSpinBox *spinBoxAverageTextureThreshold;
+    PluginType getPluginType () const {
+        return PluginStereoMethod;
+    }
+    
+    QString getShortName () const {
+        return "BM_CUDA";
+    }
+    
+    QString getDescription () const {
+        return "OpenCV CUDA Block Matching";
+    }
+    
+    QObject *createObject (QObject *parent = 0) const {
+        return new Method(parent);
+    }
 };
 
-}
-
-#endif
+// Because we have Q_OBJECT in source file
+#include "plugin.moc"
