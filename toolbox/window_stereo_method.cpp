@@ -294,7 +294,7 @@ void WindowStereoMethod::fillVisualizationMethods ()
     } methods[] = {
         { StereoPipeline::DisparityVisualizationNone, "None", "No visualization." },
         { StereoPipeline::DisparityVisualizationGrayscale, "Grayscale", "Grayscale." },
-        { StereoPipeline::DisparityVisualizationColorGpu, "Color (GPU)", "HSV color (GPU)." },
+        { StereoPipeline::DisparityVisualizationColorCuda, "Color (CUDA)", "HSV color (CUDA)." },
         { StereoPipeline::DisparityVisualizationColorCpu, "Color (CPU)", "HSV color (CPU)." },
     };
 

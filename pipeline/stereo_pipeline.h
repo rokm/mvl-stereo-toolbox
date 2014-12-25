@@ -83,7 +83,7 @@ public:
     enum DisparityVisualization {
         DisparityVisualizationNone,
         DisparityVisualizationGrayscale,
-        DisparityVisualizationColorGpu,
+        DisparityVisualizationColorCuda,
         DisparityVisualizationColorCpu
     };
 

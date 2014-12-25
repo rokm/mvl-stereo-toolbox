@@ -25,10 +25,11 @@
 #include "stereo_method.h"
 #include "stereo_reprojection.h"
 
+#include <opencv2/opencv_modules.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 
-#ifdef HAVE_OPENCV_GPU
-#include <opencv2/gpu/gpu.hpp>
+#ifdef HAVE_OPENCV_CUDASTEREO
+#include <opencv2/cudastereo.hpp>
 #endif
 
 
@@ -71,10 +72,10 @@ StereoPipeline::StereoPipeline (QObject *parent)
     // Create list of supported visualization methods
     supportedDisparityVisualizationMethods.append(DisparityVisualizationNone);
     supportedDisparityVisualizationMethods.append(DisparityVisualizationGrayscale);
-#ifdef HAVE_OPENCV_GPU
+#ifdef HAVE_OPENCV_CUDASTEREO
     try {
-        if (cv::gpu::getCudaEnabledDeviceCount()) {
-            supportedDisparityVisualizationMethods.append(DisparityVisualizationColorGpu);
+        if (cv::cuda::getCudaEnabledDeviceCount()) {
+            supportedDisparityVisualizationMethods.append(DisparityVisualizationColorCuda);
         }
     } catch (...) {
         // Nothing to do :)
@@ -103,9 +104,9 @@ StereoPipeline::~StereoPipeline ()
 // *********************************************************************
 int StereoPipeline::getNumberOfGpuDevices ()
 {
-#ifdef HAVE_OPENCV_GPU
+#ifdef HAVE_OPENCV_CUDA
     try {
-        return cv::gpu::getCudaEnabledDeviceCount();
+        return cv::cuda::getCudaEnabledDeviceCount();
     } catch (...) {
         return 0;
     }
@@ -117,10 +118,10 @@ int StereoPipeline::getNumberOfGpuDevices ()
 
 void StereoPipeline::setGpuDevice (int dev)
 {
-#ifdef HAVE_OPENCV_GPU
+#ifdef HAVE_OPENCV_CUDA
     try {
-        cv::gpu::setDevice(dev);
-        cv::gpu::GpuMat mat(4, 4, CV_32FC1); // Create a dummy matrix to initialize GPU
+        cv::cuda::setDevice(dev);
+        cv::cuda::GpuMat mat(4, 4, CV_32FC1); // Create a dummy matrix to initialize GPU
     } catch (...) {
     }
 #endif
@@ -128,8 +129,8 @@ void StereoPipeline::setGpuDevice (int dev)
 
 int StereoPipeline::getGpuDevice () const
 {
-#ifdef HAVE_OPENCV_GPU
-    return cv::gpu::getDevice();
+#ifdef HAVE_OPENCV_CUDA
+    return cv::cuda::getDevice();
 #else
     return -1;
 #endif
@@ -518,15 +519,15 @@ void StereoPipeline::computeDisparityImageVisualization ()
             disparityImage.convertTo(disparityVisualizationImage, CV_8U, 255.0/disparityLevels);
             break;
         }
-#ifdef HAVE_OPENCV_GPU
-        case DisparityVisualizationColorGpu: {
+#ifdef HAVE_OPENCV_CUDASTEREO
+        case DisparityVisualizationColorCuda: {
             try {
                 // Hue-color-coded disparity
-                cv::gpu::GpuMat gpu_disp(disparityImage);
-                cv::gpu::GpuMat gpu_disp_color;
+                cv::cuda::GpuMat gpu_disp(disparityImage);
+                cv::cuda::GpuMat gpu_disp_color;
                 cv::Mat disp_color;
 
-                cv::gpu::drawColorDisp(gpu_disp, gpu_disp_color, disparityLevels);
+                cv::cuda::drawColorDisp(gpu_disp, gpu_disp_color, disparityLevels);
                 gpu_disp_color.download(disparityVisualizationImage);
             } catch (...) {
                 // The above calls can fail

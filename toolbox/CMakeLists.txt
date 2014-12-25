@@ -15,10 +15,6 @@ include_directories(${OpenCV_INCLUDE_DIRS})
 
 add_definitions(-DTOOLBOX_VERSION="${TOOLBOX_VERSION}")
 
-if(OPENCV_GPU_FOUND)
-    add_definitions(-DHAVE_OPENCV_GPU)
-endif()
-
 set(toolbox_SOURCES
     calibration_wizard.cpp
     image_display_widget.cpp

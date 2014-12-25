@@ -23,10 +23,6 @@
 #include <QtWidgets>
 #include <opencv2/core/core.hpp>
 
-#ifdef HAVE_OPENCV_GPU
-#include <opencv2/gpu/gpu.hpp>
-#endif
-
 
 // *********************************************************************
 // *                       Image display widget                        *
