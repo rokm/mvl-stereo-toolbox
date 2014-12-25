@@ -26,11 +26,10 @@ using namespace StereoMethodBlockMatching;
 
 
 Method::Method (QObject *parent)
-    : QObject(parent), StereoMethod()
+    : QObject(parent), StereoMethod(),
+      bm(cv::createStereoBM()),
+      imageWidth(640)
 {
-    // Default image width, used to compute optimal parameters
-    imageWidth = 640;
-
     usePreset(OpenCV);
 }
 
@@ -63,23 +62,20 @@ void Method::usePreset (int type)
 
     switch (type) {
         case OpenCV: {
-            // OpenCV (the method does not really use presets)
-            bm = cv::StereoBM(cv::StereoBM::BASIC_PRESET);
+            // OpenCV 
             break;
         }
         case StereoMatch: {
             // "Stereo match" example
-            bm = cv::StereoBM();
-
-            bm.state->preFilterCap = 31;
-            bm.state->SADWindowSize = 9;
-            bm.state->minDisparity = 0;
-            bm.state->numberOfDisparities = ((imageWidth/8) + 15) & -16;
-            bm.state->textureThreshold = 10;
-            bm.state->uniquenessRatio = 15;
-            bm.state->speckleWindowSize = 100;
-            bm.state->speckleRange = 32;
-            bm.state->disp12MaxDiff = 1;
+            bm->setPreFilterCap(31);
+            bm->setBlockSize(9);
+            bm->setMinDisparity(0);
+            bm->setNumDisparities(((imageWidth/8) + 15) & -16);
+            bm->setTextureThreshold(10);
+            bm->setUniquenessRatio(15);
+            bm->setSpeckleWindowSize(100);
+            bm->setSpeckleRange(32);
+            bm->setDisp12MaxDiff(1);
 
             break;
         }
@@ -115,7 +111,7 @@ void Method::computeDisparityImage (const cv::Mat &img1, const cv::Mat &img2, cv
     tmpDisparity.create(img1.rows, img1.cols, CV_16SC1);
 
     QMutexLocker locker(&mutex);
-    bm(tmpImg1, tmpImg2, tmpDisparity);
+    bm->compute(tmpImg1, tmpImg2, tmpDisparity);
     locker.unlock();
 
     // Normalize to output
@@ -154,24 +150,24 @@ void Method::loadParameters (const QString &filename)
     }
 
     // Load parameters
-    bm = cv::StereoBM();
+    QMutexLocker locker(&mutex);
 
-    storage["PreFilterType"] >> bm.state->preFilterType;
-    storage["PreFilterSize"] >> bm.state->preFilterSize;
-    storage["PreFilterCap"] >> bm.state->preFilterCap;
+    bm->setPreFilterType((int)storage["PreFilterType"]);
+    bm->setPreFilterSize((int)storage["PreFilterSize"]);
+    bm->setPreFilterCap((int)storage["PreFilterCap"]);
 
-    storage["SADWindowSize"] >> bm.state->SADWindowSize;
-    storage["MinDisparity"] >> bm.state->minDisparity;
-    storage["NumDisparities"] >> bm.state->numberOfDisparities;
+    bm->setBlockSize((int)storage["SADWindowSize"]);
+    bm->setMinDisparity((int)storage["MinDisparity"]);
+    bm->setNumDisparities((int)storage["NumDisparities"]);
+    
+    bm->setTextureThreshold((int)storage["TextureThreshold"]);
+    bm->setUniquenessRatio((int)storage["UniquenessRatio"]);
+    bm->setSpeckleWindowSize((int)storage["SpeckleWindowSize"]);
+    bm->setSpeckleRange((int)storage["SpeckleRange"]);
+    
+    bm->setDisp12MaxDiff((int)storage["Disp12MaxDiff"]);
 
-    storage["TextureThreshold"] >> bm.state->textureThreshold;
-    storage["UniquenessRatio"] >> bm.state->uniquenessRatio;
-    storage["SpeckleWindowSize"] >> bm.state->speckleWindowSize;
-    storage["SpeckleRange"] >> bm.state->speckleRange;
-
-    storage["TrySmallerWindows"] >> bm.state->trySmallerWindows;
-
-    storage["Disp12MaxDiff"] >> bm.state->disp12MaxDiff;
+    locker.unlock();
 
     emit parameterChanged();
 }
@@ -190,22 +186,20 @@ void Method::saveParameters (const QString &filename) const
     storage << "MethodName" << getShortName().toStdString();
 
     // Save parameters
-    storage << "PreFilterType" << bm.state->preFilterType;
-    storage << "PreFilterSize" << bm.state->preFilterSize;
-    storage << "PreFilterCap" << bm.state->preFilterCap;
+    storage << "PreFilterType" << bm->getPreFilterType();
+    storage << "PreFilterSize" << bm->getPreFilterSize();
+    storage << "PreFilterCap" << bm->getPreFilterCap();
 
-    storage << "SADWindowSize" << bm.state->SADWindowSize;
-    storage << "MinDisparity" << bm.state->minDisparity;
-    storage << "NumDisparities" << bm.state->numberOfDisparities;
+    storage << "SADWindowSize" << bm->getBlockSize();
+    storage << "MinDisparity" << bm->getMinDisparity();
+    storage << "NumDisparities" << bm->getNumDisparities();
 
-    storage << "TextureThreshold" << bm.state->textureThreshold;
-    storage << "UniquenessRatio" << bm.state->uniquenessRatio;
-    storage << "SpeckleWindowSize" << bm.state->speckleWindowSize;
-    storage << "SpeckleRange" << bm.state->speckleRange;
+    storage << "TextureThreshold" << bm->getTextureThreshold();
+    storage << "UniquenessRatio" << bm->getUniquenessRatio();
+    storage << "SpeckleWindowSize" << bm->getSpeckleWindowSize();
+    storage << "SpeckleRange" << bm->getSpeckleRange();
 
-    storage << "TrySmallerWindows" << bm.state->trySmallerWindows;
-
-    storage << "Disp12MaxDiff" << bm.state->disp12MaxDiff;
+    storage << "Disp12MaxDiff" << bm->getDisp12MaxDiff();
 }
 
 
@@ -215,23 +209,28 @@ void Method::saveParameters (const QString &filename) const
 // Pre-filter type
 int Method::getPreFilterType () const
 {
-    return bm.state->preFilterType;
+    return bm->getPreFilterType();
 }
 
 void Method::setPreFilterType (int newValue)
 {
     // Validate
-    if (newValue != CV_STEREO_BM_NORMALIZED_RESPONSE && newValue != CV_STEREO_BM_XSOBEL) {
-        newValue = CV_STEREO_BM_NORMALIZED_RESPONSE;
+    if (newValue != cv::StereoBM::PREFILTER_NORMALIZED_RESPONSE && newValue != cv::StereoBM::PREFILTER_XSOBEL) {
+        newValue = cv::StereoBM::PREFILTER_NORMALIZED_RESPONSE;
     }
 
-    setParameter(bm.state->preFilterType, newValue);
+    // Set
+    QMutexLocker locker(&mutex);
+    bm->setPreFilterType(newValue);
+    locker.unlock();
+        
+    emit parameterChanged();
 }
 
 // Pre-filter size
 int Method::getPreFilterSize () const
 {
-    return bm.state->preFilterSize;
+    return bm->getPreFilterSize();
 }
 
 void Method::setPreFilterSize (int newValue)
@@ -240,13 +239,18 @@ void Method::setPreFilterSize (int newValue)
     newValue += !(newValue % 2); // Must be odd
     newValue = qBound(5, newValue, 255);
 
-    setParameter(bm.state->preFilterSize, newValue);
+    // Set
+    QMutexLocker locker(&mutex);
+    bm->setPreFilterSize(newValue);
+    locker.unlock();
+        
+    emit parameterChanged();
 }
 
 // Pre-filter clipping
 int Method::getPreFilterCap () const
 {
-    return bm.state->preFilterCap;
+    return bm->getPreFilterCap();
 }
 
 void Method::setPreFilterCap (int newValue)
@@ -254,14 +258,19 @@ void Method::setPreFilterCap (int newValue)
     // Validate
     newValue = qBound(1, newValue, 63);
 
-    setParameter(bm.state->preFilterCap, newValue);
+    // Set
+    QMutexLocker locker(&mutex);
+    bm->setPreFilterCap(newValue);
+    locker.unlock();
+        
+    emit parameterChanged();
 }
 
 
 // Sum-of-absolute difference window size
 int Method::getSADWindowSize () const
 {
-    return bm.state->SADWindowSize;
+    return bm->getBlockSize();
 }
 
 void Method::setSADWindowSize (int newValue)
@@ -270,24 +279,34 @@ void Method::setSADWindowSize (int newValue)
     newValue += !(newValue % 2); // Must be odd
     newValue = qBound(5, newValue, 255);
 
-    setParameter(bm.state->SADWindowSize, newValue);
+    // Set
+    QMutexLocker locker(&mutex);
+    bm->setBlockSize(newValue);
+    locker.unlock();
+        
+    emit parameterChanged();
 }
 
 // Minimum disparity
 int Method::getMinDisparity () const
 {
-    return bm.state->minDisparity;
+    return bm->getMinDisparity();
 }
 
 void Method::setMinDisparity (int newValue)
 {
-    setParameter(bm.state->minDisparity, newValue);
+    // Set
+    QMutexLocker locker(&mutex);
+    bm->setMinDisparity(newValue);
+    locker.unlock();
+        
+    emit parameterChanged();
 }
 
 // Number of disparity levels
 int Method::getNumDisparities () const
 {
-    return bm.state->numberOfDisparities;
+    return bm->getNumDisparities();
 }
 
 void Method::setNumDisparities (int newValue)
@@ -296,19 +315,29 @@ void Method::setNumDisparities (int newValue)
     newValue = qRound(newValue / 16.0) * 16; // Must be divisible by 16
     newValue = qMax(16, newValue);
 
-    setParameter(bm.state->numberOfDisparities, newValue);
+    // Set
+    QMutexLocker locker(&mutex);
+    bm->setNumDisparities(newValue);
+    locker.unlock();
+        
+    emit parameterChanged();
 }
 
 
 // Post-filtering texture threshold
 int Method::getTextureThreshold () const
 {
-    return bm.state->textureThreshold;
+    return bm->getTextureThreshold();
 }
 
 void Method::setTextureThreshold (int newValue)
 {
-    setParameter(bm.state->textureThreshold, newValue);
+    // Set
+    QMutexLocker locker(&mutex);
+    bm->setTextureThreshold(newValue);
+    locker.unlock();
+        
+    emit parameterChanged();
 }
 
 // Uniqueness ratio; accept disparity d* only if:
@@ -316,54 +345,63 @@ void Method::setTextureThreshold (int newValue)
 // for any d!) d* +/- 1 within the search range
 int Method::getUniquenessRatio () const
 {
-    return bm.state->uniquenessRatio;
+    return bm->getUniquenessRatio();
 }
 
 void Method::setUniquenessRatio (int newValue)
 {
-    setParameter(bm.state->uniquenessRatio, newValue);
+    // Set
+    QMutexLocker locker(&mutex);
+    bm->setUniquenessRatio(newValue);
+    locker.unlock();
+        
+    emit parameterChanged();
 }
 
 // Disparity variantion window
 int Method::getSpeckleWindowSize () const
 {
-    return bm.state->speckleWindowSize;
+    return bm->getSpeckleWindowSize();
 }
 
 void Method::setSpeckleWindowSize (int newValue)
 {
-    setParameter(bm.state->speckleWindowSize, newValue);
+    // Set
+    QMutexLocker locker(&mutex);
+    bm->setSpeckleWindowSize(newValue);
+    locker.unlock();
+        
+    emit parameterChanged();
 }
 
 // Acceptable range of variation in window
 int Method::getSpeckleRange () const
 {
-    return bm.state->speckleRange;
+    return bm->getSpeckleRange();
 }
 
 void Method::setSpeckleRange (int newValue)
 {
-    setParameter(bm.state->speckleRange, newValue);
-}
-
-// Whether to try smaller windows or not (more accurate results, but slower)
-bool Method::getTrySmallerWindows () const
-{
-    return bm.state->trySmallerWindows;
-}
-
-void Method::setTrySmallerWindows (bool newValue)
-{
-    setParameter(bm.state->trySmallerWindows, (int)newValue);
+    // Set
+    QMutexLocker locker(&mutex);
+    bm->setSpeckleRange(newValue);
+    locker.unlock();
+        
+    emit parameterChanged();
 }
 
 // Disp12MaxDiff
 int Method::getDisp12MaxDiff () const
 {
-    return bm.state->disp12MaxDiff;
+    return bm->getDisp12MaxDiff();
 }
 
 void Method::setDisp12MaxDiff (int newValue)
 {
-    setParameter(bm.state->disp12MaxDiff, newValue);
+    // Set
+    QMutexLocker locker(&mutex);
+    bm->setDisp12MaxDiff(newValue);
+    locker.unlock();
+        
+    emit parameterChanged();
 }

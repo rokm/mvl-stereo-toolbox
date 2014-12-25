@@ -35,7 +35,6 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
     QComboBox *comboBox;
     QSpinBox *spinBox;
     QFrame *line;
-    QCheckBox *checkBox;
 
     QString tooltip;
 
@@ -90,9 +89,9 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
     label->setToolTip(tooltip);
 
     comboBox = new QComboBox(this);
-    comboBox->addItem("NORMALIZED_RESPONSE", CV_STEREO_BM_NORMALIZED_RESPONSE);
+    comboBox->addItem("NORMALIZED_RESPONSE", cv::StereoBM::PREFILTER_NORMALIZED_RESPONSE);
     comboBox->setItemData(0, "Normalized response filter.", Qt::ToolTipRole);
-    comboBox->addItem("XSOBEL", CV_STEREO_BM_XSOBEL);
+    comboBox->addItem("XSOBEL", cv::StereoBM::PREFILTER_XSOBEL);
     comboBox->setItemData(0, "Sobel filter.", Qt::ToolTipRole);
     connect(comboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(preFilterTypeChanged(int)));
     comboBoxPreFilterType = comboBox;
@@ -252,22 +251,6 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
 
     layout->addRow(line);
 
-    // Try smaller windows
-    tooltip = "If enabled, results may be more accurate, at the expense of slower processing.";
-    
-    checkBox = new QCheckBox("Try smaller windows", this);
-    checkBox->setToolTip(tooltip);
-    connect(checkBox, SIGNAL(toggled(bool)), method, SLOT(setTrySmallerWindows(bool)));
-    checkBoxTrySmallerWindow = checkBox;
-
-    layout->addRow(checkBox);
-
-    // Separator
-    line = new QFrame(this);
-    line->setFrameStyle(QFrame::HLine | QFrame::Sunken);
-
-    layout->addRow(line);
-
     // Disp12MaxDiff
     tooltip = "Maximum allowed difference (in integer pixel units) in the left-right disparity check. \n"
               "Set it to a non-positive value to disable the check.";
@@ -357,12 +340,6 @@ void MethodWidget::updateParameters ()
     spinBoxSpeckleRange->setValue(method->getSpeckleRange());
     spinBoxSpeckleRange->blockSignals(oldState);
     
-
-    // Try smaller windows
-    oldState = checkBoxTrySmallerWindow->blockSignals(true);
-    checkBoxTrySmallerWindow->setChecked(method->getTrySmallerWindows());
-    checkBoxTrySmallerWindow->blockSignals(oldState);
-
     // Disp12 max diff
     oldState = spinBoxDisp12MaxDiff->blockSignals(true);
     spinBoxDisp12MaxDiff->setValue(method->getDisp12MaxDiff());

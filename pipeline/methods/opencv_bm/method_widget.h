@@ -56,7 +56,6 @@ protected:
     QSpinBox *spinBoxUniquenessRatio;
     QSpinBox *spinBoxSpeckleWindowSize;
     QSpinBox *spinBoxSpeckleRange;
-    QCheckBox *checkBoxTrySmallerWindow;
     QSpinBox *spinBoxDisp12MaxDiff;
 };
 

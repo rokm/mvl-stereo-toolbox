@@ -42,18 +42,6 @@ public:
     virtual void loadParameters (const QString &);
     virtual void saveParameters (const QString &) const;
 
-    // Generic parameter setting
-    template <typename T> void setParameter (T &parameter, const T &newValue) {
-        // Set only if necessary
-        if (parameter != newValue) {
-            QMutexLocker locker(&mutex);
-            parameter = newValue;
-            locker.unlock();
-            
-            emit parameterChanged();
-        }
-    }
-
     // Parameters
     int getPreFilterType () const;
     int getPreFilterSize () const;
@@ -67,8 +55,6 @@ public:
     int getUniquenessRatio () const;
     int getSpeckleWindowSize () const;
     int getSpeckleRange () const;
-
-    bool getTrySmallerWindows () const;
 
     int getDisp12MaxDiff () const;
 
@@ -93,9 +79,7 @@ public slots:
     void setUniquenessRatio (int);
     void setSpeckleWindowSize (int);
     void setSpeckleRange (int);
-    
-    void setTrySmallerWindows (bool);
-    
+        
     void setDisp12MaxDiff (int);
 
 signals:
@@ -104,7 +88,7 @@ signals:
 
 protected:
     // Block matcher
-    cv::StereoBM bm;
+    cv::Ptr<cv::StereoBM> bm;
     QMutex mutex;
 
     int imageWidth;
