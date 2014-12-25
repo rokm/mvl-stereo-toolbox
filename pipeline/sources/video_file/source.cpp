@@ -78,27 +78,27 @@ void Source::openVideoFile (const QString &filename)
     }
 
     emit videoFileReadyChanged(true);
-    emit videoPositionChanged(video.get(CV_CAP_PROP_POS_FRAMES), video.get(CV_CAP_PROP_FRAME_COUNT));
+    emit videoPositionChanged(video.get(cv::CAP_PROP_POS_FRAMES), video.get(cv::CAP_PROP_FRAME_COUNT));
 }
 
 int Source::getVideoWidth ()
 {
-    return video.get(CV_CAP_PROP_FRAME_WIDTH);
+    return video.get(cv::CAP_PROP_FRAME_WIDTH);
 }
 
 int Source::getVideoHeight ()
 {
-    return video.get(CV_CAP_PROP_FRAME_HEIGHT);
+    return video.get(cv::CAP_PROP_FRAME_HEIGHT);
 }
 
 float Source::getVideoFps ()
 {
-    return video.get(CV_CAP_PROP_FPS);
+    return video.get(cv::CAP_PROP_FPS);
 }
 
 int Source::getVideoLength ()
 {
-    return video.get(CV_CAP_PROP_FRAME_COUNT);
+    return video.get(cv::CAP_PROP_FRAME_COUNT);
 }
 
 
@@ -131,7 +131,7 @@ void Source::startPlayback ()
 
 void Source::setVideoPosition (int frame)
 {
-    video.set(CV_CAP_PROP_POS_FRAMES, frame);
+    video.set(cv::CAP_PROP_POS_FRAMES, frame);
 
     // Get frame
     playbackFunction();
@@ -150,7 +150,7 @@ void Source::playbackFunction ()
 
     // Decode frame
     video.retrieve(frame);
-    emit videoPositionChanged(video.get(CV_CAP_PROP_POS_FRAMES), video.get(CV_CAP_PROP_FRAME_COUNT));
+    emit videoPositionChanged(video.get(cv::CAP_PROP_POS_FRAMES), video.get(cv::CAP_PROP_FRAME_COUNT));
 
     // Update images
     imagesLock.lockForWrite();
