@@ -2034,8 +2034,8 @@ bool CalibrationWizardPageStereoCalibration::calibrationFunction ()
                                               cameraMatrix1, distCoeffs1,
                                               cameraMatrix2, distCoeffs2,
                                               imageSize, R, T, E, F,
-                                              cv::TermCriteria(cv::TermCriteria::COUNT + cv::TermCriteria::EPS, 100, 1e-6),
-                                              flags);
+                                              flags,
+                                              cv::TermCriteria(cv::TermCriteria::COUNT + cv::TermCriteria::EPS, 100, 1e-6));
     } catch (cv::Exception e) {
         emit error("Calibration failed: " + QString::fromStdString(e.what()));
         return false;
