@@ -62,11 +62,25 @@ void Method::usePreset (int type)
 
     switch (type) {
         case OpenCV: {
-            // OpenCV 
+            // Default OpenCV settings
+            bm->setPreFilterType(cv::StereoBM::PREFILTER_XSOBEL);
+            bm->setPreFilterSize(9);
+            bm->setPreFilterCap(31);
+            bm->setBlockSize(21);
+            bm->setMinDisparity(0);
+            bm->setNumDisparities(64);
+            bm->setTextureThreshold(10);
+            bm->setUniquenessRatio(15);
+            bm->setSpeckleWindowSize(0);
+            bm->setSpeckleRange(0);
+            bm->setDisp12MaxDiff(-1);
+            
             break;
         }
         case StereoMatch: {
             // "Stereo match" example
+            bm->setPreFilterType(cv::StereoBM::PREFILTER_XSOBEL);
+            bm->setPreFilterSize(9);
             bm->setPreFilterCap(31);
             bm->setBlockSize(9);
             bm->setMinDisparity(0);

@@ -26,12 +26,10 @@ using namespace StereoMethodSemiGlobalBlockMatching;
 
 
 Method::Method (QObject *parent)
-    : QObject(parent), StereoMethod()
+    : QObject(parent), StereoMethod(),
+    sgbm(cv::createStereoSGBM(0, 16, 3)),
+    imageWidth(640), imageChannels(1)
 {
-    // Default image width and channels, used to compute optimal parameters
-    imageWidth = 640;
-    imageChannels = 1;
-
     usePreset(OpenCV);
 }
 
@@ -64,27 +62,37 @@ void Method::usePreset (int type)
 
     switch (type) {
         case OpenCV: {
-            // OpenCV
-            sgbm = cv::StereoSGBM();
-            sgbm.numberOfDisparities = ((imageWidth/8) + 15) & -16;
+            // Default OpenCV settings
+            sgbm->setPreFilterCap(0);
+            sgbm->setBlockSize(0);
+
+            sgbm->setP1(0);
+            sgbm->setP2(0);
+            sgbm->setMinDisparity(0);
+            sgbm->setNumDisparities(64);
+            sgbm->setUniquenessRatio(0);
+            sgbm->setSpeckleWindowSize(0);
+            sgbm->setSpeckleRange(0);
+            sgbm->setDisp12MaxDiff(-1);
+            sgbm->setMode(cv::StereoSGBM::MODE_SGBM);
+
             break;
         }
         case StereoMatch: {
             // "Stereo match" example
-            sgbm = cv::StereoSGBM();
+            sgbm->setPreFilterCap(63);
+            sgbm->setBlockSize(3);
 
-            sgbm.preFilterCap = 63;
-            sgbm.SADWindowSize = 3;
-
-            sgbm.P1 = 8*imageChannels*sgbm.SADWindowSize*sgbm.SADWindowSize;
-            sgbm.P2 = 32*imageChannels*sgbm.SADWindowSize*sgbm.SADWindowSize;
-            sgbm.minDisparity = 0;
-            sgbm.numberOfDisparities = ((imageWidth/8) + 15) & -16;
-            sgbm.uniquenessRatio = 10;
-            sgbm.speckleWindowSize = 100;
-            sgbm.speckleRange = 32;
-            sgbm.disp12MaxDiff = 1;
-
+            sgbm->setP1(8*imageChannels*3*3);
+            sgbm->setP2(32*imageChannels*3*3);
+            sgbm->setMinDisparity(0);
+            sgbm->setNumDisparities(((imageWidth/8) + 15) & -16);
+            sgbm->setUniquenessRatio(10);
+            sgbm->setSpeckleWindowSize(100);
+            sgbm->setSpeckleRange(32);
+            sgbm->setDisp12MaxDiff(1);
+            sgbm->setMode(cv::StereoSGBM::MODE_SGBM);
+            
             break;
         }
     };
@@ -105,7 +113,7 @@ void Method::computeDisparityImage (const cv::Mat &img1, const cv::Mat &img2, cv
 
     // Compute disparity image
     QMutexLocker locker(&mutex);
-    sgbm(img1, img2, tmpDisparity);
+    sgbm->compute(img1, img2, tmpDisparity);
     locker.unlock();
 
     // Normalize to output
@@ -140,24 +148,24 @@ void Method::loadParameters (const QString &filename)
     }
 
     // Load parameters
-    sgbm = cv::StereoSGBM();
+    QMutexLocker locker(&mutex);
 
-    storage["MinDisparity"] >> sgbm.minDisparity;
-    storage["NumDisparities"] >> sgbm.numberOfDisparities;
-    storage["SADWindowSize"] >> sgbm.SADWindowSize;
+    sgbm->setMinDisparity((int)storage["MinDisparity"]);
+    sgbm->setNumDisparities((int)storage["NumDisparities"]);
+    sgbm->setBlockSize((int)storage["SADWindowSize"]);
 
-    storage["PreFilterCap"] >> sgbm.preFilterCap;
-    storage["UniquenessRatio"] >> sgbm.uniquenessRatio;
+    sgbm->setPreFilterCap((int)storage["PreFilterCap"]);
+    sgbm->setUniquenessRatio((int)storage["UniquenessRatio"]);
 
-    storage["P1"] >> sgbm.P1;
-    storage["P2"] >> sgbm.P2;
+    sgbm->setP1((int)storage["P1"]);
+    sgbm->setP2((int)storage["P2"]);
 
-    storage["SpeckleWindowSize"] >> sgbm.speckleWindowSize;
-    storage["SpeckleRange"] >> sgbm.speckleRange;
+    sgbm->setSpeckleWindowSize((int)storage["SpeckleWindowSize"]);
+    sgbm->setSpeckleRange((int)storage["SpeckleRange"]);
 
-    storage["Disp12MaxDiff"] >> sgbm.disp12MaxDiff;
+    sgbm->setDisp12MaxDiff((int)storage["Disp12MaxDiff"]);
 
-    storage["FullDP"] >> sgbm.fullDP;
+    sgbm->setMode((int)storage["Mode"]);
 
     emit parameterChanged();
 }
@@ -174,23 +182,24 @@ void Method::saveParameters (const QString &filename) const
 
     // Store method name, so it can be validate upon loading
     storage << "MethodName" << getShortName().toStdString();
+    
     // Save parameters
-    storage << "MinDisparity" << sgbm.minDisparity;
-    storage << "NumDisparities" << sgbm.numberOfDisparities;
-    storage << "SADWindowSize" << sgbm.SADWindowSize;
+    storage << "MinDisparity" << sgbm->getMinDisparity();
+    storage << "NumDisparities" << sgbm->getNumDisparities();
+    storage << "SADWindowSize" << sgbm->getBlockSize();
 
-    storage << "PreFilterCap" << sgbm.preFilterCap;
-    storage << "UniquenessRatio" << sgbm.uniquenessRatio;
+    storage << "PreFilterCap" << sgbm->getPreFilterCap();
+    storage << "UniquenessRatio" << sgbm->getUniquenessRatio();
 
-    storage << "P1" << sgbm.P1;
-    storage << "P2" << sgbm.P2;
+    storage << "P1" << sgbm->getP1();
+    storage << "P2" << sgbm->getP2();
 
-    storage << "SpeckleWindowSize" << sgbm.speckleWindowSize;
-    storage << "SpeckleRange" << sgbm.speckleRange;
+    storage << "SpeckleWindowSize" << sgbm->getSpeckleWindowSize();
+    storage << "SpeckleRange" << sgbm->getSpeckleRange();
 
-    storage << "Disp12MaxDiff" << sgbm.disp12MaxDiff;
+    storage << "Disp12MaxDiff" << sgbm->getDisp12MaxDiff();
 
-    storage << "FullDP" << sgbm.fullDP;
+    storage << "Mode" << sgbm->getMode();
 }
 
 
@@ -200,18 +209,23 @@ void Method::saveParameters (const QString &filename) const
 // Minimum disparity
 int Method::getMinDisparity () const
 {
-    return sgbm.minDisparity;
+    return sgbm->getMinDisparity();
 }
 
 void Method::setMinDisparity (int newValue)
 {
-    setParameter(sgbm.minDisparity, newValue);
+    // Set
+    QMutexLocker locker(&mutex);
+    sgbm->setMinDisparity(newValue);
+    locker.unlock();
+
+    emit parameterChanged();
 }
 
 // Number of diparity levels
 int Method::getNumDisparities () const
 {
-    return sgbm.numberOfDisparities;
+    return sgbm->getNumDisparities();
 }
 
 void Method::setNumDisparities (int newValue)
@@ -220,29 +234,44 @@ void Method::setNumDisparities (int newValue)
     newValue = qRound(newValue / 16.0) * 16; // Must be divisible by 16
     newValue = qMax(16, newValue);
 
-    setParameter(sgbm.numberOfDisparities, newValue);
+    // Set
+    QMutexLocker locker(&mutex);
+    sgbm->setNumDisparities(newValue);
+    locker.unlock();
+
+    emit parameterChanged();
 }
 
 // Sum-of-absolute difference window size
 int Method::getSADWindowSize () const
 {
-    return sgbm.SADWindowSize;
+    return sgbm->getBlockSize();
 }
 
 void Method::setSADWindowSize (int newValue)
 {
-    setParameter(sgbm.SADWindowSize, newValue);
+    // Set
+    QMutexLocker locker(&mutex);
+    sgbm->setBlockSize(newValue);
+    locker.unlock();
+
+    emit parameterChanged();
 }
 
 // Pre-filter clipping
 int Method::getPreFilterCap () const
 {
-    return sgbm.preFilterCap;
+    return sgbm->getPreFilterCap();
 }
 
 void Method::setPreFilterCap (int newValue)
 {
-    setParameter(sgbm.preFilterCap, newValue);
+    // Set
+    QMutexLocker locker(&mutex);
+    sgbm->setPreFilterCap(newValue);
+    locker.unlock();
+
+    emit parameterChanged();
 }
 
 
@@ -251,78 +280,117 @@ void Method::setPreFilterCap (int newValue)
 // for any d!) d* +/- 1 within the search range
 int Method::getUniquenessRatio () const
 {
-    return sgbm.uniquenessRatio;
+    return sgbm->getUniquenessRatio();
 }
 
 void Method::setUniquenessRatio (int newValue)
 {
-    setParameter(sgbm.uniquenessRatio, newValue);
+    // Set
+    QMutexLocker locker(&mutex);
+    sgbm->setUniquenessRatio(newValue);
+    locker.unlock();
+
+    emit parameterChanged();
 }
 
 // P1
 int Method::getP1 () const
 {
-    return sgbm.P1;
+    return sgbm->getP1();
 }
 
 void Method::setP1 (int newValue)
 {
-    setParameter(sgbm.P1, newValue);
+    // Set
+    QMutexLocker locker(&mutex);
+    sgbm->setP1(newValue);
+    locker.unlock();
+
+    emit parameterChanged();
 }
 
 // P2
 int Method::getP2 () const
 {
-    return sgbm.P2;
+    return sgbm->getP2();
 }
 
 void Method::setP2 (int newValue)
 {
-    setParameter(sgbm.P2, newValue);
+    // Set
+    QMutexLocker locker(&mutex);
+    sgbm->setP2(newValue);
+    locker.unlock();
+
+    emit parameterChanged();
 }
 
 // Disparity variantion window
 int Method::getSpeckleWindowSize () const
 {
-    return sgbm.speckleWindowSize;
+    return sgbm->getSpeckleWindowSize();
 }
 
 void Method::setSpeckleWindowSize (int newValue)
 {
-    setParameter(sgbm.speckleWindowSize, newValue);
+    // Set
+    QMutexLocker locker(&mutex);
+    sgbm->setSpeckleWindowSize(newValue);
+    locker.unlock();
+
+    emit parameterChanged();
 }
 
 // Acceptable range of variation in window
 int Method::getSpeckleRange () const
 {
-    return sgbm.speckleRange;
+    return sgbm->getSpeckleRange();
 }
 
 void Method::setSpeckleRange (int newValue)
 {
-    setParameter(sgbm.speckleRange, newValue);
+    // Set
+    QMutexLocker locker(&mutex);
+    sgbm->setSpeckleRange(newValue);
+    locker.unlock();
+
+    emit parameterChanged();
 }
 
 // Disp12MaxDiff
 int Method::getDisp12MaxDiff () const
 {
-    return sgbm.disp12MaxDiff;
+    return sgbm->getDisp12MaxDiff();
 }
 
 void Method::setDisp12MaxDiff (int newValue)
 {
-    setParameter(sgbm.disp12MaxDiff, newValue);
+    // Set
+    QMutexLocker locker(&mutex);
+    sgbm->setDisp12MaxDiff(newValue);
+    locker.unlock();
+
+    emit parameterChanged();
 }
 
 
-// FullDP - double pass? If set to true, method becomes called "HH" in
-// stereo match OpenCV example; otherwise, it is SGBM
-bool Method::getFullDP () const
+// Mode: single-pass (5 directions) or full (8 directions)
+int Method::getMode () const
 {
-    return sgbm.fullDP;
+    return sgbm->getMode();
 }
 
-void Method::setFullDP (bool newValue)
+void Method::setMode (int newValue)
 {
-    setParameter(sgbm.fullDP, newValue);
+    // Validate
+    if (newValue != cv::StereoSGBM::MODE_SGBM && newValue != cv::StereoSGBM::MODE_HH) {
+        newValue = cv::StereoSGBM::MODE_SGBM;
+    }
+    
+    // Set
+    QMutexLocker locker(&mutex);
+    sgbm->setMode(newValue);
+    locker.unlock();
+
+    emit parameterChanged();
 }

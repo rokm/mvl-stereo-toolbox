@@ -37,6 +37,7 @@ public:
 
 protected slots:
     void presetChanged (int);
+    void modeChanged (int);
     
     void updateParameters ();
 
@@ -54,7 +55,7 @@ protected:
     QSpinBox *spinBoxSpeckleWindowSize;
     QSpinBox *spinBoxSpeckleRange;
     QSpinBox *spinBoxDisp12MaxDiff;
-    QCheckBox *checkBoxFullDP;
+    QComboBox *comboBoxMode;
 };
 
 }

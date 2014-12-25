@@ -35,7 +35,6 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
     QComboBox *comboBox;
     QSpinBox *spinBox;
     QFrame *line;
-    QCheckBox *checkBox;
     QString tooltip;
 
     // Name
@@ -262,16 +261,22 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
 
     layout->addRow(line);
 
-    // Full DP
-    tooltip = "Set it to true to run the full-scale two-pass dynamic programming algorithm. It will consume \n"
-              "O(W*H*numDisparities) bytes, which is large for 640x480 stereo and huge for HD-size pictures.";
+    // Mode
+    tooltip = "Set to either single-pass (MODE_SGBM) or the full-scale two-pass dynamic programming algorithm (MODE_HH).\n"
+              "The latter will consume O(W*H*numDisparities) bytes, which is large for 640x480 stereo and huge for HD-size pictures.";
 
-    checkBox = new QCheckBox("Full DP", this);
-    checkBox->setToolTip(tooltip);
-    connect(checkBox, SIGNAL(toggled(bool)), method, SLOT(setFullDP(bool)));
-    checkBoxFullDP = checkBox;
+    label = new QLabel("Mode", this);
+    label->setToolTip(tooltip);
 
-    layout->addRow(checkBox);
+    comboBox = new QComboBox(this);
+    comboBox->addItem("MODE_SGBM", cv::StereoSGBM::MODE_SGBM);
+    comboBox->setItemData(0, "Single-pass algorithm (5 directions)", Qt::ToolTipRole);
+    comboBox->addItem("MODE_HH", cv::StereoSGBM::MODE_HH);
+    comboBox->setItemData(1, "Two-pass algorithm (8 directions).", Qt::ToolTipRole);
+    connect(comboBox, SIGNAL(activated(int)), this, SLOT(modeChanged(int)));
+    comboBoxMode = comboBox;
+
+    layout->addRow(label, comboBox);
 
     // Update parameters
     updateParameters();
@@ -286,6 +291,10 @@ void MethodWidget::presetChanged (int index)
     method->usePreset(comboBoxPreset->itemData(index).toInt());
 }
 
+void MethodWidget::modeChanged (int index)
+{
+    method->setMode(comboBoxMode->itemData(index).toInt());
+}
 
 void MethodWidget::updateParameters ()
 {
@@ -345,8 +354,8 @@ void MethodWidget::updateParameters ()
     spinBoxDisp12MaxDiff->blockSignals(oldState);
 
 
-    // Full DP
-    oldState = checkBoxFullDP->blockSignals(true);
-    checkBoxFullDP->setChecked(method->getFullDP());
-    checkBoxFullDP->blockSignals(oldState);
+    // Mode
+    oldState = comboBoxMode->blockSignals(true);
+    comboBoxMode->setCurrentIndex(comboBoxMode->findData(method->getMode()));
+    comboBoxMode->blockSignals(oldState);
 }

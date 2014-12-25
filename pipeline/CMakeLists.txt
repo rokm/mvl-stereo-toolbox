@@ -116,7 +116,7 @@ endif()
 
 # OpenCV CPU stereo methods: always build
 add_subdirectory(methods/opencv_bm)
-#add_subdirectory(methods/opencv_sgbm)
+add_subdirectory(methods/opencv_sgbm)
 
 #if(OPENCV_CONTRIB_FOUND)
 #    add_subdirectory(methods/opencv_contrib_var)

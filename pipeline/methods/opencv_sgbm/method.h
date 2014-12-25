@@ -43,18 +43,6 @@ public:
     virtual void loadParameters (const QString &);
     virtual void saveParameters (const QString &) const;
 
-    // Generic parameter setting
-    template <typename T> void setParameter (T &parameter, const T &newValue) {
-        // Set only if necessary
-        if (parameter != newValue) {
-            QMutexLocker locker(&mutex);
-            parameter = newValue;
-            locker.unlock();
-            
-            emit parameterChanged();
-        }
-    }
-    
     // Parameters
     int getMinDisparity () const;
     int getNumDisparities () const;
@@ -71,7 +59,7 @@ public:
 
     int getDisp12MaxDiff () const;
 
-    bool getFullDP () const;
+    int getMode () const;
 
     enum {
         OpenCV,
@@ -96,7 +84,7 @@ public slots:
     
     void setDisp12MaxDiff (int);
 
-    void setFullDP (bool);
+    void setMode (int);
 
 signals:
     // Signals from interface
@@ -104,7 +92,7 @@ signals:
 
 protected:
     // Semi-global block matcher
-    cv::StereoSGBM sgbm;
+    cv::Ptr<cv::StereoSGBM> sgbm;
     QMutex mutex;
 
     int imageWidth;
