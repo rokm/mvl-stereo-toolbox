@@ -39,6 +39,8 @@ set(pipeline_CUDA_SOURCES
 include_directories(${PROJECT_SOURCE_DIR})
 include_directories(${PROJECT_BINARY_DIR})
 
+include_directories(${OpenCV_INCLUDE_DIRS})
+
 # If we have OpenCV with GPU support, enable the following definition
 if(OPENCV_GPU_FOUND)
     add_definitions(-DHAVE_OPENCV_GPU)
