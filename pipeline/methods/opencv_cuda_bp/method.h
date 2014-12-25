@@ -1,5 +1,5 @@
 /*
- * OpenCV GPU Belief Propagation: method
+ * OpenCV CUDA Belief Propagation: method
  * Copyright (C) 2013 Rok Mandeljc
  * 
  * This program is free software: you can redistribute it and/or modify
@@ -17,15 +17,15 @@
  * 
  */
  
-#ifndef STEREO_METHOD_BELIEF_PROPAGATION_GPU_H
-#define STEREO_METHOD_BELIEF_PROPAGATION_GPU_H
+#ifndef STEREO_METHOD_BELIEF_PROPAGATION_CUDA_H
+#define STEREO_METHOD_BELIEF_PROPAGATION_CUDA_H
 
 #include "stereo_method.h"
 
-#include <opencv2/gpu/gpu.hpp>
+#include <opencv2/cudastereo.hpp>
 
 
-namespace StereoMethodBeliefPropagationGPU {
+namespace StereoMethodBeliefPropagationCUDA {
 
 class Method : public QObject, public StereoMethod
 {
@@ -89,7 +89,7 @@ signals:
 
 protected:
     // Block matcher
-    cv::gpu::StereoBeliefPropagation bp;
+    cv::Ptr<cv::cuda::StereoBeliefPropagation> bp;
     QMutex mutex;
 
     cv::Mat tmpDisp;

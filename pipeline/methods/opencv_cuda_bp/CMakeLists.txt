@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.8)
-project(method_opencv_gpu_bp CXX)
+project(method_opencv_cuda_bp CXX)
 
-find_package(OpenCV REQUIRED core gpu)
+find_package(OpenCV REQUIRED core cudastereo)
 find_package(Qt5Core REQUIRED)
 
 set(plugin_name ${PROJECT_NAME})

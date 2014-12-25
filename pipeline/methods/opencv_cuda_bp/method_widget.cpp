@@ -1,5 +1,5 @@
 /*
- * OpenCV GPU Belief Propagation: config widget
+ * OpenCV CUDA Belief Propagation: config widget
  * Copyright (C) 2013 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
@@ -23,7 +23,7 @@
 #include <cfloat>
 #include <climits>
 
-using namespace StereoMethodBeliefPropagationGPU;
+using namespace StereoMethodBeliefPropagationCUDA;
 
 
 MethodWidget::MethodWidget (Method *m, QWidget *parent)

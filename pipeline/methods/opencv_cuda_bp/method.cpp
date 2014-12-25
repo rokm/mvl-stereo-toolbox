@@ -1,5 +1,5 @@
 /*
- * OpenCV GPU Belief Propagation: method
+ * OpenCV CUDA Belief Propagation: method
  * Copyright (C) 2013 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
@@ -20,15 +20,14 @@
 #include "method.h"
 #include "method_widget.h"
 
-using namespace StereoMethodBeliefPropagationGPU;
+using namespace StereoMethodBeliefPropagationCUDA;
 
 
 Method::Method (QObject *parent)
-    : QObject(parent), StereoMethod()
+    : QObject(parent), StereoMethod(),
+      bp(cv::cuda::createStereoBeliefPropagation()),
+      imageWidth(320), imageHeight(240)
 {
-    // Default image width and height, used to compute optimal parameters
-    imageWidth = 320;
-    imageHeight = 240;
 }
 
 Method::~Method ()
@@ -41,7 +40,7 @@ Method::~Method ()
 // *********************************************************************
 QString Method::getShortName () const
 {
-    return "BP_GPU";
+    return "BP_CUDA";
 }
 
 QWidget *Method::createConfigWidget (QWidget *parent)
@@ -61,13 +60,25 @@ void Method::usePreset (int type)
     switch (type) {
         case OpenCVInit: {
             // OpenCV stock
-            bp = cv::gpu::StereoBeliefPropagation();
+            bp->setNumDisparities(64);
+            bp->setNumIters(5);
+            bp->setNumLevels(5);
+            bp->setMaxDataTerm(10.0f);
+            bp->setDataWeight(0.07f);
+            bp->setMaxDiscTerm(1.7f);
+            bp->setDiscSingleJump(1.0f);
+
             break;
         }
         case OpenCVRecommended: {
             // OpenCV recommended parameters estimation
-            bp = cv::gpu::StereoBeliefPropagation();
-            bp.estimateRecommendedParams(imageWidth, imageHeight, bp.ndisp, bp.iters, bp.levels);
+            int ndisp, iters, levels;
+            bp->estimateRecommendedParams(imageWidth, imageHeight, ndisp, iters, levels);
+
+            bp->setNumDisparities(ndisp);
+            bp->setNumIters(iters);
+            bp->setNumLevels(levels);
+            
             break;
         }
     };
@@ -82,7 +93,7 @@ void Method::usePreset (int type)
 // *********************************************************************
 void Method::computeDisparityImage (const cv::Mat &img1, const cv::Mat &img2, cv::Mat &disparity, int &numDisparities)
 {
-    cv::gpu::GpuMat gpu_disp;
+    cv::cuda::GpuMat gpu_disp;
 
     // Store in case user wants to estimate optimal parameters
     imageWidth = img1.cols;
@@ -91,12 +102,12 @@ void Method::computeDisparityImage (const cv::Mat &img1, const cv::Mat &img2, cv
     if (1) {
         // Make sure that GPU matrices are destroyed as soon as they are
         // not needed anymore via scoping...
-        cv::gpu::GpuMat gpu_img1(img1);
-        cv::gpu::GpuMat gpu_img2(img2);
+        cv::cuda::GpuMat gpu_img1(img1);
+        cv::cuda::GpuMat gpu_img2(img2);
 
         // Compute disparity image
         QMutexLocker locker(&mutex);
-        bp(gpu_img1, gpu_img2, gpu_disp);
+        bp->compute(gpu_img1, gpu_img2, gpu_disp);
         locker.unlock();
     }
 
@@ -133,17 +144,19 @@ void Method::loadParameters (const QString &filename)
     }
 
     // Load parameters
-    bp = cv::gpu::StereoBeliefPropagation();
+    QMutexLocker locker(&mutex);
 
-    storage["NumDisparities"] >> bp.ndisp;
+    bp->setNumDisparities((int)storage["NumDisparities"]);
 
-    storage["Iterations"] >> bp.iters;
-    storage["Levels"] >> bp.levels;
+    bp->setNumIters((int)storage["Iterations"]);
+    bp->setNumLevels((int)storage["Levels"]);
 
-    storage["MaxDataTerm"] >> bp.max_data_term;
-    storage["DataWeight"] >> bp.data_weight;
-    storage["MaxDiscTerm"] >> bp.max_disc_term;
-    storage["DiscSingleJump"] >> bp.disc_single_jump;
+    bp->setMaxDataTerm((double)storage["MaxDataTerm"]);
+    bp->setDataWeight((double)storage["DataWeight"]);
+    bp->setMaxDiscTerm((double)storage["MaxDiscTerm"]);
+    bp->setDiscSingleJump((double)storage["DiscSingleJump"]);
+
+    locker.unlock();
 
     emit parameterChanged();
 }
@@ -161,15 +174,15 @@ void Method::saveParameters (const QString &filename) const
     // Store method name, so it can be validate upon loading
     storage << "MethodName" << getShortName().toStdString();
 
-    storage << "NumDisparities" << bp.ndisp;
+    storage << "NumDisparities" << bp->getNumDisparities();
 
-    storage << "Iterations" << bp.iters;
-    storage << "Levels" << bp.levels;
+    storage << "Iterations" << bp->getNumIters();
+    storage << "Levels" << bp->getNumLevels();
 
-    storage << "MaxDataTerm" << bp.max_data_term;
-    storage << "DataWeight" << bp.data_weight;
-    storage << "MaxDiscTerm" << bp.max_disc_term;
-    storage << "DiscSingleJump" << bp.disc_single_jump;
+    storage << "MaxDataTerm" << bp->getMaxDataTerm();
+    storage << "DataWeight" << bp->getDataWeight();
+    storage << "MaxDiscTerm" << bp->getMaxDiscTerm();
+    storage << "DiscSingleJump" << bp->getDiscSingleJump();
 }
 
 
@@ -179,76 +192,111 @@ void Method::saveParameters (const QString &filename) const
 // Number of disparities
 int Method::getNumDisparities () const
 {
-    return bp.ndisp;
+    return bp->getNumDisparities();
 }
 
 void Method::setNumDisparities (int newValue)
 {
-    setParameter(bp.ndisp, newValue);
+    // Set
+    QMutexLocker locker(&mutex);
+    bp->setNumDisparities(newValue);
+    locker.unlock();
+            
+    emit parameterChanged();
 }
 
 // Number of iterations
 int Method::getIterations () const
 {
-    return bp.iters;
+    return bp->getNumIters();
 }
 
 void Method::setIterations (int newValue)
 {
-    setParameter(bp.iters, newValue);
+    // Set
+    QMutexLocker locker(&mutex);
+    bp->setNumIters(newValue);
+    locker.unlock();
+            
+    emit parameterChanged();
 }
 
 // Levels
 int Method::getLevels () const
 {
-    return bp.levels;
+    return bp->getNumLevels();
 }
 
 void Method::setLevels (int newValue)
 {
-    setParameter(bp.levels, newValue);
+    // Set
+    QMutexLocker locker(&mutex);
+    bp->setNumLevels(newValue);
+    locker.unlock();
+            
+    emit parameterChanged();
 }
 
 // Max data term
 double Method::getMaxDataTerm () const
 {
-    return bp.max_data_term;
+    return bp->getMaxDataTerm();
 }
 
 void Method::setMaxDataTerm (double newValue)
 {
-    setParameter(bp.max_data_term, (float)newValue);
+    // Set
+    QMutexLocker locker(&mutex);
+    bp->setMaxDataTerm(newValue);
+    locker.unlock();
+            
+    emit parameterChanged();
 }
 
 // Data weight
 double Method::getDataWeight () const
 {
-    return bp.data_weight;
+    return bp->getDataWeight();
 }
 
 void Method::setDataWeight (double newValue)
 {
-    setParameter(bp.data_weight, (float)newValue);
+    // Set
+    QMutexLocker locker(&mutex);
+    bp->setDataWeight(newValue);
+    locker.unlock();
+            
+    emit parameterChanged();
 }
 
 // Max discontinuity term
 double Method::getMaxDiscTerm () const
 {
-    return bp.max_disc_term;
+    return bp->getMaxDiscTerm();
 }
 
 void Method::setMaxDiscTerm (double newValue)
 {
-    setParameter(bp.max_disc_term, (float)newValue);
+    // Set
+    QMutexLocker locker(&mutex);
+    bp->setMaxDiscTerm(newValue);
+    locker.unlock();
+            
+    emit parameterChanged();
 }
 
 // Single discontinuity jump
 double Method::getDiscSingleJump () const
 {
-    return bp.disc_single_jump;
+    return bp->getDiscSingleJump();
 }
 
 void Method::setDiscSingleJump (double newValue)
 {
-    setParameter(bp.disc_single_jump, (float)newValue);
+    // Set
+    QMutexLocker locker(&mutex);
+    bp->setDiscSingleJump(newValue);
+    locker.unlock();
+            
+    emit parameterChanged();
 }

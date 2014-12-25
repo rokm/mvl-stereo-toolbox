@@ -1,5 +1,5 @@
 /*
- * OpenCV GPU Belief Propagation: config widget
+ * OpenCV CUDA Belief Propagation: config widget
  * Copyright (C) 2013 Rok Mandeljc
  * 
  * This program is free software: you can redistribute it and/or modify
@@ -17,13 +17,13 @@
  * 
  */
  
-#ifndef STEREO_METHOD_BELIEF_PROPAGATION_GPU_CONFIG_WIDGET_H
-#define STEREO_METHOD_BELIEF_PROPAGATION_GPU_CONFIG_WIDGET_H
+#ifndef STEREO_METHOD_BELIEF_PROPAGATION_CUDA_CONFIG_WIDGET_H
+#define STEREO_METHOD_BELIEF_PROPAGATION_CUDA_CONFIG_WIDGET_H
 
 #include <QtWidgets>
 
 
-namespace StereoMethodBeliefPropagationGPU {
+namespace StereoMethodBeliefPropagationCUDA {
     
 class Method;
 

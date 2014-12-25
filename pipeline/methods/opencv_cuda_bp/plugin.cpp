@@ -1,5 +1,5 @@
 /*
- * OpenCV GPU Belief Propagation: plugin
+ * OpenCV CUDA Belief Propagation: plugin
  * Copyright (C) 2013 Rok Mandeljc
  * 
  * This program is free software: you can redistribute it and/or modify
@@ -20,13 +20,13 @@
 #include <plugin_factory.h>
 #include "method.h"
 
-using namespace StereoMethodBeliefPropagationGPU;
+using namespace StereoMethodBeliefPropagationCUDA;
 
 
 class Plugin : public QObject, PluginFactory
 {
     Q_OBJECT
-    Q_PLUGIN_METADATA(IID "mvl-stereo-toolbox.Plugin.StereoMethod.OpenCV_BP_GPU")
+    Q_PLUGIN_METADATA(IID "mvl-stereo-toolbox.Plugin.StereoMethod.OpenCV_BP_CUDA")
     Q_INTERFACES(PluginFactory)
     
     PluginType getPluginType () const {
@@ -34,11 +34,11 @@ class Plugin : public QObject, PluginFactory
     }
     
     QString getShortName () const {
-        return "BP_GPU";
+        return "BP_CUDA";
     }
     
     QString getDescription () const {
-        return "OpenCV GPU Belief Propagation";
+        return "OpenCV CUDA Belief Propagation";
     }
     
     QObject *createObject (QObject *parent = 0) const {

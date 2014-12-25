@@ -42,7 +42,7 @@ Method::~Method ()
 // *********************************************************************
 QString Method::getShortName () const
 {
-    return "BM_GPU";
+    return "BM_CUDA";
 }
 
 QWidget *Method::createConfigWidget (QWidget *parent)
