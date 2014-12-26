@@ -20,7 +20,7 @@
 #include "stereo_reprojection.h"
 
 #include <opencv2/opencv_modules.hpp>
-#include <opencv2/calib3d/calib3d.hpp>
+#include <opencv2/calib3d.hpp>
 
 #ifdef HAVE_OPENCV_CUDA
 #include <opencv2/cuda.hpp>

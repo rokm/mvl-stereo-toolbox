@@ -21,7 +21,7 @@
 #define IMAGE_DISPLAY_WIDGET_H
 
 #include <QtWidgets>
-#include <opencv2/core/core.hpp>
+#include <opencv2/core.hpp>
 
 
 // *********************************************************************

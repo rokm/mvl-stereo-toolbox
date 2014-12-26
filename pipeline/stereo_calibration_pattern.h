@@ -22,7 +22,7 @@
 
 #include "mvl_stereo_pipeline_export.h"
 
-#include <opencv2/core/core.hpp>
+#include <opencv2/core.hpp>
 
 
 class MVL_STEREO_PIPELINE_EXPORT StereoCalibrationPattern

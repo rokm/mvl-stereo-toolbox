@@ -21,7 +21,7 @@
 #define IMAGE_PAIR_SOURCE_H
 
 #include <QtCore>
-#include <opencv2/core/core.hpp>
+#include <opencv2/core.hpp>
 
 
 class ImagePairSource

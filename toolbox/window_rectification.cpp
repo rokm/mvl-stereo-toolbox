@@ -24,7 +24,7 @@
 #include <stereo_pipeline.h>
 #include <stereo_rectification.h>
 
-#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/imgcodecs.hpp>
 
 
 WindowRectification::WindowRectification (StereoPipeline *p, StereoRectification *r, QWidget *parent)

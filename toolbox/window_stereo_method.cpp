@@ -23,8 +23,8 @@
 #include <stereo_pipeline.h>
 #include <stereo_method.h>
 
-#include <opencv2/core/core.hpp>
-#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/core.hpp>
+#include <opencv2/imgcodecs.hpp>
 
 // Work-around for MSVC
 #ifdef _MSC_VER

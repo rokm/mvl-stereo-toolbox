@@ -20,7 +20,7 @@
 #include "method.h"
 #include "method_widget.h"
 
-#include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/imgproc.hpp>
 
 using namespace StereoMethodELAS;
 

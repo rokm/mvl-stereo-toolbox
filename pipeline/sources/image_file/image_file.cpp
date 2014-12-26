@@ -20,8 +20,8 @@
 #include "image_file.h"
 #include "image_file_widget.h"
 
-#include <opencv2/highgui/highgui.hpp>
-#include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/imgcodecs.hpp>
+#include <opencv2/imgproc.hpp>
 
 using namespace SourceImageFile;
 

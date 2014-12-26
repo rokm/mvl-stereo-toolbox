@@ -24,7 +24,7 @@
 
 #include <image_pair_source.h>
 
-#include <opencv2/videoio/videoio.hpp>
+#include <opencv2/videoio.hpp>
 
 
 namespace SourceVideoFile {

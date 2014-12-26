@@ -23,7 +23,7 @@
 #include "mvl_stereo_pipeline_export.h"
 
 #include <QtCore>
-#include <opencv2/core/core.hpp>
+#include <opencv2/core.hpp>
 
 
 class MVL_STEREO_PIPELINE_EXPORT StereoRectification : public QObject

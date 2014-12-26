@@ -21,7 +21,7 @@
 #define STEREO_METHOD_SEMI_GLOBAL_BLOCK_MATCHING_H
 
 #include <QtCore>
-#include <opencv2/calib3d/calib3d.hpp>
+#include <opencv2/calib3d.hpp>
 
 #include <stereo_method.h>
 

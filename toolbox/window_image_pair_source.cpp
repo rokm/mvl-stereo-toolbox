@@ -23,8 +23,8 @@
 #include <stereo_pipeline.h>
 #include <image_pair_source.h>
 
-#include <opencv2/core/core.hpp>
-#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/core.hpp>
+#include <opencv2/imgcodecs.hpp>
 
 
 WindowImagePairSource::WindowImagePairSource (StereoPipeline *p, QList<ImagePairSource *> &s, QWidget *parent)

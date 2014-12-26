@@ -21,8 +21,6 @@
 #include "source_widget.h"
 #include "image_file.h"
 
-#include <opencv2/highgui/highgui.hpp>
-
 using namespace SourceImageFile;
 
 

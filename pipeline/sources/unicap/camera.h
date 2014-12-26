@@ -23,7 +23,7 @@
 #include <QtWidgets>
 #include <unicap.h>
 
-#include <opencv2/core/core.hpp>
+#include <opencv2/core.hpp>
 
 
 namespace SourceUnicap {

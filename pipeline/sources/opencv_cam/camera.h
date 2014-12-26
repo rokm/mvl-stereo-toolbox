@@ -23,8 +23,8 @@
 #include <QtWidgets>
 #include <QtConcurrent>
 
-#include <opencv2/core/core.hpp>
-#include <opencv2/videoio/videoio.hpp>
+#include <opencv2/core.hpp>
+#include <opencv2/videoio.hpp>
 
 
 namespace SourceOpenCvCam {

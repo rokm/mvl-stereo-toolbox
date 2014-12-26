@@ -21,7 +21,7 @@
 #include "source_widget.h"
 #include "camera.h"
 
-#include <opencv2/videoio/videoio.hpp>
+#include <opencv2/videoio.hpp>
 
 using namespace SourceOpenCvCam;
 

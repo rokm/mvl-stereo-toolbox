@@ -26,7 +26,7 @@
 #include "stereo_reprojection.h"
 
 #include <opencv2/opencv_modules.hpp>
-#include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/imgproc.hpp>
 
 #ifdef HAVE_OPENCV_CUDASTEREO
 #include <opencv2/cudastereo.hpp>
