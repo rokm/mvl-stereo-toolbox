@@ -1,5 +1,5 @@
 /*
- * OpenCV GPU Constant Space Belief Propagation: plugin
+ * OpenCV CUDA Constant Space Belief Propagation: plugin
  * Copyright (C) 2013 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
@@ -20,13 +20,13 @@
 #include <plugin_factory.h>
 #include "method.h"
 
-using namespace StereoMethodConstantSpaceBeliefPropagationGPU;
+using namespace StereoMethodConstantSpaceBeliefPropagationCUDA;
 
 
 class Plugin : public QObject, PluginFactory
 {
     Q_OBJECT
-    Q_PLUGIN_METADATA(IID "mvl-stereo-toolbox.Plugin.StereoMethod.OpenCV_CSBP_GPU")
+    Q_PLUGIN_METADATA(IID "mvl-stereo-toolbox.Plugin.StereoMethod.OpenCV_CSBP_CUDA")
     Q_INTERFACES(PluginFactory)
     
     PluginType getPluginType () const {
@@ -34,11 +34,11 @@ class Plugin : public QObject, PluginFactory
     }
     
     QString getShortName () const {
-        return "CSBP_GPU";
+        return "CSBP_CUDA";
     }
     
     QString getDescription () const {
-        return "OpenCV GPU Constant-Space Belief Propagation";
+        return "OpenCV CUDA Constant-Space Belief Propagation";
     }
     
     QObject *createObject (QObject *parent = 0) const {

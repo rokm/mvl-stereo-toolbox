@@ -1,5 +1,5 @@
 /*
- * OpenCV GPU Constant Space Belief Propagation: method
+ * OpenCV CUDA Constant Space Belief Propagation: method
  * Copyright (C) 2013 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
@@ -17,15 +17,15 @@
  * 
  */
  
-#ifndef STEREO_METHOD_CONSTANT_SPACE_BELIEF_PROPAGATION_GPU_H
-#define STEREO_METHOD_CONSTANT_SPACE_BELIEF_PROPAGATION_GPU_H
+#ifndef STEREO_METHOD_CONSTANT_SPACE_BELIEF_PROPAGATION_CUDA_H
+#define STEREO_METHOD_CONSTANT_SPACE_BELIEF_PROPAGATION_CUDA_H
 
 #include <stereo_method.h>
 
-#include <opencv2/gpu/gpu.hpp>
+#include <opencv2/cudastereo.hpp>
 
 
-namespace StereoMethodConstantSpaceBeliefPropagationGPU {
+namespace StereoMethodConstantSpaceBeliefPropagationCUDA {
 
 class Method : public QObject, public StereoMethod
 {
@@ -41,18 +41,6 @@ public:
     virtual void computeDisparityImage (const cv::Mat &, const cv::Mat &, cv::Mat &, int &);
     virtual void loadParameters (const QString &);
     virtual void saveParameters (const QString &) const;
-
-    // Generic parameter setting
-    template <typename T> void setParameter (T &parameter, const T &newValue) {
-        // Set only if necessary
-        if (parameter != newValue) {
-            QMutexLocker locker(&mutex);
-            parameter = newValue;
-            locker.unlock();
-            
-            emit parameterChanged();
-        }
-    }
         
     // Parameters
     int getNumDisparities () const;
@@ -97,7 +85,7 @@ signals:
 
 protected:
     // Block matcher
-    cv::gpu::StereoConstantSpaceBP bp;
+    cv::Ptr<cv::cuda::StereoConstantSpaceBP> bp;
     QMutex mutex;
 
     cv::Mat tmpDisp;
