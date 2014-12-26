@@ -1,8 +1,6 @@
 cmake_minimum_required(VERSION 2.8)
 project(toolbox CXX)
 
-set(TOOLBOX_VERSION 1.0.0)
-
 set(CMAKE_AUTOMOC TRUE)
 
 find_package(OpenCV REQUIRED)
@@ -12,8 +10,6 @@ include_directories(${PROJECT_SOURCE_DIR}/../pipeline)
 include_directories(${PROJECT_BINARY_DIR}/../pipeline)
 
 include_directories(${OpenCV_INCLUDE_DIRS})
-
-add_definitions(-DTOOLBOX_VERSION="${TOOLBOX_VERSION}")
 
 set(toolbox_SOURCES
     calibration_wizard.cpp

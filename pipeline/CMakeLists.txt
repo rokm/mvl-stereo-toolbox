@@ -1,13 +1,12 @@
 cmake_minimum_required(VERSION 2.8)
 project(libmvl_stereo_pipeline CXX)
-set(PROJECT_VERSION "1.0.0")
 
 include(GenerateExportHeader)
 
 set(CMAKE_AUTOMOC TRUE)
 
 find_package(PkgConfig QUIET)
-find_package(OpenCV REQUIRED)
+find_package(OpenCV 3.0.0 REQUIRED)
 find_package(Qt5Core REQUIRED)
 
 find_package(CUDA 5.0)
