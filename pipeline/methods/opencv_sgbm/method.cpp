@@ -27,7 +27,7 @@ using namespace StereoMethodSemiGlobalBlockMatching;
 
 Method::Method (QObject *parent)
     : QObject(parent), StereoMethod(),
-    sgbm(cv::createStereoSGBM(0, 16, 3)),
+    sgbm(cv::StereoSGBM::create(0, 16, 3)),
     imageWidth(640), imageChannels(1)
 {
     usePreset(OpenCV);

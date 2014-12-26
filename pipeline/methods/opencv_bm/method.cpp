@@ -27,7 +27,7 @@ using namespace StereoMethodBlockMatching;
 
 Method::Method (QObject *parent)
     : QObject(parent), StereoMethod(),
-      bm(cv::createStereoBM()),
+      bm(cv::StereoBM::create()),
       imageWidth(640)
 {
     usePreset(OpenCV);
