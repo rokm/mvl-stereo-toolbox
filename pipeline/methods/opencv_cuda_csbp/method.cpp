@@ -1,6 +1,6 @@
 /*
  * OpenCV CUDA Constant Space Belief Propagation: method
- * Copyright (C) 2013 Rok Mandeljc
+ * Copyright (C) 2013-2015 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,7 +20,11 @@
 #include "method.h"
 #include "method_widget.h"
 
-using namespace StereoMethodConstantSpaceBeliefPropagationCUDA;
+
+namespace MVL {
+namespace StereoToolbox {
+namespace Pipeline {
+namespace StereoMethodOpenCvCudaCsbp {
 
 
 Method::Method (QObject *parent)
@@ -41,7 +45,7 @@ Method::~Method ()
 // *********************************************************************
 QString Method::getShortName () const
 {
-    return "CSBP_CUDA";
+    return "CUDA_CSBP";
 }
 
 QWidget *Method::createConfigWidget (QWidget *parent)
@@ -72,7 +76,7 @@ void Method::usePreset (int type)
             bp->setDiscSingleJump(1.0f);
 
             bp->setUseLocalInitDataCost(true);
-            
+
             break;
         }
         case OpenCVRecommended: {
@@ -84,7 +88,7 @@ void Method::usePreset (int type)
             bp->setNumIters(iters);
             bp->setNumLevels(levels);
             bp->setNrPlane(nr_plane);
-            
+
             break;
         }
     };
@@ -278,7 +282,7 @@ void Method::setMaxDataTerm (double newValue)
     QMutexLocker locker(&mutex);
     bp->setMaxDataTerm(newValue);
     locker.unlock();
-            
+
     emit parameterChanged();
 }
 
@@ -294,7 +298,7 @@ void Method::setDataWeight (double newValue)
     QMutexLocker locker(&mutex);
     bp->setDataWeight(newValue);
     locker.unlock();
-            
+
     emit parameterChanged();
 }
 
@@ -310,7 +314,7 @@ void Method::setMaxDiscTerm (double newValue)
     QMutexLocker locker(&mutex);
     bp->setMaxDiscTerm(newValue);
     locker.unlock();
-            
+
     emit parameterChanged();
 }
 
@@ -326,7 +330,7 @@ void Method::setDiscSingleJump (double newValue)
     QMutexLocker locker(&mutex);
     bp->setDiscSingleJump(newValue);
     locker.unlock();
-            
+
     emit parameterChanged();
 }
 
@@ -343,6 +347,12 @@ void Method::setUseLocalCost (bool newValue)
     QMutexLocker locker(&mutex);
     bp->setUseLocalInitDataCost(newValue);
     locker.unlock();
-            
+
     emit parameterChanged();
 }
+
+
+} // StereoMethodOpenCvCudaCsbp
+} // Pipeline
+} // StereoToolbox
+} // MVL

@@ -1,6 +1,6 @@
 /*
- * OpenCV CUDA Belief Propagation: config widget
- * Copyright (C) 2013 Rok Mandeljc
+ * OpenCV CUDA Belief Propagation: method widget
+ * Copyright (C) 2013-2015 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,7 +23,11 @@
 #include <cfloat>
 #include <climits>
 
-using namespace StereoMethodBeliefPropagationCUDA;
+
+namespace MVL {
+namespace StereoToolbox {
+namespace Pipeline {
+namespace StereoMethodOpenCvCudaBp {
 
 
 MethodWidget::MethodWidget (Method *m, QWidget *parent)
@@ -79,7 +83,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
     connect(comboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, [this, comboBox] (int index) {
         method->usePreset(comboBox->itemData(index).toInt());
     });
-    
+
     layout->addRow(label, comboBox);
 
     // Separator
@@ -240,3 +244,10 @@ void MethodWidget::updateParameters ()
     spinBoxDiscSingleJump->setValue(method->getDiscSingleJump());
     spinBoxDiscSingleJump->blockSignals(false);
 }
+
+
+} // StereoMethodOpenCvCudaBp
+} // Pipeline
+} // StereoToolbox
+} // MVL
+

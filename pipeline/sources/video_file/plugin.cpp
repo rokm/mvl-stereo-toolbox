@@ -1,6 +1,6 @@
 /*
  * Video File Source: plugin
- * Copyright (C) 2014 Rok Mandeljc
+ * Copyright (C) 2014-2015 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,14 +20,18 @@
 #include <plugin_factory.h>
 #include "source.h"
 
-using namespace SourceVideoFile;
+
+namespace MVL {
+namespace StereoToolbox {
+namespace Pipeline {
+namespace SourceVideoFile {
 
 
 class Plugin : public QObject, PluginFactory
 {
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "mvl-stereo-toolbox.Plugin.Source.VideoFile")
-    Q_INTERFACES(PluginFactory)
+    Q_INTERFACES(MVL::StereoToolbox::Pipeline::PluginFactory)
 
     PluginType getPluginType () const {
         return PluginImagePairSource;
@@ -48,3 +52,9 @@ class Plugin : public QObject, PluginFactory
 
 // Because we have Q_OBJECT in source file
 #include "plugin.moc"
+
+
+} // SourceVideoFile
+} // Pipeline
+} // StereoToolbox
+} // MVL

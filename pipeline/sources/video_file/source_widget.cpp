@@ -1,6 +1,6 @@
 /*
- * Video File Source: config widget
- * Copyright (C) 2014 Rok Mandeljc
+ * Video File Source: source widget
+ * Copyright (C) 2014-2015 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,7 +20,11 @@
 #include "source_widget.h"
 #include "source.h"
 
-using namespace SourceVideoFile;
+
+namespace MVL {
+namespace StereoToolbox {
+namespace Pipeline {
+namespace SourceVideoFile {
 
 
 SourceWidget::SourceWidget (Source *s, QWidget *parent)
@@ -240,3 +244,9 @@ void SourceWidget::videoPositionChanged (int frame, int length)
     sliderPosition->setValue(frame);
     sliderPosition->blockSignals(false);
 }
+
+
+} // SourceVideoFile
+} // Pipeline
+} // StereoToolbox
+} // MVL

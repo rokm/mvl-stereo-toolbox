@@ -1,6 +1,6 @@
 /*
  * Stereo Pipeline: calibration pattern
- * Copyright (C) 2013 Rok Mandeljc
+ * Copyright (C) 2013-2015 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -11,16 +11,21 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  */
 
 #include "stereo_calibration_pattern.h"
 
 #include <opencv2/calib3d.hpp>
 #include <opencv2/imgproc.hpp>
+
+
+namespace MVL {
+namespace StereoToolbox {
+namespace Pipeline {
 
 
 StereoCalibrationPattern::StereoCalibrationPattern ()
@@ -43,7 +48,7 @@ void StereoCalibrationPattern::setParameters (int newPatternWidth, int newPatter
     patternSize = cv::Size(patternWidth, patternHeight);
 
     elementSize = newElementSize;
-    
+
     patternType = newPatternType;
 
     maxScaleLevel = newMaxScaleLevel;
@@ -63,7 +68,7 @@ const cv::Size StereoCalibrationPattern::getPatternSize () const
 std::vector<cv::Point3f> StereoCalibrationPattern::computePlanarCoordinates () const
 {
     std::vector<cv::Point3f> coordinates;
-    
+
     switch (patternType) {
         case Chessboard:
         case Circles: {
@@ -96,7 +101,7 @@ std::vector<cv::Point3f> StereoCalibrationPattern::computePlanarCoordinates () c
 bool StereoCalibrationPattern::findInImage (const cv::Mat &img, std::vector<cv::Point2f> &points) const
 {
     bool found = false;
-    
+
     // Multi-scale search
     for (int scaleLevel = 0; scaleLevel <= maxScaleLevel; scaleLevel++) {
         float scale = 1.0 + scaleLevel*scaleIncrement;
@@ -124,7 +129,7 @@ bool StereoCalibrationPattern::findInImage (const cv::Mat &img, std::vector<cv::
                 break;
             }
         }
-        
+
         if (found) {
             // Improve localization of corners on chessboard by doing
             // sub-pixel interpolation
@@ -135,10 +140,10 @@ bool StereoCalibrationPattern::findInImage (const cv::Mat &img, std::vector<cv::
                 } else {
                     cv::cvtColor(scaledImg, scaledImgGray, cv::COLOR_BGR2GRAY);
                 }
-                
+
                 cv::cornerSubPix(scaledImgGray, points, cv::Size(11,11), cv::Size(-1,-1), cv::TermCriteria(cv::TermCriteria::COUNT + cv::TermCriteria::EPS, 30, 0.01));
             }
-            
+
             // If points were found at higher scale, scale them back to
             // the original image... We do this after sub-pixel localization
             // (in case of chessboard), because sub-pixel localization can
@@ -148,10 +153,15 @@ bool StereoCalibrationPattern::findInImage (const cv::Mat &img, std::vector<cv::
                 cv::Mat pointsMat(points); // Construct matrix with shared data...
                 pointsMat *= 1.0/scale;
             }
-            
+
             break;
         }
     }
 
     return found;
 }
+
+
+} // Pipeline
+} // StereoToolbox
+} // MVL

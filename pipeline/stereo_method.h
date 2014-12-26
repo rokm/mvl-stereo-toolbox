@@ -1,6 +1,6 @@
 /*
  * Stereo Pipeline: stereo method interface
- * Copyright (C) 2013 Rok Mandeljc
+ * Copyright (C) 2013-2015 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -11,21 +11,24 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  */
 
-#ifndef STEREO_METHOD_H
-#define STEREO_METHOD_H
+#ifndef MVL_STEREO_TOOLBOX__PIPELINE__STEREO_METHOD_H
+#define MVL_STEREO_TOOLBOX__PIPELINE__STEREO_METHOD_H
 
 #include <QtCore>
 
 #include <opencv2/core.hpp>
 
 
-class QWidget;
+namespace MVL {
+namespace StereoToolbox {
+namespace Pipeline {
+
 
 class StereoMethod
 {
@@ -40,7 +43,7 @@ public:
 
     // Parameter import/export
     virtual void loadParameters (const QString &) = 0;
-    
+
     virtual void saveParameters (const QString &) const = 0;
 
     // These are actually signals, but they are not allowed in non-QObject classes
@@ -48,6 +51,13 @@ protected:
     virtual void parameterChanged () = 0;
 };
 
-Q_DECLARE_INTERFACE(StereoMethod, "MVL_Stereo_Toolbox.StereoMethod/1.0")
+
+} // Pipeline
+} // StereoToolbox
+} // MVL
+
+
+Q_DECLARE_INTERFACE(MVL::StereoToolbox::Pipeline::StereoMethod, "MVL_Stereo_Toolbox.StereoMethod/1.0")
+
 
 #endif

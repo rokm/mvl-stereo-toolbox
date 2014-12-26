@@ -1,6 +1,6 @@
 /*
  * MVL Stereo Toolbox: rectification window
- * Copyright (C) 2013 Rok Mandeljc
+ * Copyright (C) 2013-2015 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,18 +25,26 @@
 #include <opencv2/core.hpp>
 
 
+namespace MVL {
+namespace StereoToolbox {
+
+namespace Pipeline {
+class StereoPipeline;
+class StereoRectification;
+} // Pipeline
+
+namespace GUI {
+
 class CalibrationWizard;
 class ImagePairDisplayWidget;
 class RoiDialog;
-class StereoPipeline;
-class StereoRectification;
 
 class WindowRectification : public QWidget
 {
     Q_OBJECT
 
 public:
-    WindowRectification (StereoPipeline *, StereoRectification *, QWidget * = 0);
+    WindowRectification (Pipeline::StereoPipeline *, Pipeline::StereoRectification *, QWidget * = 0);
     virtual ~WindowRectification ();
 
 protected slots:
@@ -53,8 +61,8 @@ protected slots:
 
 protected:
     // Pipeline
-    StereoPipeline *pipeline;
-    StereoRectification *rectification;
+    Pipeline::StereoPipeline *pipeline;
+    Pipeline::StereoRectification *rectification;
 
     // GUI
     QPushButton *pushButtonWizard;
@@ -113,5 +121,11 @@ protected:
 
     cv::Size imageSize;
 };
+
+
+} // GUI
+} // StereoToolbox
+} // MVL
+
 
 #endif

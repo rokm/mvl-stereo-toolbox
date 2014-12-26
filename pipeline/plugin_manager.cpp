@@ -1,6 +1,6 @@
 /*
  * Stereo Pipeline: plugin manager
- * Copyright (C) 2014 Rok Mandeljc
+ * Copyright (C) 2014-2015 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +19,11 @@
 
 #include "plugin_manager.h"
 #include "plugin_factory.h"
+
+
+namespace MVL {
+namespace StereoToolbox {
+namespace Pipeline {
 
 
 PluginManager::PluginManager (QObject *parent)
@@ -108,3 +113,8 @@ const QList<QObject *> PluginManager::getAvailablePlugins () const
 {
     return plugins;
 }
+
+
+} // Pipeline
+} // StereoToolbox
+} // MVL

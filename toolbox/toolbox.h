@@ -1,6 +1,6 @@
 /*
  * MVL Stereo Toolbox: main toolbox object and window
- * Copyright (C) 2013 Rok Mandeljc
+ * Copyright (C) 2013-2015 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,12 +23,20 @@
 #include <QtWidgets>
 
 
+namespace MVL {
+namespace StereoToolbox {
+
+namespace Pipeline {
 class ImagePairSource;
 class PluginManager;
 class StereoRectification;
 class StereoMethod;
 class StereoPipeline;
 class StereoReprojection;
+} // Pipeline
+
+namespace GUI {
+
 
 class WindowImagePairSource;
 class WindowRectification;
@@ -80,12 +88,17 @@ protected:
 
     QLabel *statusLabel;
 
-    StereoPipeline *pipeline;
+    Pipeline::StereoPipeline *pipeline;
 
-    PluginManager *plugin_manager;
-    QList<ImagePairSource *> imagePairSources;
-    QList<StereoMethod *> stereoMethods;
+    Pipeline::PluginManager *plugin_manager;
+    QList<Pipeline::ImagePairSource *> imagePairSources;
+    QList<Pipeline::StereoMethod *> stereoMethods;
 };
+
+
+} // GUI
+} // StereoToolbox
+} // MVL
 
 
 #endif

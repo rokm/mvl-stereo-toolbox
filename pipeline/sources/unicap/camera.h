@@ -1,6 +1,6 @@
 /*
- * Unicap Camera: camera
- * Copyright (C) 2013 Rok Mandeljc
+ * Unicap Source: camera
+ * Copyright (C) 2013-2015 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -11,14 +11,14 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  */
 
-#ifndef CAMERA_UNICAP_H
-#define CAMERA_UNICAP_H
+#ifndef MVL_STEREO_TOOLBOX__PIPELINE__SOURCES__UNICAP__CAMERA_H
+#define MVL_STEREO_TOOLBOX__PIPELINE__SOURCES__UNICAP__CAMERA_H
 
 #include <QtWidgets>
 #include <unicap.h>
@@ -26,7 +26,11 @@
 #include <opencv2/core.hpp>
 
 
+namespace MVL {
+namespace StereoToolbox {
+namespace Pipeline {
 namespace SourceUnicap {
+
 
 class Camera : public QObject
 {
@@ -112,6 +116,11 @@ protected:
     QReadWriteLock frameBufferLock;
 };
 
-}
+
+} // SourceUnicap
+} // Pipeline
+} // StereoToolbox
+} // MVL
+
 
 #endif

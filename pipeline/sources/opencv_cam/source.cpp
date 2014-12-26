@@ -1,6 +1,6 @@
 /*
- * OpenCV Camera Image Pair Source: source
- * Copyright (C) 2013 Rok Mandeljc
+ * OpenCV Camera Source: source
+ * Copyright (C) 2013-2015 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -11,10 +11,10 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  */
 
 #include "source.h"
@@ -23,7 +23,12 @@
 
 #include <opencv2/videoio.hpp>
 
-using namespace SourceOpenCvCam;
+
+namespace MVL {
+namespace StereoToolbox {
+namespace Pipeline {
+namespace SourceOpenCvCam {
+
 
 
 // Supported interfaces on which we query. This separation is needed
@@ -124,7 +129,7 @@ void Source::refreshCameraList ()
             entries.append(entry);
         }
     }
-    
+
     if (entries.size()) {
         beginInsertRows(QModelIndex(), 1, entries.size());
         active = QVector<bool>(entries.size(), false);
@@ -213,7 +218,7 @@ void Source::createCamera (Camera *& camera, int c)
     if (!cap) {
         return;
     }
-    
+
     camera = new Camera(cap, newId, this);
 
     // Connect
@@ -231,7 +236,7 @@ void Source::releaseCamera (Camera *& camera)
         // Disconnect
         disconnect(camera, &Camera::frameReady, this, &Source::synchronizeFrames);
 
-        // Delete camera object 
+        // Delete camera object
         camera->deleteLater();
         camera = NULL;
 
@@ -294,10 +299,10 @@ void Source::synchronizeFrames ()
     } else if (QObject::sender() == rightCamera) {
         rightFrameReady = true;
     }
-    
+
     bool requireLeft = (leftCamera && leftCamera->getCaptureState());
     bool requireRight = (rightCamera && rightCamera->getCaptureState());
-    
+
     if ((!requireLeft || leftFrameReady) && (!requireRight || rightFrameReady)) {
         if (requireLeft) {
             leftCamera->copyFrame(imageLeft);
@@ -383,3 +388,9 @@ QVariant Source::data (const QModelIndex &index, int role) const
 
     return QVariant();
 }
+
+
+} // SourceOpenCvCam
+} // Pipeline
+} // StereoToolbox
+} // MVL

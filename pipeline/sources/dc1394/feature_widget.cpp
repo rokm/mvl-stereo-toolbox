@@ -1,6 +1,6 @@
 /*
- * DC1394 Camera: generic feature config widget
- * Copyright (C) 2013 Rok Mandeljc
+ * DC1394 Source: feature widget
+ * Copyright (C) 2013-2015 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -11,16 +11,20 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  */
 
 #include "feature_widget.h"
 #include "camera.h"
 
-using namespace SourceDC1394;
+
+namespace MVL {
+namespace StereoToolbox {
+namespace Pipeline {
+namespace SourceDC1394 {
 
 
 static const QString featureModeToString (dc1394feature_mode_t);
@@ -33,7 +37,7 @@ FeatureWidget::FeatureWidget (Camera *c, const dc1394feature_info_t &f, QWidget 
 
     QHBoxLayout *layout = new QHBoxLayout(this);
     layout->setContentsMargins(0, 0, 0, 0);
-    
+
     // Value
     spinBoxValue = new QSpinBox(this);
     spinBoxValue->setToolTip(QString("Min: %1 Max: %2").arg(feature.min).arg(feature.max));
@@ -50,7 +54,7 @@ FeatureWidget::FeatureWidget (Camera *c, const dc1394feature_info_t &f, QWidget 
     connect(comboBoxMode, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, [this] (int index) {
         camera->setFeatureMode(feature.id, (dc1394feature_mode_t)comboBoxMode->itemData(index).toInt());
     });
-    
+
     layout->addWidget(comboBoxMode);
 
     QList<dc1394feature_mode_t> availableModes = camera->getFeatureModes(feature.id);
@@ -62,7 +66,7 @@ FeatureWidget::FeatureWidget (Camera *c, const dc1394feature_info_t &f, QWidget 
     if (availableModes.size() < 2) {
         comboBoxMode->hide();
     }
-    
+
     // Absolute value
     if (feature.absolute_capable) {
         spinBoxAbsoluteValue = new QDoubleSpinBox(this);
@@ -79,7 +83,7 @@ FeatureWidget::FeatureWidget (Camera *c, const dc1394feature_info_t &f, QWidget 
     // Update parameter
     updateTimer = new QTimer(this);
     connect(updateTimer, &QTimer::timeout, this, &FeatureWidget::updateParameters);
-    
+
     updateParameters();
 }
 
@@ -89,7 +93,7 @@ FeatureWidget::~FeatureWidget ()
 
 
 void FeatureWidget::updateParameters ()
-{   
+{
     // Value
     spinBoxValue->blockSignals(true);
     spinBoxValue->setValue(camera->getFeatureValue(feature.id));
@@ -129,8 +133,14 @@ static const QString featureModeToString (dc1394feature_mode_t mode)
     switch (mode) {
         case DC1394_FEATURE_MODE_MANUAL: return "Manual";
         case DC1394_FEATURE_MODE_AUTO: return "Auto";
-        case DC1394_FEATURE_MODE_ONE_PUSH_AUTO: return "One push auto";  
+        case DC1394_FEATURE_MODE_ONE_PUSH_AUTO: return "One push auto";
     }
 
     return "INVALID";
 }
+
+
+} // SourceDC1394
+} // Pipeline
+} // StereoToolbox
+} // MVL

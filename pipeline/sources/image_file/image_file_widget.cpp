@@ -1,6 +1,6 @@
 /*
- * Image File Pair Source: image file config widget
- * Copyright (C) 2013 Rok Mandeljc
+ * Image File Source: image file widget
+ * Copyright (C) 2013-2015 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -11,16 +11,20 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  */
- 
+
 #include "image_file_widget.h"
 #include "image_file.h"
 
-using namespace SourceImageFile;
+
+namespace MVL {
+namespace StereoToolbox {
+namespace Pipeline {
+namespace SourceImageFile {
 
 
 ImageFileWidget::ImageFileWidget (ImageFile *f, QWidget *parent)
@@ -45,9 +49,9 @@ ImageFileWidget::ImageFileWidget (ImageFile *f, QWidget *parent)
     // Load from files
     QHBoxLayout *buttonBox = new QHBoxLayout();
     layout->addRow(buttonBox);
-    
+
     tooltip = "Load from harddisk.";
-    
+
     button = new QPushButton("File", this);
     button->setToolTip(tooltip);
     connect(button, &QPushButton::clicked, this, [this] {
@@ -64,7 +68,7 @@ ImageFileWidget::ImageFileWidget (ImageFile *f, QWidget *parent)
 
     // Load from URLs
     tooltip = "Load from URL.";
-    
+
     button = new QPushButton("URL", this);
     button->setToolTip(tooltip);
     connect(button, &QPushButton::clicked, this, [this] {
@@ -84,7 +88,7 @@ ImageFileWidget::ImageFileWidget (ImageFile *f, QWidget *parent)
     line->setFrameStyle(QFrame::HLine | QFrame::Sunken);
 
     layout->addRow(line);
-    
+
     // Image info: filename
     tooltip = "Image file name or URL.";
 
@@ -157,3 +161,9 @@ QString UrlDialog::getUrl() const
 {
     return textEditUrl->toPlainText().trimmed();
 }
+
+
+} // SourceImageFile
+} // Pipeline
+} // StereoToolbox
+} // MVL

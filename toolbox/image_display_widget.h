@@ -1,6 +1,6 @@
 /*
- * MVL Stereo Toolbox: OpenCV image display widgets
- * Copyright (C) 2013 Rok Mandeljc
+ * MVL Stereo Toolbox: image display widgets
+ * Copyright (C) 2013-2015 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,6 +22,11 @@
 
 #include <QtWidgets>
 #include <opencv2/core.hpp>
+
+
+namespace MVL {
+namespace StereoToolbox {
+namespace GUI {
 
 
 // *********************************************************************
@@ -152,6 +157,11 @@ signals:
 protected:
     cv::Mat reprojectedPoints;
 };
+
+
+} // GUI
+} // StereoToolbox
+} // MVL
 
 
 #endif

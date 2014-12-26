@@ -1,6 +1,6 @@
 /*
- * OpenCV Block Matching: config widget
- * Copyright (C) 2013 Rok Mandeljc
+ * OpenCV Block Matching: method widget
+ * Copyright (C) 2013-2015 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -11,26 +11,30 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  */
 
-#ifndef STEREO_METHOD_BLOCK_MATCHING_CONFIG_WIDGET_H
-#define STEREO_METHOD_BLOCK_MATCHING_CONFIG_WIDGET_H
+#ifndef MVL_STEREO_TOOLBOX__PIPELINE__METHODS__OPENCV_BM__METHOD_WIDGET_H
+#define MVL_STEREO_TOOLBOX__PIPELINE__METHODS__OPENCV_BM__METHOD_WIDGET_H
 
 #include <QtWidgets>
 
 
-namespace StereoMethodBlockMatching {
-    
+namespace MVL {
+namespace StereoToolbox {
+namespace Pipeline {
+namespace StereoMethodOpenCvBm {
+
+
 class Method;
 
 class MethodWidget : public QWidget
 {
     Q_OBJECT
-    
+
 public:
     MethodWidget (Method *, QWidget * = 0);
     virtual ~MethodWidget ();
@@ -54,6 +58,11 @@ protected:
     QSpinBox *spinBoxDisp12MaxDiff;
 };
 
-}
+
+} // StereoMethodOpenCvBm
+} // Pipeline
+} // StereoToolbox
+} // MVL
+
 
 #endif

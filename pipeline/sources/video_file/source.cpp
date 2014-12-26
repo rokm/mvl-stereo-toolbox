@@ -1,6 +1,6 @@
 /*
  * Video File Source: source
- * Copyright (C) 2014 Rok Mandeljc
+ * Copyright (C) 2014-2015 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,7 +20,11 @@
 #include "source.h"
 #include "source_widget.h"
 
-using namespace SourceVideoFile;
+
+namespace MVL {
+namespace StereoToolbox {
+namespace Pipeline {
+namespace SourceVideoFile {
 
 
 Source::Source (QObject *parent)
@@ -163,3 +167,8 @@ void Source::playbackFunction ()
     emit imagesChanged();
 }
 
+
+} // SourceVideoFile
+} // Pipeline
+} // StereoToolbox
+} // MVL

@@ -1,6 +1,6 @@
 /*
- * DC1394 Camera: camera
- * Copyright (C) 2013 Rok Mandeljc
+ * DC1394 Source: camera
+ * Copyright (C) 2013-2015 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -11,12 +11,12 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  */
- 
+
 #include "camera.h"
 #include "camera_widget.h"
 
@@ -24,7 +24,11 @@
 
 #define NUM_BUFFERS 32
 
-using namespace SourceDC1394;
+
+namespace MVL {
+namespace StereoToolbox {
+namespace Pipeline {
+namespace SourceDC1394 {
 
 
 Camera::Camera (dc1394camera_t *c, QObject *parent)
@@ -125,7 +129,7 @@ dc1394speed_t Camera::getIsoSpeed () const
     if (ret) {
         qWarning() << "Failed to get ISO speed!";
     }
-    
+
     return value;
 }
 
@@ -136,8 +140,8 @@ QVector<dc1394video_mode_t> Camera::getSupportedModes ()
     dc1394video_modes_t raw_modes;
     dc1394error_t ret;
 
-    QVector<dc1394video_mode_t> modes; 
-    
+    QVector<dc1394video_mode_t> modes;
+
     ret = dc1394_video_get_supported_modes(camera, &raw_modes);
     if (ret) {
         emit error("Failed to query supported modes!");
@@ -176,7 +180,7 @@ dc1394video_mode_t Camera::getMode () const
     if (ret) {
         qWarning() << "Failed to get mode!";
     }
-    
+
     return value;
 }
 
@@ -187,8 +191,8 @@ QVector<dc1394framerate_t> Camera::getSupportedFramerates ()
     dc1394framerates_t raw_framerates;
     dc1394error_t ret;
 
-    QVector<dc1394framerate_t> framerates; 
-    
+    QVector<dc1394framerate_t> framerates;
+
     ret = dc1394_video_get_supported_framerates(camera, getMode(), &raw_framerates);
     if (ret) {
         emit error("Failed to query supported framerates");
@@ -227,7 +231,7 @@ dc1394framerate_t Camera::getFramerate () const
     if (ret) {
         qWarning() << "Failed to get framerate!";
     }
-    
+
     return value;
 }
 
@@ -257,7 +261,7 @@ int Camera::getFeatureValue (dc1394feature_t feature)
 {
     quint32 value;
     dc1394error_t ret;
-    
+
     ret = dc1394_feature_get_value(camera, feature, &value);
     if (ret) {
         qWarning() << "Failed to get feature value!";
@@ -283,7 +287,7 @@ double Camera::getFeatureAbsoluteValue (dc1394feature_t feature)
 {
     float value;
     dc1394error_t ret;
-    
+
     ret = dc1394_feature_get_absolute_value(camera, feature, &value);
     if (ret) {
         qWarning() << "Failed to get feature value!";
@@ -317,7 +321,7 @@ QList<dc1394feature_mode_t> Camera::getFeatureModes (dc1394feature_t feature)
 void Camera::setFeatureMode (dc1394feature_t feature, dc1394feature_mode_t mode)
 {
     dc1394error_t ret;
-    
+
     ret = dc1394_feature_set_mode(camera, feature, mode);
     if (ret) {
         qWarning() << "Failed to set feature mode!";
@@ -330,7 +334,7 @@ dc1394feature_mode_t Camera::getFeatureMode (dc1394feature_t feature)
 {
     dc1394feature_mode_t mode;
     dc1394error_t ret;
-    
+
     ret = dc1394_feature_get_mode(camera, feature, &mode);
     if (ret) {
         qWarning() << "Failed to get feature mode!";
@@ -426,7 +430,7 @@ void CameraCaptureWorker::stopCapture ()
     dc1394error_t ret;
 
     //qDebug() << "Stopping capture worker" << QThread::currentThread();
-    
+
     // Cleanup
     disconnect(frameNotifier, &QSocketNotifier::activated, this, &CameraCaptureWorker::grabFrame);
     delete frameNotifier;
@@ -436,7 +440,7 @@ void CameraCaptureWorker::stopCapture ()
     if (ret) {
         qWarning() << "Could not stop camera ISO transmission!";
     }
-    
+
     ret = dc1394_capture_stop(camera);
     if (ret) {
         qWarning() << "Could not stop camera capture!";
@@ -455,7 +459,7 @@ void CameraCaptureWorker::copyFrame (cv::Mat &frame)
 
 
 void CameraCaptureWorker::grabFrame ()
-{    
+{
     dc1394video_frame_t *frame;
 
     // Disable notifier, as per Qt docs
@@ -479,7 +483,7 @@ void CameraCaptureWorker::grabFrame ()
 void CameraCaptureWorker::dequeueCaptureBuffer (dc1394video_frame_t *&frame, bool drainQueue)
 {
     dc1394error_t ret;
-    
+
     // Dequeue
     ret = dc1394_capture_dequeue(camera, DC1394_CAPTURE_POLICY_WAIT, &frame);
     if (ret) {
@@ -532,3 +536,7 @@ void CameraCaptureWorker::convertToOpenCVImage (dc1394video_frame_t *frame, cv::
 }
 
 
+} // SourceDC1394
+} // Pipeline
+} // StereoToolbox
+} // MVL

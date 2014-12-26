@@ -1,6 +1,6 @@
 /*
  * OpenCV Semi-Global Block Matching: method
- * Copyright (C) 2013 Rok Mandeljc
+ * Copyright (C) 2013-2015 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -11,14 +11,14 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  */
- 
-#ifndef STEREO_METHOD_SEMI_GLOBAL_BLOCK_MATCHING_H
-#define STEREO_METHOD_SEMI_GLOBAL_BLOCK_MATCHING_H
+
+#ifndef MVL_STEREO_TOOLBOX__PIPELINE__METHODS__OPENCV_SGBM__METHOD_H
+#define MVL_STEREO_TOOLBOX__PIPELINE__METHODS__OPENCV_SGBM__METHOD_H
 
 #include <QtCore>
 #include <opencv2/calib3d.hpp>
@@ -26,12 +26,16 @@
 #include <stereo_method.h>
 
 
-namespace StereoMethodSemiGlobalBlockMatching {
+namespace MVL {
+namespace StereoToolbox {
+namespace Pipeline {
+namespace StereoMethodOpenCvSgbm {
+
 
 class Method : public QObject, public StereoMethod
 {
     Q_OBJECT
-    Q_INTERFACES(StereoMethod)
+    Q_INTERFACES(MVL::StereoToolbox::Pipeline::StereoMethod)
 
 public:
     Method (QObject * = 0);
@@ -54,7 +58,7 @@ public:
     void setMinDisparity (int);
     int getMinDisparity () const;
 
-    void setNumDisparities (int);   
+    void setNumDisparities (int);
     int getNumDisparities () const;
 
     void setSADWindowSize (int);
@@ -104,6 +108,11 @@ protected:
     cv::Mat tmpDisparity;
 };
 
-}
+
+} // StereoMethodOpenCvSgbm
+} // Pipeline
+} // StereoToolbox
+} // MVL
+
 
 #endif

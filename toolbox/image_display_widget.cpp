@@ -1,6 +1,6 @@
 /*
- * MVL Stereo Toolbox: OpenCV image display widgets
- * Copyright (C) 2013 Rok Mandeljc
+ * MVL Stereo Toolbox: image display widgets
+ * Copyright (C) 2013-2015 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,6 +23,11 @@
 #define round(x) ((x) >= 0 ? (int)((x) + 0.5) : (int)((x) - 0.5))
 #define NAN std::numeric_limits<float>::quiet_NaN()
 #endif
+
+
+namespace MVL {
+namespace StereoToolbox {
+namespace GUI {
 
 
 // *********************************************************************
@@ -505,3 +510,8 @@ QVector3D ReprojectedImageDisplayWidget::getCoordinatesAtPixel (const QPoint &po
 
     return QVector3D();
 }
+
+
+} // GUI
+} // StereoToolbox
+} // MVL

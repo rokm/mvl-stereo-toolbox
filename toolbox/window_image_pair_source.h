@@ -1,6 +1,6 @@
 /*
  * MVL Stereo Toolbox: image pair source window
- * Copyright (C) 2013 Rok Mandeljc
+ * Copyright (C) 2013-2015 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -11,10 +11,10 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  */
 
 #ifndef WINDOW_IMAGE_PAIR_SOURCE_H
@@ -23,8 +23,16 @@
 #include <QtWidgets>
 
 
+namespace MVL {
+namespace StereoToolbox {
+
+namespace Pipeline {
 class StereoPipeline;
 class ImagePairSource;
+} // Pipeline
+
+namespace GUI {
+
 
 class ImageDisplayWidget;
 
@@ -33,12 +41,12 @@ class WindowImagePairSource : public QWidget
     Q_OBJECT
 
 public:
-    WindowImagePairSource (StereoPipeline *, QList<ImagePairSource *> &, QWidget * = 0);
+    WindowImagePairSource (Pipeline::StereoPipeline *, QList<Pipeline::ImagePairSource *> &, QWidget * = 0);
     virtual ~WindowImagePairSource ();
 
 protected slots:
     void setSource (int);
-    
+
     void updateImages ();
 
     void saveImages ();
@@ -48,8 +56,8 @@ protected slots:
 
 protected:
     // Pipeline
-    StereoPipeline *pipeline;
-    QList<ImagePairSource *> sources;
+    Pipeline::StereoPipeline *pipeline;
+    QList<Pipeline::ImagePairSource *> sources;
 
     QString snapshotBaseName;
 
@@ -63,5 +71,11 @@ protected:
 
     QStatusBar *statusBar;
 };
+
+
+} // GUI
+} // StereoToolbox
+} // MVL
+
 
 #endif

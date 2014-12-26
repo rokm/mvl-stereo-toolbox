@@ -1,6 +1,6 @@
 /*
- * OpenCV Block Matching: config widget
- * Copyright (C) 2013 Rok Mandeljc
+ * OpenCV Block Matching: method widget
+ * Copyright (C) 2013-2015 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -11,16 +11,20 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  */
 
 #include "method_widget.h"
 #include "method.h"
 
-using namespace StereoMethodBlockMatching;
+
+namespace MVL {
+namespace StereoToolbox {
+namespace Pipeline {
+namespace StereoMethodOpenCvBm {
 
 
 MethodWidget::MethodWidget (Method *m, QWidget *parent)
@@ -56,13 +60,13 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
     scrollArea->setWidget(new QWidget(this));
 
     baseLayout->addWidget(scrollArea);
-    
+
     QFormLayout *layout = new QFormLayout(scrollArea->widget());
 
 
     // Preset
     tooltip = "Presets for quick initialization.";
-    
+
     label = new QLabel("Preset", this);
     label->setToolTip(tooltip);
 
@@ -176,7 +180,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
     // Num disparities
     tooltip = "Maximum disparity minus minimum disparity. The value is always greater than zero. In \n"
               "the current implementation, this parameter must be divisible by 16.";
-    
+
     label = new QLabel("Num. disparities", this);
     label->setToolTip(tooltip);
 
@@ -197,7 +201,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
 
     // Texture threshold
     tooltip = "Texture threshold; areas with no texture (or texture below threshold) are ignored.";
-    
+
     label = new QLabel("Texture threshold", this);
     label->setToolTip(tooltip);
 
@@ -239,7 +243,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
 
     // Speckle range
     tooltip = "Acceptable range of disparity variation in each connected component.";
-    
+
     label = new QLabel("Speckle range", this);
     label->setToolTip(tooltip);
 
@@ -296,7 +300,7 @@ void MethodWidget::updateParameters ()
     spinBoxPreFilterCap->blockSignals(true);
     spinBoxPreFilterCap->setValue(method->getPreFilterCap());
     spinBoxPreFilterCap->blockSignals(false);
-    
+
 
     // SAD window size
     spinBoxSADWindowSize->blockSignals(true);
@@ -312,7 +316,7 @@ void MethodWidget::updateParameters ()
     spinBoxNumDisparities->blockSignals(true);
     spinBoxNumDisparities->setValue(method->getNumDisparities());
     spinBoxNumDisparities->blockSignals(false);
-    
+
 
     // Texture threshold
     spinBoxTextureThreshold->blockSignals(true);
@@ -333,9 +337,15 @@ void MethodWidget::updateParameters ()
     spinBoxSpeckleRange->blockSignals(true);
     spinBoxSpeckleRange->setValue(method->getSpeckleRange());
     spinBoxSpeckleRange->blockSignals(false);
-    
+
     // Disp12 max diff
     spinBoxDisp12MaxDiff->blockSignals(true);
     spinBoxDisp12MaxDiff->setValue(method->getDisp12MaxDiff());
     spinBoxDisp12MaxDiff->blockSignals(false);
 }
+
+
+} // StereoMethodOpenCvBm
+} // Pipeline
+} // StereoToolbox
+} // MVL

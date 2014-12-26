@@ -1,6 +1,6 @@
 /*
  * MVL Stereo Toolbox: image pair source window
- * Copyright (C) 2013 Rok Mandeljc
+ * Copyright (C) 2013-2015 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -11,10 +11,10 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  */
 
 #include "window_image_pair_source.h"
@@ -27,7 +27,12 @@
 #include <opencv2/imgcodecs.hpp>
 
 
-WindowImagePairSource::WindowImagePairSource (StereoPipeline *p, QList<ImagePairSource *> &s, QWidget *parent)
+namespace MVL {
+namespace StereoToolbox {
+namespace GUI {
+
+
+WindowImagePairSource::WindowImagePairSource (Pipeline::StereoPipeline *p, QList<Pipeline::ImagePairSource *> &s, QWidget *parent)
     : QWidget(parent, Qt::Window), pipeline(p), sources(s)
 {
     setWindowTitle("Image source");
@@ -41,7 +46,7 @@ WindowImagePairSource::WindowImagePairSource (StereoPipeline *p, QList<ImagePair
     QHBoxLayout *buttonsLayout = new QHBoxLayout();
     buttonsLayout->setContentsMargins(0, 0, 0, 0);
     QPushButton *pushButton;
-    
+
     layout->addLayout(buttonsLayout);
 
     buttonsLayout->addStretch();
@@ -79,7 +84,7 @@ WindowImagePairSource::WindowImagePairSource (StereoPipeline *p, QList<ImagePair
     imagesLayout->setContentsMargins(0, 0, 0, 0);
     imagesWidget->resize(800, 300); // Make sure image widget has some space
     imagesWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    
+
     displayImageLeft = new ImageDisplayWidget("Left image", this);
     displayImageLeft->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     imagesLayout->addWidget(displayImageLeft);
@@ -88,7 +93,7 @@ WindowImagePairSource::WindowImagePairSource (StereoPipeline *p, QList<ImagePair
     displayImageRight->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     imagesLayout->addWidget(displayImageRight);
 
-    // Sources tab widget    
+    // Sources tab widget
     QTabWidget *tabWidget = new QTabWidget(this);
     tabWidget->setTabPosition(QTabWidget::West);
     tabWidget->setUsesScrollButtons(true);
@@ -123,7 +128,7 @@ void WindowImagePairSource::setSource (int i)
         qWarning() << "Source" << i << "does not exist!";
         return;
     }
-    
+
     pipeline->setImagePairSource(sources[i]);
 }
 
@@ -146,7 +151,7 @@ void WindowImagePairSource::saveImages ()
 
     pipeline->getLeftImage().copyTo(tmpImg1);
     pipeline->getRightImage().copyTo(tmpImg2);
-    
+
     // Get filename
     QString fileName = QFileDialog::getSaveFileName(this, "Save rectified images");
     if (fileName.isNull()) {
@@ -183,7 +188,7 @@ void WindowImagePairSource::snapshotImages ()
 
     pipeline->getLeftImage().copyTo(tmpImg1);
     pipeline->getRightImage().copyTo(tmpImg2);
-    
+
     // Get basename if not already set
     if (snapshotBaseName.isEmpty()) {
         selectSnapshotFilename();
@@ -201,7 +206,7 @@ void WindowImagePairSource::snapshotImages ()
     if (ext.isEmpty()) {
         ext = "ppm";
     }
-    
+
     // Now, construct filename, and find unoccupied counter value
     QString fileNameLeft, fileNameRight;
     for (int c = 1; ; c++) {
@@ -228,3 +233,8 @@ void WindowImagePairSource::selectSnapshotFilename ()
 {
     snapshotBaseName = QFileDialog::getSaveFileName(this, "Select basename for images snapshots", snapshotBaseName.isEmpty() ? "image.ppm" : snapshotBaseName);
 }
+
+
+} // GUI
+} // StereoToolbox
+} // MVL

@@ -1,6 +1,6 @@
 /*
  * MVL Stereo Toolbox: rectification window
- * Copyright (C) 2013 Rok Mandeljc
+ * Copyright (C) 2013-2015 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,7 +27,12 @@
 #include <opencv2/imgcodecs.hpp>
 
 
-WindowRectification::WindowRectification (StereoPipeline *p, StereoRectification *r, QWidget *parent)
+namespace MVL {
+namespace StereoToolbox {
+namespace GUI {
+
+
+WindowRectification::WindowRectification (Pipeline::StereoPipeline *p, Pipeline::StereoRectification *r, QWidget *parent)
     : QWidget(parent, Qt::Window), pipeline(p), rectification(r)
 {
     setWindowTitle("Rectification");
@@ -155,7 +160,7 @@ void WindowRectification::updateImage ()
         displayPair->setImagePair(pipeline->getLeftRectifiedImage(), pipeline->getRightRectifiedImage());
     } else if (visualizationType == VisualizationAnaglyph) {
         // Anaglyph
-        StereoPipeline::createAnaglyph(pipeline->getLeftRectifiedImage(), pipeline->getRightRectifiedImage(), anaglyphImage);
+        Pipeline::StereoPipeline::createAnaglyph(pipeline->getLeftRectifiedImage(), pipeline->getRightRectifiedImage(), anaglyphImage);
         displayPair->setImage(anaglyphImage);
     }
 
@@ -307,7 +312,7 @@ void WindowRectification::saveImages ()
         QString fileNameAnaglyph = tmpFileName.absolutePath() + "/" + tmpFileName.baseName() + "." + ext;
 
         cv::Mat tmpAnaglyph;
-        StereoPipeline::createAnaglyph(tmpImg1, tmpImg2, tmpAnaglyph);
+        Pipeline::StereoPipeline::createAnaglyph(tmpImg1, tmpImg2, tmpAnaglyph);
 
         try {
             cv::imwrite(fileNameAnaglyph.toStdString(), tmpAnaglyph);
@@ -501,3 +506,8 @@ cv::Rect RoiDialog::getRoi () const
         return cv::Rect();
     }
 }
+
+
+} // GUI
+} // StereoToolbox
+} // MVL

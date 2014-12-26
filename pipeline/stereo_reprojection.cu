@@ -1,6 +1,6 @@
 /*
  * Stereo Pipeline: stereo reprojection
- * Copyright (C) 2013 Rok Mandeljc
+ * Copyright (C) 2013-2015 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -11,14 +11,19 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  */
 
 #include <opencv2/cudev.hpp>
 #include <opencv2/core/cuda/common.hpp>
+
+
+namespace MVL {
+namespace StereoToolbox {
+namespace Pipeline {
 
 
 __constant__ float cq[16];
@@ -63,3 +68,8 @@ void reprojectDisparityImageCuda (const cv::cuda::PtrStepSz<unsigned char> dispa
     reproject_kernel<<<grid, block, 0>>>(disparity, points);
     cudaSafeCall(cudaGetLastError());
 }
+
+
+} // Pipeline
+} // StereoToolbox
+} // MVL

@@ -1,6 +1,6 @@
 /*
- * Image File Pair Source: source
- * Copyright (C) 2013 Rok Mandeljc
+ * Image File Source: source
+ * Copyright (C) 2013-2015 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -11,17 +11,21 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  */
 
 #include "source.h"
 #include "source_widget.h"
 #include "image_file.h"
 
-using namespace SourceImageFile;
+
+namespace MVL {
+namespace StereoToolbox {
+namespace Pipeline {
+namespace SourceImageFile {
 
 
 Source::Source (QObject *parent)
@@ -36,7 +40,7 @@ Source::Source (QObject *parent)
     leftImageFile = new ImageFile(this);
     connect(leftImageFile, &ImageFile::imageReady, this, &Source::synchronizeFrames);
 
-    rightImageFile = new ImageFile(this);    
+    rightImageFile = new ImageFile(this);
     connect(rightImageFile, &ImageFile::imageReady, this, &Source::synchronizeFrames);
 }
 
@@ -152,7 +156,7 @@ void Source::periodicRefresh ()
     // Clear both
     leftImageReady = false;
     rightImageReady = false;
-    
+
     // Get images
     leftImageFile->refreshImage();
     rightImageFile->refreshImage();
@@ -166,7 +170,7 @@ void Source::synchronizeFrames ()
     } else if (QObject::sender() == rightImageFile) {
         rightImageReady = true;
     }
-    
+
     bool requireLeft = !leftImageFile->getImageFilename().isEmpty();
     bool requireRight = !rightImageFile->getImageFilename().isEmpty();
 
@@ -181,7 +185,7 @@ void Source::synchronizeFrames ()
         } else {
             imageRight = cv::Mat();
         }
-        
+
         // Reset only if both left and right image are valid (otherwise
         // setting left/right image individually will not work)
         if (requireLeft && requireRight) {
@@ -192,3 +196,9 @@ void Source::synchronizeFrames ()
         emit imagesChanged();
     }
 }
+
+
+} // SourceImageFile
+} // Pipeline
+} // StereoToolbox
+} // MVL

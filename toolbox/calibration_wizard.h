@@ -1,6 +1,6 @@
 /*
  * MVL Stereo Toolbox: calibration wizard
- * Copyright (C) 2013 Rok Mandeljc
+ * Copyright (C) 2013-2015 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,17 +28,27 @@
 #include <opencv2/core.hpp>
 
 
-class CalibrationPattern;
-class CalibrationPatternDisplayWidget;
-class ImageDisplayWidget;
-class ImagePairDisplayWidget;
-
 // Metatype declarations for OpenCV types, so we can pass them between
 // wizard pages
 Q_DECLARE_METATYPE(std::vector<std::vector<cv::Point2f> >);
 Q_DECLARE_METATYPE(std::vector<std::vector<cv::Point3f> >);
 Q_DECLARE_METATYPE(cv::Size);
 Q_DECLARE_METATYPE(cv::Mat);
+
+
+namespace MVL {
+namespace StereoToolbox {
+
+namespace Pipeline {
+class CalibrationPattern;
+} // Pipeline
+
+namespace GUI {
+
+
+class CalibrationPatternDisplayWidget;
+class ImageDisplayWidget;
+class ImagePairDisplayWidget;
 
 
 // *********************************************************************
@@ -252,7 +262,7 @@ protected:
     bool patternFound;
     bool autoProcess;
 
-    StereoCalibrationPattern calibrationPattern;
+    Pipeline::StereoCalibrationPattern calibrationPattern;
     std::vector<cv::Point2f> currentImagePoints;
 
     // These are what we will pass on...
@@ -610,5 +620,11 @@ protected:
 
     ImagePairDisplayWidget *displayImage;
 };
+
+
+} // GUI
+} // StereoToolbox
+} // MVL
+
 
 #endif

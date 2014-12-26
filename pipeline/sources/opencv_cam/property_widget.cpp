@@ -1,6 +1,6 @@
 /*
- * OpenCV Camera: generic property config widget
- * Copyright (C) 2013 Rok Mandeljc
+ * OpenCV Camera Source: property widget
+ * Copyright (C) 2013-2015 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,7 +20,11 @@
 #include "property_widget.h"
 #include "camera.h"
 
-using namespace SourceOpenCvCam;
+
+namespace MVL {
+namespace StereoToolbox {
+namespace Pipeline {
+namespace SourceOpenCvCam {
 
 
 PropertyWidget::PropertyWidget (Camera *c, int p, bool integer_value, QWidget *parent)
@@ -74,3 +78,9 @@ void PropertyWidget::updateProperty ()
         blockSignals(false);
     }
 }
+
+
+} // SourceOpenCvCam
+} // Pipeline
+} // StereoToolbox
+} // MVL

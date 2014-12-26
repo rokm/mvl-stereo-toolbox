@@ -1,6 +1,6 @@
 /*
- * OpenCV Semi-Global Block Matching: config widget
- * Copyright (C) 2013 Rok Mandeljc
+ * OpenCV Semi-Global Block Matching: method widget
+ * Copyright (C) 2013-2015 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,7 +20,11 @@
 #include "method_widget.h"
 #include "method.h"
 
-using namespace StereoMethodSemiGlobalBlockMatching;
+
+namespace MVL {
+namespace StereoToolbox {
+namespace Pipeline {
+namespace StereoMethodOpenCvSgbm {
 
 
 MethodWidget::MethodWidget (Method *m, QWidget *parent)
@@ -70,7 +74,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
     comboBox->setItemData(0, "Initial OpenCV settings.", Qt::ToolTipRole);
     comboBox->addItem("StereoMatch", Method::StereoMatch);
     comboBox->setItemData(1, "Settings from \"Stereo Match\" example.", Qt::ToolTipRole);
-    
+
     connect(comboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, [this, comboBox] (int index) {
         method->usePreset(comboBox->itemData(index).toInt());
     });
@@ -279,7 +283,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
     connect(comboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, [this, comboBox] (int index) {
         method->setMode(comboBoxMode->itemData(index).toInt());
     });
-    
+
     comboBoxMode = comboBox;
 
     layout->addRow(label, comboBox);
@@ -354,3 +358,9 @@ void MethodWidget::updateParameters ()
     comboBoxMode->setCurrentIndex(comboBoxMode->findData(method->getMode()));
     comboBoxMode->blockSignals(false);
 }
+
+
+} // StereoMethodOpenCvSgbm
+} // Pipeline
+} // StereoToolbox
+} // MVL

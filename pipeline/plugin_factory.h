@@ -1,6 +1,6 @@
 /*
  * Stereo Pipeline: plugin factory interface
- * Copyright (C) 2013 Rok Mandeljc
+ * Copyright (C) 2013-2015 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -11,18 +11,23 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  */
 
-#ifndef PLUGIN_FACTORY_H
-#define PLUGIN_FACTORY_H
+#ifndef MVL_STEREO_TOOLBOX__PIPELINE__PLUGIN_FACTORY_H
+#define MVL_STEREO_TOOLBOX__PIPELINE__PLUGIN_FACTORY_H
 
 #include "mvl_stereo_pipeline_export.h"
 
 #include <QtPlugin>
+
+
+namespace MVL {
+namespace StereoToolbox {
+namespace Pipeline {
 
 
 class MVL_STEREO_PIPELINE_EXPORT PluginFactory
@@ -34,13 +39,20 @@ public:
     };
 
     virtual PluginType getPluginType () const = 0;
-    
+
     virtual QString getShortName () const = 0;
     virtual QString getDescription () const = 0;
-    
-    virtual QObject *createObject (QObject * = 0) const = 0;    
+
+    virtual QObject *createObject (QObject * = 0) const = 0;
 };
 
-Q_DECLARE_INTERFACE(PluginFactory, "MVL_Stereo_Toolbox.PluginFactory/1.0")
+
+} // Pipeline
+} // StereoToolbox
+} // MVL
+
+
+Q_DECLARE_INTERFACE(MVL::StereoToolbox::Pipeline::PluginFactory, "MVL_Stereo_Toolbox.PluginFactory/1.0")
+
 
 #endif

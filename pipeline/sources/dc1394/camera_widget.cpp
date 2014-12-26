@@ -1,6 +1,6 @@
 /*
- * DC1394 Camera: config widget
- * Copyright (C) 2013 Rok Mandeljc
+ * DC1394 Source: camera widget
+ * Copyright (C) 2013-2015 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -11,17 +11,21 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  */
 
 #include "camera_widget.h"
 #include "camera.h"
 #include "feature_widget.h"
 
-using namespace SourceDC1394;
+
+namespace MVL {
+namespace StereoToolbox {
+namespace Pipeline {
+namespace SourceDC1394 {
 
 
 static const QString videoModeToString (dc1394video_mode_t);
@@ -53,7 +57,7 @@ CameraWidget::CameraWidget (Camera *c, QWidget *parent)
 
     // Vendor
     tooltip = "Camera vendor.";
-    
+
     label = new QLabel("<b>Vendor: </b>" + camera->getVendor(), this);
     label->setToolTip(tooltip);
 
@@ -61,7 +65,7 @@ CameraWidget::CameraWidget (Camera *c, QWidget *parent)
 
     // Model
     tooltip = "Camera model.";
-    
+
     label = new QLabel("<b>Model: </b>" + camera->getModel(), this);
     label->setToolTip(tooltip);
 
@@ -73,10 +77,10 @@ CameraWidget::CameraWidget (Camera *c, QWidget *parent)
 
     layout->addRow(line);
 
-    
+
     // Capture
     tooltip = "Start/stop capture.";
-    
+
     button = new QPushButton("Capture", this);
     button->setToolTip(tooltip);
     button->setCheckable(true);
@@ -101,7 +105,7 @@ CameraWidget::CameraWidget (Camera *c, QWidget *parent)
 
     // Mode
     tooltip = "Camera resolution and color mode.";
-    
+
     label = new QLabel("Mode", this);
     label->setToolTip(tooltip);
 
@@ -118,16 +122,16 @@ CameraWidget::CameraWidget (Camera *c, QWidget *parent)
     });
 
     comboBoxMode = comboBox;
-    
+
     layout->addRow(label, comboBox);
-    
+
     foreach (dc1394video_mode_t mode, camera->getSupportedModes()) {
         comboBoxMode->addItem(videoModeToString(mode), mode);
     }
 
     // Framerate
     tooltip = "Framerate.";
-    
+
     label = new QLabel("Framerate", this);
     label->setToolTip(tooltip);
 
@@ -136,11 +140,11 @@ CameraWidget::CameraWidget (Camera *c, QWidget *parent)
     connect(comboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, [this] (int index) {
         camera->setFramerate((dc1394framerate_t)comboBoxFramerate->itemData(index).toInt());
     });
-    
+
     comboBoxFramerate = comboBox;
-    
+
     layout->addRow(label, comboBox);
-    
+
     foreach (dc1394framerate_t framerate, camera->getSupportedFramerates()) {
         comboBoxFramerate->addItem(framerateToString(framerate), framerate);
     }
@@ -171,7 +175,7 @@ void CameraWidget::addFeatureWidgets ()
 
     for (unsigned int i = 0; i < sizeof(featureSet.feature)/sizeof(featureSet.feature[0]); i++) {
         const dc1394feature_info_t &feature = featureSet.feature[i];
-        
+
         if (feature.available) {
             label = new QLabel(dc1394_feature_get_string(feature.id), this);
             widget = new FeatureWidget(camera, feature, this);
@@ -263,3 +267,9 @@ static const QString framerateToString (dc1394framerate_t framerate)
 
     return "INVALID";
 }
+
+
+} // SourceDC1394
+} // Pipeline
+} // StereoToolbox
+} // MVL

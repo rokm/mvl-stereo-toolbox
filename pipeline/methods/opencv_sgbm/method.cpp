@@ -1,6 +1,6 @@
 /*
  * OpenCV Semi-Global Block Matching: method
- * Copyright (C) 2013 Rok Mandeljc
+ * Copyright (C) 2013-2015 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,7 +22,11 @@
 
 #include <opencv2/imgproc.hpp>
 
-using namespace StereoMethodSemiGlobalBlockMatching;
+
+namespace MVL {
+namespace StereoToolbox {
+namespace Pipeline {
+namespace StereoMethodOpenCvSgbm {
 
 
 Method::Method (QObject *parent)
@@ -92,7 +96,7 @@ void Method::usePreset (int type)
             sgbm->setSpeckleRange(32);
             sgbm->setDisp12MaxDiff(1);
             sgbm->setMode(cv::StereoSGBM::MODE_SGBM);
-            
+
             break;
         }
     };
@@ -182,7 +186,7 @@ void Method::saveParameters (const QString &filename) const
 
     // Store method name, so it can be validate upon loading
     storage << "MethodName" << getShortName().toStdString();
-    
+
     // Save parameters
     storage << "MinDisparity" << sgbm->getMinDisparity();
     storage << "NumDisparities" << sgbm->getNumDisparities();
@@ -386,7 +390,7 @@ void Method::setMode (int newValue)
     if (newValue != cv::StereoSGBM::MODE_SGBM && newValue != cv::StereoSGBM::MODE_HH) {
         newValue = cv::StereoSGBM::MODE_SGBM;
     }
-    
+
     // Set
     QMutexLocker locker(&mutex);
     sgbm->setMode(newValue);
@@ -394,3 +398,9 @@ void Method::setMode (int newValue)
 
     emit parameterChanged();
 }
+
+
+} // StereoMethodOpenCvSgbm
+} // Pipeline
+} // StereoToolbox
+} // MVL

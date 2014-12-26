@@ -1,6 +1,6 @@
 /*
- * Image File Pair Source: config widget
- * Copyright (C) 2013 Rok Mandeljc
+ * Image File Source: source widget
+ * Copyright (C) 2013-2015 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,7 +21,11 @@
 #include "source.h"
 #include "image_file.h"
 
-using namespace SourceImageFile;
+
+namespace MVL {
+namespace StereoToolbox {
+namespace Pipeline {
+namespace SourceImageFile {
 
 
 SourceWidget::SourceWidget (Source *s, QWidget *parent)
@@ -73,7 +77,7 @@ SourceWidget::SourceWidget (Source *s, QWidget *parent)
             source->loadImagePair(filenames[0], filenames[1], false);
         }
     });
-    
+
     layout->addRow(button);
 
     // Periodic refresh
@@ -84,7 +88,7 @@ SourceWidget::SourceWidget (Source *s, QWidget *parent)
     button->setCheckable(true);
     connect(button, &QPushButton::toggled, source, &Source::setPeriodicRefreshState);
     connect(source, &Source::periodicRefreshStateChanged, button, &QPushButton::setChecked);
-    
+
     layout->addRow(button);
 
     // Refresh period
@@ -101,7 +105,7 @@ SourceWidget::SourceWidget (Source *s, QWidget *parent)
     spinBox->setSuffix(" ms"); //
     connect(spinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), source, &Source::setRefreshPeriod);
     connect(source, &Source::refreshPeriodChanged, spinBox, &QSpinBox::setValue);
-    
+
     layout->addRow(label, spinBox);
 
     // Separator
@@ -151,3 +155,8 @@ QWidget *SourceWidget::createImageFrame (bool left)
     return imageFrame;
 }
 
+
+} // SourceImageFile
+} // Pipeline
+} // StereoToolbox
+} // MVL

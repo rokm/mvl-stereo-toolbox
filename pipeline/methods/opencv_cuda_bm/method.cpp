@@ -1,6 +1,6 @@
 /*
  * OpenCV CUDA Block Matching: method
- * Copyright (C) 2013 Rok Mandeljc
+ * Copyright (C) 2013-2015 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,7 +23,10 @@
 #include <opencv2/imgproc.hpp>
 
 
-using namespace StereoMethodBlockMatchingCUDA;
+namespace MVL {
+namespace StereoToolbox {
+namespace Pipeline {
+namespace StereoMethodOpenCvCudaBm {
 
 
 Method::Method (QObject *parent)
@@ -42,7 +45,7 @@ Method::~Method ()
 // *********************************************************************
 QString Method::getShortName () const
 {
-    return "BM_CUDA";
+    return "CUDA_BM";
 }
 
 QWidget *Method::createConfigWidget (QWidget *parent)
@@ -186,7 +189,7 @@ void Method::setPreFilterType (int newValue)
     QMutexLocker locker(&mutex);
     bm->setPreFilterType(newValue);
     locker.unlock();
-        
+
     emit parameterChanged();
 }
 
@@ -202,7 +205,7 @@ void Method::setPreFilterCap (int newValue)
     QMutexLocker locker(&mutex);
     bm->setPreFilterCap(newValue);
     locker.unlock();
-        
+
     emit parameterChanged();
 }
 
@@ -222,7 +225,7 @@ void Method::setNumDisparities (int newValue)
     QMutexLocker locker(&mutex);
     bm->setNumDisparities(newValue);
     locker.unlock();
-        
+
     emit parameterChanged();
 }
 
@@ -238,12 +241,12 @@ void Method::setWindowSize (int newValue)
     if (newValue % 2 == 0) {
         newValue++; // Must be odd number
     }
-    
+
     // Set
     QMutexLocker locker(&mutex);
     bm->setBlockSize(newValue);
     locker.unlock();
-        
+
     emit parameterChanged();
 }
 
@@ -260,6 +263,12 @@ void Method::setAverageTextureThreshold (double newValue)
     QMutexLocker locker(&mutex);
     bm->setTextureThreshold(newValue);
     locker.unlock();
-        
+
     emit parameterChanged();
 }
+
+
+} // StereoMethodOpenCvCudaBm
+} // Pipeline
+} // StereoToolbox
+} // MVL

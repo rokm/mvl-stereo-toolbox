@@ -1,6 +1,6 @@
 /*
- * Unicap Image Pair Source: source
- * Copyright (C) 2013 Rok Mandeljc
+ * Unicap Source: source
+ * Copyright (C) 2013-2015 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -11,17 +11,21 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  */
 
 #include "source.h"
 #include "source_widget.h"
 #include "camera.h"
 
-using namespace SourceUnicap;
+
+namespace MVL {
+namespace StereoToolbox {
+namespace Pipeline {
+namespace SourceUnicap {
 
 
 Source::Source (QObject *parent)
@@ -83,7 +87,7 @@ void Source::refreshCameraList ()
         entries.clear();
         endRemoveRows();
     }
-    
+
     // Enumerate devices
     int num_devices;
     unicap_status_t status = unicap_reenumerate_devices(&num_devices);
@@ -202,7 +206,7 @@ void Source::releaseCamera (Camera *& camera)
         // Disconnect
         disconnect(camera, &Camera::frameReady, this, &Source::synchronizeFrames);
 
-        // Delete camera object 
+        // Delete camera object
         camera->deleteLater();
         camera = NULL;
 
@@ -263,7 +267,7 @@ void Source::synchronizeFrames ()
     } else if (QObject::sender() == rightCamera) {
         rightFrameReady = true;
     }
-    
+
     bool requireLeft = (leftCamera && leftCamera->getCaptureState());
     bool requireRight = (rightCamera && rightCamera->getCaptureState());
 
@@ -352,3 +356,8 @@ QVariant Source::data (const QModelIndex &index, int role) const
     return QVariant();
 }
 
+
+} // SourceUnicap
+} // Pipeline
+} // StereoToolbox
+} // MVL

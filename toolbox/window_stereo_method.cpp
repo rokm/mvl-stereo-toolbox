@@ -1,6 +1,6 @@
 /*
  * MVL Stereo Toolbox: stereo method window
- * Copyright (C) 2013 Rok Mandeljc
+ * Copyright (C) 2013-2015 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,7 +32,12 @@
 #endif
 
 
-WindowStereoMethod::WindowStereoMethod (StereoPipeline *p, QList<StereoMethod *> &m, QWidget *parent)
+namespace MVL {
+namespace StereoToolbox {
+namespace GUI {
+
+
+WindowStereoMethod::WindowStereoMethod (Pipeline::StereoPipeline *p, QList<Pipeline::StereoMethod *> &m, QWidget *parent)
     : QWidget(parent, Qt::Window), pipeline(p), methods(m)
 {
     setWindowTitle("Stereo method");
@@ -94,7 +99,7 @@ WindowStereoMethod::WindowStereoMethod (StereoPipeline *p, QList<StereoMethod *>
     comboBoxVisualizationMethod = comboBox;
 
     fillVisualizationMethods();
-    pipeline->setDisparityVisualizationMethod(StereoPipeline::DisparityVisualizationGrayscale); // Set grayscale as default
+    pipeline->setDisparityVisualizationMethod(Pipeline::StereoPipeline::DisparityVisualizationGrayscale); // Set grayscale as default
 
     buttonsLayout->addStretch();
 
@@ -236,7 +241,7 @@ void WindowStereoMethod::saveImage ()
         } else if (ext == "bin") {
             // Save raw disparity in custom binary matrix format
             try {
-                StereoPipeline::writeMatrixToBinaryFile(tmpDisparity, fileName);
+                Pipeline::StereoPipeline::writeMatrixToBinaryFile(tmpDisparity, fileName);
             } catch (QString e) {
                 qWarning() << "Failed to save binary file:" << e;
             }
@@ -292,10 +297,10 @@ void WindowStereoMethod::fillVisualizationMethods ()
         const char *text;
         const char *tooltip;
     } methods[] = {
-        { StereoPipeline::DisparityVisualizationNone, "None", "No visualization." },
-        { StereoPipeline::DisparityVisualizationGrayscale, "Grayscale", "Grayscale." },
-        { StereoPipeline::DisparityVisualizationColorCuda, "Color (CUDA)", "HSV color (CUDA)." },
-        { StereoPipeline::DisparityVisualizationColorCpu, "Color (CPU)", "HSV color (CPU)." },
+        { Pipeline::StereoPipeline::DisparityVisualizationNone, "None", "No visualization." },
+        { Pipeline::StereoPipeline::DisparityVisualizationGrayscale, "Grayscale", "Grayscale." },
+        { Pipeline::StereoPipeline::DisparityVisualizationColorCuda, "Color (CUDA)", "HSV color (CUDA)." },
+        { Pipeline::StereoPipeline::DisparityVisualizationColorCpu, "Color (CPU)", "HSV color (CPU)." },
     };
 
     const QList<int> &supportedMethods = pipeline->getSupportedDisparityVisualizationMethods();
@@ -320,3 +325,8 @@ void WindowStereoMethod::updateVisualizationMethod (int method)
     comboBoxVisualizationMethod->setCurrentIndex(comboBoxVisualizationMethod->findData(method));
     comboBoxVisualizationMethod->blockSignals(oldState);
 }
+
+
+} // GUI
+} // StereoToolbox
+} // MVL

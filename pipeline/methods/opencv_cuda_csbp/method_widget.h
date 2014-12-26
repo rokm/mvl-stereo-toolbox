@@ -1,6 +1,6 @@
 /*
- * OpenCV CUDA Constant Space Belief Propagation: config widget
- * Copyright (C) 2013 Rok Mandeljc
+ * OpenCV CUDA Constant Space Belief Propagation: method widget
+ * Copyright (C) 2013-2015 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -11,26 +11,30 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  */
- 
-#ifndef STEREO_METHOD_CONSTANT_SPACE_BELIEF_PROPAGATION_CUDA_CONFIG_WIDGET_H
-#define STEREO_METHOD_CONSTANT_SPACE_BELIEF_PROPAGATION_CUDA_CONFIG_WIDGET_H
+
+#ifndef MVL_STEREO_TOOLBOX__PIPELINE__METHODS__OPENCV_CUDA_CSBP__METHOD_WIDGET_H
+#define MVL_STEREO_TOOLBOX__PIPELINE__METHODS__OPENCV_CUDA_CSBP__METHOD_WIDGET_H
 
 #include <QtWidgets>
 
 
-namespace StereoMethodConstantSpaceBeliefPropagationCUDA {
+namespace MVL {
+namespace StereoToolbox {
+namespace Pipeline {
+namespace StereoMethodOpenCvCudaCsbp {
+
 
 class Method;
 
 class MethodWidget : public QWidget
 {
     Q_OBJECT
-    
+
 public:
     MethodWidget (Method *, QWidget * = 0);
     virtual ~MethodWidget ();
@@ -52,6 +56,11 @@ protected:
     QCheckBox *checkBoxUseLocalCost;
 };
 
-}
+
+} // StereoMethodOpenCvCudaCsbp
+} // Pipeline
+} // StereoToolbox
+} // MVL
+
 
 #endif

@@ -1,6 +1,6 @@
 /*
- * DC1394 Image Pair Source: source
- * Copyright (C) 2013 Rok Mandeljc
+ * DC1394 Source: source
+ * Copyright (C) 2013-2015 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,22 +17,26 @@
  *
  */
 
-#ifndef IMAGE_SOURCE_DC1394_H
-#define IMAGE_SOURCE_DC1394_H
+#ifndef MVL_STEREO_TOOLBOX__PIPELINE__SOURCES__DC1394__SOURCE_H
+#define MVL_STEREO_TOOLBOX__PIPELINE__SOURCES__DC1394__SOURCE_H
 
 #include <image_pair_source.h>
 
 #include <dc1394/dc1394.h>
 
 
+namespace MVL {
+namespace StereoToolbox {
+namespace Pipeline {
 namespace SourceDC1394 {
+
 
 class Camera;
 
 class Source : public QAbstractListModel, public ImagePairSource
 {
     Q_OBJECT
-    Q_INTERFACES(ImagePairSource)
+    Q_INTERFACES(MVL::StereoToolbox::Pipeline::ImagePairSource)
 
 public:
     Source (QObject * = 0);
@@ -93,6 +97,11 @@ protected:
     cv::Mat imageRight;
 };
 
-}
+
+} // SourceDC1394
+} // Pipeline
+} // StereoToolbox
+} // MVL
+
 
 #endif

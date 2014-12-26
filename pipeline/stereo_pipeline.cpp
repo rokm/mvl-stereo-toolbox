@@ -1,6 +1,6 @@
 /*
  * Stereo Pipeline: pipeline
- * Copyright (C) 2013 Rok Mandeljc
+ * Copyright (C) 2013-2015 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,6 +31,11 @@
 #ifdef HAVE_OPENCV_CUDASTEREO
 #include <opencv2/cudastereo.hpp>
 #endif
+
+
+namespace MVL {
+namespace StereoToolbox {
+namespace Pipeline {
 
 
 StereoPipeline::StereoPipeline (QObject *parent)
@@ -812,3 +817,7 @@ void StereoPipeline::createAnaglyph (const cv::Mat &left, const cv::Mat &right, 
     cv::merge(anaglyphChannels, 3, anaglyph);
 }
 
+
+} // Pipeline
+} // StereoToolbox
+} // MVL

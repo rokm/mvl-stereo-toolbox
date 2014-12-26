@@ -1,7 +1,7 @@
 /*
  * OpenCV CUDA Block Matching: method
- * Copyright (C) 2013 Rok Mandeljc
- * 
+ * Copyright (C) 2013-2015 Rok Mandeljc
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -11,26 +11,30 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  */
- 
-#ifndef STEREO_METHOD_BLOCK_MATCHING_CUDA_H
-#define STEREO_METHOD_BLOCK_MATCHING_CUDA_H
+
+#ifndef MVL_STEREO_TOOLBOX__PIPELINE__METHODS__OPENCV_CUDA_BM__METHOD_H
+#define MVL_STEREO_TOOLBOX__PIPELINE__METHODS__OPENCV_CUDA_BM__METHOD_H
 
 #include <stereo_method.h>
 
 #include <opencv2/cudastereo.hpp>
 
 
-namespace StereoMethodBlockMatchingCUDA {
-    
+namespace MVL {
+namespace StereoToolbox {
+namespace Pipeline {
+namespace StereoMethodOpenCvCudaBm {
+
+
 class Method : public QObject, public StereoMethod
 {
     Q_OBJECT
-    Q_INTERFACES(StereoMethod)
+    Q_INTERFACES(MVL::StereoToolbox::Pipeline::StereoMethod)
 
 public:
     Method (QObject * = 0);
@@ -72,6 +76,11 @@ protected:
     cv::Mat tmpImg1, tmpImg2;
 };
 
-}
+
+} // StereoMethodOpenCvCudaBm
+} // Pipeline
+} // StereoToolbox
+} // MVL
+
 
 #endif

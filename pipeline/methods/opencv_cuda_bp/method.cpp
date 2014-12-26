@@ -1,6 +1,6 @@
 /*
  * OpenCV CUDA Belief Propagation: method
- * Copyright (C) 2013 Rok Mandeljc
+ * Copyright (C) 2013-2015 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,7 +20,11 @@
 #include "method.h"
 #include "method_widget.h"
 
-using namespace StereoMethodBeliefPropagationCUDA;
+
+namespace MVL {
+namespace StereoToolbox {
+namespace Pipeline {
+namespace StereoMethodOpenCvCudaBp {
 
 
 Method::Method (QObject *parent)
@@ -40,7 +44,7 @@ Method::~Method ()
 // *********************************************************************
 QString Method::getShortName () const
 {
-    return "BP_CUDA";
+    return "CUDA_BP";
 }
 
 QWidget *Method::createConfigWidget (QWidget *parent)
@@ -78,7 +82,7 @@ void Method::usePreset (int type)
             bp->setNumDisparities(ndisp);
             bp->setNumIters(iters);
             bp->setNumLevels(levels);
-            
+
             break;
         }
     };
@@ -201,7 +205,7 @@ void Method::setNumDisparities (int newValue)
     QMutexLocker locker(&mutex);
     bp->setNumDisparities(newValue);
     locker.unlock();
-            
+
     emit parameterChanged();
 }
 
@@ -217,7 +221,7 @@ void Method::setIterations (int newValue)
     QMutexLocker locker(&mutex);
     bp->setNumIters(newValue);
     locker.unlock();
-            
+
     emit parameterChanged();
 }
 
@@ -233,7 +237,7 @@ void Method::setLevels (int newValue)
     QMutexLocker locker(&mutex);
     bp->setNumLevels(newValue);
     locker.unlock();
-            
+
     emit parameterChanged();
 }
 
@@ -249,7 +253,7 @@ void Method::setMaxDataTerm (double newValue)
     QMutexLocker locker(&mutex);
     bp->setMaxDataTerm(newValue);
     locker.unlock();
-            
+
     emit parameterChanged();
 }
 
@@ -265,7 +269,7 @@ void Method::setDataWeight (double newValue)
     QMutexLocker locker(&mutex);
     bp->setDataWeight(newValue);
     locker.unlock();
-            
+
     emit parameterChanged();
 }
 
@@ -281,7 +285,7 @@ void Method::setMaxDiscTerm (double newValue)
     QMutexLocker locker(&mutex);
     bp->setMaxDiscTerm(newValue);
     locker.unlock();
-            
+
     emit parameterChanged();
 }
 
@@ -297,6 +301,12 @@ void Method::setDiscSingleJump (double newValue)
     QMutexLocker locker(&mutex);
     bp->setDiscSingleJump(newValue);
     locker.unlock();
-            
+
     emit parameterChanged();
 }
+
+
+} // StereoMethodOpenCvCudaBp
+} // Pipeline
+} // StereoToolbox
+} // MVL

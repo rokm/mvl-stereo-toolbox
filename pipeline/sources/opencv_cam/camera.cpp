@@ -1,6 +1,6 @@
 /*
- * OpenCV Camera: camera
- * Copyright (C) 2013 Rok Mandeljc
+ * OpenCV Camera Source: camera
+ * Copyright (C) 2013-2015 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -11,12 +11,12 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  */
- 
+
 #include "camera.h"
 #include "camera_widget.h"
 
@@ -24,7 +24,11 @@
 
 #define NUM_BUFFERS 32
 
-using namespace SourceOpenCvCam;
+
+namespace MVL {
+namespace StereoToolbox {
+namespace Pipeline {
+namespace SourceOpenCvCam {
 
 
 Camera::Camera (cv::VideoCapture *cap, ocv_camera_id_t cid, QObject *parent)
@@ -74,7 +78,7 @@ void Camera::setProperty (int prop, double newValue)
     if (!capture->set(prop, newValue)) {
         emit error(QString("Failed to set property %1!").arg(prop));
     }
-    
+
     emit propertyChanged();
 }
 
@@ -92,7 +96,7 @@ void Camera::startCapture ()
         //qWarning() << this << "Capture already running!";
     }
  }
- 
+
 void Camera::stopCapture ()
 {
     if (captureWatcher.isRunning()) {
@@ -133,7 +137,7 @@ void Camera::captureFunction ()
 
         frameBufferLock.unlock();
 
-        emit frameReady();        
+        emit frameReady();
     }
 
     emit captureFinished();
@@ -149,3 +153,9 @@ void Camera::copyFrame (cv::Mat &frame)
     QReadLocker lock(&frameBufferLock);
     frameBuffer.copyTo(frame);
 }
+
+
+} // SourceOpenCvCam
+} // Pipeline
+} // StereoToolbox
+} // MVL

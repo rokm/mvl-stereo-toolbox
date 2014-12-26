@@ -1,6 +1,6 @@
 /*
- * OpenCV Camera Image Pair Source: config widget
- * Copyright (C) 2013 Rok Mandeljc
+ * OpenCV Camera Source: source widget
+ * Copyright (C) 2013-2015 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -11,17 +11,21 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  */
 
 #include "source_widget.h"
 #include "source.h"
 #include "camera.h"
 
-using namespace SourceOpenCvCam;
+
+namespace MVL {
+namespace StereoToolbox {
+namespace Pipeline {
+namespace SourceOpenCvCam {
 
 
 SourceWidget::SourceWidget (Source *s, QWidget *parent)
@@ -41,7 +45,7 @@ SourceWidget::SourceWidget (Source *s, QWidget *parent)
     // Name
     label = new QLabel("<b><u>OpenCV camera source</u></b>", this);
     label->setAlignment(Qt::AlignHCenter);
-    
+
     baseLayout->addWidget(label);
 
     // Separator
@@ -56,13 +60,13 @@ SourceWidget::SourceWidget (Source *s, QWidget *parent)
     scrollArea->setWidget(new QWidget(this));
 
     baseLayout->addWidget(scrollArea);
-    
+
     QFormLayout *layout = new QFormLayout(scrollArea->widget());
-    
+
 
     // Rescan
     tooltip = "Rescan connected cameras.";
-    
+
     button = new QPushButton("Rescan");
     button->setToolTip(tooltip);
     connect(button, &QPushButton::clicked, source, &Source::refreshCameraList);
@@ -104,7 +108,7 @@ QWidget *SourceWidget::createDeviceFrame (bool left)
     QString tooltip;
 
     QFormLayout *layout;
-   
+
     // Camera frame
     deviceFrame = new QFrame(this);
     deviceFrame->setFrameStyle(QFrame::Box | QFrame::Sunken);
@@ -117,7 +121,7 @@ QWidget *SourceWidget::createDeviceFrame (bool left)
 
     // Combo box
     tooltip = left ? "Left OpenCV camera device." : "Right OpenCV camera device.";
-    
+
     comboBox = new QComboBox(deviceFrame);
     comboBox->setModel(source);
     comboBox->setToolTip(tooltip);
@@ -153,7 +157,7 @@ void SourceWidget::deviceSelected (int index)
     QComboBox *comboBox = qobject_cast<QComboBox *>(QObject::sender());
     QVariant c = comboBox->itemData(index);
     int device = c.isValid() ? c.toInt() : -1;
-    
+
     if (comboBox == comboBoxLeftDevice) {
         source->setLeftCamera(device);
     } else if (comboBox == comboBoxRightDevice) {
@@ -176,3 +180,9 @@ void SourceWidget::updateCamera (QWidget *&deviceConfig, QFrame *&deviceFrame, C
         deviceFrame->layout()->addWidget(deviceConfig);
     }
 }
+
+
+} // SourceOpenCvCam
+} // Pipeline
+} // StereoToolbox
+} // MVL

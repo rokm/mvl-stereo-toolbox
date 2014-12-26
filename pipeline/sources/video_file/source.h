@@ -1,6 +1,6 @@
 /*
  * Video File Source: source
- * Copyright (C) 2014 Rok Mandeljc
+ * Copyright (C) 2014-2015 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,8 +17,8 @@
  *
  */
 
-#ifndef SOURCE_VIDEO_FILE_H
-#define SOURCE_VIDEO_FILE_H
+#ifndef MVL_STEREO_TOOLBOX__PIPELINE__SOURCES__VIDEO_FILE__SOURCE_H
+#define MVL_STEREO_TOOLBOX__PIPELINE__SOURCES__VIDEO_FILE__SOURCE_H
 
 #include <QtConcurrent>
 
@@ -27,12 +27,16 @@
 #include <opencv2/videoio.hpp>
 
 
+namespace MVL {
+namespace StereoToolbox {
+namespace Pipeline {
 namespace SourceVideoFile {
+
 
 class Source : public QObject, public ImagePairSource
 {
     Q_OBJECT
-    Q_INTERFACES(ImagePairSource)
+    Q_INTERFACES(MVL::StereoToolbox::Pipeline::ImagePairSource)
 
 public:
     Source (QObject * = 0);
@@ -80,6 +84,11 @@ protected:
     QTimer *playbackTimer;
 };
 
-}
+
+} // SourceVideoFile
+} // Pipeline
+} // StereoToolbox
+} // MVL
+
 
 #endif

@@ -1,6 +1,6 @@
 /*
  * Stereo Pipeline: stereo rectification
- * Copyright (C) 2013 Rok Mandeljc
+ * Copyright (C) 2013-2015 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,13 +17,18 @@
  *
  */
 
-#ifndef STEREO_RECTIFICATION_H
-#define STEREO_RECTIFICATION_H
+#ifndef MVL_STEREO_TOOLBOX__PIPELINE__STEREO_RECTIFICATION_H
+#define MVL_STEREO_TOOLBOX__PIPELINE__STEREO_RECTIFICATION_H
 
 #include "mvl_stereo_pipeline_export.h"
 
 #include <QtCore>
 #include <opencv2/core.hpp>
+
+
+namespace MVL {
+namespace StereoToolbox {
+namespace Pipeline {
 
 
 class MVL_STEREO_PIPELINE_EXPORT StereoRectification : public QObject
@@ -98,5 +103,11 @@ protected:
     // ROI
     cv::Rect roi;
 };
+
+
+} // Pipeline
+} // StereoToolbox
+} // MVL
+
 
 #endif

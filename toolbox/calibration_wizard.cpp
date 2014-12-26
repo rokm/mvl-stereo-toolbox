@@ -1,6 +1,6 @@
 /*
  * MVL Stereo Toolbox: calibration wizard
- * Copyright (C) 2013 Rok Mandeljc
+ * Copyright (C) 2013-2015 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,6 +25,11 @@
 #include <opencv2/calib3d.hpp>
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/imgproc.hpp>
+
+
+namespace MVL {
+namespace StereoToolbox {
+namespace GUI {
 
 
 // *********************************************************************
@@ -239,9 +244,9 @@ CalibrationWizardPageImages::CalibrationWizardPageImages (const QString &fieldPr
     label->setToolTip("Calibration pattern type");
 
     comboBoxPatternType = new QComboBox(this);
-    comboBoxPatternType->addItem("Chessboard", StereoCalibrationPattern::Chessboard);
-    comboBoxPatternType->addItem("Circle grid", StereoCalibrationPattern::Circles);
-    comboBoxPatternType->addItem("Asymmetric circle grid", StereoCalibrationPattern::AsymmetricCircles);
+    comboBoxPatternType->addItem("Chessboard", Pipeline::StereoCalibrationPattern::Chessboard);
+    comboBoxPatternType->addItem("Circle grid", Pipeline::StereoCalibrationPattern::Circles);
+    comboBoxPatternType->addItem("Asymmetric circle grid", Pipeline::StereoCalibrationPattern::AsymmetricCircles);
     comboBoxPatternType->setCurrentIndex(0);
     patternLayout->addRow(label, comboBoxPatternType);
 
@@ -752,7 +757,7 @@ void CalibrationWizardPageDetection::initializePage ()
         field(fieldPrefix + "PatternWidth").toInt(),
         field(fieldPrefix + "PatternHeight").toInt(),
         field(fieldPrefix + "ElementSize").toDouble(),
-        (StereoCalibrationPattern::PatternType)field(fieldPrefix + "PatternType").toInt(),
+        (Pipeline::StereoCalibrationPattern::PatternType)field(fieldPrefix + "PatternType").toInt(),
         field(fieldPrefix + "ScaleLevels").toInt(),
         field(fieldPrefix + "ScaleIncrement").toDouble()
     );
@@ -2322,7 +2327,7 @@ void CalibrationWizardPageStereoResult::exportCalibrationClicked ()
             QString fieldPrefix = "Stereo";
 
             // Export
-            StereoRectification::exportStereoCalibration(fileName,
+            Pipeline::StereoRectification::exportStereoCalibration(fileName,
                 field(fieldPrefix + "CameraMatrix1").value<cv::Mat>(),
                 field(fieldPrefix + "DistCoeffs1").value<cv::Mat>(),
                 field(fieldPrefix + "CameraMatrix2").value<cv::Mat>(),
@@ -2336,3 +2341,8 @@ void CalibrationWizardPageStereoResult::exportCalibrationClicked ()
         }
     }
 }
+
+
+} // GUI
+} // StereoToolbox
+} // MVL

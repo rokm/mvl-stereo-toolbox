@@ -1,6 +1,6 @@
 /*
  * OpenCV Block Matching: method
- * Copyright (C) 2013 Rok Mandeljc
+ * Copyright (C) 2013-2015 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,7 +22,11 @@
 
 #include <opencv2/imgproc.hpp>
 
-using namespace StereoMethodBlockMatching;
+
+namespace MVL {
+namespace StereoToolbox {
+namespace Pipeline {
+namespace StereoMethodOpenCvBm {
 
 
 Method::Method (QObject *parent)
@@ -74,7 +78,7 @@ void Method::usePreset (int type)
             bm->setSpeckleWindowSize(0);
             bm->setSpeckleRange(0);
             bm->setDisp12MaxDiff(-1);
-            
+
             break;
         }
         case StereoMatch: {
@@ -173,12 +177,12 @@ void Method::loadParameters (const QString &filename)
     bm->setBlockSize((int)storage["SADWindowSize"]);
     bm->setMinDisparity((int)storage["MinDisparity"]);
     bm->setNumDisparities((int)storage["NumDisparities"]);
-    
+
     bm->setTextureThreshold((int)storage["TextureThreshold"]);
     bm->setUniquenessRatio((int)storage["UniquenessRatio"]);
     bm->setSpeckleWindowSize((int)storage["SpeckleWindowSize"]);
     bm->setSpeckleRange((int)storage["SpeckleRange"]);
-    
+
     bm->setDisp12MaxDiff((int)storage["Disp12MaxDiff"]);
 
     locker.unlock();
@@ -237,7 +241,7 @@ void Method::setPreFilterType (int newValue)
     QMutexLocker locker(&mutex);
     bm->setPreFilterType(newValue);
     locker.unlock();
-        
+
     emit parameterChanged();
 }
 
@@ -257,7 +261,7 @@ void Method::setPreFilterSize (int newValue)
     QMutexLocker locker(&mutex);
     bm->setPreFilterSize(newValue);
     locker.unlock();
-        
+
     emit parameterChanged();
 }
 
@@ -276,7 +280,7 @@ void Method::setPreFilterCap (int newValue)
     QMutexLocker locker(&mutex);
     bm->setPreFilterCap(newValue);
     locker.unlock();
-        
+
     emit parameterChanged();
 }
 
@@ -297,7 +301,7 @@ void Method::setSADWindowSize (int newValue)
     QMutexLocker locker(&mutex);
     bm->setBlockSize(newValue);
     locker.unlock();
-        
+
     emit parameterChanged();
 }
 
@@ -313,7 +317,7 @@ void Method::setMinDisparity (int newValue)
     QMutexLocker locker(&mutex);
     bm->setMinDisparity(newValue);
     locker.unlock();
-        
+
     emit parameterChanged();
 }
 
@@ -333,7 +337,7 @@ void Method::setNumDisparities (int newValue)
     QMutexLocker locker(&mutex);
     bm->setNumDisparities(newValue);
     locker.unlock();
-        
+
     emit parameterChanged();
 }
 
@@ -350,7 +354,7 @@ void Method::setTextureThreshold (int newValue)
     QMutexLocker locker(&mutex);
     bm->setTextureThreshold(newValue);
     locker.unlock();
-        
+
     emit parameterChanged();
 }
 
@@ -368,7 +372,7 @@ void Method::setUniquenessRatio (int newValue)
     QMutexLocker locker(&mutex);
     bm->setUniquenessRatio(newValue);
     locker.unlock();
-        
+
     emit parameterChanged();
 }
 
@@ -384,7 +388,7 @@ void Method::setSpeckleWindowSize (int newValue)
     QMutexLocker locker(&mutex);
     bm->setSpeckleWindowSize(newValue);
     locker.unlock();
-        
+
     emit parameterChanged();
 }
 
@@ -400,7 +404,7 @@ void Method::setSpeckleRange (int newValue)
     QMutexLocker locker(&mutex);
     bm->setSpeckleRange(newValue);
     locker.unlock();
-        
+
     emit parameterChanged();
 }
 
@@ -416,6 +420,12 @@ void Method::setDisp12MaxDiff (int newValue)
     QMutexLocker locker(&mutex);
     bm->setDisp12MaxDiff(newValue);
     locker.unlock();
-        
+
     emit parameterChanged();
 }
+
+
+} // StereoMethodOpenCvBm
+} // Pipeline
+} // StereoToolbox
+} // MVL

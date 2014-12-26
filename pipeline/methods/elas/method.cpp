@@ -1,7 +1,7 @@
 /*
  * Efficient LArge-scale Stereo: method
- * Copyright (C) 2013 Rok Mandeljc
- * 
+ * Copyright (C) 2013-2015 Rok Mandeljc
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -11,10 +11,10 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  */
 
 #include "method.h"
@@ -22,7 +22,11 @@
 
 #include <opencv2/imgproc.hpp>
 
-using namespace StereoMethodELAS;
+
+namespace MVL {
+namespace StereoToolbox {
+namespace Pipeline {
+namespace StereoMethodELAS {
 
 
 Method::Method (QObject *parent)
@@ -43,7 +47,7 @@ void Method::createElasObject ()
     QMutexLocker locker(&mutex);
     elas = Elas(param);
     locker.unlock();
-    
+
     emit parameterChanged();
 }
 
@@ -141,25 +145,25 @@ void Method::loadParameters (const QString &filename)
     if (!storage.isOpened()) {
         throw QString("Cannot open file \"%1\" for reading!").arg(filename);
     }
-    
+
     // Validate data type
     QString dataType = QString::fromStdString(storage["DataType"]);
     if (dataType.compare("StereoMethodParameters")) {
         throw QString("Invalid stereo method parameters configuration!");
     }
-    
+
     // Validate method name
     QString storedName = QString::fromStdString(storage["MethodName"]);
     if (storedName.compare(getShortName())) {
         throw QString("Invalid configuration for method \"%1\"!").arg(getShortName());
     }
-    
+
     // Load parameters
     param = Elas::parameters(Elas::ROBOTICS);
 
     storage["MinDisparity"] >> param.disp_min;
     storage["MaxDisparity"] >> param.disp_max;
-    
+
     storage["SupportThreshold"] >> param.support_threshold;
     storage["SupportTexture"] >> param.support_texture;
     storage["CandidateStepSize"] >> param.candidate_stepsize;
@@ -169,15 +173,15 @@ void Method::loadParameters (const QString &filename)
 
     storage["AddCorners"] >> param.add_corners;
     storage["GridSize"] >> param.grid_size;
-    
+
     storage["Beta"] >> param.beta;
     storage["Gamma"] >> param.gamma;
     storage["Sigma"] >> param.sigma;
     storage["SigmaRadius"] >> param.sradius;
-    
+
     storage["MatchTexture"] >> param.match_texture;
     storage["LRThreshold"] >> param.lr_threshold;
-    
+
     storage["SpeckleSimThreshold"] >> param.speckle_sim_threshold;
     storage["SpeckleSize"] >> param.speckle_size;
     storage["InterpolationGapWidth"] >> param.ipol_gap_width;
@@ -186,7 +190,7 @@ void Method::loadParameters (const QString &filename)
     storage["FilterAdaptiveMean"] >> param.filter_adaptive_mean;
     storage["PostProcessOnlyLeft"] >> param.postprocess_only_left;
     storage["Subsampling"] >> param.subsampling;
-    
+
     storage["ReturnLeft"] >> returnLeft;
 
     // Create ELAS object
@@ -202,14 +206,14 @@ void Method::saveParameters (const QString &filename) const
 
     // Data type
     storage << "DataType" << "StereoMethodParameters";
-    
+
     // Store method name, so it can be validate upon loading
     storage << "MethodName" << getShortName().toStdString();
 
     // Save parameters
     storage << "MinDisparity" << param.disp_min;
     storage << "MaxDisparity" << param.disp_max;
-    
+
     storage << "SupportThreshold" << param.support_threshold;
     storage << "SupportTexture" << param.support_texture;
     storage << "CandidateStepSize" << param.candidate_stepsize;
@@ -224,14 +228,14 @@ void Method::saveParameters (const QString &filename) const
     storage << "Gamma" << param.gamma;
     storage << "Sigma" << param.sigma;
     storage << "SigmaRadius" << param.sradius;
-    
+
     storage << "MatchTexture" << param.match_texture;
     storage << "LRThreshold" << param.lr_threshold;
-    
+
     storage << "SpeckleSimThreshold" << param.speckle_sim_threshold;
     storage << "SpeckleSize" << param.speckle_size;
     storage << "InterpolationGapWidth" << param.ipol_gap_width;
-    
+
     storage << "FilterMedian" << param.filter_median;
     storage << "FilterAdaptiveMean" << param.filter_adaptive_mean;
     storage << "PostProcessOnlyLeft" << param.postprocess_only_left;
@@ -514,3 +518,9 @@ void Method::setReturnLeft (bool newValue)
 {
     setParameter(returnLeft, newValue);
 }
+
+
+}; // StereoMethodELAS
+}; // Pipeline
+}; // StereoToolbox
+}; // MVL

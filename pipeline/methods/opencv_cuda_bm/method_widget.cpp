@@ -1,6 +1,6 @@
 /*
- * OpenCV CUDA Block Matching: config widget
- * Copyright (C) 2013 Rok Mandeljc
+ * OpenCV CUDA Block Matching: method widget
+ * Copyright (C) 2013-2015 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,7 +23,11 @@
 #include <cfloat>
 #include <climits>
 
-using namespace StereoMethodBlockMatchingCUDA;
+
+namespace MVL {
+namespace StereoToolbox {
+namespace Pipeline {
+namespace StereoMethodOpenCvCudaBm {
 
 
 MethodWidget::MethodWidget (Method *m, QWidget *parent)
@@ -95,7 +99,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
     connect(comboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, [this, comboBox] (int index) {
         method->setPreFilterType(comboBox->itemData(index).toInt());
     });
-    
+
     comboBoxPreFilterType = comboBox;
 
     layout->addRow(label, comboBox);
@@ -205,3 +209,9 @@ void MethodWidget::updateParameters ()
     spinBoxAverageTextureThreshold->setValue(method->getAverageTextureThreshold());
     spinBoxAverageTextureThreshold->blockSignals(oldState);
 }
+
+
+} // StereoMethodOpenCvCudaBm
+} // Pipeline
+} // StereoToolbox
+} // MVL

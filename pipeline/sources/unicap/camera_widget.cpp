@@ -1,6 +1,6 @@
 /*
- * Unicap Camera: config widget
- * Copyright (C) 2013 Rok Mandeljc
+ * Unicap Source: camera widget
+ * Copyright (C) 2013-2015 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -11,17 +11,21 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  */
 
 #include "camera_widget.h"
 #include "camera.h"
 #include "property_widget.h"
 
-using namespace SourceUnicap;
+
+namespace MVL {
+namespace StereoToolbox {
+namespace Pipeline {
+namespace SourceUnicap {
 
 
 CameraWidget::CameraWidget (Camera *c, QWidget *parent)
@@ -49,7 +53,7 @@ CameraWidget::CameraWidget (Camera *c, QWidget *parent)
 
     // Vendor
     tooltip = "Device vendor.";
-    
+
     label = new QLabel("<b>Vendor: </b>" + camera->getDeviceVendor(), this);
     label->setToolTip(tooltip);
 
@@ -57,7 +61,7 @@ CameraWidget::CameraWidget (Camera *c, QWidget *parent)
 
     // Model
     tooltip = "Device model.";
-    
+
     label = new QLabel("<b>Model: </b>" + camera->getDeviceModel(), this);
     label->setToolTip(tooltip);
 
@@ -65,7 +69,7 @@ CameraWidget::CameraWidget (Camera *c, QWidget *parent)
 
     // Communication plugin
     tooltip = "Device communication plugin.";
-    
+
     label = new QLabel("<b>Plugin: </b>" + camera->getDevicePluginName(), this);
     label->setToolTip(tooltip);
 
@@ -73,7 +77,7 @@ CameraWidget::CameraWidget (Camera *c, QWidget *parent)
 
     // Device
     tooltip = "Device file name.";
-    
+
     label = new QLabel("<b>Device: </b>" + camera->getDeviceFileName(), this);
     label->setToolTip(tooltip);
 
@@ -85,14 +89,14 @@ CameraWidget::CameraWidget (Camera *c, QWidget *parent)
 
     layout->addRow(line);
 
-    
+
     // Capture
     tooltip = "Start/stop capture.";
-    
+
     button = new QPushButton("Capture", this);
     button->setToolTip(tooltip);
     button->setCheckable(true);
-    
+
     connect(button, &QPushButton::toggled, this, [this] (bool start) {
         if (start) {
             camera->startCapture();
@@ -100,7 +104,7 @@ CameraWidget::CameraWidget (Camera *c, QWidget *parent)
             camera->stopCapture();
         }
     });
-    
+
     pushButtonCapture = button;
 
     layout->addRow(button);
@@ -113,7 +117,7 @@ CameraWidget::CameraWidget (Camera *c, QWidget *parent)
 
     // Format
     tooltip = "Camera resolution and color mode.";
-    
+
     label = new QLabel("Format", this);
     label->setToolTip(tooltip);
 
@@ -122,7 +126,7 @@ CameraWidget::CameraWidget (Camera *c, QWidget *parent)
         camera->setFormat(camera->getSupportedFormats()[index]);
     });
     comboBoxFormat = comboBox;
-    
+
     layout->addRow(label, comboBox);
 
     foreach (const unicap_format_t &format, camera->getSupportedFormats()) {
@@ -141,7 +145,7 @@ CameraWidget::CameraWidget (Camera *c, QWidget *parent)
     connect(widgetSize, &SizeWidget::sizeChanged, this, [this] (unicap_rect_t newSize) {
         camera->setSize(newSize);
     });
-    
+
     layout->addRow(label, widgetSize);
 
     // Size 2
@@ -155,9 +159,9 @@ CameraWidget::CameraWidget (Camera *c, QWidget *parent)
     connect(comboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, [this] (int index) {
         camera->setSize(format.sizes[index]);
     });
-    
+
     comboBoxSize = comboBox;
-    
+
     layout->addRow(label, comboBox);
 
     // Separator
@@ -226,7 +230,7 @@ void CameraWidget::updateFormat ()
         labelSize2->hide();
         comboBoxSize->hide();
     }
-    
+
     updateSize();
 }
 
@@ -269,8 +273,8 @@ SizeWidget::SizeWidget (QWidget *parent)
     layout->setContentsMargins(0, 0, 0, 0);
 
     QLabel *label;
-    
-    // Offset X, Y    
+
+    // Offset X, Y
     label = new QLabel("X:", this);
     label->setToolTip("Horizontal offset.");
     layout->addWidget(label, 0, 0);
@@ -303,7 +307,7 @@ SizeWidget::SizeWidget (QWidget *parent)
     label = new QLabel("H:", this);
     label->setToolTip("Image height.");
     layout->addWidget(label, 1, 2);
-    
+
     spinBoxHeight = new QSpinBox(this);
     spinBoxHeight->setKeyboardTracking(false);
     spinBoxHeight->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -320,7 +324,7 @@ unicap_rect_t SizeWidget::getSize () const
     unicap_rect_t size;
     return size;
 }
-    
+
 
 void SizeWidget::setSize (const unicap_rect_t &size)
 {
@@ -344,3 +348,9 @@ void SizeWidget::setValidSizeRange (const unicap_rect_t &min_size, const unicap_
     spinBoxHeight->setRange(min_size.height, max_size.height);
     spinBoxHeight->setSingleStep(step_v);
 }
+
+
+} // SourceUnicap
+} // Pipeline
+} // StereoToolbox
+} // MVL

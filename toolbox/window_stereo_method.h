@@ -1,6 +1,6 @@
 /*
  * MVL Stereo Toolbox: stereo method window
- * Copyright (C) 2013 Rok Mandeljc
+ * Copyright (C) 2013-2015 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,8 +23,16 @@
 #include <QtWidgets>
 
 
+namespace MVL {
+namespace StereoToolbox {
+
+namespace Pipeline {
 class StereoPipeline;
 class StereoMethod;
+} // Pipeline
+
+namespace GUI {
+
 
 class DisparityImageDisplayWidget;
 
@@ -33,7 +41,7 @@ class WindowStereoMethod : public QWidget
     Q_OBJECT
 
 public:
-    WindowStereoMethod (StereoPipeline *, QList<StereoMethod *> &, QWidget * = 0);
+    WindowStereoMethod (Pipeline::StereoPipeline *, QList<Pipeline::StereoMethod *> &, QWidget * = 0);
     virtual ~WindowStereoMethod ();
 
 protected slots:
@@ -57,8 +65,8 @@ protected:
 
 protected:
     // Pipeline
-    StereoPipeline *pipeline;
-    QList<StereoMethod *> methods;
+    Pipeline::StereoPipeline *pipeline;
+    QList<Pipeline::StereoMethod *> methods;
 
     // GUI
     QPushButton *pushButtonExportParameters;
@@ -73,5 +81,11 @@ protected:
 
     QString lastSavedFile;
 };
+
+
+} // GUI
+} // StereoToolbox
+} // MVL
+
 
 #endif

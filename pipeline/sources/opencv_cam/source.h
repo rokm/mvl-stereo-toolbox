@@ -1,6 +1,6 @@
 /*
- * OpenCV Camera Image Pair Source: source
- * Copyright (C) 2013 Rok Mandeljc
+ * OpenCV Camera Source: source
+ * Copyright (C) 2013-2015 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,19 +17,23 @@
  *
  */
 
-#ifndef IMAGE_SOURCE_OPENCV_CAM_H
-#define IMAGE_SOURCE_OPENCV_CAM_H
+#ifndef MVL_STEREO_TOOLBOX__PIPELINE__SOURCES__OPENCV_CAM__SOURCE_H
+#define MVL_STEREO_TOOLBOX__PIPELINE__SOURCES__OPENCV_CAM__SOURCE_H
 
 #include <image_pair_source.h>
 #include "camera.h"
 
 
+namespace MVL {
+namespace StereoToolbox {
+namespace Pipeline {
 namespace SourceOpenCvCam {
+
 
 class Source : public QAbstractListModel, public ImagePairSource
 {
     Q_OBJECT
-    Q_INTERFACES(ImagePairSource)
+    Q_INTERFACES(MVL::StereoToolbox::Pipeline::ImagePairSource)
 
 public:
     Source (QObject * = 0);
@@ -88,6 +92,11 @@ protected:
     cv::Mat imageRight;
 };
 
-}
+
+} // SourceOpenCvCam
+} // Pipeline
+} // StereoToolbox
+} // MVL
+
 
 #endif

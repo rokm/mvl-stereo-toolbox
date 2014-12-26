@@ -1,6 +1,6 @@
 /*
  * MVL Stereo Toolbox: reprojection window
- * Copyright (C) 2013 Rok Mandeljc
+ * Copyright (C) 2013-2015 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,7 +26,12 @@
 #include <opencv2/imgcodecs.hpp>
 
 
-WindowReprojection::WindowReprojection (StereoPipeline *p, StereoReprojection *r, QWidget *parent)
+namespace MVL {
+namespace StereoToolbox {
+namespace GUI {
+
+
+WindowReprojection::WindowReprojection (Pipeline::StereoPipeline *p, Pipeline::StereoReprojection *r, QWidget *parent)
     : QWidget(parent, Qt::Window), pipeline(p), reprojection(r)
 {
     setWindowTitle("Reprojection");
@@ -179,10 +184,10 @@ void WindowReprojection::fillReprojectionMethods ()
         const char *text;
         const char *tooltip;
     } methods[] = {
-        { StereoReprojection::ReprojectionMethodToolboxCpu, "Toolbox CPU", "Toolbox-modified CPU method (handles ROI)." },
-        { StereoReprojection::ReprojectionMethodToolboxCuda, "Toolbox CUDA", "Toolbox-modified CUDA method (handles ROI)." },
-        { StereoReprojection::ReprojectionMethodOpenCvCpu, "OpenCV CPU", "Stock OpenCV CPU method." },
-        { StereoReprojection::ReprojectionMethodOpenCvCuda, "OpenCV CUDA", "Stock OpenCV CUDA method." },
+        { Pipeline::StereoReprojection::ReprojectionMethodToolboxCpu, "Toolbox CPU", "Toolbox-modified CPU method (handles ROI)." },
+        { Pipeline::StereoReprojection::ReprojectionMethodToolboxCuda, "Toolbox CUDA", "Toolbox-modified CUDA method (handles ROI)." },
+        { Pipeline::StereoReprojection::ReprojectionMethodOpenCvCpu, "OpenCV CPU", "Stock OpenCV CPU method." },
+        { Pipeline::StereoReprojection::ReprojectionMethodOpenCvCuda, "OpenCV CUDA", "Stock OpenCV CUDA method." },
     };
 
     const QList<int> &supportedMethods = reprojection->getSupportedReprojectionMethods();
@@ -251,7 +256,7 @@ void WindowReprojection::saveReprojectionResult ()
         } else {
             // Save reprojected points in custom binary matrix format
             try {
-                StereoPipeline::writeMatrixToBinaryFile(tmpReprojection, fileName);
+                Pipeline::StereoPipeline::writeMatrixToBinaryFile(tmpReprojection, fileName);
             } catch (QString e) {
                 qWarning() << "Failed to save binary file:" << e;
             }
@@ -260,3 +265,8 @@ void WindowReprojection::saveReprojectionResult ()
         lastSavedFile = fileName;
     }
 }
+
+
+} // GUI
+} // StereoToolbox
+} // MVL

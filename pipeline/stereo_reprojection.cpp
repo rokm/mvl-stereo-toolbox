@@ -1,6 +1,6 @@
 /*
  * Stereo Pipeline: stereo reprojection
- * Copyright (C) 2013 Rok Mandeljc
+ * Copyright (C) 2013-2015 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -11,10 +11,10 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  */
 
 #include "stereo_reprojection.h"
@@ -28,6 +28,11 @@
 #include <cuda_runtime.h>
 #endif
 #endif
+
+
+namespace MVL {
+namespace StereoToolbox {
+namespace Pipeline {
 
 
 // Forward-declarations for toolbox-modified methods
@@ -59,7 +64,7 @@ StereoReprojection::StereoReprojection (QObject *parent)
     }
 #endif
 
-    // Default method: Toolbox CPU    
+    // Default method: Toolbox CPU
     reprojectionMethod = ReprojectionMethodToolboxCpu;
 }
 
@@ -116,7 +121,7 @@ void StereoReprojection::setReprojectionMatrix (const cv::Mat &newQ)
     } else {
         Q = newQ.clone(); // Copy
     }
-    
+
     emit reprojectionMatrixChanged();
 }
 
@@ -197,9 +202,9 @@ void reprojectDisparityImage (const cv::Mat &disparity, cv::Mat &points, const c
     for (int yi = 0; yi < disparity.rows; yi++) {
         const unsigned char *disp_ptr = disparity.ptr<unsigned char>(yi);
         cv::Vec3f *point_ptr = points.ptr<cv::Vec3f>(yi);
-        
+
         int y = yi + offsetY;
-        
+
         qx = q[0][1]*y + q[0][3];
         qy = q[1][1]*y + q[1][3];
         qz = q[2][1]*y + q[2][3];
@@ -207,7 +212,7 @@ void reprojectDisparityImage (const cv::Mat &disparity, cv::Mat &points, const c
 
         for (int xi = 0; xi < disparity.cols; xi++) {
             int x = xi + offsetX;
-            
+
             d = disp_ptr[xi];
 
             iw = 1.0 / (q[3][0]*x + qw + q[3][2]*d);
@@ -219,3 +224,7 @@ void reprojectDisparityImage (const cv::Mat &disparity, cv::Mat &points, const c
     }
 }
 
+
+} // Pipeline
+} // StereoToolbox
+} // MVL

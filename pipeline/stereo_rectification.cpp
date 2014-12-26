@@ -1,6 +1,6 @@
 /*
  * Stereo Pipeline: stereo rectification
- * Copyright (C) 2013 Rok Mandeljc
+ * Copyright (C) 2013-2015 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +21,11 @@
 
 #include <opencv2/calib3d.hpp>
 #include <opencv2/imgproc.hpp>
+
+
+namespace MVL {
+namespace StereoToolbox {
+namespace Pipeline {
 
 
 StereoRectification::StereoRectification (QObject *parent)
@@ -270,3 +275,8 @@ bool StereoRectification::getPerformRectification () const
 {
     return performRectification;
 }
+
+
+} // Pipeline
+} // StereoToolbox
+} // MVL

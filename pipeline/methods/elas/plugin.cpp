@@ -1,7 +1,7 @@
 /*
  * Efficient LArge-scale Stereo: plugin
- * Copyright (C) 2013 Rok Mandeljc
- * 
+ * Copyright (C) 2013-2015 Rok Mandeljc
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -11,36 +11,40 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  */
 
 #include <plugin_factory.h>
 #include "method.h"
 
-using namespace StereoMethodELAS;
+
+namespace MVL {
+namespace StereoToolbox {
+namespace Pipeline {
+namespace StereoMethodELAS {
 
 
 class Plugin : public QObject, PluginFactory
 {
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "mvl-stereo-toolbox.Plugin.StereoMethod.ELAS")
-    Q_INTERFACES(PluginFactory)
-    
+    Q_INTERFACES(MVL::StereoToolbox::Pipeline::PluginFactory)
+
     PluginType getPluginType () const {
         return PluginStereoMethod;
     }
-    
+
     QString getShortName () const {
         return "ELAS";
     }
-    
+
     QString getDescription () const {
         return "Efficient LArge-scale Stereo";
     }
-    
+
     QObject *createObject (QObject *parent = 0) const {
         return new Method(parent);
     }
@@ -48,3 +52,9 @@ class Plugin : public QObject, PluginFactory
 
 // Because we have Q_OBJECT in source file
 #include "plugin.moc"
+
+
+} // StereoMethodELAS
+} // Pipeline
+} // StereoToolbox
+} // MVL

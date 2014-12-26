@@ -1,6 +1,6 @@
 /*
- * DC1394 Camera: camera
- * Copyright (C) 2013 Rok Mandeljc
+ * DC1394 Source: camera
+ * Copyright (C) 2013-2015 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -11,14 +11,14 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  */
 
-#ifndef CAMERA_DC1394_H
-#define CAMERA_DC1394_H
+#ifndef MVL_STEREO_TOOLBOX__PIPELINE__SOURCES__DC1394__CAMERA_H
+#define MVL_STEREO_TOOLBOX__PIPELINE__SOURCES__DC1394__CAMERA_H
 
 #include <QtWidgets>
 #include <dc1394/dc1394.h>
@@ -26,7 +26,11 @@
 #include <opencv2/core.hpp>
 
 
+namespace MVL {
+namespace StereoToolbox {
+namespace Pipeline {
 namespace SourceDC1394 {
+
 
 class CameraCaptureWorker;
 
@@ -48,7 +52,7 @@ public:
     QString getVendor () const;
     QString getModel () const;
 
-    // Basic parameters    
+    // Basic parameters
     void setIsoSpeed (dc1394speed_t);
     dc1394speed_t getIsoSpeed () const;
 
@@ -95,7 +99,7 @@ signals:
 
 protected:
     dc1394camera_id_t id;
-    
+
     dc1394camera_t *camera;
     dc1394featureset_t features;
 
@@ -143,6 +147,11 @@ protected:
     QReadWriteLock frameBufferLock;
 };
 
-}
+
+} // SourceDC1394
+} // Pipeline
+} // StereoToolbox
+} // MVL
+
 
 #endif

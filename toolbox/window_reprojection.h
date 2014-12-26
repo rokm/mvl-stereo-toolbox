@@ -1,6 +1,6 @@
 /*
  * MVL Stereo Toolbox: reprojection window
- * Copyright (C) 2013 Rok Mandeljc
+ * Copyright (C) 2013-2015 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,8 +23,16 @@
 #include <QtWidgets>
 
 
+namespace MVL {
+namespace StereoToolbox {
+
+namespace Pipeline {
 class StereoReprojection;
 class StereoPipeline;
+} // Pipeline
+
+namespace GUI {
+
 class ReprojectedImageDisplayWidget;
 
 class WindowReprojection : public QWidget
@@ -32,7 +40,7 @@ class WindowReprojection : public QWidget
     Q_OBJECT
 
 public:
-    WindowReprojection (StereoPipeline *, StereoReprojection *, QWidget * = 0);
+    WindowReprojection (Pipeline::StereoPipeline *, Pipeline::StereoReprojection *, QWidget * = 0);
     virtual ~WindowReprojection ();
 
 protected slots:
@@ -51,8 +59,8 @@ protected:
 
 protected:
     // Pipeline
-    StereoPipeline *pipeline;
-    StereoReprojection *reprojection;
+    Pipeline::StereoPipeline *pipeline;
+    Pipeline::StereoReprojection *reprojection;
 
     // GUI
     QComboBox *comboBoxImage;
@@ -66,5 +74,11 @@ protected:
 
     QString lastSavedFile;
 };
+
+
+} // GUI
+} // StereoToolbox
+} // MVL
+
 
 #endif

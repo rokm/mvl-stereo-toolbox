@@ -1,6 +1,6 @@
 /*
- * Unicap Camera: camera
- * Copyright (C) 2013 Rok Mandeljc
+ * Unicap Source: camera
+ * Copyright (C) 2013-2015 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -11,16 +11,20 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  */
 
 #include "camera.h"
 #include "camera_widget.h"
 
-using namespace SourceUnicap;
+
+namespace MVL {
+namespace StereoToolbox {
+namespace Pipeline {
+namespace SourceUnicap {
 
 
 static void callback_new_frame (unicap_event_t, unicap_handle_t, unicap_data_buffer_t *, void *);
@@ -44,14 +48,14 @@ Camera::Camera (unicap_handle_t h, QObject *parent)
 
     // Set first available format
     setFormat(formats[0]);
-    
+
     // Get all properties
     unicap_reenumerate_properties(handle, &num_properties);
     properties.resize(num_properties);
     for (int i = 0; i < num_properties; i++) {
         unicap_enumerate_properties(handle, NULL, &properties[i], i);
     }
-    
+
     // Use system buffers for capture; in this mode, unicap internally
     // manages a capture thread
     captureActive = false;
@@ -126,7 +130,7 @@ void Camera::setFormat (const unicap_format_t &newFormat)
 
     // Use maximum size for initialization
     tmp_format.size = tmp_format.max_size;
-    
+
     // Set format
     status = unicap_set_format(handle, &tmp_format);
     if (status != STATUS_SUCCESS) {
@@ -138,7 +142,7 @@ void Camera::setFormat (const unicap_format_t &newFormat)
 }
 
 void Camera::updateFormat ()
-{    
+{
     // Read format from device...
     unicap_get_format(handle, &format);
     // ... and notify listeners of the change
@@ -164,7 +168,7 @@ void Camera::setSize (unicap_rect_t &size)
     if (status != STATUS_SUCCESS) {
         qWarning() << "Failed to set new format:" << status;
     }
-    
+
     // Read format from device...
     unicap_get_format(handle, &format);
     // ... and notify listeners of the change
@@ -226,7 +230,7 @@ void Camera::setPropertyValue (const QString &name, const QString &value)
     if (status != STATUS_SUCCESS) {
         qWarning() << "Failed to query property" << name << "!";
     }
-    
+
     // Set menu value
     QByteArray value_str = value.toLocal8Bit();
     strncpy(property.menu_item, value_str, sizeof(property.menu_item));
@@ -235,7 +239,7 @@ void Camera::setPropertyValue (const QString &name, const QString &value)
     if (status != STATUS_SUCCESS) {
         qWarning() << "Failed to set property" << name << "to" << value;
     }
-    
+
     emit propertyChanged();
 }
 
@@ -243,7 +247,7 @@ void Camera::setPropertyValue (const QString &name, const QString &value)
 void Camera::setPropertyMode (const QString &name, PropertyMode mode)
 {
     unicap_status_t status = STATUS_SUCCESS;
-    
+
     switch (mode) {
         case PropertyModeManual: {
             status = unicap_set_property_manual(handle, name.toLocal8Bit().data());
@@ -325,7 +329,7 @@ void Camera::captureFrame (unicap_data_buffer_t *buffer)
 
     // Unlock
     frameBufferLock.unlock();
-    
+
     emit frameReady();
 }
 
@@ -335,3 +339,9 @@ void Camera::copyFrame (cv::Mat &frame)
     QReadLocker lock(&frameBufferLock);
     frameBuffer.copyTo(frame);
 }
+
+
+} // SourceUnicap
+} // Pipeline
+} // StereoToolbox
+} // MVL

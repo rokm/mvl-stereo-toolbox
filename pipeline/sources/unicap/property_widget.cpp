@@ -1,6 +1,6 @@
 /*
- * Unicap Camera: generic property config widget
- * Copyright (C) 2013 Rok Mandeljc
+ * Unicap Source: property widget
+ * Copyright (C) 2013-2015 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -11,16 +11,20 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  */
 
 #include "property_widget.h"
 #include "camera.h"
 
-using namespace SourceUnicap;
+
+namespace MVL {
+namespace StereoToolbox {
+namespace Pipeline {
+namespace SourceUnicap {
 
 
 PropertyWidget::PropertyWidget (Camera *c, const unicap_property_t &p, QWidget *parent)
@@ -49,7 +53,7 @@ PropertyWidget::PropertyWidget (Camera *c, const unicap_property_t &p, QWidget *
                 spinBoxValue = new QDoubleSpinBox(this);
                 spinBoxValue->setToolTip(QString("Min: %1 Max: %2").arg(property.range.min).arg(property.range.max));
                 spinBoxValue->setKeyboardTracking(false);
-            
+
                 spinBoxValue->setRange(property.range.min, property.range.max);
                 spinBoxValue->setSingleStep(property.stepping);
                 spinBoxValue->setValue(property.value);
@@ -103,7 +107,7 @@ PropertyWidget::PropertyWidget (Camera *c, const unicap_property_t &p, QWidget *
             qWarning() << "Unhandled property type" << property.type;
             break;
         }
-        
+
     }
 
     // Mode
@@ -119,7 +123,7 @@ PropertyWidget::PropertyWidget (Camera *c, const unicap_property_t &p, QWidget *
         comboBoxMode->addItem("Manual", Camera::PropertyModeManual);
         numModes++;
     }
-    
+
     if (property.flags_mask & UNICAP_FLAGS_AUTO) {
         comboBoxMode->addItem("Auto", Camera::PropertyModeAuto);
         numModes++;
@@ -133,13 +137,13 @@ PropertyWidget::PropertyWidget (Camera *c, const unicap_property_t &p, QWidget *
     // Make visible only if there's at least two options
     if (numModes < 2) {
         comboBoxMode->hide();
-    }  
-    
+    }
+
     // Update parameter
     updateTimer = new QTimer(this);
     connect(updateTimer, &QTimer::timeout, this, &PropertyWidget::updateProperty);
     updateTimer->start(1000);
-    
+
     updateProperty();
 }
 
@@ -211,10 +215,16 @@ void PropertyWidget::updateProperty ()
         comboBoxMode->setCurrentIndex(comboBoxMode->findData(Camera::PropertyModeOnePush));
     }
     comboBoxMode->blockSignals(false);
-    
+
     if (property.flags & UNICAP_FLAGS_AUTO || property.flags & UNICAP_FLAGS_ONE_PUSH) {
         valueWidget->setEnabled(false);
     } else {
         valueWidget->setEnabled(true);
     }
 }
+
+
+} // SourceUnicap
+} // Pipeline
+} // StereoToolbox
+} // MVL

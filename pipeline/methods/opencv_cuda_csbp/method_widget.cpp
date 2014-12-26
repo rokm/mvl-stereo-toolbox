@@ -1,6 +1,6 @@
 /*
- * OpenCV CUDA Constant Space Belief Propagation: config widget
- * Copyright (C) 2013 Rok Mandeljc
+ * OpenCV CUDA Constant Space Belief Propagation: method widget
+ * Copyright (C) 2013-2015 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,7 +23,11 @@
 #include <cfloat>
 #include <climits>
 
-using namespace StereoMethodConstantSpaceBeliefPropagationCUDA;
+
+namespace MVL {
+namespace StereoToolbox {
+namespace Pipeline {
+namespace StereoMethodOpenCvCudaCsbp {
 
 
 MethodWidget::MethodWidget (Method *m, QWidget *parent)
@@ -283,3 +287,8 @@ void MethodWidget::updateParameters ()
     checkBoxUseLocalCost->blockSignals(false);
 }
 
+
+} // StereoMethodOpenCvCudaCsbp
+} // Pipeline
+} // StereoToolbox
+} // MVL

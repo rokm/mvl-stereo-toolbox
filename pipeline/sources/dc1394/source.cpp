@@ -1,6 +1,6 @@
 /*
- * DC1394 Image Pair Source: source
- * Copyright (C) 2013 Rok Mandeljc
+ * DC1394 Source: source
+ * Copyright (C) 2013-2015 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -11,17 +11,21 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  */
 
 #include "source.h"
 #include "source_widget.h"
 #include "camera.h"
 
-using namespace SourceDC1394;
+
+namespace MVL {
+namespace StereoToolbox {
+namespace Pipeline {
+namespace SourceDC1394 {
 
 
 Source::Source (QObject *parent)
@@ -100,7 +104,7 @@ void Source::refreshCameraList ()
     if (!fw) {
         return;
     }
-    dc1394error_t ret;   
+    dc1394error_t ret;
     dc1394camera_list_t *camera_list;
     ret = dc1394_camera_enumerate(fw, &camera_list);
     if (ret) {
@@ -116,7 +120,7 @@ void Source::refreshCameraList ()
         active = QVector<bool>(camera_list->num, false);
         endInsertRows();
     }
-    
+
     // Cleanup
     dc1394_camera_free_list(camera_list);
 }
@@ -211,7 +215,7 @@ void Source::releaseCamera (Camera *& camera)
         // Disconnect
         disconnect(camera, &Camera::frameReady, this, &Source::synchronizeFrames);
 
-        // Delete camera object 
+        // Delete camera object
         camera->deleteLater();
         camera = NULL;
 
@@ -273,7 +277,7 @@ void Source::synchronizeFrames ()
     } else if (QObject::sender() == rightCamera) {
         rightFrameReady = true;
     }
-    
+
     bool requireLeft = (leftCamera && leftCamera->getCaptureState());
     bool requireRight = (rightCamera && rightCamera->getCaptureState());
 
@@ -361,3 +365,9 @@ QVariant Source::data (const QModelIndex &index, int role) const
 
     return QVariant();
 }
+
+
+} // SourceDC1394
+} // Pipeline
+} // StereoToolbox
+} // MVL

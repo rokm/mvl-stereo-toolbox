@@ -1,6 +1,6 @@
 /*
  * Stereo Pipeline: stereo reprojection
- * Copyright (C) 2013 Rok Mandeljc
+ * Copyright (C) 2013-2015 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -11,14 +11,14 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  */
 
-#ifndef STEREO_REPROJECTION_H
-#define STEREO_REPROJECTION_H
+#ifndef MVL_STEREO_TOOLBOX__PIPELINE__STEREO_REPROJECTION_H
+#define MVL_STEREO_TOOLBOX__PIPELINE__STEREO_REPROJECTION_H
 
 #include "mvl_stereo_pipeline_export.h"
 
@@ -26,10 +26,15 @@
 #include <opencv2/core.hpp>
 
 
+namespace MVL {
+namespace StereoToolbox {
+namespace Pipeline {
+
+
 class MVL_STEREO_PIPELINE_EXPORT StereoReprojection : public QObject
 {
     Q_OBJECT
-    
+
 public:
     StereoReprojection (QObject * = 0);
     ~StereoReprojection ();
@@ -64,6 +69,11 @@ protected:
     QList<int> supportedMethods;
     int reprojectionMethod;
 };
+
+
+} // Pipeline
+} // StereoToolbox
+} // MVL
 
 
 #endif

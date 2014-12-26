@@ -1,6 +1,6 @@
 /*
- * Efficient LArge-scale Stereo: config widget
- * Copyright (C) 2013 Rok Mandeljc
+ * Efficient LArge-scale Stereo: method widget
+ * Copyright (C) 2013-2015 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,7 +20,11 @@
 #include "method_widget.h"
 #include "method.h"
 
-using namespace StereoMethodELAS;
+
+namespace MVL {
+namespace StereoToolbox {
+namespace Pipeline {
+namespace StereoMethodELAS {
 
 
 MethodWidget::MethodWidget (Method *m, QWidget *parent)
@@ -577,3 +581,9 @@ void MethodWidget::updateParameters ()
     checkBoxReturnLeft->setChecked(method->getReturnLeft());
     checkBoxReturnLeft->blockSignals(false);
 }
+
+
+} // StereoMethodELAS
+} // Pipeline
+} // StereoToolbox
+} // MVL

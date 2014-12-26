@@ -1,6 +1,6 @@
 /*
  * OpenCV Block Matching: plugin
- * Copyright (C) 2013 Rok Mandeljc
+ * Copyright (C) 2013-2015 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -11,36 +11,40 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  */
 
 #include <plugin_factory.h>
 #include "method.h"
 
-using namespace StereoMethodBlockMatching;
+
+namespace MVL {
+namespace StereoToolbox {
+namespace Pipeline {
+namespace StereoMethodOpenCvBm {
 
 
 class Plugin : public QObject, PluginFactory
 {
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "mvl-stereo-toolbox.Plugin.StereoMethod.OpenCV_BM")
-    Q_INTERFACES(PluginFactory)
-    
+    Q_INTERFACES(MVL::StereoToolbox::Pipeline::PluginFactory)
+
     PluginType getPluginType () const {
         return PluginStereoMethod;
     }
-    
+
     QString getShortName () const {
         return "BM";
     }
-    
+
     QString getDescription () const {
         return "OpenCV Block Matching";
     }
-    
+
     QObject *createObject (QObject *parent = 0) const {
         return new Method(parent);
     }
@@ -48,3 +52,9 @@ class Plugin : public QObject, PluginFactory
 
 // Because we have Q_OBJECT in source file
 #include "plugin.moc"
+
+
+} // StereoMethodOpenCvBm
+} // Pipeline
+} // StereoToolbox
+} // MVL

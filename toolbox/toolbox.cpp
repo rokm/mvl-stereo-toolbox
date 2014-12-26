@@ -1,6 +1,6 @@
 /*
  * MVL Stereo Toolbox: main toolbox object and window
- * Copyright (C) 2013 Rok Mandeljc
+ * Copyright (C) 2013-2015 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,6 +33,11 @@
 #include "window_stereo_method.h"
 
 
+namespace MVL {
+namespace StereoToolbox {
+namespace GUI {
+
+
 Toolbox::Toolbox ()
     : QWidget()
 {
@@ -41,10 +46,10 @@ Toolbox::Toolbox ()
     setWindowTitle("MVL Stereo Toolbox");
 
     // Plugin manager
-    plugin_manager = new PluginManager(this);
+    plugin_manager = new Pipeline::PluginManager(this);
 
     // Create pipeline
-    pipeline = new StereoPipeline(this);
+    pipeline = new Pipeline::StereoPipeline(this);
     pipeline->setUseStereoMethodThread(true);
 
     // If available, initialize first GPU
@@ -260,7 +265,7 @@ void Toolbox::clearError ()
 void Toolbox::loadPlugins ()
 {
     foreach (QObject *plugin, plugin_manager->getAvailablePlugins()) {
-        PluginFactory *factory = qobject_cast<PluginFactory *>(plugin);
+        Pipeline::PluginFactory *factory = qobject_cast<Pipeline::PluginFactory *>(plugin);
         QObject *object = NULL;
 
         // Create object
@@ -273,12 +278,12 @@ void Toolbox::loadPlugins ()
         // Insert object into corresponding list
         if (object) {
             switch (factory->getPluginType()) {
-                case PluginFactory::PluginStereoMethod: {
-                    stereoMethods.append(qobject_cast<StereoMethod *>(object));
+                case Pipeline::PluginFactory::PluginStereoMethod: {
+                    stereoMethods.append(qobject_cast<Pipeline::StereoMethod *>(object));
                     break;
                 }
-                case PluginFactory::PluginImagePairSource: {
-                    imagePairSources.append(qobject_cast<ImagePairSource *>(object));
+                case Pipeline::PluginFactory::PluginImagePairSource: {
+                    imagePairSources.append(qobject_cast<Pipeline::ImagePairSource *>(object));
                     break;
                 }
                 default: {
@@ -290,3 +295,8 @@ void Toolbox::loadPlugins ()
         }
     }
 }
+
+
+} // GUI
+} // StereoToolbox
+} // MVL
