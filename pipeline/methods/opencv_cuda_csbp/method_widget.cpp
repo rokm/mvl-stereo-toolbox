@@ -205,27 +205,13 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
 
     layout->addRow(label, spinBoxD);
 
-    // Minimal disparity threshold
-    tooltip = " Minimal disparity threshold.";
-
-    label = new QLabel("Min. disp. thr.", this);
-    label->setToolTip(tooltip);
-
-    spinBox = new QSpinBox(this);
-    spinBox->setKeyboardTracking(false);
-    spinBox->setRange(1, 9999);
-    connect(spinBox, SIGNAL(valueChanged(int)), method, SLOT(setMinDispThreshold(int)));
-    spinBoxMinDispThreshold = spinBox;
-
-    layout->addRow(label, spinBox);
-
     // Separator
     line = new QFrame(this);
     line->setFrameStyle(QFrame::HLine | QFrame::Sunken);
 
     layout->addRow(line);
 
-    // Full DP
+    // Local cost
     tooltip = "Use local minimum data cost initialization algorithm instead of a global one.";
 
     checkBox = new QCheckBox("Local cost", this);
@@ -294,11 +280,6 @@ void MethodWidget::updateParameters ()
     oldState = spinBoxDiscSingleJump->blockSignals(true);
     spinBoxDiscSingleJump->setValue(method->getDiscSingleJump());
     spinBoxDiscSingleJump->blockSignals(oldState);
-
-    // Min. disp. threshold
-    oldState = spinBoxMinDispThreshold->blockSignals(true);
-    spinBoxMinDispThreshold->setValue(method->getMinDispThreshold());
-    spinBoxMinDispThreshold->blockSignals(oldState);
 
 
     // Use local cost

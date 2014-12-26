@@ -52,7 +52,6 @@ protected:
     QDoubleSpinBox *spinBoxDataWeight;
     QDoubleSpinBox *spinBoxMaxDiscTerm;
     QDoubleSpinBox *spinBoxDiscSingleJump;
-    QSpinBox *spinBoxMinDispThreshold;
     QCheckBox *checkBoxUseLocalCost;
 };
 

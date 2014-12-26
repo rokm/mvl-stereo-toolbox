@@ -53,7 +53,6 @@ public:
     double getDataWeight () const;
     double getMaxDiscTerm () const;
     double getDiscSingleJump () const;
-    int getMinDispThreshold () const;
 
     bool getUseLocalCost () const;
 
@@ -75,7 +74,6 @@ public slots:
     void setDataWeight (double);
     void setMaxDiscTerm (double);
     void setDiscSingleJump (double);
-    void setMinDispThreshold (int);
 
     void setUseLocalCost (bool);
 
