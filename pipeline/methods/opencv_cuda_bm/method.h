@@ -43,29 +43,29 @@ public:
     virtual void saveParameters (const QString &) const;
 
     // Parameters
-    int getPreFilterType () const;
-    int getPreFilterCap () const;
-    int getNumDisparities () const;
-    int getWindowSize () const;
-
-    double getAverageTextureThreshold () const;
-
-public slots:
     void resetToDefaults ();
 
     void setPreFilterType (int);
+    int getPreFilterType () const;
+
     void setPreFilterCap (int);
+    int getPreFilterCap () const;
+
     void setNumDisparities (int);
+    int getNumDisparities () const;
+
     void setWindowSize (int);
-        
+    int getWindowSize () const;
+
     void setAverageTextureThreshold (double);
+    double getAverageTextureThreshold () const;
 
 signals:
     // Signals from interface
     void parameterChanged ();
 
 protected:
-    // Block matcher
+    // Method implementation
     cv::Ptr<cv::cuda::StereoBM> bm;
     QMutex mutex;
 

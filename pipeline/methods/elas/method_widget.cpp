@@ -26,7 +26,7 @@ using namespace StereoMethodELAS;
 MethodWidget::MethodWidget (Method *m, QWidget *parent)
     : QWidget(parent), method(m)
 {
-    connect(method, SIGNAL(parameterChanged()), this, SLOT(updateParameters()));
+    connect(method, &Method::parameterChanged, this, &MethodWidget::updateParameters);
 
     // Build layout
     QVBoxLayout *baseLayout = new QVBoxLayout(this);
@@ -73,8 +73,10 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
     comboBox->setItemData(0, "Default settings in robotics environment. Does not produce results in \nhalf-occluded areas and is a bit more robust to lighting, etc.", Qt::ToolTipRole);
     comboBox->addItem("Middlebury", Method::ElasMiddlebury);
     comboBox->setItemData(1, "Default settings for Middlebury benchmark. Interpolates all missing disparities.", Qt::ToolTipRole);
-    connect(comboBox, SIGNAL(activated(int)), this, SLOT(presetChanged(int)));
-    comboBoxPreset = comboBox;
+
+    connect(comboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, [this, comboBox] (int index) {
+        method->usePreset(comboBox->itemData(index).toInt());
+    });
 
     layout->addRow(label, comboBox);
 
@@ -93,7 +95,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
     spinBox->setRange(-9999, 9999);
-    connect(spinBox, SIGNAL(valueChanged(int)), method, SLOT(setMinDisparity(int)));
+    connect(spinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), method, &Method::setMinDisparity);
     spinBoxMinDisparity = spinBox;
 
     layout->addRow(label, spinBox);
@@ -107,7 +109,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
     spinBox->setRange(-9999, 9999);
-    connect(spinBox, SIGNAL(valueChanged(int)), method, SLOT(setMaxDisparity(int)));
+    connect(spinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), method, &Method::setMaxDisparity);
     spinBoxMaxDisparity = spinBox;
 
     layout->addRow(label, spinBox);
@@ -127,7 +129,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
     spinBoxD = new QDoubleSpinBox(this);
     spinBoxD->setKeyboardTracking(false);
     spinBoxD->setRange(0.0, 9999.0);
-    connect(spinBoxD, SIGNAL(valueChanged(double)), method, SLOT(setSupportThreshold(double)));
+    connect(spinBoxD, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), method, &Method::setSupportThreshold);
     spinBoxSupportThreshold = spinBoxD;
 
     layout->addRow(label, spinBoxD);
@@ -141,7 +143,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
     spinBox->setRange(-9999, 9999);
-    connect(spinBox, SIGNAL(valueChanged(int)), method, SLOT(setSupportTexture(int)));
+    connect(spinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), method, &Method::setSupportTexture);
     spinBoxSupportTexture = spinBox;
 
     layout->addRow(label, spinBox);
@@ -155,7 +157,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
     spinBox->setRange(-9999, 9999);
-    connect(spinBox, SIGNAL(valueChanged(int)), method, SLOT(setCandidateStepSize(int)));
+    connect(spinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), method, &Method::setCandidateStepSize);
     spinBoxCandidateStepSize = spinBox;
 
     layout->addRow(label, spinBox);
@@ -169,7 +171,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
     spinBox->setRange(-9999, 9999);
-    connect(spinBox, SIGNAL(valueChanged(int)), method, SLOT(setInconsistentWindowSize(int)));
+    connect(spinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), method, &Method::setInconsistentWindowSize);
     spinBoxInconsistentWindowSize = spinBox;
 
     layout->addRow(label, spinBox);
@@ -183,7 +185,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
     spinBox->setRange(-9999, 9999);
-    connect(spinBox, SIGNAL(valueChanged(int)), method, SLOT(setInconsistentThreshold(int)));
+    connect(spinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), method, &Method::setInconsistentThreshold);
     spinBoxInconsistentThreshold = spinBox;
 
     layout->addRow(label, spinBox);
@@ -197,7 +199,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
     spinBox->setRange(-9999, 9999);
-    connect(spinBox, SIGNAL(valueChanged(int)), method, SLOT(setInconsistentMinSupport(int)));
+    connect(spinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), method, &Method::setInconsistentMinSupport);
     spinBoxInconsistentMinSupport = spinBox;
 
     layout->addRow(label, spinBox);
@@ -213,7 +215,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
 
     checkBox = new QCheckBox("Add corners", this);
     checkBox->setToolTip(tooltip);
-    connect(checkBox, SIGNAL(toggled(bool)), method, SLOT(setAddCorners(bool)));
+    connect(checkBox, &QCheckBox::toggled, method, &Method::setAddCorners);
     checkBoxAddCorners = checkBox;
 
     layout->addRow(checkBox);
@@ -227,7 +229,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
     spinBox->setRange(1, 9999);
-    connect(spinBox, SIGNAL(valueChanged(int)), method, SLOT(setGridSize(int)));
+    connect(spinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), method, &Method::setGridSize);
     spinBoxGridSize = spinBox;
 
     layout->addRow(label, spinBox);
@@ -247,7 +249,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
     spinBoxD = new QDoubleSpinBox(this);
     spinBoxD->setKeyboardTracking(false);
     spinBoxD->setRange(0.0, 9999.0);
-    connect(spinBoxD, SIGNAL(valueChanged(double)), method, SLOT(setBeta(double)));
+    connect(spinBoxD, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), method, &Method::setBeta);
     spinBoxBeta = spinBoxD;
 
     layout->addRow(label, spinBoxD);
@@ -261,7 +263,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
     spinBoxD = new QDoubleSpinBox(this);
     spinBoxD->setKeyboardTracking(false);
     spinBoxD->setRange(0.0, 9999.0);
-    connect(spinBoxD, SIGNAL(valueChanged(double)), method, SLOT(setGamma(double)));
+    connect(spinBoxD, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), method, &Method::setGamma);
     spinBoxGamma = spinBoxD;
 
     layout->addRow(label, spinBoxD);
@@ -275,7 +277,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
     spinBoxD = new QDoubleSpinBox(this);
     spinBoxD->setKeyboardTracking(false);
     spinBoxD->setRange(0.0, 9999.0);
-    connect(spinBoxD, SIGNAL(valueChanged(double)), method, SLOT(setSigma(double)));
+    connect(spinBoxD, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), method, &Method::setSigma);
     spinBoxSigma = spinBoxD;
 
     layout->addRow(label, spinBoxD);
@@ -289,7 +291,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
     spinBoxD = new QDoubleSpinBox(this);
     spinBoxD->setKeyboardTracking(false);
     spinBoxD->setRange(0.0, 9999.0);
-    connect(spinBoxD, SIGNAL(valueChanged(double)), method, SLOT(setSigmaRadius(double)));
+    connect(spinBoxD, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), method, &Method::setSigmaRadius);
     spinBoxSigmaRadius = spinBoxD;
 
     layout->addRow(label, spinBoxD);
@@ -309,7 +311,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
     spinBox->setRange(0, 9999);
-    connect(spinBox, SIGNAL(valueChanged(int)), method, SLOT(setMatchTexture(int)));
+    connect(spinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), method, &Method::setMatchTexture);
     spinBoxMatchTexture = spinBox;
 
     layout->addRow(label, spinBox);
@@ -323,7 +325,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
     spinBox->setRange(0, 9999);
-    connect(spinBox, SIGNAL(valueChanged(int)), method, SLOT(setLRThreshold(int)));
+    connect(spinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), method, &Method::setLRThreshold);
     spinBoxLRThreshold = spinBox;
 
     layout->addRow(label, spinBox);
@@ -343,7 +345,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
     spinBoxD = new QDoubleSpinBox(this);
     spinBoxD->setKeyboardTracking(false);
     spinBoxD->setRange(0.0, 9999.0);
-    connect(spinBoxD, SIGNAL(valueChanged(double)), method, SLOT(setSpeckleSimThreshold(double)));
+    connect(spinBoxD, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), method, &Method::setSpeckleSimThreshold);
     spinBoxSpeckleSimThreshold = spinBoxD;
 
     layout->addRow(label, spinBoxD);
@@ -357,7 +359,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
     spinBox->setRange(0, 9999);
-    connect(spinBox, SIGNAL(valueChanged(int)), method, SLOT(setSpeckleSize(int)));
+    connect(spinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), method, &Method::setSpeckleSize);
     spinBoxSpeckleSize = spinBox;
 
     layout->addRow(label, spinBox);
@@ -371,7 +373,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
     spinBox->setRange(0, 9999);
-    connect(spinBox, SIGNAL(valueChanged(int)), method, SLOT(setInterpolationGapWidth(int)));
+    connect(spinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), method, &Method::setInterpolationGapWidth);
     spinBoxInterpolationGapWidth = spinBox;
 
     layout->addRow(label, spinBox);
@@ -387,7 +389,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
 
     checkBox = new QCheckBox("Median filter", this);
     checkBox->setToolTip(tooltip);
-    connect(checkBox, SIGNAL(toggled(bool)), method, SLOT(setFilterMedian(bool)));
+    connect(checkBox, &QCheckBox::toggled, method, &Method::setFilterMedian);
     checkBoxFilterMedian = checkBox;
 
     layout->addRow(checkBox);
@@ -397,7 +399,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
 
     checkBox = new QCheckBox("Adaptive mean filter", this);
     checkBox->setToolTip(tooltip);
-    connect(checkBox, SIGNAL(toggled(bool)), method, SLOT(setFilterAdaptiveMean(bool)));
+    connect(checkBox, &QCheckBox::toggled, method, &Method::setFilterAdaptiveMean);
     checkBoxFilterAdaptiveMean = checkBox;
 
     layout->addRow(checkBox);
@@ -407,7 +409,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
 
     checkBox = new QCheckBox("Post-process only left", this);
     checkBox->setToolTip(tooltip);
-    connect(checkBox, SIGNAL(toggled(bool)), method, SLOT(setPostProcessOnlyLeft(bool)));
+    connect(checkBox, &QCheckBox::toggled, method, &Method::setPostProcessOnlyLeft);
     checkBoxPostProcessOnlyLeft = checkBox;
 
     layout->addRow(checkBox);
@@ -417,7 +419,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
 
     checkBox = new QCheckBox("Subsampling", this);
     checkBox->setToolTip(tooltip);
-    connect(checkBox, SIGNAL(toggled(bool)), method, SLOT(setSubsampling(bool)));
+    connect(checkBox, &QCheckBox::toggled, method, &Method::setSubsampling);
     checkBoxSubsampling = checkBox;
 
     layout->addRow(checkBox);
@@ -433,7 +435,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
 
     checkBox = new QCheckBox("Return left disp. image", this);
     checkBox->setToolTip(tooltip);
-    connect(checkBox, SIGNAL(toggled(bool)), method, SLOT(setReturnLeft(bool)));
+    connect(checkBox, &QCheckBox::toggled, method, &Method::setReturnLeft);
     checkBoxReturnLeft = checkBox;
 
     layout->addRow(checkBox);
@@ -446,139 +448,132 @@ MethodWidget::~MethodWidget ()
 {
 }
 
-void MethodWidget::presetChanged (int index)
-{
-    method->usePreset(comboBoxPreset->itemData(index).toInt());
-}
-
 void MethodWidget::updateParameters ()
 {
-    bool oldState;
-
     // Min disparity
-    oldState = spinBoxMinDisparity->blockSignals(true);
+    spinBoxMinDisparity->blockSignals(true);
     spinBoxMinDisparity->setValue(method->getMinDisparity());
-    spinBoxMinDisparity->blockSignals(oldState);
+    spinBoxMinDisparity->blockSignals(false);
 
     // Max disparity
-    oldState = spinBoxMaxDisparity->blockSignals(true);
+    spinBoxMaxDisparity->blockSignals(true);
     spinBoxMaxDisparity->setValue(method->getMaxDisparity());
-    spinBoxMaxDisparity->blockSignals(oldState);
+    spinBoxMaxDisparity->blockSignals(false);
 
 
     // Support threshold
-    oldState = spinBoxSupportThreshold->blockSignals(true);
+    spinBoxSupportThreshold->blockSignals(true);
     spinBoxSupportThreshold->setValue(method->getSupportThreshold());
-    spinBoxSupportThreshold->blockSignals(oldState);
+    spinBoxSupportThreshold->blockSignals(false);
 
     // Support texture
-    oldState = spinBoxSupportTexture->blockSignals(true);
+    spinBoxSupportTexture->blockSignals(true);
     spinBoxSupportTexture->setValue(method->getSupportTexture());
-    spinBoxSupportTexture->blockSignals(oldState);
+    spinBoxSupportTexture->blockSignals(false);
 
     // Candidate step size
-    oldState = spinBoxCandidateStepSize->blockSignals(true);
+    spinBoxCandidateStepSize->blockSignals(true);
     spinBoxCandidateStepSize->setValue(method->getCandidateStepSize());
-    spinBoxCandidateStepSize->blockSignals(oldState);
+    spinBoxCandidateStepSize->blockSignals(false);
 
     // Inconsistent window size
-    oldState = spinBoxInconsistentWindowSize->blockSignals(true);
+    spinBoxInconsistentWindowSize->blockSignals(true);
     spinBoxInconsistentWindowSize->setValue(method->getInconsistentWindowSize());
-    spinBoxInconsistentWindowSize->blockSignals(oldState);
+    spinBoxInconsistentWindowSize->blockSignals(false);
 
     // Inconsistent threshold
-    oldState = spinBoxInconsistentThreshold->blockSignals(true);
+    spinBoxInconsistentThreshold->blockSignals(true);
     spinBoxInconsistentThreshold->setValue(method->getInconsistentThreshold());
-    spinBoxInconsistentThreshold->blockSignals(oldState);
+    spinBoxInconsistentThreshold->blockSignals(false);
 
     // Inconsistent min. support
-    oldState = spinBoxInconsistentMinSupport->blockSignals(true);
+    spinBoxInconsistentMinSupport->blockSignals(true);
     spinBoxInconsistentMinSupport->setValue(method->getInconsistentMinSupport());
-    spinBoxInconsistentMinSupport->blockSignals(oldState);
+    spinBoxInconsistentMinSupport->blockSignals(false);
 
 
     // Add corners
-    oldState = checkBoxAddCorners->blockSignals(true);
+    checkBoxAddCorners->blockSignals(true);
     checkBoxAddCorners->setChecked(method->getAddCorners());
-    checkBoxAddCorners->blockSignals(oldState);
+    checkBoxAddCorners->blockSignals(false);
 
     // Grid size
-    oldState = spinBoxGridSize->blockSignals(true);
+    spinBoxGridSize->blockSignals(true);
     spinBoxGridSize->setValue(method->getGridSize());
-    spinBoxGridSize->blockSignals(oldState);
+    spinBoxGridSize->blockSignals(false);
 
 
     // Beta
-    oldState = spinBoxBeta->blockSignals(true);
+    spinBoxBeta->blockSignals(true);
     spinBoxBeta->setValue(method->getBeta());
-    spinBoxBeta->blockSignals(oldState);
+    spinBoxBeta->blockSignals(false);
 
     // Gamma
-    oldState = spinBoxGamma->blockSignals(true);
+    spinBoxGamma->blockSignals(true);
     spinBoxGamma->setValue(method->getGamma());
-    spinBoxGamma->blockSignals(oldState);
+    spinBoxGamma->blockSignals(false);
 
     // Sigma
-    oldState = spinBoxSigma->blockSignals(true);
+    spinBoxSigma->blockSignals(true);
     spinBoxSigma->setValue(method->getSigma());
-    spinBoxSigma->blockSignals(oldState);
+    spinBoxSigma->blockSignals(false);
 
     // Sigma radius
-    oldState = spinBoxSigmaRadius->blockSignals(true);
+    spinBoxSigmaRadius->blockSignals(true);
     spinBoxSigmaRadius->setValue(method->getSigmaRadius());
-    spinBoxSigmaRadius->blockSignals(oldState);
+    spinBoxSigmaRadius->blockSignals(false);
 
 
     // Match texture
-    oldState = spinBoxMatchTexture->blockSignals(true);
+    spinBoxMatchTexture->blockSignals(true);
     spinBoxMatchTexture->setValue(method->getMatchTexture());
-    spinBoxMatchTexture->blockSignals(oldState);
+    spinBoxMatchTexture->blockSignals(false);
 
     // LR threshold
-    oldState = spinBoxLRThreshold->blockSignals(true);
+    spinBoxLRThreshold->blockSignals(true);
     spinBoxLRThreshold->setValue(method->getLRThreshold());
-    spinBoxLRThreshold->blockSignals(oldState);
+    spinBoxLRThreshold->blockSignals(false);
 
 
     // Speckles sim threshold
-    oldState = spinBoxSpeckleSimThreshold->blockSignals(true);
+    spinBoxSpeckleSimThreshold->blockSignals(true);
     spinBoxSpeckleSimThreshold->setValue(method->getSpeckleSimThreshold());
-    spinBoxSpeckleSimThreshold->blockSignals(oldState);
+    spinBoxSpeckleSimThreshold->blockSignals(false);
 
     // Speckle size
-    oldState = spinBoxSpeckleSize->blockSignals(true);
+    spinBoxSpeckleSize->blockSignals(true);
     spinBoxSpeckleSize->setValue(method->getSpeckleSize());
-    spinBoxSpeckleSize->blockSignals(oldState);
+    spinBoxSpeckleSize->blockSignals(false);
 
     // Interpolation gap width
-    oldState = spinBoxInterpolationGapWidth->blockSignals(true);
+    spinBoxInterpolationGapWidth->blockSignals(true);
     spinBoxInterpolationGapWidth->setValue(method->getInterpolationGapWidth());
-    spinBoxInterpolationGapWidth->blockSignals(oldState);
+    spinBoxInterpolationGapWidth->blockSignals(false);
 
 
     // Filter median
-    oldState = checkBoxFilterMedian->blockSignals(true);
+    checkBoxFilterMedian->blockSignals(true);
     checkBoxFilterMedian->setChecked(method->getFilterMedian());
-    checkBoxFilterMedian->blockSignals(oldState);
+    checkBoxFilterMedian->blockSignals(false);
 
     // Filter adaptive mean
-    oldState = checkBoxFilterAdaptiveMean->blockSignals(true);
+    checkBoxFilterAdaptiveMean->blockSignals(true);
     checkBoxFilterAdaptiveMean->setChecked(method->getFilterAdaptiveMean());
-    checkBoxFilterAdaptiveMean->blockSignals(oldState);
+    checkBoxFilterAdaptiveMean->blockSignals(false);
 
     // Post-process only left
-    oldState = checkBoxPostProcessOnlyLeft->blockSignals(true);
+    checkBoxPostProcessOnlyLeft->blockSignals(true);
     checkBoxPostProcessOnlyLeft->setChecked(method->getPostProcessOnlyLeft());
-    checkBoxPostProcessOnlyLeft->blockSignals(oldState);
+    checkBoxPostProcessOnlyLeft->blockSignals(false);
 
     // Subsampling
-    oldState = checkBoxSubsampling->blockSignals(true);
+    checkBoxSubsampling->blockSignals(true);
     checkBoxSubsampling->setChecked(method->getSubsampling());
-    checkBoxSubsampling->blockSignals(oldState);
+    checkBoxSubsampling->blockSignals(false);
 
 
     // Return left
-    oldState = checkBoxReturnLeft->blockSignals(true);
+    checkBoxReturnLeft->blockSignals(true);
     checkBoxReturnLeft->setChecked(method->getReturnLeft());
-    checkBoxReturnLeft->blockSignals(oldState);
+    checkBoxReturnLeft->blockSignals(false);
 }

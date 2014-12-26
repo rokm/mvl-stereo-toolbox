@@ -43,44 +43,48 @@ public:
     virtual void saveParameters (const QString &) const;
 
     // Parameters
-    int getPreFilterType () const;
-    int getPreFilterSize () const;
-    int getPreFilterCap () const;
-
-    int getSADWindowSize () const;
-    int getMinDisparity () const;
-    int getNumDisparities () const;
-
-    int getTextureThreshold () const;
-    int getUniquenessRatio () const;
-    int getSpeckleWindowSize () const;
-    int getSpeckleRange () const;
-
-    int getDisp12MaxDiff () const;
-
     enum {
         OpenCV,
         StereoMatch,
     } PresetType;
-
-public slots:
+    
     void usePreset (int type);
 
     void setPreFilterType (int);
+    int getPreFilterType () const;
+
     void setPreFilterSize (int);
+    int getPreFilterSize () const;
+
     void setPreFilterCap (int);
-        
+    int getPreFilterCap () const;
+
+
     void setSADWindowSize (int);
+    int getSADWindowSize () const;
+
     void setMinDisparity (int);
+    int getMinDisparity () const;
+
     void setNumDisparities (int);
-    
-    
+    int getNumDisparities () const;
+
+
     void setTextureThreshold (int);
+    int getTextureThreshold () const;
+
     void setUniquenessRatio (int);
+    int getUniquenessRatio () const;
+
     void setSpeckleWindowSize (int);
+    int getSpeckleWindowSize () const;
+
     void setSpeckleRange (int);
-        
+    int getSpeckleRange () const;
+
+
     void setDisp12MaxDiff (int);
+    int getDisp12MaxDiff () const;
 
 signals:
     // Signals from interface

@@ -35,17 +35,12 @@ public:
     MethodWidget (Method *, QWidget * = 0);
     virtual ~MethodWidget ();
 
-protected slots:
-    void presetChanged (int);
-
-    void preFilterTypeChanged (int);
-
+protected:
     void updateParameters ();
 
 protected:
     Method *method;
 
-    QComboBox *comboBoxPreset;
     QComboBox *comboBoxPreFilterType;
     QSpinBox *spinBoxPreFilterSize;
     QSpinBox *spinBoxPreFilterCap;

@@ -44,54 +44,57 @@ public:
     virtual void saveParameters (const QString &) const;
 
     // Parameters
-    int getMinDisparity () const;
-    int getNumDisparities () const;
-    int getSADWindowSize () const;
-
-    int getPreFilterCap () const;
-    int getUniquenessRatio () const;
-
-    int getP1 () const;
-    int getP2 () const;
-
-    int getSpeckleWindowSize () const;
-    int getSpeckleRange () const;
-
-    int getDisp12MaxDiff () const;
-
-    int getMode () const;
-
     enum {
         OpenCV,
         StereoMatch,
     } PresetType;
 
-public slots:
     void usePreset (int);
-    
+
     void setMinDisparity (int);
+    int getMinDisparity () const;
+
     void setNumDisparities (int);   
+    int getNumDisparities () const;
+
     void setSADWindowSize (int);
-    
+    int getSADWindowSize () const;
+
+
     void setPreFilterCap (int);
+    int getPreFilterCap () const;
+
     void setUniquenessRatio (int);
-    
+    int getUniquenessRatio () const;
+
+
     void setP1 (int);
+    int getP1 () const;
+
     void setP2 (int);
-    
+    int getP2 () const;
+
+
     void setSpeckleWindowSize (int);
+    int getSpeckleWindowSize () const;
+
     void setSpeckleRange (int);
-    
+    int getSpeckleRange () const;
+
+
     void setDisp12MaxDiff (int);
+    int getDisp12MaxDiff () const;
+
 
     void setMode (int);
+    int getMode () const;
 
 signals:
     // Signals from interface
     void parameterChanged ();
 
 protected:
-    // Semi-global block matcher
+    // Method implementation
     cv::Ptr<cv::StereoSGBM> sgbm;
     QMutex mutex;
 

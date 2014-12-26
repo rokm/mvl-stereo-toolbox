@@ -26,7 +26,7 @@ using namespace StereoMethodSemiGlobalBlockMatching;
 MethodWidget::MethodWidget (Method *m, QWidget *parent)
     : QWidget(parent), method(m)
 {
-    connect(method, SIGNAL(parameterChanged()), this, SLOT(updateParameters()));
+    connect(method, &Method::parameterChanged, this, &MethodWidget::updateParameters);
 
     // Build layout
     QVBoxLayout *baseLayout = new QVBoxLayout(this);
@@ -70,8 +70,10 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
     comboBox->setItemData(0, "Initial OpenCV settings.", Qt::ToolTipRole);
     comboBox->addItem("StereoMatch", Method::StereoMatch);
     comboBox->setItemData(1, "Settings from \"Stereo Match\" example.", Qt::ToolTipRole);
-    connect(comboBox, SIGNAL(activated(int)), this, SLOT(presetChanged(int)));
-    comboBoxPreset = comboBox;
+    
+    connect(comboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, [this, comboBox] (int index) {
+        method->usePreset(comboBox->itemData(index).toInt());
+    });
 
     layout->addRow(label, comboBox);
 
@@ -85,7 +87,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
     spinBox->setRange(-9999, 9999);
-    connect(spinBox, SIGNAL(valueChanged(int)), method, SLOT(setMinDisparity(int)));
+    connect(spinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), method, &Method::setMinDisparity);
     spinBoxMinDisparity = spinBox;
 
     layout->addRow(label, spinBox);
@@ -101,7 +103,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
     spinBox->setKeyboardTracking(false);
     spinBox->setRange(16, 16*1000);
     spinBox->setSingleStep(16); // Must be divisible by 16
-    connect(spinBox, SIGNAL(valueChanged(int)), method, SLOT(setNumDisparities(int)));
+    connect(spinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), method, &Method::setNumDisparities);
     spinBoxNumDisparities = spinBox;
 
     layout->addRow(label, spinBox);
@@ -116,7 +118,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
     spinBox->setKeyboardTracking(false);
     spinBox->setRange(1, 255);
     spinBox->setSingleStep(1); // Always odd values
-    connect(spinBox, SIGNAL(valueChanged(int)), method, SLOT(setSADWindowSize(int)));
+    connect(spinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), method, &Method::setSADWindowSize);
     spinBoxSADWindowSize = spinBox;
 
     layout->addRow(label, spinBox);
@@ -138,7 +140,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
     spinBox->setRange(1, 63);
-    connect(spinBox, SIGNAL(valueChanged(int)), method, SLOT(setPreFilterCap(int)));
+    connect(spinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), method, &Method::setPreFilterCap);
     spinBoxPreFilterCap = spinBox;
 
     layout->addRow(label, spinBox);
@@ -153,7 +155,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
     spinBox->setRange(0, 255);
-    connect(spinBox, SIGNAL(valueChanged(int)), method, SLOT(setUniquenessRatio(int)));
+    connect(spinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), method, &Method::setUniquenessRatio);
     spinBoxUniquenessRatio = spinBox;
 
     layout->addRow(label, spinBox);
@@ -176,7 +178,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
     spinBox->setRange(0, 9999);
-    connect(spinBox, SIGNAL(valueChanged(int)), method, SLOT(setP1(int)));
+    connect(spinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), method, &Method::setP1);
     spinBoxP1 = spinBox;
 
     layout->addRow(label, spinBox);
@@ -193,7 +195,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
     spinBox->setRange(0, 9999);
-    connect(spinBox, SIGNAL(valueChanged(int)), method, SLOT(setP2(int)));
+    connect(spinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), method, &Method::setP2);
     spinBoxP2 = spinBox;
 
     layout->addRow(label, spinBox);
@@ -214,7 +216,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
     spinBox->setRange(0, 100);
-    connect(spinBox, SIGNAL(valueChanged(int)), method, SLOT(setSpeckleWindowSize(int)));
+    connect(spinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), method, &Method::setSpeckleWindowSize);
     spinBoxSpeckleWindowSize = spinBox;
 
     layout->addRow(label, spinBox);
@@ -230,7 +232,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
     spinBox->setRange(0, 200);
-    connect(spinBox, SIGNAL(valueChanged(int)), method, SLOT(setSpeckleRange(int)));
+    connect(spinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), method, &Method::setSpeckleRange);
     spinBoxSpeckleRange = spinBox;
 
     layout->addRow(label, spinBox);
@@ -250,7 +252,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
 
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
-    connect(spinBox, SIGNAL(valueChanged(int)), method, SLOT(setDisp12MaxDiff(int)));
+    connect(spinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), method, &Method::setDisp12MaxDiff);
     spinBoxDisp12MaxDiff = spinBox;
 
     layout->addRow(label, spinBox);
@@ -273,7 +275,11 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
     comboBox->setItemData(0, "Single-pass algorithm (5 directions)", Qt::ToolTipRole);
     comboBox->addItem("MODE_HH", cv::StereoSGBM::MODE_HH);
     comboBox->setItemData(1, "Two-pass algorithm (8 directions).", Qt::ToolTipRole);
-    connect(comboBox, SIGNAL(activated(int)), this, SLOT(modeChanged(int)));
+
+    connect(comboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, [this, comboBox] (int index) {
+        method->setMode(comboBoxMode->itemData(index).toInt());
+    });
+    
     comboBoxMode = comboBox;
 
     layout->addRow(label, comboBox);
@@ -286,76 +292,65 @@ MethodWidget::~MethodWidget ()
 {
 }
 
-void MethodWidget::presetChanged (int index)
-{
-    method->usePreset(comboBoxPreset->itemData(index).toInt());
-}
-
-void MethodWidget::modeChanged (int index)
-{
-    method->setMode(comboBoxMode->itemData(index).toInt());
-}
 
 void MethodWidget::updateParameters ()
 {
-    bool oldState;
-
     // Min. disparity
-    oldState = spinBoxMinDisparity->blockSignals(true);
+    spinBoxMinDisparity->blockSignals(true);
     spinBoxMinDisparity->setValue(method->getMinDisparity());
-    spinBoxMinDisparity->blockSignals(oldState);
+    spinBoxMinDisparity->blockSignals(false);
 
     // Num. disparities
-    oldState = spinBoxNumDisparities->blockSignals(true);
+    spinBoxNumDisparities->blockSignals(true);
     spinBoxNumDisparities->setValue(method->getNumDisparities());
-    spinBoxNumDisparities->blockSignals(oldState);
+    spinBoxNumDisparities->blockSignals(false);
 
     // SAD window size
-    oldState = spinBoxSADWindowSize->blockSignals(true);
+    spinBoxSADWindowSize->blockSignals(true);
     spinBoxSADWindowSize->setValue(method->getSADWindowSize());
-    spinBoxSADWindowSize->blockSignals(oldState);
+    spinBoxSADWindowSize->blockSignals(false);
 
 
     // Pre-filter cap
-    oldState = spinBoxPreFilterCap->blockSignals(true);
+    spinBoxPreFilterCap->blockSignals(true);
     spinBoxPreFilterCap->setValue(method->getPreFilterCap());
-    spinBoxPreFilterCap->blockSignals(oldState);
+    spinBoxPreFilterCap->blockSignals(false);
 
 
     // Uniqueness ratio
-    oldState = spinBoxUniquenessRatio->blockSignals(true);
+    spinBoxUniquenessRatio->blockSignals(true);
     spinBoxUniquenessRatio->setValue(method->getUniquenessRatio());
-    spinBoxUniquenessRatio->blockSignals(oldState);
+    spinBoxUniquenessRatio->blockSignals(false);
 
     // P1
-    oldState = spinBoxP1->blockSignals(true);
+    spinBoxP1->blockSignals(true);
     spinBoxP1->setValue(method->getP1());
-    spinBoxP1->blockSignals(oldState);
+    spinBoxP1->blockSignals(false);
 
     // P2
-    oldState = spinBoxP2->blockSignals(true);
+    spinBoxP2->blockSignals(true);
     spinBoxP2->setValue(method->getP2());
-    spinBoxP2->blockSignals(oldState);
+    spinBoxP2->blockSignals(false);
 
     // Speckle window size
-    oldState = spinBoxSpeckleWindowSize->blockSignals(true);
+    spinBoxSpeckleWindowSize->blockSignals(true);
     spinBoxSpeckleWindowSize->setValue(method->getSpeckleWindowSize());
-    spinBoxSpeckleWindowSize->blockSignals(oldState);
+    spinBoxSpeckleWindowSize->blockSignals(false);
 
     // Speckle range
-    oldState = spinBoxSpeckleRange->blockSignals(true);
+    spinBoxSpeckleRange->blockSignals(true);
     spinBoxSpeckleRange->setValue(method->getSpeckleRange());
-    spinBoxSpeckleRange->blockSignals(oldState);
+    spinBoxSpeckleRange->blockSignals(false);
 
 
     // Disp12 max diff
-    oldState = spinBoxDisp12MaxDiff->blockSignals(true);
+    spinBoxDisp12MaxDiff->blockSignals(true);
     spinBoxDisp12MaxDiff->setValue(method->getDisp12MaxDiff());
-    spinBoxDisp12MaxDiff->blockSignals(oldState);
+    spinBoxDisp12MaxDiff->blockSignals(false);
 
 
     // Mode
-    oldState = comboBoxMode->blockSignals(true);
+    comboBoxMode->blockSignals(true);
     comboBoxMode->setCurrentIndex(comboBoxMode->findData(method->getMode()));
-    comboBoxMode->blockSignals(oldState);
+    comboBoxMode->blockSignals(false);
 }

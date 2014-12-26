@@ -26,7 +26,9 @@ using namespace StereoMethodELAS;
 
 
 Method::Method (QObject *parent)
-    : QObject(parent), StereoMethod(), param(Elas::parameters(Elas::ROBOTICS)), elas(param), returnLeft(true)
+    : QObject(parent), StereoMethod(),
+      param(Elas::parameters(Elas::ROBOTICS)),
+      elas(param), returnLeft(true)
 {
     usePreset(ElasRobotics);
 }

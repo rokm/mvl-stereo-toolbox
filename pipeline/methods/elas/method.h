@@ -42,91 +42,106 @@ public:
     virtual void loadParameters (const QString &);
     virtual void saveParameters (const QString &) const;
 
+
+    // Parameters
+    enum {
+        ElasRobotics,
+        ElasMiddlebury,
+    } PresetType;
+
+    void usePreset (int type);
+
+    void setMinDisparity (int);
+    int getMinDisparity () const;
+
+    void setMaxDisparity (int);
+    int getMaxDisparity () const;
+
+
+    void setSupportThreshold (double);
+    double getSupportThreshold () const;
+
+    void setSupportTexture (int);
+    int getSupportTexture () const;
+
+    void setCandidateStepSize (int);
+    int getCandidateStepSize () const;
+
+    void setInconsistentWindowSize (int);
+    int getInconsistentWindowSize () const;
+
+    void setInconsistentThreshold (int);
+    int getInconsistentThreshold () const;
+
+    void setInconsistentMinSupport (int);
+    int getInconsistentMinSupport () const;
+
+
+    void setAddCorners (bool);
+    bool getAddCorners () const;
+
+    void setGridSize (int);
+    int getGridSize () const;
+
+
+    void setBeta (double);
+    double getBeta () const;
+
+    void setGamma (double);
+    double getGamma () const;
+
+    void setSigma (double);
+    double getSigma () const;
+
+    void setSigmaRadius (double);
+    double getSigmaRadius () const;
+
+
+    void setMatchTexture (int);
+    int getMatchTexture () const;
+
+    void setLRThreshold (int);
+    int getLRThreshold () const;
+
+
+    void setSpeckleSimThreshold (double);
+    double getSpeckleSimThreshold () const;
+
+    void setSpeckleSize (int);
+    int getSpeckleSize () const;
+
+    void setInterpolationGapWidth (int);
+    int getInterpolationGapWidth () const;
+
+
+    void setFilterMedian (bool);
+    bool getFilterMedian () const;
+
+    void setFilterAdaptiveMean (bool);
+    bool getFilterAdaptiveMean () const;
+
+    void setPostProcessOnlyLeft (bool);
+    bool getPostProcessOnlyLeft () const;
+
+    void setSubsampling (bool);
+    bool getSubsampling () const;
+
+
+    void setReturnLeft (bool);
+    bool getReturnLeft () const;
+
+protected:
     // Generic parameter setting
     template <typename T> void setParameter (T &parameter, const T &newValue) {
         // Set only if necessary
         if (parameter != newValue) {
             parameter = newValue;
 
-            // Create Elas object
+            // Create ELAS object
             createElasObject();
         }
     }
 
-    // Parameters
-    int getMinDisparity () const;
-    int getMaxDisparity () const;
-
-    double getSupportThreshold () const;
-    int getSupportTexture () const;
-    int getCandidateStepSize () const;
-    int getInconsistentWindowSize () const;
-    int getInconsistentThreshold () const;
-    int getInconsistentMinSupport () const;
-
-    bool getAddCorners () const;
-    int getGridSize () const;
-
-    double getBeta () const;
-    double getGamma () const;
-    double getSigma () const;
-    double getSigmaRadius () const;
-
-    int getMatchTexture () const;
-    int getLRThreshold () const;
-
-    double getSpeckleSimThreshold () const;
-    int getSpeckleSize () const;
-    int getInterpolationGapWidth () const;
-
-    bool getFilterMedian () const;
-    bool getFilterAdaptiveMean () const;
-    bool getPostProcessOnlyLeft () const;
-    bool getSubsampling () const;
-
-    bool getReturnLeft () const;
-
-    enum {
-        ElasRobotics,
-        ElasMiddlebury,
-    } PresetType;
-
-public slots:
-    void usePreset (int type);
-
-    void setMinDisparity (int);
-    void setMaxDisparity (int);
-
-    void setSupportThreshold (double);
-    void setSupportTexture (int);
-    void setCandidateStepSize (int);
-    void setInconsistentWindowSize (int);
-    void setInconsistentThreshold (int);
-    void setInconsistentMinSupport (int);
-
-    void setAddCorners (bool);
-    void setGridSize (int);
-
-    void setBeta (double);
-    void setGamma (double);
-    void setSigma (double);
-    void setSigmaRadius (double);
-
-    void setMatchTexture (int);
-    void setLRThreshold (int);
-
-    void setSpeckleSimThreshold (double);
-    void setSpeckleSize (int);
-    void setInterpolationGapWidth (int);
-
-    void setFilterMedian (bool);
-    void setFilterAdaptiveMean (bool);
-    void setPostProcessOnlyLeft (bool);
-    void setSubsampling (bool);
-
-    void setReturnLeft (bool);
-
-protected:
     void createElasObject ();
 
 signals:
@@ -134,7 +149,7 @@ signals:
     void parameterChanged ();
 
 protected:
-    // ELAS
+    // Method implementation
     Elas::parameters param;
     Elas elas;
 

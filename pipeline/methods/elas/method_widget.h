@@ -35,15 +35,11 @@ public:
     MethodWidget (Method *, QWidget * = 0);
     virtual ~MethodWidget ();
 
-protected slots:
-    void presetChanged (int);
-    
+protected:    
     void updateParameters ();
 
 protected:
     Method *method;
-
-    QComboBox *comboBoxPreset;
 
     QSpinBox *spinBoxMinDisparity;
     QSpinBox *spinBoxMaxDisparity;

@@ -29,7 +29,7 @@ using namespace StereoMethodConstantSpaceBeliefPropagationCUDA;
 MethodWidget::MethodWidget (Method *m, QWidget *parent)
     : QWidget(parent), method(m)
 {
-    connect(method, SIGNAL(parameterChanged()), this, SLOT(updateParameters()));
+    connect(method, &Method::parameterChanged, this, &MethodWidget::updateParameters);
 
     // Build layout
     QVBoxLayout *baseLayout = new QVBoxLayout(this);
@@ -76,8 +76,10 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
     comboBox->setItemData(0, "Initial OpenCV settings.", Qt::ToolTipRole);
     comboBox->addItem("OpenCV - recommended", Method::OpenCVRecommended);
     comboBox->setItemData(1, "Recommended parameters estimated from image dimensions.", Qt::ToolTipRole);
-    connect(comboBox, SIGNAL(activated(int)), this, SLOT(presetChanged(int)));
-    comboBoxPreset = comboBox;
+
+    connect(comboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, [this, comboBox] (int index) {
+        method->usePreset(comboBox->itemData(index).toInt());
+    });
 
     layout->addRow(label, comboBox);
 
@@ -96,7 +98,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
     spinBox->setRange(0, 9999);
-    connect(spinBox, SIGNAL(valueChanged(int)), method, SLOT(setNumDisparities(int)));
+    connect(spinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), method, &Method::setNumDisparities);
     spinBoxNumDisparities = spinBox;
 
     layout->addRow(label, spinBox);
@@ -110,7 +112,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
     spinBox->setRange(1, 9999);
-    connect(spinBox, SIGNAL(valueChanged(int)), method, SLOT(setIterations(int)));
+    connect(spinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), method, &Method::setIterations);
     spinBoxIterations = spinBox;
 
     layout->addRow(label, spinBox);
@@ -124,7 +126,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
     spinBox->setRange(1, 9999);
-    connect(spinBox, SIGNAL(valueChanged(int)), method, SLOT(setLevels(int)));
+    connect(spinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), method, &Method::setLevels);
     spinBoxLevels = spinBox;
 
     layout->addRow(label, spinBox);
@@ -138,7 +140,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
     spinBox->setRange(1, 9999);
-    connect(spinBox, SIGNAL(valueChanged(int)), method, SLOT(setNrPlane(int)));
+    connect(spinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), method, &Method::setNrPlane);
     spinBoxNrPlane = spinBox;
 
     layout->addRow(label, spinBox);
@@ -158,7 +160,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
     spinBoxD = new QDoubleSpinBox(this);
     spinBoxD->setKeyboardTracking(false);
     spinBoxD->setRange(0.0, 9999.0);
-    connect(spinBoxD, SIGNAL(valueChanged(double)), method, SLOT(setMaxDataTerm(double)));
+    connect(spinBoxD, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), method, &Method::setMaxDataTerm);
     spinBoxMaxDataTerm = spinBoxD;
 
     layout->addRow(label, spinBoxD);
@@ -172,7 +174,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
     spinBoxD = new QDoubleSpinBox(this);
     spinBoxD->setKeyboardTracking(false);
     spinBoxD->setRange(0.0, 9999.0);
-    connect(spinBoxD, SIGNAL(valueChanged(double)), method, SLOT(setDataWeight(double)));
+    connect(spinBoxD, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), method, &Method::setDataWeight);
     spinBoxDataWeight = spinBoxD;
 
     layout->addRow(label, spinBoxD);
@@ -186,7 +188,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
     spinBoxD = new QDoubleSpinBox(this);
     spinBoxD->setKeyboardTracking(false);
     spinBoxD->setRange(0.0, 9999.0);
-    connect(spinBoxD, SIGNAL(valueChanged(double)), method, SLOT(setMaxDiscTerm(double)));
+    connect(spinBoxD, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), method, &Method::setMaxDiscTerm);
     spinBoxMaxDiscTerm = spinBoxD;
 
     layout->addRow(label, spinBoxD);
@@ -200,7 +202,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
     spinBoxD = new QDoubleSpinBox(this);
     spinBoxD->setKeyboardTracking(false);
     spinBoxD->setRange(0.0, 9999.0);
-    connect(spinBoxD, SIGNAL(valueChanged(double)), method, SLOT(setDiscSingleJump(double)));
+    connect(spinBoxD, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), method, &Method::setDiscSingleJump);
     spinBoxDiscSingleJump = spinBoxD;
 
     layout->addRow(label, spinBoxD);
@@ -216,7 +218,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
 
     checkBox = new QCheckBox("Local cost", this);
     checkBox->setToolTip(tooltip);
-    connect(checkBox, SIGNAL(toggled(bool)), method, SLOT(setUseLocalCost(bool)));
+    connect(checkBox, &QCheckBox::toggled, method, &Method::setUseLocalCost);
     checkBoxUseLocalCost = checkBox;
 
     layout->addRow(checkBox);
@@ -229,62 +231,55 @@ MethodWidget::~MethodWidget ()
 {
 }
 
-void MethodWidget::presetChanged (int index)
-{
-    method->usePreset(comboBoxPreset->itemData(index).toInt());
-}
-
 
 void MethodWidget::updateParameters ()
 {
-    bool oldState;
-
     // Num. disparities
-    oldState = spinBoxNumDisparities->blockSignals(true);
+    spinBoxNumDisparities->blockSignals(true);
     spinBoxNumDisparities->setValue(method->getNumDisparities());
-    spinBoxNumDisparities->blockSignals(oldState);
+    spinBoxNumDisparities->blockSignals(false);
 
 
     // Iterations
-    oldState = spinBoxIterations->blockSignals(true);
+    spinBoxIterations->blockSignals(true);
     spinBoxIterations->setValue(method->getIterations());
-    spinBoxIterations->blockSignals(oldState);
+    spinBoxIterations->blockSignals(false);
 
     // Levels
-    oldState = spinBoxLevels->blockSignals(true);
+    spinBoxLevels->blockSignals(true);
     spinBoxLevels->setValue(method->getLevels());
-    spinBoxLevels->blockSignals(oldState);
+    spinBoxLevels->blockSignals(false);
 
     // Nr. plane
-    oldState = spinBoxNrPlane->blockSignals(true);
+    spinBoxNrPlane->blockSignals(true);
     spinBoxNrPlane->setValue(method->getNrPlane());
-    spinBoxNrPlane->blockSignals(oldState);
+    spinBoxNrPlane->blockSignals(false);
 
 
     // Max. data term
-    oldState = spinBoxMaxDataTerm->blockSignals(true);
+    spinBoxMaxDataTerm->blockSignals(true);
     spinBoxMaxDataTerm->setValue(method->getMaxDataTerm());
-    spinBoxMaxDataTerm->blockSignals(oldState);
+    spinBoxMaxDataTerm->blockSignals(false);
 
     // Data weight
-    oldState = spinBoxDataWeight->blockSignals(true);
+    spinBoxDataWeight->blockSignals(true);
     spinBoxDataWeight->setValue(method->getDataWeight());
-    spinBoxDataWeight->blockSignals(oldState);
+    spinBoxDataWeight->blockSignals(false);
 
     // Max. disc. term
-    oldState = spinBoxMaxDiscTerm->blockSignals(true);
+    spinBoxMaxDiscTerm->blockSignals(true);
     spinBoxMaxDiscTerm->setValue(method->getMaxDiscTerm());
-    spinBoxMaxDiscTerm->blockSignals(oldState);
+    spinBoxMaxDiscTerm->blockSignals(false);
 
     // Disc. single jump
-    oldState = spinBoxDiscSingleJump->blockSignals(true);
+    spinBoxDiscSingleJump->blockSignals(true);
     spinBoxDiscSingleJump->setValue(method->getDiscSingleJump());
-    spinBoxDiscSingleJump->blockSignals(oldState);
+    spinBoxDiscSingleJump->blockSignals(false);
 
 
     // Use local cost
-    oldState = checkBoxUseLocalCost->blockSignals(true);
+    checkBoxUseLocalCost->blockSignals(true);
     checkBoxUseLocalCost->setChecked(method->getUseLocalCost());
-    checkBoxUseLocalCost->blockSignals(oldState);
+    checkBoxUseLocalCost->blockSignals(false);
 }
 

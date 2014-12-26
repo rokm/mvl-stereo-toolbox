@@ -43,40 +43,43 @@ public:
     virtual void saveParameters (const QString &) const;
     
     // Parameters
-    int getNumDisparities () const;
-
-    int getIterations () const;
-    int getLevels () const;
-
-    double getMaxDataTerm () const;
-    double getDataWeight () const;
-    double getMaxDiscTerm () const;
-    double getDiscSingleJump () const;
-
     enum {
         OpenCVInit,
         OpenCVRecommended,
     } PresetType;
     
-public slots:
     void usePreset (int);
 
+
     void setNumDisparities (int);
+    int getNumDisparities () const;
+
 
     void setIterations (int);
+    int getIterations () const;
+
     void setLevels (int);
-        
+    int getLevels () const;
+
+
     void setMaxDataTerm (double);
+    double getMaxDataTerm () const;
+
     void setDataWeight (double);
+    double getDataWeight () const;
+
     void setMaxDiscTerm (double);
+    double getMaxDiscTerm () const;
+
     void setDiscSingleJump (double);
+    double getDiscSingleJump () const;
 
 signals:
     // Signals from interface
     void parameterChanged ();
 
 protected:
-    // Block matcher
+    // Method implementation
     cv::Ptr<cv::cuda::StereoBeliefPropagation> bp;
     QMutex mutex;
 
