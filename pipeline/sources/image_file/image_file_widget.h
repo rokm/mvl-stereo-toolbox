@@ -36,17 +36,8 @@ public:
     ImageFileWidget (ImageFile *, QWidget * = 0);
     virtual ~ImageFileWidget ();
 
-protected slots:
-    void loadFile ();
-    void loadUrl ();
-
-    void updateImageInformation ();
-
 protected:
     ImageFile *file;
-
-    QPushButton *pushButtonFile;
-    QPushButton *pushButtonUrl;
     
     QTextEdit *textEditFilename;
     QLabel *labelResolution;

@@ -27,7 +27,7 @@ Source::Source (QObject *parent)
     : QObject(parent), ImagePairSource()
 {
     playbackTimer = new QTimer(this);
-    connect(playbackTimer, SIGNAL(timeout()), this, SLOT(playbackFunction()));
+    connect(playbackTimer, &QTimer::timeout, this, &Source::playbackFunction);
 }
 
 Source::~Source ()
@@ -73,8 +73,8 @@ void Source::openVideoFile (const QString &filename)
     // Open video file
     video.open(filename.toStdString());
     if (!video.isOpened()) {
-	emit error(QString("Failed to open video '%1'").arg(filename));
-	emit videoFileReadyChanged(false);
+        emit error(QString("Failed to open video '%1'").arg(filename));
+        emit videoFileReadyChanged(false);
     }
 
     emit videoFileReadyChanged(true);
@@ -115,14 +115,14 @@ void Source::startPlayback ()
 {
     // Make sure video is open
     if (!video.isOpened()) {
-	stopPlayback();
-	return;
+        stopPlayback();
+        return;
     }
 
     // Start playback timer with specified FPS
     float fps = getVideoFps();
     if (!fps) {
-	fps = 25;
+        fps = 25;
     }
     playbackTimer->start(1000/fps);
 
@@ -144,8 +144,8 @@ void Source::playbackFunction ()
     cv::Mat frame;
 
     if (!video.grab()) {
-	stopPlayback();
-	return;
+        stopPlayback();
+        return;
     }
 
     // Decode frame

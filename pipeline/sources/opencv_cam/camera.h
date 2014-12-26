@@ -55,16 +55,12 @@ public:
 
     bool getCaptureState () const;
 
-    float getEffectiveCaptureFramerate () const;
-
     // Frame
     void copyFrame (cv::Mat &);
 
     // Properties
-    double getProperty (int);
-    
-public slots:
     void setProperty (int, double);
+    double getProperty (int);
     
 protected:
     void captureFunction ();
@@ -77,8 +73,6 @@ signals:
     void error (const QString);
 
     void propertyChanged ();
-
-    void workerStopCapture ();
 
 protected:
     cv::VideoCapture *capture;

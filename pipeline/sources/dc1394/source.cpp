@@ -196,7 +196,7 @@ void Source::createCamera (Camera *& camera, int c)
     camera = new Camera(raw_camera, this);
 
     // Connect
-    connect(camera, SIGNAL(frameReady()), this, SLOT(synchronizeFrames()));
+    connect(camera, &Camera::frameReady, this, &Source::synchronizeFrames);
 
     // Mark camera as active in our list
     setActive(c, true);
@@ -209,7 +209,7 @@ void Source::releaseCamera (Camera *& camera)
         dc1394camera_id_t id = camera->getId();
 
         // Disconnect
-        disconnect(camera, SIGNAL(frameReady()), this, SLOT(synchronizeFrames()));
+        disconnect(camera, &Camera::frameReady, this, &Source::synchronizeFrames);
 
         // Delete camera object 
         camera->deleteLater();

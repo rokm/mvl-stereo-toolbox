@@ -41,9 +41,9 @@ CameraWidget::CameraWidget (Camera *c, QWidget *parent)
 
     QString tooltip;
 
-    connect(camera, SIGNAL(parameterChanged()), this, SLOT(updateParameters()));
-    connect(camera, SIGNAL(captureStarted()), this, SLOT(updateCameraState()));
-    connect(camera, SIGNAL(captureFinished()), this, SLOT(updateCameraState()));
+    connect(camera, &Camera::parameterChanged, this, &CameraWidget::updateParameters);
+    connect(camera, &Camera::captureStarted, this, &CameraWidget::updateCameraState);
+    connect(camera, &Camera::captureFinished, this, &CameraWidget::updateCameraState);
 
     // Separator
     line = new QFrame(this);
@@ -80,7 +80,15 @@ CameraWidget::CameraWidget (Camera *c, QWidget *parent)
     button = new QPushButton("Capture", this);
     button->setToolTip(tooltip);
     button->setCheckable(true);
-    connect(button, SIGNAL(toggled(bool)), this, SLOT(captureButtonToggled(bool)));
+
+    connect(button, &QPushButton::toggled, this, [this] (bool start) {
+        if (start) {
+            camera->startCapture();
+        } else {
+            camera->stopCapture();
+        }
+    });
+
     pushButtonCapture = button;
 
     layout->addRow(button);
@@ -98,7 +106,17 @@ CameraWidget::CameraWidget (Camera *c, QWidget *parent)
     label->setToolTip(tooltip);
 
     comboBox = new QComboBox(this);
-    connect(comboBox, SIGNAL(activated(int)), this, SLOT(modeChanged(int)));
+    connect(comboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, [this] (int index) {
+        // Set mode
+        camera->setMode((dc1394video_mode_t)comboBoxMode->itemData(index).toInt());
+
+        // Mode change requires re-enumeration of framerates
+        comboBoxFramerate->clear();
+        foreach (dc1394framerate_t framerate, camera->getSupportedFramerates()) {
+            comboBoxFramerate->addItem(framerateToString(framerate), framerate);
+        }
+    });
+
     comboBoxMode = comboBox;
     
     layout->addRow(label, comboBox);
@@ -114,7 +132,11 @@ CameraWidget::CameraWidget (Camera *c, QWidget *parent)
     label->setToolTip(tooltip);
 
     comboBox = new QComboBox(this);
-    connect(comboBox, SIGNAL(activated(int)), this, SLOT(framerateChanged(int)));
+
+    connect(comboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, [this] (int index) {
+        camera->setFramerate((dc1394framerate_t)comboBoxFramerate->itemData(index).toInt());
+    });
+    
     comboBoxFramerate = comboBox;
     
     layout->addRow(label, comboBox);
@@ -160,50 +182,19 @@ void CameraWidget::addFeatureWidgets ()
 }
 
 
-
-void CameraWidget::modeChanged (int index)
-{
-    camera->setMode((dc1394video_mode_t)comboBoxMode->itemData(index).toInt());
-
-    // Mode change requires re-enumeration of framerates
-    comboBoxFramerate->clear();
-    foreach (dc1394framerate_t framerate, camera->getSupportedFramerates()) {
-        comboBoxFramerate->addItem(framerateToString(framerate), framerate);
-    }
-}
-
-
-void CameraWidget::framerateChanged (int index)
-{
-    camera->setFramerate((dc1394framerate_t)comboBoxFramerate->itemData(index).toInt());
-}
-
-
-
 void CameraWidget::updateParameters ()
 {
-    bool oldState;
-
     // Mode
-    oldState = comboBoxMode->blockSignals(true);
+    comboBoxMode->blockSignals(true);
     comboBoxMode->setCurrentIndex(comboBoxMode->findData(camera->getMode()));
-    comboBoxMode->blockSignals(oldState);
+    comboBoxMode->blockSignals(false);
 
     // Framerate
-    oldState = comboBoxFramerate->blockSignals(true);
+    comboBoxFramerate->blockSignals(true);
     comboBoxFramerate->setCurrentIndex(comboBoxFramerate->findData(camera->getFramerate()));
-    comboBoxFramerate->blockSignals(oldState);
+    comboBoxFramerate->blockSignals(false);
 }
 
-
-void CameraWidget::captureButtonToggled (bool start)
-{
-    if (start) {
-        camera->startCapture();
-    } else {
-        camera->stopCapture();
-    }
-}
 
 
 void CameraWidget::updateCameraState ()

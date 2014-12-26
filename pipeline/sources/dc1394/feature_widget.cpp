@@ -29,7 +29,7 @@ static const QString featureModeToString (dc1394feature_mode_t);
 FeatureWidget::FeatureWidget (Camera *c, const dc1394feature_info_t &f, QWidget *parent)
     : QWidget(parent), camera(c), feature(f)
 {
-    connect(camera, SIGNAL(parameterChanged()), this, SLOT(updateParameters()));
+    connect(camera, &Camera::parameterChanged, this, &FeatureWidget::updateParameters);
 
     QHBoxLayout *layout = new QHBoxLayout(this);
     layout->setContentsMargins(0, 0, 0, 0);
@@ -39,12 +39,18 @@ FeatureWidget::FeatureWidget (Camera *c, const dc1394feature_info_t &f, QWidget 
     spinBoxValue->setToolTip(QString("Min: %1 Max: %2").arg(feature.min).arg(feature.max));
     spinBoxValue->setKeyboardTracking(false);
     spinBoxValue->setRange(feature.min, feature.max);
-    connect(spinBoxValue, SIGNAL(valueChanged(int)), this, SLOT(setValue(int)));
+    connect(spinBoxValue, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, [this] (int newValue) {
+        camera->setFeatureValue(feature.id, newValue);
+    });
+
     layout->addWidget(spinBoxValue);
 
     // Mode
     comboBoxMode = new QComboBox(this);
-    connect(comboBoxMode, SIGNAL(activated(int)), this, SLOT(modeChanged(int)));
+    connect(comboBoxMode, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, [this] (int index) {
+        camera->setFeatureMode(feature.id, (dc1394feature_mode_t)comboBoxMode->itemData(index).toInt());
+    });
+    
     layout->addWidget(comboBoxMode);
 
     QList<dc1394feature_mode_t> availableModes = camera->getFeatureModes(feature.id);
@@ -64,13 +70,15 @@ FeatureWidget::FeatureWidget (Camera *c, const dc1394feature_info_t &f, QWidget 
         spinBoxAbsoluteValue->setDecimals(6);
         spinBoxAbsoluteValue->setEnabled(false);
         spinBoxAbsoluteValue->setRange(feature.abs_min, feature.abs_max);
-        connect(spinBoxAbsoluteValue, SIGNAL(valueChanged(double)), this, SLOT(setAbsoluteValue(double)));
+        connect(spinBoxAbsoluteValue, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, [this] (double newValue) {
+            camera->setFeatureAbsoluteValue(feature.id, newValue);
+        });
         layout->addWidget(spinBoxAbsoluteValue);
     }
 
     // Update parameter
     updateTimer = new QTimer(this);
-    connect(updateTimer, SIGNAL(timeout()), this, SLOT(updateParameters()));
+    connect(updateTimer, &QTimer::timeout, this, &FeatureWidget::updateParameters);
     
     updateParameters();
 }
@@ -81,29 +89,27 @@ FeatureWidget::~FeatureWidget ()
 
 
 void FeatureWidget::updateParameters ()
-{
-    bool oldState;
-    
+{   
     // Value
-    oldState = spinBoxValue->blockSignals(true);
+    spinBoxValue->blockSignals(true);
     spinBoxValue->setValue(camera->getFeatureValue(feature.id));
-    spinBoxValue->blockSignals(oldState);
+    spinBoxValue->blockSignals(false);
 
     // Mode
-    oldState = comboBoxMode->blockSignals(true);
+    comboBoxMode->blockSignals(true);
     comboBoxMode->setCurrentIndex(comboBoxMode->findData(camera->getFeatureMode(feature.id)));
-    comboBoxMode->blockSignals(oldState);
+    comboBoxMode->blockSignals(false);
 
     // Absolute value
     if (feature.absolute_capable) {
-        oldState = spinBoxAbsoluteValue->blockSignals(true);
+        spinBoxAbsoluteValue->blockSignals(true);
         spinBoxAbsoluteValue->setValue(camera->getFeatureAbsoluteValue(feature.id));
-        spinBoxAbsoluteValue->blockSignals(oldState);
+        spinBoxAbsoluteValue->blockSignals(false);
     }
 
     // If mode is auto, disable the controls and enable the refresh timer,
     // otherwise, disable timer and enable control
-    oldState = spinBoxValue->blockSignals(true);
+    spinBoxValue->blockSignals(true);
     if (comboBoxMode->itemData(comboBoxMode->currentIndex()) == DC1394_FEATURE_MODE_AUTO) {
         spinBoxValue->setEnabled(false);
         updateTimer->start(1000);
@@ -111,23 +117,7 @@ void FeatureWidget::updateParameters ()
         spinBoxValue->setEnabled(true);
         updateTimer->stop();
     }
-    spinBoxValue->blockSignals(oldState);
-}
-
-
-void FeatureWidget::setValue (int newValue)
-{
-    camera->setFeatureValue(feature.id, newValue);
-}
-
-void FeatureWidget::setAbsoluteValue (double newValue)
-{
-    camera->setFeatureAbsoluteValue(feature.id, newValue);
-}
-
-void FeatureWidget::modeChanged (int index)
-{
-    camera->setFeatureMode(feature.id, (dc1394feature_mode_t)comboBoxMode->itemData(index).toInt());
+    spinBoxValue->blockSignals(false);
 }
 
 

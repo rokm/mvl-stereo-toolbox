@@ -35,10 +35,8 @@ public:
     PropertyWidget (Camera *, int, bool, QWidget * = 0);
     virtual ~PropertyWidget ();
 
-protected slots:
+protected:
     void updateProperty ();
-
-    void spinBoxValueChanged (double);
 
 protected:
     Camera *camera;

@@ -38,8 +38,11 @@ PropertyWidget::PropertyWidget (Camera *c, int p, bool integer_value, QWidget *p
 
     setKeyboardTracking(false);
 
-    connect(camera, SIGNAL(propertyChanged()), this, SLOT(updateProperty()));
-    connect(this, SIGNAL(valueChanged(double)), this, SLOT(spinBoxValueChanged(double)));
+    connect(camera, &Camera::propertyChanged, this, &PropertyWidget::updateProperty);
+
+    connect(this, static_cast<void (PropertyWidget::*)(double)>(&PropertyWidget::valueChanged), this, [this] (double newValue) {
+        camera->setProperty(property, newValue);
+    });
 
     // Get initial property value; as per OpenCV docs, assume that if 0
     // is returned, property is not supported. Additionally, tests
@@ -52,7 +55,7 @@ PropertyWidget::PropertyWidget (Camera *c, int p, bool integer_value, QWidget *p
 
     // Update parameter
     updateTimer = new QTimer(this);
-    connect(updateTimer, SIGNAL(timeout()), this, SLOT(updateProperty()));
+    connect(updateTimer, &QTimer::timeout, this, &PropertyWidget::updateProperty);
     updateTimer->start(1000);
 
     updateProperty();
@@ -65,17 +68,9 @@ PropertyWidget::~PropertyWidget ()
 
 void PropertyWidget::updateProperty ()
 {
-    bool oldState;
-
     if (isEnabled() && !hasFocus()) {
-        double newValue = camera->getProperty(property);
-        oldState = blockSignals(true);
-        setValue(newValue);
-        blockSignals(oldState);
+        blockSignals(true);
+        setValue(camera->getProperty(property));
+        blockSignals(false);
     }
-}
-
-void PropertyWidget::spinBoxValueChanged (double newValue)
-{
-    camera->setProperty(property, newValue);
 }

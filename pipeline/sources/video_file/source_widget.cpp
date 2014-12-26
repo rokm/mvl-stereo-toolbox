@@ -70,7 +70,7 @@ SourceWidget::SourceWidget (Source *s, QWidget *parent)
     layout->addWidget(lineEdit, 0, 1, 1, 1);
 
     button = new QPushButton("Browse");
-    connect(button, SIGNAL(clicked()), this, SLOT(browseForVideoFile()));
+    connect(button, &QPushButton::clicked, this, &SourceWidget::browseForVideoFile);
 
     layout->addWidget(button, 0, 2, 1, 1);
 
@@ -79,7 +79,7 @@ SourceWidget::SourceWidget (Source *s, QWidget *parent)
 
     button = new QPushButton("Open", this);
     button->setToolTip(tooltip);
-    connect(button, SIGNAL(clicked()), this, SLOT(openVideoFile()));
+    connect(button, &QPushButton::clicked, this, &SourceWidget::openVideoFile);
     pushButtonOpen = button;
 
     layout->addWidget(button, 1, 0, 1, 3);
@@ -97,8 +97,14 @@ SourceWidget::SourceWidget (Source *s, QWidget *parent)
     button = new QPushButton("Play", this);
     button->setToolTip(tooltip);
     button->setCheckable(true);
-    connect(button, SIGNAL(toggled(bool)), this, SLOT(changePlaybackState(bool)));
-    connect(source, SIGNAL(playbackStateChanged(bool)), button, SLOT(setChecked(bool)));
+    connect(button, &QPushButton::toggled, this, [this] (bool active) {
+        if (active) {
+            source->startPlayback();
+        } else {
+            source->stopPlayback();
+        }
+    });
+    connect(source, &Source::playbackStateChanged, button, &QPushButton::setChecked);
     pushButtonPlayPause = button;
 
     layout->addWidget(button, 3, 0, 1, 3);
@@ -143,8 +149,8 @@ SourceWidget::SourceWidget (Source *s, QWidget *parent)
     layout->addItem(new QSpacerItem(100, 100, QSizePolicy::Expanding, QSizePolicy::Expanding), 12, 0, 1, 3);
 
     // Init
-    connect(source, SIGNAL(videoFileReadyChanged(bool)), this, SLOT(videoFileReadyChanged(bool)));
-    connect(source, SIGNAL(videoPositionChanged(int, int)), this, SLOT(videoPositionChanged(int, int)));
+    connect(source, &Source::videoFileReadyChanged, this, &SourceWidget::videoFileReadyChanged);
+    connect(source, &Source::videoPositionChanged, this, &SourceWidget::videoPositionChanged);
 
     videoFileReadyChanged(false);
 }
@@ -218,15 +224,6 @@ void SourceWidget::videoFileReadyChanged (bool available)
 // *********************************************************************
 // *                              Playback                             *
 // *********************************************************************
-void SourceWidget::changePlaybackState (bool active)
-{
-    if (active) {
-        source->startPlayback();
-    } else {
-        source->stopPlayback();
-    }
-}
-
 void SourceWidget::videoPositionChanged (int frame, int length)
 {
     qint64 milliseconds = frame * 1000 / source->getVideoFps();

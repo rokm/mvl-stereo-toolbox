@@ -63,9 +63,17 @@ SourceWidget::SourceWidget (Source *s, QWidget *parent)
 
     button = new QPushButton("Load image pair", this);
     button->setToolTip(tooltip);
-    connect(button, SIGNAL(clicked()), this, SLOT(loadImagePair()));
-    pushButtonLoadPair = button;
+    connect(button, &QPushButton::clicked, this, [this] {
+        // Get filename
+        QStringList filenames = QFileDialog::getOpenFileNames(this, "Load left and right image", QFileInfo(source->getLeftImageFile()->getImageFilename()).filePath(), "Images (*.png *.jpg *.pgm *.ppm *.tif *.bmp)");
 
+        // Take first two images
+        if (filenames.size() >= 2) {
+            // Load image pair
+            source->loadImagePair(filenames[0], filenames[1], false);
+        }
+    });
+    
     layout->addRow(button);
 
     // Periodic refresh
@@ -74,10 +82,9 @@ SourceWidget::SourceWidget (Source *s, QWidget *parent)
     button = new QPushButton("Periodic refresh", this);
     button->setToolTip(tooltip);
     button->setCheckable(true);
-    connect(button, SIGNAL(toggled(bool)), source, SLOT(setPeriodicRefreshState(bool)));
-    connect(source, SIGNAL(periodicRefreshStateChanged(bool)), button, SLOT(setChecked(bool)));
-    pushButtonPeriodicRefresh = button;
-
+    connect(button, &QPushButton::toggled, source, &Source::setPeriodicRefreshState);
+    connect(source, &Source::periodicRefreshStateChanged, button, &QPushButton::setChecked);
+    
     layout->addRow(button);
 
     // Refresh period
@@ -92,10 +99,9 @@ SourceWidget::SourceWidget (Source *s, QWidget *parent)
     spinBox->setSingleStep(1000);
     spinBox->setValue(1000);
     spinBox->setSuffix(" ms"); //
-    connect(spinBox, SIGNAL(valueChanged(int)), source, SLOT(setRefreshPeriod(int)));
-    connect(source, SIGNAL(refreshPeriodChanged(int)), spinBox, SLOT(setValue(int)));
-    spinBoxRefreshPeriod = spinBox;
-
+    connect(spinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), source, &Source::setRefreshPeriod);
+    connect(source, &Source::refreshPeriodChanged, spinBox, &QSpinBox::setValue);
+    
     layout->addRow(label, spinBox);
 
     // Separator
@@ -145,15 +151,3 @@ QWidget *SourceWidget::createImageFrame (bool left)
     return imageFrame;
 }
 
-
-void SourceWidget::loadImagePair ()
-{
-    // Get filename
-    QStringList filenames = QFileDialog::getOpenFileNames(this, "Load left and right image", QFileInfo(source->getLeftImageFile()->getImageFilename()).filePath(), "Images (*.png *.jpg *.pgm *.ppm *.tif *.bmp)");
-
-    // Take first two images
-    if (filenames.size() >= 2) {
-        // Load image pair
-        source->loadImagePair(filenames[0], filenames[1], false);
-    }
-}

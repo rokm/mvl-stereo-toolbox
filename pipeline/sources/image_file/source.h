@@ -51,11 +51,10 @@ public:
     bool getPeriodicRefreshState () const;
     int getRefreshPeriod () const;
 
-public slots:
     void setPeriodicRefreshState (bool);
     void setRefreshPeriod (int);
 
-protected slots:
+protected:
     void periodicRefresh ();
     void synchronizeFrames ();
 

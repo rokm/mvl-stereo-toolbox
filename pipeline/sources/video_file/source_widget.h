@@ -35,7 +35,7 @@ public:
     SourceWidget (Source *, QWidget * = 0);
     virtual ~SourceWidget ();
 
-protected slots:
+protected:
     void browseForVideoFile ();
     void openVideoFile ();
     void videoFileReadyChanged (bool);

@@ -38,17 +38,8 @@ public:
 protected:
     QWidget *createImageFrame (bool);
 
-protected slots:
-    void loadImagePair ();
-
 protected:
     Source *source;
-
-    QPushButton *pushButtonLoadPair;
-
-    QPushButton *pushButtonPeriodicRefresh;
-
-    QSpinBox *spinBoxRefreshPeriod;
 };
 
 }

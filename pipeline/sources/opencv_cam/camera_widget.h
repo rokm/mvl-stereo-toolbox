@@ -35,11 +35,9 @@ public:
     CameraWidget (Camera *, QWidget * = 0);
     virtual ~CameraWidget ();
 
-protected slots:
-    void captureButtonToggled (bool);
+protected:
     void updateCameraState ();
 
-protected:
     void addPropertyWidgets ();
 
 protected:

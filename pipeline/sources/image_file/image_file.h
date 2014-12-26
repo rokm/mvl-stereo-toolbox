@@ -44,7 +44,7 @@ public:
 
     void copyFrame (cv::Mat &);
 
-public slots:
+public:
     void setImageFileOrUrl (const QString &, bool);
 
     void refreshImage ();
@@ -54,7 +54,6 @@ protected:
     void loadLocalImage ();
     void loadRemoteImage ();
 
-protected slots:
     void processRemoteReply (QNetworkReply *);
 
 signals:

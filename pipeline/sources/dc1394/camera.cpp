@@ -43,13 +43,13 @@ Camera::Camera (dc1394camera_t *c, QObject *parent)
     captureWorker->moveToThread(captureThread);
 
     // Start/stop
-    connect(captureThread, SIGNAL(started()), captureWorker, SLOT(startCapture()));
-    connect(this, SIGNAL(workerStopCapture()), captureWorker, SLOT(stopCapture()), Qt::BlockingQueuedConnection);
+    connect(captureThread, &QThread::started, captureWorker, &CameraCaptureWorker::startCapture);
+    connect(this, &Camera::workerStopCapture, captureWorker, &CameraCaptureWorker::stopCapture, Qt::BlockingQueuedConnection);
     // Passthrough signals
-    connect(captureWorker, SIGNAL(captureStarted()), this, SIGNAL(captureStarted()));
-    connect(captureWorker, SIGNAL(captureFinished()), this, SIGNAL(captureStarted()));
-    connect(captureWorker, SIGNAL(frameReady()), this, SIGNAL(frameReady()));
-    connect(captureWorker, SIGNAL(error(const QString)), this, SIGNAL(error(const QString)));
+    connect(captureWorker, &CameraCaptureWorker::captureStarted, this, &Camera::captureStarted);
+    connect(captureWorker, &CameraCaptureWorker::captureFinished, this, &Camera::captureStarted);
+    connect(captureWorker, &CameraCaptureWorker::frameReady, this, &Camera::frameReady);
+    connect(captureWorker, &CameraCaptureWorker::error, this, &Camera::error);
 }
 
 Camera::~Camera ()
@@ -416,7 +416,7 @@ void CameraCaptureWorker::startCapture ()
 
     // Create notifier
     frameNotifier = new QSocketNotifier(dc1394_capture_get_fileno(camera), QSocketNotifier::Read, this);
-    connect(frameNotifier, SIGNAL(activated(int)), this, SLOT(grabFrame()));
+    connect(frameNotifier, &QSocketNotifier::activated, this, &CameraCaptureWorker::grabFrame);
 
     emit captureStarted();
 }
@@ -428,7 +428,7 @@ void CameraCaptureWorker::stopCapture ()
     //qDebug() << "Stopping capture worker" << QThread::currentThread();
     
     // Cleanup
-    disconnect(frameNotifier, SIGNAL(activated(int)), this, SLOT(grabFrame()));
+    disconnect(frameNotifier, &QSocketNotifier::activated, this, &CameraCaptureWorker::grabFrame);
     delete frameNotifier;
     frameNotifier = NULL;
 

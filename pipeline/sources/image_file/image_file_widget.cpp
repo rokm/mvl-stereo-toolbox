@@ -33,6 +33,9 @@ ImageFileWidget::ImageFileWidget (ImageFile *f, QWidget *parent)
     QFrame *line;
     QString tooltip;
 
+    // URL dialog
+    dialogUrl = new UrlDialog(this);
+
     // Separator
     line = new QFrame(this);
     line->setFrameStyle(QFrame::HLine | QFrame::Sunken);
@@ -47,8 +50,15 @@ ImageFileWidget::ImageFileWidget (ImageFile *f, QWidget *parent)
     
     button = new QPushButton("File", this);
     button->setToolTip(tooltip);
-    connect(button, SIGNAL(clicked()), this, SLOT(loadFile()));
-    pushButtonFile = button;
+    connect(button, &QPushButton::clicked, this, [this] {
+        QString filename = QFileDialog::getOpenFileName(this, "Load image", QFileInfo(file->getImageFilename()).filePath(), "Images (*.png *.jpg *.pgm *.ppm *.tif *.bmp)");
+        if (!filename.isEmpty()) {
+            // Set filename
+            file->setImageFileOrUrl(filename, false);
+            // Get image
+            file->refreshImage();
+        }
+    });
 
     buttonBox->addWidget(button);
 
@@ -57,8 +67,15 @@ ImageFileWidget::ImageFileWidget (ImageFile *f, QWidget *parent)
     
     button = new QPushButton("URL", this);
     button->setToolTip(tooltip);
-    connect(button, SIGNAL(clicked()), this, SLOT(loadUrl()));
-    pushButtonUrl = button;
+    connect(button, &QPushButton::clicked, this, [this] {
+        // Run the dialog
+        if (dialogUrl->exec() == QDialog::Accepted) {
+            // Set URL
+            file->setImageFileOrUrl(dialogUrl->getUrl(), true);
+            // Get image
+            file->refreshImage();
+        }
+    });
 
     buttonBox->addWidget(button);
 
@@ -101,48 +118,18 @@ ImageFileWidget::ImageFileWidget (ImageFile *f, QWidget *parent)
 
     layout->addRow(label, labelChannels);
 
-    // URL dialog
-    dialogUrl = new UrlDialog(this);
-
     // Signals
-    connect(file, SIGNAL(imageReady()), this, SLOT(updateImageInformation()));
+    connect(file, &ImageFile::imageReady, this, [this] {
+        // Display image information
+        textEditFilename->setText(QString("%1").arg(file->getImageFilename()));
+        labelResolution->setText(QString("%1x%2").arg(file->getImageWidth()).arg(file->getImageHeight()));
+        labelChannels->setText(QString("%1").arg(file->getImageChannels()));
+    });
 }
 
 ImageFileWidget::~ImageFileWidget ()
 {
 }
-
-void ImageFileWidget::updateImageInformation ()
-{
-    // Display image information
-    textEditFilename->setText(QString("%1").arg(file->getImageFilename()));
-    labelResolution->setText(QString("%1x%2").arg(file->getImageWidth()).arg(file->getImageHeight()));
-    labelChannels->setText(QString("%1").arg(file->getImageChannels()));
-}
-
-void ImageFileWidget::loadFile ()
-{
-    QString filename = QFileDialog::getOpenFileName(this, "Load image", QFileInfo(file->getImageFilename()).filePath(), "Images (*.png *.jpg *.pgm *.ppm *.tif *.bmp)");
-    if (!filename.isEmpty()) {
-        // Set filename
-        file->setImageFileOrUrl(filename, false);
-        // Get image
-        file->refreshImage();
-    }
-}
-
-
-void ImageFileWidget::loadUrl ()
-{
-    // Run the dialog
-    if (dialogUrl->exec() == QDialog::Accepted) {
-        // Set URL
-        file->setImageFileOrUrl(dialogUrl->getUrl(), true);
-        // Get image
-        file->refreshImage();
-    }
-}
-
 
 
 // *********************************************************************
@@ -158,8 +145,8 @@ UrlDialog::UrlDialog (QWidget *parent)
 
     QDialogButtonBox *buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, Qt::Horizontal, this);
     layout->addRow(buttonBox);
-    connect(buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
-    connect(buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
+    connect(buttonBox, &QDialogButtonBox::accepted, this, &UrlDialog::accept);
+    connect(buttonBox, &QDialogButtonBox::rejected, this, &UrlDialog::reject);
 }
 
 UrlDialog::~UrlDialog ()

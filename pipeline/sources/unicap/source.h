@@ -56,7 +56,6 @@ public:
     virtual Qt::ItemFlags flags (const QModelIndex &index) const;
     virtual QVariant data (const QModelIndex &index, int role) const;
 
-public slots:
     void refreshCameraList ();
     void startStopCapture (bool);
 
@@ -66,7 +65,6 @@ protected:
     void setActive (int, bool);
     void setActive (const unicap_device_t &, bool);
 
-protected slots:
     void synchronizeFrames ();
 
 signals:

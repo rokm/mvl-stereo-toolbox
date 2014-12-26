@@ -36,13 +36,7 @@ public:
     PropertyWidget (Camera *, const unicap_property_t &, QWidget * = 0);
     virtual ~PropertyWidget ();
 
-protected slots:
-    void spinBoxValueChanged (double);
-    void comboBoxValueActivated (int);
-    void pushButtonValueToggled (bool);
-
-    void comboBoxModeActivated (int);
-
+protected:
     void updateProperty ();
 
 protected:

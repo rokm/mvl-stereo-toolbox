@@ -35,8 +35,8 @@ CameraWidget::CameraWidget (Camera *c, QWidget *parent)
 
     QString tooltip;
 
-    connect(camera, SIGNAL(captureStarted()), this, SLOT(updateCameraState()));
-    connect(camera, SIGNAL(captureFinished()), this, SLOT(updateCameraState()));
+    connect(camera, &Camera::captureStarted, this, &CameraWidget::updateCameraState);
+    connect(camera, &Camera::captureFinished, this, &CameraWidget::updateCameraState);
 
     // Separator
     line = new QFrame(this);
@@ -50,7 +50,13 @@ CameraWidget::CameraWidget (Camera *c, QWidget *parent)
     button = new QPushButton("Capture", this);
     button->setToolTip(tooltip);
     button->setCheckable(true);
-    connect(button, SIGNAL(toggled(bool)), this, SLOT(captureButtonToggled(bool)));
+    connect(button, &QPushButton::toggled, this, [this] (bool start) {
+        if (start) {
+            camera->startCapture();
+        } else {
+            camera->stopCapture();
+        }
+    });
     pushButtonCapture = button;
 
     layout->addRow(button);
@@ -100,19 +106,9 @@ void CameraWidget::addPropertyWidgets ()
 }
 
 
-void CameraWidget::captureButtonToggled (bool start)
-{
-    if (start) {
-        camera->startCapture();
-    } else {
-        camera->stopCapture();
-    }
-}
-
-
 void CameraWidget::updateCameraState ()
 {
-    bool oldState = pushButtonCapture->blockSignals(true);
+    pushButtonCapture->blockSignals(true);
     pushButtonCapture->setChecked(camera->getCaptureState());
-    pushButtonCapture->blockSignals(oldState);
+    pushButtonCapture->blockSignals(false);
 }

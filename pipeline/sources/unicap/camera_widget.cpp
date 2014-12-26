@@ -37,9 +37,9 @@ CameraWidget::CameraWidget (Camera *c, QWidget *parent)
 
     QString tooltip;
 
-    connect(camera, SIGNAL(formatChanged()), this, SLOT(updateFormat()));
-    connect(camera, SIGNAL(captureStarted()), this, SLOT(updateCameraState()));
-    connect(camera, SIGNAL(captureFinished()), this, SLOT(updateCameraState()));
+    connect(camera, &Camera::formatChanged, this, &CameraWidget::updateFormat);
+    connect(camera, &Camera::captureStarted, this, &CameraWidget::updateCameraState);
+    connect(camera, &Camera::captureFinished, this, &CameraWidget::updateCameraState);
 
     // Separator
     line = new QFrame(this);
@@ -92,7 +92,15 @@ CameraWidget::CameraWidget (Camera *c, QWidget *parent)
     button = new QPushButton("Capture", this);
     button->setToolTip(tooltip);
     button->setCheckable(true);
-    connect(button, SIGNAL(toggled(bool)), this, SLOT(captureButtonToggled(bool)));
+    
+    connect(button, &QPushButton::toggled, this, [this] (bool start) {
+        if (start) {
+            camera->startCapture();
+        } else {
+            camera->stopCapture();
+        }
+    });
+    
     pushButtonCapture = button;
 
     layout->addRow(button);
@@ -110,7 +118,9 @@ CameraWidget::CameraWidget (Camera *c, QWidget *parent)
     label->setToolTip(tooltip);
 
     comboBox = new QComboBox(this);
-    connect(comboBox, SIGNAL(activated(int)), this, SLOT(comboBoxFormatActivated(int)));
+    connect(comboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, [this] (int index) {
+        camera->setFormat(camera->getSupportedFormats()[index]);
+    });
     comboBoxFormat = comboBox;
     
     layout->addRow(label, comboBox);
@@ -128,7 +138,9 @@ CameraWidget::CameraWidget (Camera *c, QWidget *parent)
     labelSize1 = label;
 
     widgetSize = new SizeWidget(this);
-    connect(widgetSize, SIGNAL(sizeChanged(unicap_rect_t)), this, SLOT(sizeWidgetChanged(unicap_rect_t)));
+    connect(widgetSize, &SizeWidget::sizeChanged, this, [this] (unicap_rect_t newSize) {
+        camera->setSize(newSize);
+    });
     
     layout->addRow(label, widgetSize);
 
@@ -140,7 +152,10 @@ CameraWidget::CameraWidget (Camera *c, QWidget *parent)
     labelSize2 = label;
 
     comboBox = new QComboBox(this);
-    connect(comboBox, SIGNAL(activated(int)), this, SLOT(comboBoxSizeActivated(int)));
+    connect(comboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, [this] (int index) {
+        camera->setSize(format.sizes[index]);
+    });
+    
     comboBoxSize = comboBox;
     
     layout->addRow(label, comboBox);
@@ -178,31 +193,14 @@ void CameraWidget::addPropertyWidgets ()
 }
 
 
-void CameraWidget::comboBoxFormatActivated (int index)
-{
-    camera->setFormat(camera->getSupportedFormats()[index]);
-}
-
-void CameraWidget::comboBoxSizeActivated (int index)
-{
-    camera->setSize(format.sizes[index]);
-}
-
-void CameraWidget::sizeWidgetChanged (unicap_rect_t size)
-{
-    camera->setSize(size);
-}
-
-
 void CameraWidget::updateFormat ()
 {
-    bool oldState;
     format = camera->getFormat();
 
     // Format
-    oldState = comboBoxFormat->blockSignals(true);
+    comboBoxFormat->blockSignals(true);
     comboBoxFormat->setCurrentIndex(comboBoxFormat->findData(format.identifier));
-    comboBoxFormat->blockSignals(oldState);
+    comboBoxFormat->blockSignals(false);
 
     // Size
     widgetSize->setValidSizeRange(format.min_size, format.max_size, format.h_stepping, format.v_stepping);
@@ -234,7 +232,6 @@ void CameraWidget::updateFormat ()
 
 void CameraWidget::updateSize ()
 {
-    bool oldState;
     format = camera->getFormat();
 
     // Size in widget
@@ -249,28 +246,16 @@ void CameraWidget::updateSize ()
     }
 
     // Select size
-    oldState = comboBoxSize->blockSignals(true);
+    comboBoxSize->blockSignals(true);
     comboBoxSize->setCurrentIndex(idx);
-    comboBoxSize->blockSignals(oldState);
+    comboBoxSize->blockSignals(false);
 }
-
-
-void CameraWidget::captureButtonToggled (bool start)
-{
-    if (start) {
-        camera->startCapture();
-    } else {
-        camera->stopCapture();
-    }
-}
-
 
 void CameraWidget::updateCameraState ()
 {
-    bool oldState;
-    oldState = pushButtonCapture->blockSignals(true);
+    pushButtonCapture->blockSignals(true);
     pushButtonCapture->setChecked(camera->getCaptureState());
-    pushButtonCapture->blockSignals(oldState);
+    pushButtonCapture->blockSignals(false);
 }
 
 

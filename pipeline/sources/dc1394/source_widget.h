@@ -35,14 +35,10 @@ class SourceWidget : public QWidget
 public:
     SourceWidget (Source *, QWidget * = 0);
     virtual ~SourceWidget ();
-
-protected slots:
-    void deviceSelected (int);
-
-    void updateLeftCamera ();
-    void updateRightCamera ();
     
 protected:
+    void deviceSelected (int);
+
     QWidget *createDeviceFrame (bool);
 
     void updateCamera (QWidget *&, QFrame *&, Camera *);

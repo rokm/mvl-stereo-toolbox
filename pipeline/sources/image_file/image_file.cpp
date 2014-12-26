@@ -33,7 +33,7 @@ ImageFile::ImageFile (QObject *parent)
     waitingForReply = false;
 
     network = new QNetworkAccessManager(this);
-    connect(network, SIGNAL(finished(QNetworkReply *)), this, SLOT(processRemoteReply(QNetworkReply *)));
+    connect(network, &QNetworkAccessManager::finished, this, &ImageFile::processRemoteReply);
 }
 
 ImageFile::~ImageFile ()

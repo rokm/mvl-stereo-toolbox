@@ -26,7 +26,7 @@ using namespace SourceUnicap;
 PropertyWidget::PropertyWidget (Camera *c, const unicap_property_t &p, QWidget *parent)
     : QWidget(parent), camera(c), property(p)
 {
-    connect(camera, SIGNAL(propertyChanged()), this, SLOT(updateProperty()));
+    connect(camera, &Camera::propertyChanged, this, &PropertyWidget::updateProperty);
 
     QHBoxLayout *layout = new QHBoxLayout(this);
     layout->setContentsMargins(0, 0, 0, 0);
@@ -38,7 +38,9 @@ PropertyWidget::PropertyWidget (Camera *c, const unicap_property_t &p, QWidget *
                 pushButtonValue = new QPushButton(this);
                 pushButtonValue->setCheckable(true);
 
-                connect(pushButtonValue, SIGNAL(toggled(bool)), this, SLOT(pushButtonValueToggled(bool)));
+                connect(pushButtonValue, &QPushButton::toggled, this, [this] (bool newValue) {
+                    camera->setPropertyValue(property.identifier, newValue);
+                });
                 layout->addWidget(pushButtonValue);
 
                 type = TypeOnOff;
@@ -57,7 +59,9 @@ PropertyWidget::PropertyWidget (Camera *c, const unicap_property_t &p, QWidget *
                     spinBoxValue->setSuffix(" " + unit);
                 }
 
-                connect(spinBoxValue, SIGNAL(valueChanged(double)), this, SLOT(spinBoxValueChanged(double)));
+                connect(spinBoxValue, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, [this] (double newValue) {
+                    camera->setPropertyValue(property.identifier, newValue);
+                });
                 layout->addWidget(spinBoxValue);
 
                 type = TypeValue;
@@ -67,7 +71,9 @@ PropertyWidget::PropertyWidget (Camera *c, const unicap_property_t &p, QWidget *
         case UNICAP_PROPERTY_TYPE_VALUE_LIST: {
             comboBoxValue = new QComboBox(this);
 
-            connect(comboBoxValue, SIGNAL(activated(int)), this, SLOT(comboBoxValueActivated(int)));
+            connect(comboBoxValue, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, [this] (int index) {
+                camera->setPropertyValue(property.identifier, property.value_list.values[index]);
+            });
             layout->addWidget(comboBoxValue);
 
             for (int i = 0; i < property.value_list.value_count; i++) {
@@ -80,7 +86,9 @@ PropertyWidget::PropertyWidget (Camera *c, const unicap_property_t &p, QWidget *
         case UNICAP_PROPERTY_TYPE_MENU: {
             comboBoxValue = new QComboBox(this);
 
-            connect(comboBoxValue, SIGNAL(activated(int)), this, SLOT(comboBoxValueActivated(int)));
+            connect(comboBoxValue, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, [this] (int index) {
+                camera->setPropertyValue(property.identifier, property.menu.menu_items[index]);
+            });
             layout->addWidget(comboBoxValue);
 
             for (int i = 0; i < property.menu.menu_item_count; i++) {
@@ -101,7 +109,10 @@ PropertyWidget::PropertyWidget (Camera *c, const unicap_property_t &p, QWidget *
     // Mode
     int numModes = 0;
     comboBoxMode = new QComboBox(this);
-    connect(comboBoxMode, SIGNAL(activated(int)), this, SLOT(comboBoxModeActivated(int)));
+    connect(comboBoxMode, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, [this] (int index) {
+        int mode = comboBoxMode->itemData(index).toInt();
+        camera->setPropertyMode(property.identifier, (Camera::PropertyMode)mode);
+    });
     layout->addWidget(comboBoxMode);
 
     if (property.flags_mask & UNICAP_FLAGS_MANUAL) {
@@ -126,7 +137,7 @@ PropertyWidget::PropertyWidget (Camera *c, const unicap_property_t &p, QWidget *
     
     // Update parameter
     updateTimer = new QTimer(this);
-    connect(updateTimer, SIGNAL(timeout()), this, SLOT(updateProperty()));
+    connect(updateTimer, &QTimer::timeout, this, &PropertyWidget::updateProperty);
     updateTimer->start(1000);
     
     updateProperty();
@@ -142,17 +153,15 @@ void PropertyWidget::updateProperty ()
     // Refresh property
     camera->updateProperty(property);
 
-    bool oldState;
-
     // Value
     QWidget *valueWidget = NULL;
     switch (type) {
         case TypeValue: {
-            oldState = spinBoxValue->blockSignals(true);
+            spinBoxValue->blockSignals(true);
             if (spinBoxValue->hasFocus()) {
                 spinBoxValue->setValue(property.value);
             }
-            spinBoxValue->blockSignals(oldState);
+            spinBoxValue->blockSignals(false);
 
             valueWidget = spinBoxValue;
             break;
@@ -160,9 +169,9 @@ void PropertyWidget::updateProperty ()
         case TypeValueList: {
             int idx = comboBoxValue->findData(property.value);
 
-            oldState = comboBoxValue->blockSignals(true);
+            comboBoxValue->blockSignals(true);
             comboBoxValue->setCurrentIndex(idx);
-            comboBoxValue->blockSignals(oldState);
+            comboBoxValue->blockSignals(false);
 
             valueWidget = comboBoxValue;
             break;
@@ -170,18 +179,18 @@ void PropertyWidget::updateProperty ()
         case TypeStringList: {
             int idx = comboBoxValue->findData(property.menu_item);
 
-            oldState = comboBoxValue->blockSignals(true);
+            comboBoxValue->blockSignals(true);
             comboBoxValue->setCurrentIndex(idx);
-            comboBoxValue->blockSignals(oldState);
+            comboBoxValue->blockSignals(false);
 
             valueWidget = comboBoxValue;
             break;
         }
         case TypeOnOff: {
-            oldState = pushButtonValue->blockSignals(true);
+            pushButtonValue->blockSignals(true);
             pushButtonValue->setChecked(property.value);
             pushButtonValue->setText(property.value ? "On" : "Off");
-            pushButtonValue->blockSignals(oldState);
+            pushButtonValue->blockSignals(false);
 
             valueWidget = pushButtonValue;
             break;
@@ -193,7 +202,7 @@ void PropertyWidget::updateProperty ()
     }
 
     // Mode
-    oldState = comboBoxMode->blockSignals(true);
+    comboBoxMode->blockSignals(true);
     if (property.flags & UNICAP_FLAGS_MANUAL) {
         comboBoxMode->setCurrentIndex(comboBoxMode->findData(Camera::PropertyModeManual));
     } else if (property.flags & UNICAP_FLAGS_AUTO) {
@@ -201,37 +210,11 @@ void PropertyWidget::updateProperty ()
     } else if (property.flags & UNICAP_FLAGS_ONE_PUSH) {
         comboBoxMode->setCurrentIndex(comboBoxMode->findData(Camera::PropertyModeOnePush));
     }
-    comboBoxMode->blockSignals(oldState);
+    comboBoxMode->blockSignals(false);
     
     if (property.flags & UNICAP_FLAGS_AUTO || property.flags & UNICAP_FLAGS_ONE_PUSH) {
         valueWidget->setEnabled(false);
     } else {
         valueWidget->setEnabled(true);
     }
-}
-
-
-void PropertyWidget::spinBoxValueChanged (double newValue)
-{
-    camera->setPropertyValue(property.identifier, newValue);
-}
-
-void PropertyWidget::comboBoxValueActivated (int index)
-{
-    if (type == TypeValueList) {
-        camera->setPropertyValue(property.identifier, property.value_list.values[index]);
-    } else if (type == TypeStringList) {
-        camera->setPropertyValue(property.identifier, property.menu.menu_items[index]);
-    }
-}
-
-void PropertyWidget::pushButtonValueToggled (bool newValue)
-{
-    camera->setPropertyValue(property.identifier, newValue);
-}
-
-void PropertyWidget::comboBoxModeActivated (int index)
-{
-    int mode = comboBoxMode->itemData(index).toInt();
-    camera->setPropertyMode(property.identifier, (Camera::PropertyMode)mode);
 }

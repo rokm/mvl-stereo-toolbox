@@ -37,18 +37,12 @@ public:
     CameraWidget (Camera *, QWidget * = 0);
     virtual ~CameraWidget ();
 
-protected slots:
-    void captureButtonToggled (bool);
+protected:
     void updateCameraState ();
-
-    void comboBoxFormatActivated (int);
-    void comboBoxSizeActivated (int);
-    void sizeWidgetChanged (unicap_rect_t);
     
     void updateFormat ();
     void updateSize ();
 
-protected:
     void addPropertyWidgets ();
 
 protected:

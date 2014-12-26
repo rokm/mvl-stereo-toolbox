@@ -65,7 +65,7 @@ SourceWidget::SourceWidget (Source *s, QWidget *parent)
     
     button = new QPushButton("Rescan");
     button->setToolTip(tooltip);
-    connect(button, SIGNAL(clicked()), source, SLOT(refreshCameraList()));
+    connect(button, &QPushButton::clicked, source, &Source::refreshCameraList);
 
     layout->addRow(button);
 
@@ -82,8 +82,12 @@ SourceWidget::SourceWidget (Source *s, QWidget *parent)
     boxDevices->addWidget(createDeviceFrame(true)); // Left device frame
     boxDevices->addWidget(createDeviceFrame(false)); // Right device frame
 
-    connect(source, SIGNAL(leftCameraChanged()), this, SLOT(updateLeftCamera()));
-    connect(source, SIGNAL(rightCameraChanged()), this, SLOT(updateRightCamera()));
+    connect(source, &Source::leftCameraChanged, this, [this] () {
+        updateCamera(configLeftDevice, frameLeftDevice, source->getLeftCamera());
+    });
+    connect(source, &Source::rightCameraChanged, this, [this] () {
+        updateCamera(configRightDevice, frameRightDevice, source->getRightCamera());
+    });
 }
 
 SourceWidget::~SourceWidget ()
@@ -117,7 +121,7 @@ QWidget *SourceWidget::createDeviceFrame (bool left)
     comboBox = new QComboBox(deviceFrame);
     comboBox->setModel(source);
     comboBox->setToolTip(tooltip);
-    connect(comboBox, SIGNAL(activated(int)), this, SLOT(deviceSelected(int)));
+    connect(comboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, &SourceWidget::deviceSelected);
     if (left) {
         comboBoxLeftDevice = comboBox;
     } else {
@@ -156,18 +160,6 @@ void SourceWidget::deviceSelected (int index)
         source->setRightCamera(device);
     }
 }
-
-
-void SourceWidget::updateLeftCamera ()
-{
-    updateCamera(configLeftDevice, frameLeftDevice, source->getLeftCamera());
-}
-
-void SourceWidget::updateRightCamera ()
-{
-    updateCamera(configRightDevice, frameRightDevice, source->getRightCamera());
-}
-
 
 void SourceWidget::updateCamera (QWidget *&deviceConfig, QFrame *&deviceFrame, Camera *newDevice)
 {

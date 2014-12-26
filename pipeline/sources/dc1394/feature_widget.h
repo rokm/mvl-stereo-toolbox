@@ -37,10 +37,10 @@ public:
     FeatureWidget (Camera *, const dc1394feature_info_t &, QWidget * = 0);
     virtual ~FeatureWidget ();
 
-protected slots:
-    void setValue (int);
+protected:
+    /*void setValue (int);
     void setAbsoluteValue (double);
-    void modeChanged (int);
+    void modeChanged (int);*/
 
     void updateParameters ();
 

@@ -79,8 +79,6 @@ public:
 
     bool getCaptureState () const;
 
-    float getEffectiveCaptureFramerate () const;
-
     // Frame
     void copyFrame (cv::Mat &);
 
@@ -119,14 +117,12 @@ public:
 
     void copyFrame (cv::Mat &);
 
-public slots:
     void startCapture ();
     void stopCapture ();
 
-protected slots:
+protected:
     void grabFrame ();
 
-protected:
     void dequeueCaptureBuffer (dc1394video_frame_t *&, bool);
     void enqueueCaptureBuffer (dc1394video_frame_t *);
     void convertToOpenCVImage (dc1394video_frame_t *, cv::Mat &image) const;

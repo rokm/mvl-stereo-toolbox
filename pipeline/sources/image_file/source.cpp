@@ -29,15 +29,15 @@ Source::Source (QObject *parent)
 {
     refreshPeriod = 1000;
     refreshTimer = new QTimer(this);
-    connect(refreshTimer, SIGNAL(timeout()), this, SLOT(periodicRefresh()));
+    connect(refreshTimer, &QTimer::timeout, this, &Source::periodicRefresh);
 
     leftImageReady = rightImageReady = false;
 
     leftImageFile = new ImageFile(this);
-    connect(leftImageFile, SIGNAL(imageReady()), this, SLOT(synchronizeFrames()));
+    connect(leftImageFile, &ImageFile::imageReady, this, &Source::synchronizeFrames);
 
     rightImageFile = new ImageFile(this);    
-    connect(rightImageFile, SIGNAL(imageReady()), this, SLOT(synchronizeFrames()));
+    connect(rightImageFile, &ImageFile::imageReady, this, &Source::synchronizeFrames);
 }
 
 Source::~Source ()

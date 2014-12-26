@@ -115,6 +115,8 @@ void Camera::captureFunction ()
     bool captureSucceeded;
     captureActive = true;
 
+    emit captureStarted();
+
     while (captureActive) {
         captureSucceeded = capture->grab();
 
@@ -147,5 +149,3 @@ void Camera::copyFrame (cv::Mat &frame)
     QReadLocker lock(&frameBufferLock);
     frameBuffer.copyTo(frame);
 }
-
-

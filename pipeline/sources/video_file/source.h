@@ -48,7 +48,6 @@ public:
     float getVideoFps ();
     int getVideoLength ();
 
-public slots:
     void stopPlayback ();
     void startPlayback ();
 
@@ -56,7 +55,7 @@ public slots:
 
     void openVideoFile (const QString &);
 
-protected slots:
+protected:
     void playbackFunction ();
 
 signals:

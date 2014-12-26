@@ -78,9 +78,8 @@ public:
 
     bool getCaptureState () const;
 
-    float getEffectiveCaptureFramerate () const;
-
     // Frame
+    void captureFrame (unicap_data_buffer_t *);
     void copyFrame (cv::Mat &);
 
 protected:
@@ -96,9 +95,6 @@ signals:
     void formatChanged ();
     void sizeChanged ();
     void propertyChanged ();
-
-public:
-    void captureFrame (unicap_data_buffer_t *);
 
 protected:
     unicap_handle_t handle;
