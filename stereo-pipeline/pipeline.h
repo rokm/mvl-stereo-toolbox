@@ -106,13 +106,6 @@ public:
     const cv::Mat &getReprojectedImage () const;
     int getReprojectionComputationTime () const;
 
-    // Data export
-    static void writeMatrixToBinaryFile (const cv::Mat &, const QString &, bool = true);
-
-    // Additional visualization
-    static void createColorCodedDisparityCpu (const cv::Mat &, cv::Mat &, int);
-    static void createAnaglyph (const cv::Mat &, const cv::Mat &, cv::Mat &);
-
 public slots:
     void setImagePairSourceState (bool);
     void setRectificationState (bool);

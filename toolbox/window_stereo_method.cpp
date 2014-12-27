@@ -22,6 +22,7 @@
 
 #include <stereo-pipeline/pipeline.h>
 #include <stereo-pipeline/stereo_method.h>
+#include <stereo-pipeline/utils.h>
 
 #include <opencv2/core.hpp>
 #include <opencv2/imgcodecs.hpp>
@@ -248,7 +249,7 @@ void WindowStereoMethod::saveImage ()
         } else if (ext == "bin") {
             // Save raw disparity in custom binary matrix format
             try {
-                Pipeline::Pipeline::writeMatrixToBinaryFile(tmpDisparity, fileName);
+                Utils::writeMatrixToBinaryFile(tmpDisparity, fileName);
             } catch (QString e) {
                 qWarning() << "Failed to save binary file:" << e;
             }

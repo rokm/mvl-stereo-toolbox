@@ -23,6 +23,7 @@
 
 #include <stereo-pipeline/pipeline.h>
 #include <stereo-pipeline/rectification.h>
+#include <stereo-pipeline/utils.h>
 
 #include <opencv2/imgcodecs.hpp>
 
@@ -160,7 +161,7 @@ void WindowRectification::updateImage ()
         displayPair->setImagePair(pipeline->getLeftRectifiedImage(), pipeline->getRightRectifiedImage());
     } else if (visualizationType == VisualizationAnaglyph) {
         // Anaglyph
-        Pipeline::Pipeline::createAnaglyph(pipeline->getLeftRectifiedImage(), pipeline->getRightRectifiedImage(), anaglyphImage);
+        Utils::createAnaglyph(pipeline->getLeftRectifiedImage(), pipeline->getRightRectifiedImage(), anaglyphImage);
         displayPair->setImage(anaglyphImage);
     }
 
@@ -312,7 +313,7 @@ void WindowRectification::saveImages ()
         QString fileNameAnaglyph = tmpFileName.absolutePath() + "/" + tmpFileName.baseName() + "." + ext;
 
         cv::Mat tmpAnaglyph;
-        Pipeline::Pipeline::createAnaglyph(tmpImg1, tmpImg2, tmpAnaglyph);
+        Utils::createAnaglyph(tmpImg1, tmpImg2, tmpAnaglyph);
 
         try {
             cv::imwrite(fileNameAnaglyph.toStdString(), tmpAnaglyph);

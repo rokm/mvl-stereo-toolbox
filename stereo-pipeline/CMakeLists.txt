@@ -17,6 +17,7 @@ set(pipeline_SOURCES
     plugin_manager.cpp
     rectification.cpp
     reprojection.cpp
+    utils.cpp
 )
 
 set(pipeline_HEADERS
@@ -28,6 +29,7 @@ set(pipeline_HEADERS
     rectification.h
     reprojection.h
     stereo_method.h
+    utils.h
 )
 
 set(pipeline_CUDA_SOURCES

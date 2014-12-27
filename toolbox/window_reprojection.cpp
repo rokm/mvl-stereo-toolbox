@@ -22,6 +22,7 @@
 
 #include <stereo-pipeline/pipeline.h>
 #include <stereo-pipeline/reprojection.h>
+#include <stereo-pipeline/utils.h>
 
 #include <opencv2/imgcodecs.hpp>
 
@@ -251,7 +252,7 @@ void WindowReprojection::saveReprojectionResult ()
         } else {
             // Save reprojected points in custom binary matrix format
             try {
-                Pipeline::Pipeline::writeMatrixToBinaryFile(tmpReprojection, fileName);
+                Utils::writeMatrixToBinaryFile(tmpReprojection, fileName);
             } catch (QString e) {
                 qWarning() << "Failed to save binary file:" << e;
             }
