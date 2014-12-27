@@ -47,7 +47,7 @@ public:
     virtual void saveParameters (const QString &) const = 0;
 
     // These are actually signals, but they are not allowed in non-QObject classes
-protected:
+public:
     virtual void parameterChanged () = 0;
 };
 

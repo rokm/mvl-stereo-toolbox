@@ -41,7 +41,7 @@ public:
     virtual QWidget *createConfigWidget (QWidget * = 0) = 0;
 
     // These are actually signals, but they are not allowed in non-QObject classes
-protected:
+public:
     virtual void imagesChanged () = 0;
     virtual void error (const QString) = 0;
 };

@@ -48,6 +48,7 @@ public:
     static void exportStereoCalibration (const QString &, const cv::Mat &, const cv::Mat &, const cv::Mat &, const cv::Mat &, const cv::Mat &, const cv::Mat &, const cv::Size &);
     static void importStereoCalibration (const QString &, cv::Mat &, cv::Mat &, cv::Mat &, cv::Mat &, cv::Mat &, cv::Mat &, cv::Size &);
 
+    void setPerformRectification (bool);
     bool getPerformRectification () const;
 
     const cv::Rect &getRoi () const;
@@ -60,9 +61,6 @@ public:
     const cv::Size &getImageSize () const;
     const cv::Mat &getReprojectionMatrix () const;
     float getStereoBaseline () const;
-
-public slots:
-    void setPerformRectification (bool);
 
 protected:
     void initializeRectification ();

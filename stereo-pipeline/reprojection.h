@@ -46,6 +46,7 @@ public:
         ReprojectionMethodOpenCvCuda,
     };
 
+    void setReprojectionMethod (int);
     int getReprojectionMethod () const;
     const QList<int> &getSupportedReprojectionMethods () const;
 
@@ -53,9 +54,6 @@ public:
     const cv::Mat &getReprojectionMatrix () const;
 
     void reprojectStereoDisparity (const cv::Mat &, cv::Mat &, int = 0, int = 0) const;
-
-public slots:
-    void setReprojectionMethod (int);
 
 signals:
     void reprojectionMethodChanged (int);

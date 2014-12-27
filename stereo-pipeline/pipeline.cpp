@@ -57,17 +57,17 @@ Pipeline::Pipeline (QObject *parent)
 
     disparityVisualizationMethod = DisparityVisualizationNone; // By default, turn visualization off
 
-    connect(this, SIGNAL(inputImagesChanged()), this, SLOT(rectifyImages()));
-    connect(this, SIGNAL(rectifiedImagesChanged()), this, SLOT(computeDisparityImage()));
-    connect(this, SIGNAL(disparityImageChanged()), this, SLOT(reprojectDisparityImage()));
-    connect(this, SIGNAL(reprojectedImageChanged()), this, SIGNAL(processingCompleted()));
+    connect(this, &Pipeline::inputImagesChanged, this, &Pipeline::rectifyImages);
+    connect(this, &Pipeline::rectifiedImagesChanged, this, &Pipeline::computeDisparityImage);
+    connect(this, &Pipeline::disparityImageChanged, this, &Pipeline::reprojectDisparityImage);
+    connect(this, &Pipeline::reprojectedImageChanged, this, &Pipeline::processingCompleted);
 
-    connect(this, SIGNAL(imagePairSourceStateChanged(bool)), this, SLOT(beginProcessing()));
-    connect(this, SIGNAL(rectificationStateChanged(bool)), this, SLOT(rectifyImages()));
-    connect(this, SIGNAL(stereoMethodStateChanged(bool)), this, SLOT(computeDisparityImage()));
-    connect(this, SIGNAL(reprojectionStateChanged(bool)), this, SLOT(reprojectDisparityImage()));
+    connect(this, &Pipeline::imagePairSourceStateChanged, this, &Pipeline::beginProcessing);
+    connect(this, &Pipeline::rectificationStateChanged, this, &Pipeline::rectifyImages);
+    connect(this, &Pipeline::stereoMethodStateChanged, this, &Pipeline::computeDisparityImage);
+    connect(this, &Pipeline::reprojectionStateChanged, this, &Pipeline::reprojectDisparityImage);
 
-    connect(this, SIGNAL(disparityVisualizationMethodChanged(int)), this, SLOT(computeDisparityImageVisualization()));
+    connect(this, &Pipeline::disparityVisualizationMethodChanged, this, &Pipeline::computeDisparityImageVisualization);
 
     // Create rectification
     setRectification(new Rectification(this));
@@ -164,7 +164,9 @@ void Pipeline::setImagePairSource (ImagePairSource *newSource)
         dynamic_cast<QObject *>(imagePairSource)->setParent(this);
     }
 
-    connect(dynamic_cast<QObject *>(imagePairSource), SIGNAL(imagesChanged()), this, SLOT(beginProcessing()));
+    // NOTE: we need to use the old syntax, because signal is defined
+    // in our abstract ImagePairSource interfae
+    connect(dynamic_cast<QObject *>(newSource), SIGNAL(imagesChanged()), this, SLOT(beginProcessing()));
 
     // Process
     beginProcessing();
@@ -230,10 +232,10 @@ void Pipeline::setRectification (Rectification *newRectification)
 {
     // Change rectification
     if (rectification) {
-        disconnect(rectification, SIGNAL(stateChanged(bool)), this, SLOT(rectifyImages()));
-        disconnect(rectification, SIGNAL(performRectificationChanged(bool)), this, SLOT(rectifyImages()));
-        disconnect(rectification, SIGNAL(stateChanged(bool)), this, SLOT(updateReprojectionMatrix()));
-        disconnect(rectification, SIGNAL(roiChanged()), this, SLOT(rectifyImages()));
+        disconnect(rectification, &Rectification::stateChanged, this, &Pipeline::rectifyImages);
+        disconnect(rectification, &Rectification::performRectificationChanged, this, &Pipeline::rectifyImages);
+        disconnect(rectification, &Rectification::stateChanged, this, &Pipeline::updateReprojectionMatrix);
+        disconnect(rectification, &Rectification::roiChanged, this, &Pipeline::rectifyImages);
         if (rectification->parent() == this) {
             rectification->deleteLater(); // Schedule for deletion
         }
@@ -244,10 +246,10 @@ void Pipeline::setRectification (Rectification *newRectification)
         rectification->setParent(this);
     }
 
-    connect(rectification, SIGNAL(stateChanged(bool)), this, SLOT(rectifyImages()));
-    connect(rectification, SIGNAL(performRectificationChanged(bool)), this, SLOT(rectifyImages()));
-    connect(rectification, SIGNAL(stateChanged(bool)), this, SLOT(updateReprojectionMatrix()));
-    connect(rectification, SIGNAL(roiChanged()), this, SLOT(rectifyImages()));
+    connect(rectification, &Rectification::stateChanged, this, &Pipeline::rectifyImages);
+    connect(rectification, &Rectification::performRectificationChanged, this, &Pipeline::rectifyImages);
+    connect(rectification, &Rectification::stateChanged, this, &Pipeline::updateReprojectionMatrix);
+    connect(rectification, &Rectification::roiChanged, this, &Pipeline::rectifyImages);
 
     // Rectify images
     rectifyImages();
@@ -345,6 +347,8 @@ void Pipeline::setStereoMethod (StereoMethod *newMethod)
         dynamic_cast<QObject *>(stereoMethod)->deleteLater();
     }
 
+    // NOTE: we need to use the old syntax, because signal is defined
+    // in our abstract ImagePairSource interfae
     connect(dynamic_cast<QObject *>(stereoMethod), SIGNAL(parameterChanged()), this, SLOT(computeDisparityImage()));
 
     // Compute new disparity image
@@ -568,7 +572,7 @@ void Pipeline::setReprojection (Reprojection *newReprojection)
 {
     // Change reprojection
     if (reprojection) {
-        disconnect(reprojection, SIGNAL(reprojectionMethodChanged(int)), this, SLOT(reprojectDisparityImage()));
+        disconnect(reprojection, &Reprojection::reprojectionMethodChanged, this, &Pipeline::reprojectDisparityImage);
         if (reprojection->parent() == this) {
             reprojection->deleteLater(); // Schedule for deletion
         }
@@ -579,7 +583,7 @@ void Pipeline::setReprojection (Reprojection *newReprojection)
         reprojection->setParent(this);
     }
 
-    connect(reprojection, SIGNAL(reprojectionMethodChanged(int)), this, SLOT(reprojectDisparityImage()));
+    connect(reprojection, &Reprojection::reprojectionMethodChanged, this, &Pipeline::reprojectDisparityImage);
 
     // Reproject disparity image
     reprojectDisparityImage();

@@ -47,6 +47,7 @@ public:
 
     // GPU/CUDA management
     int getNumberOfGpuDevices ();
+
     void setGpuDevice (int);
     int getGpuDevice () const;
 
@@ -54,6 +55,7 @@ public:
     void setImagePairSource (ImagePairSource *);
     ImagePairSource *getImagePairSource ();
 
+    void setImagePairSourceState (bool);
     bool getImagePairSourceState () const;
 
     const cv::Mat &getLeftImage () const;
@@ -63,6 +65,7 @@ public:
     void setRectification (Rectification *);
     Rectification *getRectification ();
 
+    void setRectificationState (bool);
     bool getRectificationState () const;
 
     const cv::Mat &getLeftRectifiedImage () const;
@@ -73,6 +76,7 @@ public:
     void setStereoMethod (StereoMethod *);
     StereoMethod *getStereoMethod ();
 
+    void setStereoMethodState (bool);
     bool getStereoMethodState () const;
 
     const cv::Mat &getDisparityImage () const;
@@ -80,6 +84,7 @@ public:
     int getDisparityImageComputationTime () const;
 
     // Stereo method thread
+    void setUseStereoMethodThread (bool);
     bool getUseStereoMethodThread () const;
 
     int getStereoDroppedFrames () const;
@@ -92,6 +97,7 @@ public:
         DisparityVisualizationColorCpu
     };
 
+    void setDisparityVisualizationMethod (int);
     int getDisparityVisualizationMethod () const;
     const QList<int> &getSupportedDisparityVisualizationMethods () const;
 
@@ -101,20 +107,13 @@ public:
     void setReprojection (Reprojection *);
     Reprojection *getReprojection ();
 
+    void setReprojectionState (bool);
     bool getReprojectionState () const;
 
     const cv::Mat &getReprojectedImage () const;
     int getReprojectionComputationTime () const;
 
-public slots:
-    void setImagePairSourceState (bool);
-    void setRectificationState (bool);
-    void setStereoMethodState (bool);
-    void setReprojectionState (bool);
-
-    void setUseStereoMethodThread (bool);
-    void setDisparityVisualizationMethod (int);
-
+// NOTE: we need the old signal/slot syntax here!
 protected slots:
     void beginProcessing ();
     void rectifyImages ();

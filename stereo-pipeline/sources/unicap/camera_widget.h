@@ -74,10 +74,8 @@ public:
     SizeWidget (QWidget * = 0);
     virtual ~SizeWidget ();
 
-    unicap_rect_t getSize () const;
-
-public slots:
     void setSize (const unicap_rect_t &);
+    unicap_rect_t getSize () const;
 
     void setValidSizeRange (const unicap_rect_t &, const unicap_rect_t &, int, int);
 
