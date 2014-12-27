@@ -17,12 +17,8 @@
  *
  */
 
-#ifndef MVL_STEREO_TOOLBOX__PIPELINE__PLUGIN_MANAGER_H
-#define MVL_STEREO_TOOLBOX__PIPELINE__PLUGIN_MANAGER_H
-
-#include <stereo-pipeline/export.h>
-
-#include <QtCore>
+#ifndef MVL_STEREO_TOOLBOX__PIPELINE__PLUGIN_MANAGER_P_H
+#define MVL_STEREO_TOOLBOX__PIPELINE__PLUGIN_MANAGER_P_H
 
 
 namespace MVL {
@@ -30,24 +26,25 @@ namespace StereoToolbox {
 namespace Pipeline {
 
 
-class PluginManagerPrivate;
-
-class MVL_STEREO_PIPELINE_EXPORT PluginManager : public QObject
+class PluginManagerPrivate
 {
-    Q_OBJECT
-    Q_DISABLE_COPY(PluginManager)
-    Q_DECLARE_PRIVATE(PluginManager)
-    QScopedPointer<PluginManagerPrivate> const d_ptr;
+    Q_DISABLE_COPY(PluginManagerPrivate)
+    Q_DECLARE_PUBLIC(PluginManager)
 
-public:
-    PluginManager (QObject * = 0);
-    virtual ~PluginManager ();
+    PluginManager * const q_ptr;
 
-    void setPluginDirectory (const QString & = QString());
-    QString getPluginDirectory () const;
+    PluginManagerPrivate (PluginManager *);
 
-    const QList<QObject *> getAvailablePlugins () const;
+protected:
+    QDir pluginDirectory;
+    QList<QObject *> plugins;
 };
+
+
+PluginManagerPrivate::PluginManagerPrivate (PluginManager *manager)
+    : q_ptr(manager)
+{
+}
 
 
 } // Pipeline

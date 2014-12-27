@@ -31,9 +31,14 @@ namespace StereoToolbox {
 namespace Pipeline {
 
 
+class RectificationPrivate;
+
 class MVL_STEREO_PIPELINE_EXPORT Rectification : public QObject
 {
     Q_OBJECT
+    Q_DISABLE_COPY(Rectification)
+    Q_DECLARE_PRIVATE(Rectification)
+    QScopedPointer<RectificationPrivate> const d_ptr;
 
 public:
     Rectification (QObject * = 0);
@@ -73,33 +78,6 @@ signals:
     void error (QString) const;
 
     void roiChanged ();
-
-protected:
-    bool isValid;
-
-    bool performRectification;
-
-    // Raw calibration parameters
-    cv::Size imageSize;
-
-    cv::Mat M1, M2; // Camera matrices
-    cv::Mat D1, D2; // Distortion coefficients
-
-    cv::Mat R, T, E, F;
-
-    // Rectification parameters
-    cv::Mat R1, R2;
-    cv::Mat P1, P2;
-    cv::Mat Q;
-    cv::Rect validRoi1, validRoi2;
-
-    bool isVerticalStereo;
-
-    // Rectification maps
-    cv::Mat map11, map12, map21, map22;
-
-    // ROI
-    cv::Rect roi;
 };
 
 

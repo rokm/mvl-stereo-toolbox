@@ -23,18 +23,17 @@
 #include <opencv2/imgproc.hpp>
 
 
+#include "rectification_p.h"
+
+
 namespace MVL {
 namespace StereoToolbox {
 namespace Pipeline {
 
 
 Rectification::Rectification (QObject *parent)
-    : QObject(parent)
+    : QObject(parent), d_ptr(new RectificationPrivate(this))
 {
-    isValid = false;
-    performRectification = true;
-
-    isVerticalStereo = false;
 }
 
 Rectification::~Rectification ()
@@ -44,30 +43,34 @@ Rectification::~Rectification ()
 
 bool Rectification::getState () const
 {
-    // Return state
-    return isValid;
+    Q_D(const Rectification);
+    return d->isValid;
 }
 
 
 const cv::Mat &Rectification::getReprojectionMatrix () const
 {
-    return Q;
+    Q_D(const Rectification);
+    return d->Q;
 }
 
 
 const cv::Size &Rectification::getImageSize () const
 {
-    return imageSize;
+    Q_D(const Rectification);
+    return d->imageSize;
 }
 
 float Rectification::getStereoBaseline () const
 {
+    Q_D(const Rectification);
+
     // Q(3,2) is 1/baseline; units are same as on the pattern, which in
     // our code is millimeters
-    if (Q.type() == CV_32F) {
-        return 1.0 / Q.at<float>(3, 2);
+    if (d->Q.type() == CV_32F) {
+        return 1.0 / d->Q.at<float>(3, 2);
     } else {
-        return 1.0 / Q.at<double>(3, 2);
+        return 1.0 / d->Q.at<double>(3, 2);
     }
 }
 
@@ -132,20 +135,22 @@ void Rectification::importStereoCalibration (const QString &filename, cv::Mat &c
 // *********************************************************************
 void Rectification::setStereoCalibration (const cv::Mat &cameraMatrix1, const cv::Mat &distCoeffs1, const cv::Mat &cameraMatrix2, const cv::Mat &distCoeffs2, const cv::Mat &rotation, const cv::Mat &translation, const cv::Size &size)
 {
+    Q_D(Rectification);
+
     // Reset state
-    isValid = false;
+    d->isValid = false;
 
     // Set
-    M1 = cameraMatrix1;
-    D1 = distCoeffs1;
+    d->M1 = cameraMatrix1;
+    d->D1 = distCoeffs1;
 
-    M2 = cameraMatrix2;
-    D2 = distCoeffs2;
+    d->M2 = cameraMatrix2;
+    d->D2 = distCoeffs2;
 
-    R = rotation;
-    T = translation;
+    d->R = rotation;
+    d->T = translation;
 
-    imageSize = size;
+    d->imageSize = size;
 
     // Initialize rectification
     initializeRectification();
@@ -153,11 +158,13 @@ void Rectification::setStereoCalibration (const cv::Mat &cameraMatrix1, const cv
 
 void Rectification::loadStereoCalibration (const QString &filename)
 {
+    Q_D(Rectification);
+
     // Reset state
-    isValid = false;
+    d->isValid = false;
 
     // Import
-    importStereoCalibration(filename, M1, D1, M2, D2, R, T, imageSize);
+    importStereoCalibration(filename, d->M1, d->D1, d->M2, d->D2, d->R, d->T, d->imageSize);
 
     // Initialize rectification from loaded calibration
     initializeRectification();
@@ -165,16 +172,20 @@ void Rectification::loadStereoCalibration (const QString &filename)
 
 void Rectification::saveStereoCalibration (const QString &filename) const
 {
+    Q_D(const Rectification);
+
     // Export
-    exportStereoCalibration(filename, M1, D1, M2, D2, R, T, imageSize);
+    exportStereoCalibration(filename, d->M1, d->D1, d->M2, d->D2, d->R, d->T, d->imageSize);
 }
 
 void Rectification::clearStereoCalibration ()
 {
-    isValid = false;
-    isVerticalStereo = false;
+    Q_D(Rectification);
 
-    emit stateChanged(isValid);
+    d->isValid = false;
+    d->isVerticalStereo = false;
+
+    emit stateChanged(d->isValid);
 }
 
 
@@ -183,46 +194,50 @@ void Rectification::clearStereoCalibration ()
 // *********************************************************************
 void Rectification::initializeRectification ()
 {
+    Q_D(Rectification);
+
     try {
-        cv::stereoRectify(M1, D1, M2, D2, imageSize, R, T, R1, R2, P1, P2, Q, cv::CALIB_ZERO_DISPARITY, 0, imageSize, &validRoi1, &validRoi2);
+        cv::stereoRectify(d->M1, d->D1, d->M2, d->D2, d->imageSize, d->R, d->T, d->R1, d->R2, d->P1, d->P2, d->Q, cv::CALIB_ZERO_DISPARITY, 0, d->imageSize, &d->validRoi1, &d->validRoi2);
     } catch (...) {
-        isValid = false;
-        emit stateChanged(isValid);
+        d->isValid = false;
+        emit stateChanged(d->isValid);
         return;
     }
 
-    isVerticalStereo = fabs(P2.at<double>(1, 3)) > fabs(P2.at<double>(0, 3));
+    d->isVerticalStereo = fabs(d->P2.at<double>(1, 3)) > fabs(d->P2.at<double>(0, 3));
 
-    initUndistortRectifyMap(M1, D1, R1, P1, imageSize, CV_16SC2, map11, map12);
-    initUndistortRectifyMap(M2, D2, R2, P2, imageSize, CV_16SC2, map21, map22);
+    initUndistortRectifyMap(d->M1, d->D1, d->R1, d->P1, d->imageSize, CV_16SC2, d->map11, d->map12);
+    initUndistortRectifyMap(d->M2, d->D2, d->R2, d->P2, d->imageSize, CV_16SC2, d->map21, d->map22);
 
     // Reset ROI
-    roi = cv::Rect();
+    d->roi = cv::Rect();
 
     // Change state
-    isValid = true;
-    emit stateChanged(isValid);
+    d->isValid = true;
+    emit stateChanged(d->isValid);
 }
 
 
 void Rectification::rectifyImagePair (const cv::Mat &img1, const cv::Mat &img2, cv::Mat &img1r, cv::Mat &img2r) const
 {
+    Q_D(const Rectification);
+
     // Make sure images are valid
     if (img1.empty() || img2.empty()) {
         return;
     }
 
-    if (!isValid || !performRectification) {
+    if (!d->isValid || !d->performRectification) {
         // Pass-through
-        if (!roi.width || !roi.height) {
+        if (!d->roi.width || !d->roi.height) {
             img1.copyTo(img1r);
             img2.copyTo(img2r);
         } else {
-            img1(roi).copyTo(img1r);
-            img2(roi).copyTo(img2r);
+            img1(d->roi).copyTo(img1r);
+            img2(d->roi).copyTo(img2r);
         }
     } else {
-        if (img1.cols != imageSize.width || img1.rows != imageSize.height || img2.cols != imageSize.width || img2.rows != imageSize.height) {
+        if (img1.cols != d->imageSize.width || img1.rows != d->imageSize.height || img2.cols != d->imageSize.width || img2.rows != d->imageSize.height) {
             img1r = cv::Mat();
             img2r = cv::Mat();
             emit error("Input image size does not match calibrated image size!");
@@ -230,14 +245,14 @@ void Rectification::rectifyImagePair (const cv::Mat &img1, const cv::Mat &img2, 
         }
 
         // Two simple remaps using look-up tables
-        if (!roi.width || !roi.height) {
+        if (!d->roi.width || !d->roi.height) {
             // Full maps
-            cv::remap(img1, img1r, map11, map12, cv::INTER_LINEAR);
-            cv::remap(img2, img2r, map21, map22, cv::INTER_LINEAR);
+            cv::remap(img1, img1r, d->map11, d->map12, cv::INTER_LINEAR);
+            cv::remap(img2, img2r, d->map21, d->map22, cv::INTER_LINEAR);
         } else {
             // Subsection of maps
-            cv::remap(img1, img1r, map11(roi), map12(roi), cv::INTER_LINEAR);
-            cv::remap(img2, img2r, map21(roi), map22(roi), cv::INTER_LINEAR);
+            cv::remap(img1, img1r, d->map11(d->roi), d->map12(d->roi), cv::INTER_LINEAR);
+            cv::remap(img2, img2r, d->map21(d->roi), d->map22(d->roi), cv::INTER_LINEAR);
         }
     }
 }
@@ -247,8 +262,10 @@ void Rectification::rectifyImagePair (const cv::Mat &img1, const cv::Mat &img2, 
 // *********************************************************************
 void Rectification::setRoi (const cv::Rect &newRoi)
 {
-    if (newRoi != roi) {
-        roi = newRoi;
+    Q_D(Rectification);
+
+    if (newRoi != d->roi) {
+        d->roi = newRoi;
 
         emit roiChanged();
     }
@@ -256,24 +273,29 @@ void Rectification::setRoi (const cv::Rect &newRoi)
 
 const cv::Rect &Rectification::getRoi () const
 {
-    return roi;
+    Q_D(const Rectification);
+    return d->roi;
 }
+
 
 // *********************************************************************
 // *                     Perform-rectification flag                    *
 // *********************************************************************
 void Rectification::setPerformRectification (bool enable)
 {
-    if (performRectification != enable) {
-        performRectification = enable;
+    Q_D(Rectification);
 
-        emit performRectificationChanged(performRectification);
+    if (d->performRectification != enable) {
+        d->performRectification = enable;
+
+        emit performRectificationChanged(d->performRectification);
     }
 }
 
 bool Rectification::getPerformRectification () const
 {
-    return performRectification;
+    Q_D(const Rectification);
+    return d->performRectification;
 }
 
 

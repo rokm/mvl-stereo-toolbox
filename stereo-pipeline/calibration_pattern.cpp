@@ -23,18 +23,27 @@
 #include <opencv2/imgproc.hpp>
 
 
+#include "calibration_pattern_p.h"
+
+
 namespace MVL {
 namespace StereoToolbox {
 namespace Pipeline {
 
 
 CalibrationPattern::CalibrationPattern ()
+    : d_ptr(new CalibrationPatternPrivate(this))
 {
 }
 
 CalibrationPattern::CalibrationPattern (int width, int height, float size, PatternType type, int levels, float increment)
+    : d_ptr(new CalibrationPatternPrivate(this))
 {
     setParameters(width, height, size, type, levels, increment);
+}
+
+CalibrationPattern::~CalibrationPattern ()
+{
 }
 
 
@@ -43,22 +52,25 @@ CalibrationPattern::CalibrationPattern (int width, int height, float size, Patte
 // *********************************************************************
 void CalibrationPattern::setParameters (int newPatternWidth, int newPatternHeight, float newElementSize, PatternType newPatternType, int newMaxScaleLevel, float newScaleIncrement)
 {
-    patternWidth = newPatternWidth;
-    patternHeight = newPatternHeight;
-    patternSize = cv::Size(patternWidth, patternHeight);
+    Q_D(CalibrationPattern);
 
-    elementSize = newElementSize;
+    d->patternWidth = newPatternWidth;
+    d->patternHeight = newPatternHeight;
+    d->patternSize = cv::Size(d->patternWidth, d->patternHeight);
 
-    patternType = newPatternType;
+    d->elementSize = newElementSize;
 
-    maxScaleLevel = newMaxScaleLevel;
-    scaleIncrement = newScaleIncrement;
+    d->patternType = newPatternType;
+
+    d->maxScaleLevel = newMaxScaleLevel;
+    d->scaleIncrement = newScaleIncrement;
 }
 
 
 const cv::Size CalibrationPattern::getPatternSize () const
 {
-    return patternSize;
+    Q_D(const CalibrationPattern);
+    return d->patternSize;
 }
 
 
@@ -67,24 +79,25 @@ const cv::Size CalibrationPattern::getPatternSize () const
 // *********************************************************************
 std::vector<cv::Point3f> CalibrationPattern::computePlanarCoordinates () const
 {
+    Q_D(const CalibrationPattern);
     std::vector<cv::Point3f> coordinates;
 
-    switch (patternType) {
+    switch (d->patternType) {
         case Chessboard:
         case Circles: {
             // Regular grid
-            for (int i = 0; i < patternHeight; i++) {
-                for (int j = 0; j < patternWidth; j++) {
-                    coordinates.push_back(cv::Point3f(j*elementSize, i*elementSize, 0));
+            for (int i = 0; i < d->patternHeight; i++) {
+                for (int j = 0; j < d->patternWidth; j++) {
+                    coordinates.push_back(cv::Point3f(j*d->elementSize, i*d->elementSize, 0));
                 }
             }
             break;
         }
         case AsymmetricCircles: {
             // Asymmetric grid
-            for (int i = 0; i < patternHeight; i++) {
-                for (int j = 0; j < patternWidth; j++) {
-                    coordinates.push_back(cv::Point3f((2*j + i % 2)*elementSize, i*elementSize, 0));
+            for (int i = 0; i < d->patternHeight; i++) {
+                for (int j = 0; j < d->patternWidth; j++) {
+                    coordinates.push_back(cv::Point3f((2*j + i % 2)*d->elementSize, i*d->elementSize, 0));
                 }
             }
             break;
@@ -100,11 +113,12 @@ std::vector<cv::Point3f> CalibrationPattern::computePlanarCoordinates () const
 // *********************************************************************
 bool CalibrationPattern::findInImage (const cv::Mat &img, std::vector<cv::Point2f> &points) const
 {
+    Q_D(const CalibrationPattern);
     bool found = false;
 
     // Multi-scale search
-    for (int scaleLevel = 0; scaleLevel <= maxScaleLevel; scaleLevel++) {
-        float scale = 1.0 + scaleLevel*scaleIncrement;
+    for (int scaleLevel = 0; scaleLevel <= d->maxScaleLevel; scaleLevel++) {
+        float scale = 1.0 + scaleLevel*d->scaleIncrement;
         cv::Mat scaledImg;
 
         // Rescale image, if necessary
@@ -115,17 +129,17 @@ bool CalibrationPattern::findInImage (const cv::Mat &img, std::vector<cv::Point2
         }
 
         // Find pattern using OpenCV methods
-        switch (patternType) {
+        switch (d->patternType) {
             case Chessboard: {
-                found = cv::findChessboardCorners(scaledImg, patternSize, points, cv::CALIB_CB_ADAPTIVE_THRESH | cv::CALIB_CB_NORMALIZE_IMAGE /*| cv::CALIB_CB_FAST_CHECK*/);
+                found = cv::findChessboardCorners(scaledImg, d->patternSize, points, cv::CALIB_CB_ADAPTIVE_THRESH | cv::CALIB_CB_NORMALIZE_IMAGE /*| cv::CALIB_CB_FAST_CHECK*/);
                 break;
             }
             case Circles: {
-                found = cv::findCirclesGrid(scaledImg, patternSize, points);
+                found = cv::findCirclesGrid(scaledImg, d->patternSize, points);
                 break;
             }
             case AsymmetricCircles: {
-                found = cv::findCirclesGrid(scaledImg, patternSize, points, cv::CALIB_CB_ASYMMETRIC_GRID);
+                found = cv::findCirclesGrid(scaledImg, d->patternSize, points, cv::CALIB_CB_ASYMMETRIC_GRID);
                 break;
             }
         }
@@ -133,7 +147,7 @@ bool CalibrationPattern::findInImage (const cv::Mat &img, std::vector<cv::Point2
         if (found) {
             // Improve localization of corners on chessboard by doing
             // sub-pixel interpolation
-            if (patternType == Chessboard) {
+            if (d->patternType == Chessboard) {
                 cv::Mat scaledImgGray;
                 if (scaledImg.channels() == 1) {
                     scaledImgGray = scaledImg;

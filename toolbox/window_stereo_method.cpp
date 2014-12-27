@@ -107,7 +107,7 @@ WindowStereoMethod::WindowStereoMethod (Pipeline::Pipeline *p, QList<Pipeline::S
     });
 
     fillVisualizationMethods();
-    pipeline->setDisparityVisualizationMethod(Pipeline::Pipeline::DisparityVisualizationGrayscale); // Set grayscale as default
+    pipeline->setDisparityVisualizationMethod(Pipeline::Pipeline::VisualizationGrayscale); // Set grayscale as default
 
     buttonsLayout->addStretch();
 
@@ -305,10 +305,10 @@ void WindowStereoMethod::fillVisualizationMethods ()
         const char *text;
         const char *tooltip;
     } methods[] = {
-        { Pipeline::Pipeline::DisparityVisualizationNone, "None", "No visualization." },
-        { Pipeline::Pipeline::DisparityVisualizationGrayscale, "Grayscale", "Grayscale." },
-        { Pipeline::Pipeline::DisparityVisualizationColorCuda, "Color (CUDA)", "HSV color (CUDA)." },
-        { Pipeline::Pipeline::DisparityVisualizationColorCpu, "Color (CPU)", "HSV color (CPU)." },
+        { Pipeline::Pipeline::VisualizationNone, "None", "No visualization." },
+        { Pipeline::Pipeline::VisualizationGrayscale, "Grayscale", "Grayscale." },
+        { Pipeline::Pipeline::VisualizationColorCuda, "Color (CUDA)", "HSV color (CUDA)." },
+        { Pipeline::Pipeline::VisualizationColorCpu, "Color (CPU)", "HSV color (CPU)." },
     };
 
     const QList<int> &supportedMethods = pipeline->getSupportedDisparityVisualizationMethods();

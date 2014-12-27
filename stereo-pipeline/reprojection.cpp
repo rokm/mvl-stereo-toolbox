@@ -24,10 +24,14 @@
 
 #ifdef HAVE_OPENCV_CUDA
 #include <opencv2/cuda.hpp>
+#include <opencv2/cudastereo.hpp>
 #ifdef HAVE_CUDA
 #include <cuda_runtime.h>
 #endif
 #endif
+
+
+#include "reprojection_p.h"
 
 
 namespace MVL {
@@ -45,27 +49,8 @@ void reprojectDisparityImageCuda (const cv::cuda::PtrStepSz<unsigned char>, cv::
 
 
 Reprojection::Reprojection (QObject *parent)
+    : QObject(parent), d_ptr(new ReprojectionPrivate(this))
 {
-    // Create list of supported methods
-    supportedMethods.append(ReprojectionMethodToolboxCpu);
-    supportedMethods.append(ReprojectionMethodOpenCvCpu);
-#ifdef HAVE_OPENCV_CUDA
-    try {
-        if (cv::cuda::getCudaEnabledDeviceCount()) {
-#ifdef HAVE_CUDA
-            supportedMethods.append(ReprojectionMethodToolboxCuda);
-#endif
-#ifdef HAVE_OPENCV_CUDASTEREO
-            supportedMethods.append(ReprojectionMethodOpenCvCuda);
-#endif
-        }
-    } catch (...) {
-        // Nothing to do :)
-    }
-#endif
-
-    // Default method: Toolbox CPU
-    reprojectionMethod = ReprojectionMethodToolboxCpu;
 }
 
 Reprojection::~Reprojection ()
@@ -78,32 +63,36 @@ Reprojection::~Reprojection ()
 // *********************************************************************
 void Reprojection::setReprojectionMethod (int newMethod)
 {
-    if (newMethod == reprojectionMethod) {
+    Q_D(Reprojection);
+
+    if (newMethod == d->reprojectionMethod) {
         return;
     }
 
     // Make sure method is supported
-    if (!supportedMethods.contains(newMethod)) {
-        reprojectionMethod = ReprojectionMethodToolboxCpu;
+    if (!d->supportedMethods.contains(newMethod)) {
+        d->reprojectionMethod = MethodToolboxCpu;
         emit error(QString("Reprojection method %1 not supported!").arg(newMethod));
     } else {
-        reprojectionMethod = newMethod;
+        d->reprojectionMethod = newMethod;
     }
 
     // Emit in any case
-    emit reprojectionMethodChanged(reprojectionMethod);
+    emit reprojectionMethodChanged(d->reprojectionMethod);
 }
 
 
 int Reprojection::getReprojectionMethod () const
 {
-    return reprojectionMethod;
+    Q_D(const Reprojection);
+    return d->reprojectionMethod;
 }
 
 
 const QList<int> &Reprojection::getSupportedReprojectionMethods () const
 {
-    return supportedMethods;
+    Q_D(const Reprojection);
+    return d->supportedMethods;
 }
 
 
@@ -112,14 +101,16 @@ const QList<int> &Reprojection::getSupportedReprojectionMethods () const
 // *********************************************************************
 void Reprojection::setReprojectionMatrix (const cv::Mat &newQ)
 {
+    Q_D(Reprojection);
+
     // By default, OpenCV stereo calibration produces reprojection
     // matrix that is 4x4 CV_64F... however, GPU reprojection code
     // requires it to be 4x4 CV_32F. For performance reasons, we do
     // the conversion here
     if (newQ.type() == CV_64F) {
-        newQ.convertTo(Q, CV_32F); // Convert: CV_64F -> CV_32F
+        newQ.convertTo(d->Q, CV_32F); // Convert: CV_64F -> CV_32F
     } else {
-        Q = newQ.clone(); // Copy
+        d->Q = newQ.clone(); // Copy
     }
 
     emit reprojectionMatrixChanged();
@@ -127,7 +118,8 @@ void Reprojection::setReprojectionMatrix (const cv::Mat &newQ)
 
 const cv::Mat &Reprojection::getReprojectionMatrix () const
 {
-    return Q;
+    Q_D(const Reprojection);
+    return d->Q;
 }
 
 
@@ -136,39 +128,41 @@ const cv::Mat &Reprojection::getReprojectionMatrix () const
 // *********************************************************************
 void Reprojection::reprojectStereoDisparity (const cv::Mat &disparity, cv::Mat &points, int offsetX, int offsetY) const
 {
+    Q_D(const Reprojection);
+
     // Validate reprojection matrix
-    if (Q.rows != 4 || Q.cols != 4) {
+    if (d->Q.rows != 4 || d->Q.cols != 4) {
         points = cv::Mat();
         return;
     }
 
-    switch (reprojectionMethod) {
-        case ReprojectionMethodToolboxCpu: {
+    switch (d->reprojectionMethod) {
+        case MethodToolboxCpu: {
             // Toolbox-modified method; handles ROI offset
-            reprojectDisparityImage(disparity, points, Q, offsetX, offsetY);
+            reprojectDisparityImage(disparity, points, d->Q, offsetX, offsetY);
             break;
         }
-        case ReprojectionMethodOpenCvCpu: {
+        case MethodOpenCvCpu: {
             // Stock OpenCV method; does not handle ROI offset
-            cv::reprojectImageTo3D(disparity, points, Q, false, CV_32F);
+            cv::reprojectImageTo3D(disparity, points, d->Q, false, CV_32F);
             break;
         }
 #ifdef HAVE_OPENCV_CUDASTEREO
-        case ReprojectionMethodOpenCvCuda: {
+        case MethodOpenCvCuda: {
             // OpenCV CUDA method; does not handle ROI offset
             cv::cuda::GpuMat gpu_disparity, gpu_points;
             gpu_disparity.upload(disparity);
-            //cv::cuda::reprojectImageTo3D(gpu_disparity, gpu_points, Q, 3);
+            cv::cuda::reprojectImageTo3D(gpu_disparity, gpu_points, d->Q, 3);
             gpu_points.download(points);
             break;
         }
 #ifdef HAVE_CUDA
-        case ReprojectionMethodToolboxCuda: {
+        case MethodToolboxCuda: {
             // Toolbox-modified CUDA method; handles ROI offset
             cv::cuda::GpuMat gpu_disparity, gpu_points;
             gpu_disparity.upload(disparity);
             gpu_points.create(disparity.size(), CV_32FC3);
-            reprojectDisparityImageCuda(gpu_disparity, gpu_points, Q.ptr<float>(), offsetX, offsetY);
+            reprojectDisparityImageCuda(gpu_disparity, gpu_points, d->Q.ptr<float>(), offsetX, offsetY);
             gpu_points.download(points);
             break;
         }

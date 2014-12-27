@@ -1,6 +1,6 @@
 /*
- * Stereo Pipeline: plugin manager
- * Copyright (C) 2014-2015 Rok Mandeljc
+ * Stereo Pipeline: calibration pattern
+ * Copyright (C) 2013-2015 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,12 +17,8 @@
  *
  */
 
-#ifndef MVL_STEREO_TOOLBOX__PIPELINE__PLUGIN_MANAGER_H
-#define MVL_STEREO_TOOLBOX__PIPELINE__PLUGIN_MANAGER_H
-
-#include <stereo-pipeline/export.h>
-
-#include <QtCore>
+#ifndef MVL_STEREO_TOOLBOX__PIPELINE__CALIBRATION_PATTERN_P_H
+#define MVL_STEREO_TOOLBOX__PIPELINE__CALIBRATION_PATTERN_P_H
 
 
 namespace MVL {
@@ -30,24 +26,32 @@ namespace StereoToolbox {
 namespace Pipeline {
 
 
-class PluginManagerPrivate;
-
-class MVL_STEREO_PIPELINE_EXPORT PluginManager : public QObject
+class CalibrationPatternPrivate
 {
-    Q_OBJECT
-    Q_DISABLE_COPY(PluginManager)
-    Q_DECLARE_PRIVATE(PluginManager)
-    QScopedPointer<PluginManagerPrivate> const d_ptr;
+    Q_DECLARE_PUBLIC(CalibrationPattern)
 
-public:
-    PluginManager (QObject * = 0);
-    virtual ~PluginManager ();
+    CalibrationPattern * const q_ptr;
 
-    void setPluginDirectory (const QString & = QString());
-    QString getPluginDirectory () const;
+    CalibrationPatternPrivate (CalibrationPattern *);
 
-    const QList<QObject *> getAvailablePlugins () const;
+protected:
+    int patternWidth;
+    int patternHeight;
+    cv::Size patternSize;
+
+    float elementSize;
+
+    CalibrationPattern::PatternType patternType;
+
+    int maxScaleLevel;
+    float scaleIncrement;
 };
+
+
+CalibrationPatternPrivate::CalibrationPatternPrivate (CalibrationPattern *pattern)
+    : q_ptr(pattern)
+{
+}
 
 
 } // Pipeline

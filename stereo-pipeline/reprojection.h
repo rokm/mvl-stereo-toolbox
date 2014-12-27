@@ -31,19 +31,24 @@ namespace StereoToolbox {
 namespace Pipeline {
 
 
+class ReprojectionPrivate;
+
 class MVL_STEREO_PIPELINE_EXPORT Reprojection : public QObject
 {
     Q_OBJECT
+    Q_DISABLE_COPY(Reprojection)
+    Q_DECLARE_PRIVATE(Reprojection)
+    QScopedPointer<ReprojectionPrivate> const d_ptr;
 
 public:
     Reprojection (QObject * = 0);
     ~Reprojection ();
 
-    enum ReprojectionMethod {
-        ReprojectionMethodToolboxCpu,
-        ReprojectionMethodToolboxCuda,
-        ReprojectionMethodOpenCvCpu,
-        ReprojectionMethodOpenCvCuda,
+    enum {
+        MethodToolboxCpu,
+        MethodToolboxCuda,
+        MethodOpenCvCpu,
+        MethodOpenCvCuda,
     };
 
     void setReprojectionMethod (int);
@@ -60,12 +65,6 @@ signals:
     void reprojectionMatrixChanged ();
 
     void error (QString);
-
-protected:
-    cv::Mat Q;
-
-    QList<int> supportedMethods;
-    int reprojectionMethod;
 };
 
 

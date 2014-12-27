@@ -22,6 +22,7 @@
 
 #include <stereo-pipeline/export.h>
 
+#include <QtCore>
 #include <opencv2/core.hpp>
 
 
@@ -30,8 +31,13 @@ namespace StereoToolbox {
 namespace Pipeline {
 
 
+class CalibrationPatternPrivate;
+
 class MVL_STEREO_PIPELINE_EXPORT CalibrationPattern
 {
+    Q_DECLARE_PRIVATE(CalibrationPattern)
+    QScopedPointer<CalibrationPatternPrivate> const d_ptr;
+
 public:
     enum PatternType {
         Chessboard,
@@ -41,6 +47,7 @@ public:
 
     CalibrationPattern ();
     CalibrationPattern (int, int, float, PatternType, int = 0, float = 0.25);
+    virtual ~CalibrationPattern ();
 
     void setParameters (int, int, float, PatternType, int = 0, float = 0.25);
 
@@ -49,18 +56,6 @@ public:
     std::vector<cv::Point3f> computePlanarCoordinates () const;
 
     bool findInImage (const cv::Mat &, std::vector<cv::Point2f> &) const;
-
-protected:
-    int patternWidth;
-    int patternHeight;
-    cv::Size patternSize;
-
-    float elementSize;
-
-    PatternType patternType;
-
-    int maxScaleLevel;
-    float scaleIncrement;
 };
 
 

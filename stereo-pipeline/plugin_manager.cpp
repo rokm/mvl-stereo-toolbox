@@ -21,13 +21,16 @@
 #include <stereo-pipeline/plugin_factory.h>
 
 
+#include "plugin_manager_p.h"
+
+
 namespace MVL {
 namespace StereoToolbox {
 namespace Pipeline {
 
 
 PluginManager::PluginManager (QObject *parent)
-    : QObject(parent)
+    : QObject(parent), d_ptr(new PluginManagerPrivate(this))
 {
     // Load plugins in default plugin path
     setPluginDirectory();
@@ -55,28 +58,30 @@ static void recursiveDirectoryScan (QDir dir, QStringList &files)
 
 void PluginManager::setPluginDirectory (const QString &newDirectory)
 {
+    Q_D(PluginManager);
+
     // Clear old plugins
-    foreach (QObject *plugin, plugins) {
+    foreach (QObject *plugin, d->plugins) {
         delete plugin;
     }
-    plugins.clear();
+    d->plugins.clear();
 
     // If path is not provided, use default, which can be overriden
     // by environment variable
     if (!newDirectory.isEmpty()) {
-        pluginDirectory = QDir(newDirectory);
+        d->pluginDirectory = QDir(newDirectory);
     } else {
         QByteArray pluginEnvVariable = qgetenv ("MVL_STEREO_TOOLBOX_PLUGIN_DIR");
         if (!pluginEnvVariable.isEmpty()) {
-            pluginDirectory = QDir(pluginEnvVariable);
+            d->pluginDirectory = QDir(pluginEnvVariable);
         } else {
-            pluginDirectory = QDir(MVL_STEREO_PIPELINE_PLUGIN_DIR);
+            d->pluginDirectory = QDir(MVL_STEREO_PIPELINE_PLUGIN_DIR);
         }
     }
 
     // Recursively scan for plugins
     QStringList files;
-    recursiveDirectoryScan(pluginDirectory.absolutePath(), files);
+    recursiveDirectoryScan(d->pluginDirectory.absolutePath(), files);
 
     foreach (QString fileName, files) {
         // Make sure it is a library
@@ -93,7 +98,7 @@ void PluginManager::setPluginDirectory (const QString &newDirectory)
             PluginFactory *factory = qobject_cast<PluginFactory *>(plugin);
             if (factory) {
                 plugin->setParent(this);
-                plugins.append(plugin);
+                d->plugins.append(plugin);
             } else {
                 qDebug() << "Failed to cast plugged object to PluginFactory!";
                 delete plugin;
@@ -106,12 +111,14 @@ void PluginManager::setPluginDirectory (const QString &newDirectory)
 
 QString PluginManager::getPluginDirectory () const
 {
-    return pluginDirectory.absolutePath();
+    Q_D(const PluginManager);
+    return d->pluginDirectory.absolutePath();
 }
 
 const QList<QObject *> PluginManager::getAvailablePlugins () const
 {
-    return plugins;
+    Q_D(const PluginManager);
+    return d->plugins;
 }
 
 

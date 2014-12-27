@@ -23,7 +23,6 @@
 #include <stereo-pipeline/export.h>
 
 #include <QtCore>
-#include <QtConcurrent>
 #include <opencv2/core.hpp>
 
 
@@ -37,9 +36,14 @@ class Rectification;
 class StereoMethod;
 class Reprojection;
 
+class PipelinePrivate;
+
 class MVL_STEREO_PIPELINE_EXPORT Pipeline : public QObject
 {
     Q_OBJECT
+    Q_DISABLE_COPY(Pipeline)
+    Q_DECLARE_PRIVATE(Pipeline)
+    QScopedPointer<PipelinePrivate> const d_ptr;
 
 public:
     Pipeline (QObject * = 0);
@@ -90,11 +94,11 @@ public:
     int getStereoDroppedFrames () const;
 
     // Disparity visualization
-    enum DisparityVisualization {
-        DisparityVisualizationNone,
-        DisparityVisualizationGrayscale,
-        DisparityVisualizationColorCuda,
-        DisparityVisualizationColorCpu
+    enum {
+        VisualizationNone,
+        VisualizationGrayscale,
+        VisualizationColorCuda,
+        VisualizationColorCpu
     };
 
     void setDisparityVisualizationMethod (int);
@@ -141,51 +145,6 @@ signals:
     void reprojectedImageChanged ();
 
     void disparityVisualizationMethodChanged (int);
-
-protected:
-    // Image pair source
-    bool imagePairSourceActive;
-    ImagePairSource *imagePairSource;
-
-    // Cached input images
-    cv::Mat inputImageL;
-    cv::Mat inputImageR;
-
-    // Stereo rectification
-    bool rectificationActive;
-    Rectification *rectification;
-
-    // Cached rectified input images
-    cv::Mat rectifiedImageL;
-    cv::Mat rectifiedImageR;
-    int rectificationTime;
-
-    // Stereo method
-    bool stereoMethodActive;
-    StereoMethod *stereoMethod;
-
-    bool useStereoMethodThread;
-    QFutureWatcher<void> stereoMethodWatcher;
-    int stereoDroppedFramesCounter;
-
-    // Cached disparity image
-    cv::Mat disparityImage;
-    int disparityLevels;
-    int disparityImageComputationTime;
-
-    // Disparity visualization
-    QList<int> supportedDisparityVisualizationMethods;
-
-    int disparityVisualizationMethod;
-    cv::Mat disparityVisualizationImage;
-
-    // Reprojection
-    bool reprojectionActive;
-    Reprojection *reprojection;
-
-    // Cached reprojected image
-    cv::Mat reprojectedImage;
-    int reprojectionComputationTime;
 };
 
 
