@@ -3,7 +3,7 @@ project(toolbox CXX)
 
 set(CMAKE_AUTOMOC TRUE)
 
-find_package(OpenCV REQUIRED)
+find_package(OpenCV 3.0.0 REQUIRED)
 find_package(Qt5Core REQUIRED)
 
 include_directories(${OpenCV_INCLUDE_DIRS})

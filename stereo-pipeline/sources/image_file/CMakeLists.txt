@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.8)
 project(source_image_file CXX)
 
-find_package(OpenCV REQUIRED core imgcodecs imgproc)
+find_package(OpenCV 3.0.0 REQUIRED core imgcodecs imgproc)
 find_package(Qt5Core REQUIRED)
 
 set(plugin_name ${PROJECT_NAME})
@@ -13,7 +13,7 @@ set(plugin_SOURCES
     source_widget.cpp
     plugin.cpp
 )
-    
+
 set(plugin_HEADERS
     image_file.h
     image_file_widget.h

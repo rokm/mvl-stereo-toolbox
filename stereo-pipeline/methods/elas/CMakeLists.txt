@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.8)
 project(method_elas CXX)
 
 find_package(PkgConfig REQUIRED)
-find_package(OpenCV REQUIRED core imgproc)
+find_package(OpenCV 3.0.0 REQUIRED core imgproc)
 find_package(Qt5Core REQUIRED)
 
 pkg_check_modules(ELAS REQUIRED libelas)

@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.8)
 project(source_dc1394 CXX)
 
 find_package(PkgConfig REQUIRED)
-find_package(OpenCV REQUIRED core imgproc)
+find_package(OpenCV 3.0.0 REQUIRED core imgproc)
 find_package(Qt5Core REQUIRED)
 
 pkg_check_modules(DC1394 REQUIRED libdc1394-2)
@@ -19,7 +19,7 @@ set(plugin_SOURCES
     source_widget.cpp
     plugin.cpp
 )
-    
+
 set(plugin_HEADERS
     camera.h
     camera_widget.h
