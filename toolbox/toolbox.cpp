@@ -88,8 +88,8 @@ void Toolbox::createGui ()
     statusLabel = new QLabel("Status:", this);
     statusLabel->setAlignment(Qt::AlignCenter);
 
-    connect(pipeline, SIGNAL(error(const QString)), this, SLOT(displayError(const QString)));
-    connect(pipeline, SIGNAL(processingCompleted()), this, SLOT(clearError()));
+    connect(pipeline, &Pipeline::Pipeline::error, this, &Toolbox::displayError);
+    connect(pipeline, &Pipeline::Pipeline::processingCompleted, this, &Toolbox::clearError);
 
     layout->addWidget(statusLabel, row, 0, 1, 2);
     row++;
@@ -103,14 +103,18 @@ void Toolbox::createGui ()
 
     // Image pair source
     pushButtonImagePairSource = new QPushButton("Image pair source", this);
-    connect(pushButtonImagePairSource, SIGNAL(clicked()), this, SLOT(showWindowImagePairSource()));
+    connect(pushButtonImagePairSource, &QPushButton::clicked, this, [this] () {
+        showWindowOnTop(windowImagePairSource);
+    });
 
     pushButtonImagePairSourceActive = new QPushButton("Active", this);
     pushButtonImagePairSourceActive->setCheckable(true);
 
     pushButtonImagePairSourceActive->setChecked(pipeline->getImagePairSourceState());
-    connect(pushButtonImagePairSourceActive, SIGNAL(toggled(bool)), pipeline, SLOT(setImagePairSourceState(bool)));
-    connect(pipeline, SIGNAL(imagePairSourceStateChanged(bool)), this, SLOT(setPushButtonImagePairSourceActiveState(bool)));
+    connect(pushButtonImagePairSourceActive, &QPushButton::toggled, pipeline, &Pipeline::Pipeline::setImagePairSourceState);
+    connect(pipeline, &Pipeline::Pipeline::imagePairSourceStateChanged, this, [this] (bool active) {
+        setActiveButtonState(pushButtonImagePairSourceActive, active);
+    });
 
     layout->addWidget(pushButtonImagePairSource, row, 0);
     layout->addWidget(pushButtonImagePairSourceActive, row, 1);
@@ -118,14 +122,18 @@ void Toolbox::createGui ()
 
     // Rectification
     pushButtonRectification = new QPushButton("Rectification", this);
-    connect(pushButtonRectification, SIGNAL(clicked()), this, SLOT(showWindowRectification()));
+    connect(pushButtonRectification, &QPushButton::clicked, this, [this] () {
+        showWindowOnTop(windowRectification);
+    });
 
     pushButtonRectificationActive = new QPushButton("Active", this);
     pushButtonRectificationActive->setCheckable(true);
 
     pushButtonRectificationActive->setChecked(pipeline->getRectificationState());
-    connect(pushButtonRectificationActive, SIGNAL(toggled(bool)), pipeline, SLOT(setRectificationState(bool)));
-    connect(pipeline, SIGNAL(rectificationStateChanged(bool)), this, SLOT(setPushButtonRectificationActiveState(bool)));
+    connect(pushButtonRectificationActive, &QPushButton::toggled, pipeline, &Pipeline::Pipeline::setRectificationState);
+    connect(pipeline, &Pipeline::Pipeline::rectificationStateChanged, this, [this] (bool active) {
+        setActiveButtonState(pushButtonRectificationActive, active);
+    });
 
     layout->addWidget(pushButtonRectification, row, 0);
     layout->addWidget(pushButtonRectificationActive, row, 1);
@@ -133,14 +141,18 @@ void Toolbox::createGui ()
 
     // Stereo method
     pushButtonStereoMethod = new QPushButton("Stereo method", this);
-    connect(pushButtonStereoMethod, SIGNAL(clicked()), this, SLOT(showWindowStereoMethod()));
+    connect(pushButtonStereoMethod, &QPushButton::clicked, this, [this] () {
+        showWindowOnTop(windowStereoMethod);
+    });
 
     pushButtonStereoMethodActive = new QPushButton("Active", this);
     pushButtonStereoMethodActive->setCheckable(true);
 
     pushButtonStereoMethodActive->setChecked(pipeline->getStereoMethodState());
-    connect(pushButtonStereoMethodActive, SIGNAL(toggled(bool)), pipeline, SLOT(setStereoMethodState(bool)));
-    connect(pipeline, SIGNAL(stereoMethodStateChanged(bool)), this, SLOT(setPushButtonStereoMethodActiveState(bool)));
+    connect(pushButtonStereoMethodActive, &QPushButton::toggled, pipeline, &Pipeline::Pipeline::setStereoMethodState);
+    connect(pipeline, &Pipeline::Pipeline::stereoMethodStateChanged, this, [this] (bool active) {
+        setActiveButtonState(pushButtonStereoMethodActive, active);
+    });
 
     layout->addWidget(pushButtonStereoMethod, row, 0);
     layout->addWidget(pushButtonStereoMethodActive, row, 1);
@@ -148,14 +160,18 @@ void Toolbox::createGui ()
 
     // Reprojection/point cloud
     pushButtonReprojection = new QPushButton("Reprojection", this);
-    connect(pushButtonReprojection, SIGNAL(clicked()), this, SLOT(showWindowReprojection()));
+    connect(pushButtonReprojection, &QPushButton::clicked, this, [this] () {
+        showWindowOnTop(windowReprojection);
+    });
 
     pushButtonReprojectionActive = new QPushButton("Active", this);
     pushButtonReprojectionActive->setCheckable(true);
 
     pushButtonReprojectionActive->setChecked(pipeline->getReprojectionState());
-    connect(pushButtonReprojectionActive, SIGNAL(toggled(bool)), pipeline, SLOT(setReprojectionState(bool)));
-    connect(pipeline, SIGNAL(reprojectionStateChanged(bool)), this, SLOT(setPushButtonReprojectionActiveState(bool)));
+    connect(pushButtonReprojectionActive, &QPushButton::toggled, pipeline, &Pipeline::Pipeline::setReprojectionState);
+    connect(pipeline, &Pipeline::Pipeline::reprojectionStateChanged, this, [this] (bool active) {
+        setActiveButtonState(pushButtonReprojectionActive, active);
+    });
 
     layout->addWidget(pushButtonReprojection, row, 0);
     layout->addWidget(pushButtonReprojectionActive, row, 1);
@@ -170,7 +186,7 @@ void Toolbox::createGui ()
 
     // Exit
     QPushButton *pushButtonExit = new QPushButton("Exit", this);
-    connect(pushButtonExit, SIGNAL(clicked()), qApp, SLOT(quit()));
+    connect(pushButtonExit, &QPushButton::clicked, qApp, &QApplication::quit);
 
     layout->addWidget(pushButtonExit, row, 0, 1, 2);
     row++;
@@ -180,39 +196,18 @@ void Toolbox::createGui ()
 // *********************************************************************
 // *                          Window showing                           *
 // *********************************************************************
-static void showWindowOnTop (QWidget *window)
+void Toolbox::showWindowOnTop (QWidget *window)
 {
     window->show();
     window->activateWindow();
     window->raise();
 }
 
-void Toolbox::showWindowImagePairSource ()
-{
-    showWindowOnTop(windowImagePairSource);
-}
-
-void Toolbox::showWindowRectification ()
-{
-    showWindowOnTop(windowRectification);
-
-}
-
-void Toolbox::showWindowStereoMethod ()
-{
-    showWindowOnTop(windowStereoMethod);
-}
-
-void Toolbox::showWindowReprojection ()
-{
-    showWindowOnTop(windowReprojection);
-}
-
 
 // *********************************************************************
 // *                      Active buttons states                        *
 // *********************************************************************
-static void setActiveButtonState (QPushButton *button, bool active)
+void Toolbox::setActiveButtonState (QPushButton *button, bool active)
 {
     button->setChecked(active);
     if (active) {
@@ -220,26 +215,6 @@ static void setActiveButtonState (QPushButton *button, bool active)
     } else {
         button->setText("Inactive");
     }
-}
-
-void Toolbox::setPushButtonImagePairSourceActiveState (bool active)
-{
-    setActiveButtonState(pushButtonImagePairSourceActive, active);
-}
-
-void Toolbox::setPushButtonRectificationActiveState (bool active)
-{
-    setActiveButtonState(pushButtonRectificationActive, active);
-}
-
-void Toolbox::setPushButtonStereoMethodActiveState (bool active)
-{
-    setActiveButtonState(pushButtonStereoMethodActive, active);
-}
-
-void Toolbox::setPushButtonReprojectionActiveState (bool active)
-{
-    setActiveButtonState(pushButtonReprojectionActive, active);
 }
 
 

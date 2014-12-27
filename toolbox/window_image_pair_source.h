@@ -44,10 +44,8 @@ public:
     WindowImagePairSource (Pipeline::Pipeline *, QList<Pipeline::ImagePairSource *> &, QWidget * = 0);
     virtual ~WindowImagePairSource ();
 
-protected slots:
+protected:
     void setSource (int);
-
-    void updateImages ();
 
     void saveImages ();
     void snapshotImages ();
@@ -62,10 +60,6 @@ protected:
     QString snapshotBaseName;
 
     // GUI
-    QPushButton *pushButtonSaveImages;
-    QPushButton *pushButtonSnapshotImages;
-    QPushButton *pushButtonSnapshotFilename;
-
     ImageDisplayWidget *displayImageLeft;
     ImageDisplayWidget *displayImageRight;
 

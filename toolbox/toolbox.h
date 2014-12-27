@@ -49,25 +49,15 @@ public:
     Toolbox ();
     virtual ~Toolbox ();
 
-protected slots:
-    void showWindowImagePairSource ();
-    void showWindowRectification ();
-    void showWindowStereoMethod ();
-    void showWindowReprojection ();
-
-    void setPushButtonImagePairSourceActiveState (bool);
-    void setPushButtonRectificationActiveState (bool);
-    void setPushButtonStereoMethodActiveState (bool);
-    void setPushButtonReprojectionActiveState (bool);
-
 protected:
     void createGui ();
-
     void loadPlugins ();
 
-protected slots:
     void displayError (const QString);
     void clearError ();
+
+    void showWindowOnTop (QWidget *);
+    void setActiveButtonState (QPushButton *, bool);
 
 protected:
     WindowImagePairSource *windowImagePairSource;

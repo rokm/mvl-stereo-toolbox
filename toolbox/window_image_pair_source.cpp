@@ -53,22 +53,19 @@ WindowImagePairSource::WindowImagePairSource (Pipeline::Pipeline *p, QList<Pipel
 
     pushButton = new QPushButton("Save images", this);
     pushButton->setToolTip("Save image pair by asking for filename each time.");
-    connect(pushButton, SIGNAL(clicked()), this, SLOT(saveImages()));
+    connect(pushButton, &QPushButton::clicked, this, &WindowImagePairSource::saveImages);
     buttonsLayout->addWidget(pushButton);
-    pushButtonSaveImages = pushButton;
 
     pushButton = new QPushButton("Snap images", this);
     pushButton->setToolTip("Save image pair by asking for filename only once and then appending counter number for each new snapshot.");
     pushButton->setShortcut(QKeySequence(Qt::Key_F5));
-    connect(pushButton, SIGNAL(clicked()), this, SLOT(snapshotImages()));
+    connect(pushButton, &QPushButton::clicked, this, &WindowImagePairSource::snapshotImages);
     buttonsLayout->addWidget(pushButton);
-    pushButtonSnapshotImages = pushButton;
 
     pushButton = new QPushButton("Snapshot filename", this);
     pushButton->setToolTip("Set filename for image snapshot saving.");
-    connect(pushButton, SIGNAL(clicked()), this, SLOT(selectSnapshotFilename()));
+    connect(pushButton, &QPushButton::clicked, this, &WindowImagePairSource::selectSnapshotFilename);
     buttonsLayout->addWidget(pushButton);
-    pushButtonSnapshotFilename = pushButton;
 
     buttonsLayout->addStretch();
 
@@ -111,11 +108,14 @@ WindowImagePairSource::WindowImagePairSource (Pipeline::Pipeline *p, QList<Pipel
     }
 
     // Method selection
-    connect(tabWidget, SIGNAL(currentChanged(int)), this, SLOT(setSource(int)));
+    connect(tabWidget, &QTabWidget::currentChanged, this, &WindowImagePairSource::setSource);
     setSource(tabWidget->currentIndex());
 
     // Pipeline
-    connect(pipeline, SIGNAL(inputImagesChanged()), this, SLOT(updateImages()));
+    connect(pipeline, &Pipeline::Pipeline::inputImagesChanged, this, [this] () {
+        displayImageLeft->setImage(pipeline->getLeftImage());
+        displayImageRight->setImage(pipeline->getRightImage());
+    });
 }
 
 WindowImagePairSource::~WindowImagePairSource ()
@@ -130,13 +130,6 @@ void WindowImagePairSource::setSource (int i)
     }
 
     pipeline->setImagePairSource(sources[i]);
-}
-
-
-void WindowImagePairSource::updateImages ()
-{
-    displayImageLeft->setImage(pipeline->getLeftImage());
-    displayImageRight->setImage(pipeline->getRightImage());
 }
 
 

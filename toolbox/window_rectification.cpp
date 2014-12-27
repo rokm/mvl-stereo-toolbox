@@ -52,25 +52,25 @@ WindowRectification::WindowRectification (Pipeline::Pipeline *p, Pipeline::Recti
     // Calibration buttons
     pushButton = new QPushButton("Calibrate");
     pushButton->setToolTip("Run calibration wizard.");
-    connect(pushButton, SIGNAL(clicked()), this, SLOT(runCalibrationWizard()));
+    connect(pushButton, &QPushButton::clicked, this, &WindowRectification::runCalibrationWizard);
     buttonsLayout->addWidget(pushButton, 0, 0, 1, 1);
     pushButtonWizard = pushButton;
 
     pushButton = new QPushButton("Clear calibration");
     pushButton->setToolTip("Clear current calibration.");
-    connect(pushButton, SIGNAL(clicked()), this, SLOT(clearCalibration()));
+    connect(pushButton, &QPushButton::clicked, this, &WindowRectification::clearCalibration);
     buttonsLayout->addWidget(pushButton, 0, 1, 1, 1);
     pushButtonClear = pushButton;
 
     pushButton = new QPushButton("Import calibration");
     pushButton->setToolTip("Import calibration from file.");
-    connect(pushButton, SIGNAL(clicked()), this, SLOT(importCalibration()));
+    connect(pushButton, &QPushButton::clicked, this, &WindowRectification::importCalibration);
     buttonsLayout->addWidget(pushButton, 1, 0, 1, 1);
     pushButtonImport = pushButton;
 
     pushButton = new QPushButton("Export calibration");
     pushButton->setToolTip("Export current calibration to file.");
-    connect(pushButton, SIGNAL(clicked()), this, SLOT(exportCalibration()));
+    connect(pushButton, &QPushButton::clicked, this, &WindowRectification::exportCalibration);
     buttonsLayout->addWidget(pushButton, 1, 1, 1, 1);
     pushButtonExport = pushButton;
 
@@ -80,7 +80,7 @@ WindowRectification::WindowRectification (Pipeline::Pipeline *p, Pipeline::Recti
     // ROI
     pushButton = new QPushButton("ROI");
     pushButton->setToolTip("Modify ROI on rectified images.");
-    connect(pushButton, SIGNAL(clicked()), this, SLOT(modifyRoi()));
+    connect(pushButton, &QPushButton::clicked, this, &WindowRectification::modifyRoi);
     buttonsLayout->addWidget(pushButton, 0, 3, 2, 1);
     pushButtonRoi = pushButton;
 
@@ -106,12 +106,12 @@ WindowRectification::WindowRectification (Pipeline::Pipeline *p, Pipeline::Recti
     comboBoxVisualizationMethod->addItem("Anaglyph", 1);
     comboBoxVisualizationMethod->setItemData(1, "Anaglyph", Qt::ToolTipRole);
 
-    connect(comboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(updateImage()));
+    connect(comboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &WindowRectification::updateImage);
 
     // Save
     pushButton = new QPushButton("Save rectified pair / anaglyph");
     pushButton->setToolTip("Save rectified image pair or anaglyph, depending on visualization settings.");
-    connect(pushButton, SIGNAL(clicked()), this, SLOT(saveImages()));
+    connect(pushButton, &QPushButton::clicked, this, &WindowRectification::saveImages);
     buttonsLayout->addWidget(pushButton, 1, 5, 1, 1);
     pushButtonSaveImages = pushButton;
 
@@ -128,18 +128,18 @@ WindowRectification::WindowRectification (Pipeline::Pipeline *p, Pipeline::Recti
     checkBoxRectifyImages->setToolTip("Allows image rectification to be turned off even when stereo calibration is loaded. Useful in\n"
                                 "cases when input images are already rectified, and calibration is used for reprojection.");
     checkBoxRectifyImages->setChecked(rectification->getPerformRectification());
-    connect(checkBoxRectifyImages, SIGNAL(toggled(bool)), rectification, SLOT(setPerformRectification(bool)));
-    connect(rectification, SIGNAL(performRectificationChanged(bool)), checkBoxRectifyImages, SLOT(setChecked(bool)));
+    connect(checkBoxRectifyImages, &QCheckBox::toggled, rectification, &Pipeline::Rectification::setPerformRectification);
+    connect(rectification, &Pipeline::Rectification::performRectificationChanged, checkBoxRectifyImages, &QCheckBox::setChecked);
     statusBar->addPermanentWidget(checkBoxRectifyImages);
 
     // Pipeline
-    connect(pipeline, SIGNAL(rectifiedImagesChanged()), this, SLOT(updateImage()));
+    connect(pipeline, &Pipeline::Pipeline::rectifiedImagesChanged, this, &WindowRectification::updateImage);
 
     // Roi dialog
     dialogRoi = new RoiDialog(this);
 
     // Rectification
-    connect(rectification, SIGNAL(stateChanged(bool)), this, SLOT(updateState()));
+    connect(rectification, &Pipeline::Rectification::stateChanged, this, &WindowRectification::updateState);
     updateState();
 
     // Calibration wizard
@@ -341,7 +341,7 @@ RoiDialog::RoiDialog (QWidget *parent)
     // Enabled
     checkBox = new QCheckBox("ROI enabled", this);
     checkBox->setToolTip("ROI enabled or not.");
-    connect(checkBox, SIGNAL(stateChanged(int)), this, SLOT(refreshDialog()));
+    connect(checkBox, &QCheckBox::stateChanged, this, &RoiDialog::refreshDialog);
     checkBoxEnabled = checkBox;
 
     layout->addRow(checkBox);
@@ -355,7 +355,7 @@ RoiDialog::RoiDialog (QWidget *parent)
     // Center
     checkBox = new QCheckBox("Center ROI", this);
     checkBox->setToolTip("Whether to center ROI and compute offsets automatically.");
-    connect(checkBox, SIGNAL(stateChanged(int)), this, SLOT(refreshDialog()));
+    connect(checkBox, &QCheckBox::stateChanged, this, &RoiDialog::refreshDialog);
     checkBoxCenter = checkBox;
 
     layout->addRow(checkBox);
@@ -367,7 +367,7 @@ RoiDialog::RoiDialog (QWidget *parent)
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
     spinBox->setRange(0, 9999);
-    connect(spinBox, SIGNAL(valueChanged(int)), this, SLOT(refreshDialog()));
+    connect(spinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &RoiDialog::refreshDialog);
     spinBoxX = spinBox;
 
     layout->addRow(label, spinBox);
@@ -379,7 +379,7 @@ RoiDialog::RoiDialog (QWidget *parent)
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
     spinBox->setRange(0, 9999);
-    connect(spinBox, SIGNAL(valueChanged(int)), this, SLOT(refreshDialog()));
+    connect(spinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &RoiDialog::refreshDialog);
     spinBoxY = spinBox;
 
     layout->addRow(label, spinBox);
@@ -391,7 +391,7 @@ RoiDialog::RoiDialog (QWidget *parent)
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
     spinBox->setRange(0, 9999);
-    connect(spinBox, SIGNAL(valueChanged(int)), this, SLOT(refreshDialog()));
+    connect(spinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &RoiDialog::refreshDialog);
     spinBoxW = spinBox;
 
     layout->addRow(label, spinBox);
@@ -403,7 +403,7 @@ RoiDialog::RoiDialog (QWidget *parent)
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
     spinBox->setRange(0, 9999);
-    connect(spinBox, SIGNAL(valueChanged(int)), this, SLOT(refreshDialog()));
+    connect(spinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &RoiDialog::refreshDialog);
     spinBoxH = spinBox;
 
     layout->addRow(label, spinBox);
@@ -417,8 +417,8 @@ RoiDialog::RoiDialog (QWidget *parent)
     // Button box
     QDialogButtonBox *buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, Qt::Horizontal, this);
     layout->addRow(buttonBox);
-    connect(buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
-    connect(buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
+    connect(buttonBox, &QDialogButtonBox::accepted, this, &RoiDialog::accept);
+    connect(buttonBox, &QDialogButtonBox::rejected, this, &RoiDialog::reject);
 }
 
 RoiDialog::~RoiDialog ()

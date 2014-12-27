@@ -114,11 +114,10 @@ public:
     CalibrationWizardPageImages (const QString &, QWidget * = 0);
     virtual ~CalibrationWizardPageImages ();
 
-protected slots:
+protected:
     void addImages ();
     void clearImages ();
 
-protected:
     virtual QStringList getImages () const;
     void setImages (const QStringList &);
 
@@ -172,7 +171,7 @@ public:
     int getImagesOrder () const;
     void setImagesOrder (int order);
 
-protected slots:
+protected:
     void updateImageEntries ();
 
 protected:
@@ -236,11 +235,7 @@ protected:
     void discardPattern ();
     void processImage ();
 
-protected slots:
     void doAutomaticProcessing ();
-    void acceptPatternClicked ();
-    void discardPatternClicked ();
-    void autoPatternToggled (bool);
 
 protected:
     QString fieldPrefix;
@@ -431,6 +426,7 @@ public:
 
     virtual void initializePage ();
     virtual bool isComplete () const;
+    virtual void setVisible (bool);
 
     cv::Mat getCameraMatrix () const;
     cv::Mat getDistCoeffs () const;
@@ -438,11 +434,8 @@ public:
     void setCalibrationFlags (int);
     int getCalibrationFlags (void) const;
 
-private slots:
-    void setVisible (bool);
-
-protected slots:
-    void calibrationClicked ();
+protected:
+    void calibrationBegin ();
     void calibrationFinished ();
 
     bool calibrationFunction ();
@@ -455,6 +448,8 @@ protected:
 
     CameraParametersWidget *boxCameraParameters;
     CalibrationFlagsWidget *boxCalibrationFlags;
+
+    QMetaObject::Connection customButtonConnection;
 
     // Worker
     bool calibrationComplete;
@@ -509,6 +504,7 @@ public:
 
     virtual void initializePage ();
     virtual bool isComplete () const;
+    virtual void setVisible (bool);
 
     const cv::Mat &getCameraMatrix1 () const;
     const cv::Mat &getDistCoeffs1 () const;
@@ -518,11 +514,8 @@ public:
     const cv::Mat &getT () const;
     const cv::Size &getImageSize () const;
 
-private slots:
-    void setVisible (bool);
-
-protected slots:
-    void calibrationClicked ();
+protected:
+    void calibrationBegin ();
     void calibrationFinished ();
 
     bool calibrationFunction ();
@@ -536,6 +529,8 @@ protected:
     CameraParametersWidget *boxLeftCameraParameters;
     CameraParametersWidget *boxRightCameraParameters;
     StereoCalibrationFlagsWidget *boxCalibrationFlags;
+
+    QMetaObject::Connection customButtonConnection;
 
     // Worker
     bool calibrationComplete;
@@ -608,12 +603,15 @@ public:
 
     virtual void initializePage ();
 
-private slots:
-    void setVisible (bool);
-    void exportCalibrationClicked ();
+    virtual void setVisible (bool);
+
+protected:
+    void exportCalibration ();
 
 protected:
     QString fieldPrefix;
+
+    QMetaObject::Connection customButtonConnection;
 
     CameraParametersWidget *boxLeftCameraParameters;
     CameraParametersWidget *boxRightCameraParameters;

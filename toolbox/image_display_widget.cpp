@@ -50,7 +50,7 @@ QImage ImageDisplayWidget::convertCvMatToQImage (const cv::Mat &src)
     QRgb *destrow;
     int x, y;
 
-    if (src.channels() ==1) {
+    if (src.channels() == 1) {
         // Gray
         for (int y = 0; y < src.rows; ++y) {
             const unsigned char *srcrow = src.ptr<unsigned char>(y);
@@ -60,7 +60,7 @@ QImage ImageDisplayWidget::convertCvMatToQImage (const cv::Mat &src)
             }
         }
     } else if (src.channels() == 3) {
-        // RGB
+        // BGR
         for (y = 0; y < src.rows; ++y) {
             const cv::Vec3b *srcrow = src.ptr<cv::Vec3b>(y);
             destrow = (QRgb*)dest.scanLine(y);
@@ -69,7 +69,7 @@ QImage ImageDisplayWidget::convertCvMatToQImage (const cv::Mat &src)
             }
         }
     } else if (src.channels() == 4) {
-        // RGBA
+        // BGRA
         for (y = 0; y < src.rows; ++y) {
             const cv::Vec4b *srcrow = src.ptr<cv::Vec4b>(y);
             destrow = (QRgb*)dest.scanLine(y);

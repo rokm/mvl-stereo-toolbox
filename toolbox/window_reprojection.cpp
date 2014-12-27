@@ -67,7 +67,7 @@ WindowReprojection::WindowReprojection (Pipeline::Pipeline *p, Pipeline::Reproje
     comboBox->addItem("Disparity");
     comboBox->addItem("Left");
     comboBox->addItem("Right");
-    connect(comboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(updateDisplayBackground()));
+    connect(comboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &WindowReprojection::updateDisplayBackground);
     box->addWidget(comboBox);
     comboBoxImage = comboBox;
 
@@ -84,10 +84,17 @@ WindowReprojection::WindowReprojection (Pipeline::Pipeline *p, Pipeline::Reproje
     box->addWidget(label);
 
     comboBox = new QComboBox(this);
-    connect(comboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(reprojectionMethodChanged(int)));
-    connect(reprojection, SIGNAL(reprojectionMethodChanged(int)), this, SLOT(updateReprojectionMethod(int)));
     box->addWidget(comboBox);
     comboBoxReprojectionMethod = comboBox;
+
+    connect(comboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, [this] (int index) {
+        reprojection->setReprojectionMethod(comboBoxReprojectionMethod->itemData(index).toInt());
+    });
+    connect(reprojection, &Pipeline::Reprojection::reprojectionMethodChanged, this, [this] (int method) {
+        comboBoxReprojectionMethod->blockSignals(true);
+        comboBoxReprojectionMethod->setCurrentIndex(comboBoxReprojectionMethod->findData(method));
+        comboBoxReprojectionMethod->blockSignals(false);
+    });
 
     fillReprojectionMethods();
     comboBoxReprojectionMethod->setCurrentIndex(reprojection->getReprojectionMethod());
@@ -97,7 +104,7 @@ WindowReprojection::WindowReprojection (Pipeline::Pipeline *p, Pipeline::Reproje
     // Save reprojection data
     pushButton = new QPushButton("Save result", this);
     pushButton->setToolTip("Save reprojected points data.");
-    connect(pushButton, SIGNAL(clicked()), this, SLOT(saveReprojectionResult()));
+    connect(pushButton, &QPushButton::clicked, this, &WindowReprojection::saveReprojectionResult);
     buttonsLayout->addWidget(pushButton);
     pushButtonSaveReprojection = pushButton;
 
@@ -109,7 +116,7 @@ WindowReprojection::WindowReprojection (Pipeline::Pipeline *p, Pipeline::Reproje
     displayReprojectedImage->resize(400, 600); // Make sure scroll area has some size
     layout->addWidget(displayReprojectedImage);
 
-    connect(displayReprojectedImage, SIGNAL(coordinatesUnderMouseChanged(QVector3D)), this, SLOT(displayCoordinates(const QVector3D &)));
+    connect(displayReprojectedImage, &ReprojectedImageDisplayWidget::coordinatesUnderMouseChanged, this, &WindowReprojection::displayCoordinates);
 
     // Status bar
     statusBar = new QStatusBar(this);
@@ -119,8 +126,8 @@ WindowReprojection::WindowReprojection (Pipeline::Pipeline *p, Pipeline::Reproje
     statusBar->addPermanentWidget(labelCoordinates);
 
     // Pipeline
-    connect(pipeline, SIGNAL(disparityVisualizationImageChanged()), this, SLOT(updateDisplayBackground()));
-    connect(pipeline, SIGNAL(reprojectedImageChanged()), this, SLOT(updateDisplayValues()));
+    connect(pipeline, &Pipeline::Pipeline::disparityVisualizationImageChanged, this, &WindowReprojection::updateDisplayBackground);
+    connect(pipeline, &Pipeline::Pipeline::reprojectedImageChanged, this, &WindowReprojection::updateDisplayValues);
 }
 
 WindowReprojection::~WindowReprojection ()
@@ -164,7 +171,7 @@ void WindowReprojection::updateDisplayValues ()
 }
 
 
-void WindowReprojection::displayCoordinates (const QVector3D &coordinates)
+void WindowReprojection::displayCoordinates (const QVector3D coordinates)
 {
     if (coordinates.isNull()) {
         labelCoordinates->setText("");
@@ -199,18 +206,6 @@ void WindowReprojection::fillReprojectionMethods ()
             comboBoxReprojectionMethod->setItemData(item++, methods[i].tooltip, Qt::ToolTipRole);
         }
     }
-}
-
-void WindowReprojection::reprojectionMethodChanged (int index)
-{
-    reprojection->setReprojectionMethod(comboBoxReprojectionMethod->itemData(index).toInt());
-}
-
-void WindowReprojection::updateReprojectionMethod (int method)
-{
-    bool oldState = comboBoxReprojectionMethod->blockSignals(true);
-    comboBoxReprojectionMethod->setCurrentIndex(comboBoxReprojectionMethod->findData(method));
-    comboBoxReprojectionMethod->blockSignals(oldState);
 }
 
 

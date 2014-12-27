@@ -43,18 +43,14 @@ public:
     WindowReprojection (Pipeline::Pipeline *, Pipeline::Reprojection *, QWidget * = 0);
     virtual ~WindowReprojection ();
 
-protected slots:
+protected:
     void updateDisplayBackground ();
     void updateDisplayValues ();
 
-    void displayCoordinates (const QVector3D &);
-
-    void reprojectionMethodChanged (int);
-    void updateReprojectionMethod (int);
+    void displayCoordinates (const QVector3D );
 
     void saveReprojectionResult ();
 
-protected:
     void fillReprojectionMethods ();
 
 protected:

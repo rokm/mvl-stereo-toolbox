@@ -44,7 +44,7 @@ public:
     WindowStereoMethod (Pipeline::Pipeline *, QList<Pipeline::StereoMethod *> &, QWidget * = 0);
     virtual ~WindowStereoMethod ();
 
-protected slots:
+protected:
     void setMethod (int);
 
     void updateDisplayBackground ();
@@ -57,10 +57,6 @@ protected slots:
     void importParameters ();
     void exportParameters ();
 
-    void visualizationMethodChanged (int);
-    void updateVisualizationMethod (int);
-
-protected:
     void fillVisualizationMethods ();
 
 protected:

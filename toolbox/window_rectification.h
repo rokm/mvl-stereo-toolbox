@@ -47,7 +47,7 @@ public:
     WindowRectification (Pipeline::Pipeline *, Pipeline::Rectification *, QWidget * = 0);
     virtual ~WindowRectification ();
 
-protected slots:
+protected:
     void runCalibrationWizard ();
     void importCalibration ();
     void exportCalibration ();
@@ -108,7 +108,7 @@ public:
 
     cv::Rect getRoi () const;
 
-protected slots:
+protected:
     void refreshDialog ();
 
 protected:

@@ -179,14 +179,14 @@ CalibrationWizardPageImages::CalibrationWizardPageImages (const QString &fieldPr
     // Add images button
     pushButtonAddImages = new QPushButton("Add");
     pushButtonAddImages->setToolTip("Add images");
-    connect(pushButtonAddImages, SIGNAL(clicked()), this, SLOT(addImages()));
+    connect(pushButtonAddImages, &QPushButton::clicked, this, &CalibrationWizardPageImages::addImages);
 
     imagesLayout->addWidget(pushButtonAddImages, 0, 0, 1, 1);
 
     // Clear images button
     pushButtonClearImages = new QPushButton("Clear");
     pushButtonClearImages->setToolTip("Clear images");
-    connect(pushButtonClearImages, SIGNAL(clicked()), this, SLOT(clearImages()));
+    connect(pushButtonClearImages, &QPushButton::clicked, this, &CalibrationWizardPageImages::clearImages);
 
     imagesLayout->addWidget(pushButtonClearImages, 0, 1, 1, 1);
 
@@ -289,7 +289,7 @@ CalibrationWizardPageImages::CalibrationWizardPageImages (const QString &fieldPr
     registerField(fieldPrefix + "ScaleLevels", spinBoxScaleLevels);
     registerField(fieldPrefix + "ScaleIncrement", spinBoxScaleIncrement, "value");  // QWizard does not know QDoubleSpinBox!
 
-    connect(this, SIGNAL(imagesChanged()), this, SIGNAL(completeChanged()));
+    connect(this, &CalibrationWizardPageImages::imagesChanged, this, &CalibrationWizardPageImages::completeChanged);
 }
 
 CalibrationWizardPageImages::~CalibrationWizardPageImages ()
@@ -436,7 +436,7 @@ CalibrationWizardPageStereoImages::CalibrationWizardPageStereoImages (QWidget *p
     //layout()->addWidget(groupBox, 2, 0, 1, 2);
     layout()->addWidget(groupBox);
 
-    connect(this, SIGNAL(imagesChanged()), this, SLOT(updateImageEntries()));
+    connect(this, &CalibrationWizardPageStereoImages::imagesChanged, this, &CalibrationWizardPageStereoImages::updateImageEntries);
 
     // Keep track of this setting via fields mechanism
     registerField(fieldPrefix + "ImagesOrder", this, "imagesOrder");
@@ -683,15 +683,40 @@ CalibrationWizardPageDetection::CalibrationWizardPageDetection (const QString &f
 
     pushButtonAuto = new QPushButton("Auto", this);
     pushButtonAuto->setCheckable(true);
-    connect(pushButtonAuto, SIGNAL(toggled(bool)), this, SLOT(autoPatternToggled(bool)));
+    connect(pushButtonAuto, &QPushButton::toggled, this, [this] (bool enable) {
+        // Enable/disable auto processing
+        autoProcess = enable;
+
+        if (enable) {
+            if (imageCounter == -1) {
+                // Start processing
+                startProcessing();
+            } else {
+                // Automatically process current frame
+                doAutomaticProcessing();
+            }
+        }
+    });
     buttonBox->addWidget(pushButtonAuto);
 
     pushButtonDiscard = new QPushButton("Discard", this);
-    connect(pushButtonDiscard, SIGNAL(clicked()), this, SLOT(discardPatternClicked()));
+    connect(pushButtonDiscard, &QPushButton::clicked, this, [this] () {
+        // Disable auto processing
+        pushButtonAuto->setChecked(false);
+
+        // Manual discard
+        discardPattern();
+    });
     buttonBox->addWidget(pushButtonDiscard);
 
     pushButtonAccept = new QPushButton("Accept", this);
-    connect(pushButtonAccept, SIGNAL(clicked()), this, SLOT(acceptPatternClicked()));
+    connect(pushButtonAccept, &QPushButton::clicked, this, [this] () {
+        // Disable auto processing
+        pushButtonAuto->setChecked(false);
+
+        // Manual accept
+        acceptPattern();
+    });
     buttonBox->addWidget(pushButtonAccept);
 
     // Fields
@@ -946,43 +971,8 @@ void CalibrationWizardPageDetection::processImage ()
 
     // Auto process
     if (autoProcess) {
-        QTimer::singleShot(500, this, SLOT(doAutomaticProcessing()));
+        QTimer::singleShot(500, this, &CalibrationWizardPageDetection::doAutomaticProcessing);
     }
-}
-
-
-void CalibrationWizardPageDetection::autoPatternToggled (bool enable)
-{
-    // Enable/disable auto processing
-    autoProcess = enable;
-
-    if (enable) {
-        if (imageCounter == -1) {
-            // Start processing
-            startProcessing();
-        } else {
-            // Automatically process current frame
-            doAutomaticProcessing();
-        }
-    }
-}
-
-void CalibrationWizardPageDetection::acceptPatternClicked ()
-{
-    // Disable auto processing
-    pushButtonAuto->setChecked(false);
-
-    // Manual accept
-    acceptPattern();
-}
-
-void CalibrationWizardPageDetection::discardPatternClicked ()
-{
-    // Disable auto processing
-    pushButtonAuto->setChecked(false);
-
-    // Manual discard
-    discardPattern();
 }
 
 
@@ -1636,7 +1626,7 @@ CalibrationWizardPageCalibration::CalibrationWizardPageCalibration (const QStrin
 
     // Worker thread
     calibrationComplete = false;
-    connect(&calibrationWatcher, SIGNAL(finished()), this, SLOT(calibrationFinished()));
+    connect(&calibrationWatcher, &QFutureWatcher<bool>::finished, this, &CalibrationWizardPageCalibration::calibrationFinished);
 
     QLabel *label;
 
@@ -1709,10 +1699,10 @@ void CalibrationWizardPageCalibration::setVisible (bool visible)
     if (visible) {
         wizard()->setButtonText(QWizard::CustomButton1, tr("&Calibrate"));
         wizard()->setOption(QWizard::HaveCustomButton1, true);
-        connect(wizard(), SIGNAL(customButtonClicked(int)), this, SLOT(calibrationClicked()));
+        customButtonConnection = connect(wizard(), &QWizard::customButtonClicked, this, &CalibrationWizardPageCalibration::calibrationBegin);
     } else {
         wizard()->setOption(QWizard::HaveCustomButton1, false);
-        disconnect(wizard(), SIGNAL(customButtonClicked(int)), this, SLOT(calibrationClicked()));
+        QObject::disconnect(customButtonConnection);
     }
 }
 
@@ -1733,7 +1723,7 @@ bool CalibrationWizardPageCalibration::isComplete () const
 }
 
 
-void CalibrationWizardPageCalibration::calibrationClicked ()
+void CalibrationWizardPageCalibration::calibrationBegin ()
 {
     // Show busy dialog
     dialogBusy->show();
@@ -1844,7 +1834,7 @@ CalibrationWizardPageStereoCalibration::CalibrationWizardPageStereoCalibration (
 
     // Worker thread
     calibrationComplete = false;
-    connect(&calibrationWatcher, SIGNAL(finished()), this, SLOT(calibrationFinished()));
+    connect(&calibrationWatcher, &QFutureWatcher<bool>::finished, this, &CalibrationWizardPageStereoCalibration::calibrationFinished);
 
     QLabel *label;
 
@@ -1933,10 +1923,10 @@ void CalibrationWizardPageStereoCalibration::setVisible (bool visible)
     if (visible) {
         wizard()->setButtonText(QWizard::CustomButton1, tr("&Calibrate"));
         wizard()->setOption(QWizard::HaveCustomButton1, true);
-        connect(wizard(), SIGNAL(customButtonClicked(int)), this, SLOT(calibrationClicked()));
+        customButtonConnection = connect(wizard(), &QWizard::customButtonClicked, this, &CalibrationWizardPageStereoCalibration::calibrationBegin);
     } else {
         wizard()->setOption(QWizard::HaveCustomButton1, false);
-        disconnect(wizard(), SIGNAL(customButtonClicked(int)), this, SLOT(calibrationClicked()));
+        QObject::disconnect(customButtonConnection);
     }
 }
 
@@ -1977,7 +1967,7 @@ bool CalibrationWizardPageStereoCalibration::isComplete () const
 }
 
 
-void CalibrationWizardPageStereoCalibration::calibrationClicked ()
+void CalibrationWizardPageStereoCalibration::calibrationBegin ()
 {
     // Show busy dialog
     dialogBusy->show();
@@ -2305,15 +2295,15 @@ void CalibrationWizardPageStereoResult::setVisible (bool visible)
     if (visible) {
         wizard()->setButtonText(QWizard::CustomButton1, tr("&Export"));
         wizard()->setOption(QWizard::HaveCustomButton1, true);
-        connect(wizard(), SIGNAL(customButtonClicked(int)), this, SLOT(exportCalibrationClicked()));
+        customButtonConnection = connect(wizard(), &QWizard::customButtonClicked, this, &CalibrationWizardPageStereoResult::exportCalibration);
     } else {
         wizard()->setOption(QWizard::HaveCustomButton1, false);
-        disconnect(wizard(), SIGNAL(customButtonClicked(int)), this, SLOT(exportCalibrationClicked()));
+        QObject::disconnect(customButtonConnection);
     }
 }
 
 
-void CalibrationWizardPageStereoResult::exportCalibrationClicked ()
+void CalibrationWizardPageStereoResult::exportCalibration ()
 {
     QString fileName = QFileDialog::getSaveFileName(this, "Export calibration to file", QString(), "OpenCV storage file (*.xml *.yml *.yaml)");
     if (!fileName.isNull()) {

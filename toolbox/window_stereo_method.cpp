@@ -62,21 +62,21 @@ WindowStereoMethod::WindowStereoMethod (Pipeline::Pipeline *p, QList<Pipeline::S
     // Export parameters
     pushButton = new QPushButton("Export param.", this);
     pushButton->setToolTip("Export active method's parameters.");
-    connect(pushButton, SIGNAL(clicked()), this, SLOT(exportParameters()));
+    connect(pushButton, &QPushButton::clicked, this, &WindowStereoMethod::exportParameters);
     buttonsLayout->addWidget(pushButton);
     pushButtonExportParameters = pushButton;
 
     // Import parameters
     pushButton = new QPushButton("Import param.", this);
     pushButton->setToolTip("Import parameters for active method.");
-    connect(pushButton, SIGNAL(clicked()), this, SLOT(importParameters()));
+    connect(pushButton, &QPushButton::clicked, this, &WindowStereoMethod::importParameters);
     buttonsLayout->addWidget(pushButton);
     pushButtonImportParameters = pushButton;
 
     // Save
     pushButton = new QPushButton("Save disparity", this);
     pushButton->setToolTip("Save disparity image.");
-    connect(pushButton, SIGNAL(clicked()), this, SLOT(saveImage()));
+    connect(pushButton, &QPushButton::clicked, this, &WindowStereoMethod::saveImage);
     buttonsLayout->addWidget(pushButton);
     pushButtonSaveImage = pushButton;
 
@@ -93,10 +93,17 @@ WindowStereoMethod::WindowStereoMethod (Pipeline::Pipeline *p, QList<Pipeline::S
     box->addWidget(label);
 
     comboBox = new QComboBox(this); // Filled in by disparity image display widget!
-    connect(comboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(visualizationMethodChanged(int)));
-    connect(pipeline, SIGNAL(disparityVisualizationMethodChanged(int)), this, SLOT(updateVisualizationMethod(int)));
     box->addWidget(comboBox);
     comboBoxVisualizationMethod = comboBox;
+
+    connect(comboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, [this] (int index) {
+        pipeline->setDisparityVisualizationMethod(comboBoxVisualizationMethod->itemData(index).toInt());
+    });
+    connect(pipeline, &Pipeline::Pipeline::disparityVisualizationMethodChanged, this, [this] (int method) {
+        comboBoxVisualizationMethod->blockSignals(true);
+        comboBoxVisualizationMethod->setCurrentIndex(comboBoxVisualizationMethod->findData(method));
+        comboBoxVisualizationMethod->blockSignals(false);
+    });
 
     fillVisualizationMethods();
     pipeline->setDisparityVisualizationMethod(Pipeline::Pipeline::DisparityVisualizationGrayscale); // Set grayscale as default
@@ -121,7 +128,7 @@ WindowStereoMethod::WindowStereoMethod (Pipeline::Pipeline *p, QList<Pipeline::S
     displayDisparityImage->resize(400, 600); // Make sure scroll area has some size
     splitter->addWidget(displayDisparityImage);
 
-    connect(displayDisparityImage, SIGNAL(disparityUnderMouseChanged(float)), this, SLOT(displayDisparity(float)));
+    connect(displayDisparityImage, &DisparityImageDisplayWidget::disparityUnderMouseChanged, this, &WindowStereoMethod::displayDisparity);
 
     // Status bar
     statusBar = new QStatusBar(this);
@@ -136,14 +143,14 @@ WindowStereoMethod::WindowStereoMethod (Pipeline::Pipeline *p, QList<Pipeline::S
     }
 
     // Method selection
-    connect(tabWidget, SIGNAL(currentChanged(int)), this, SLOT(setMethod(int)));
+    connect(tabWidget, &QTabWidget::currentChanged, this, &WindowStereoMethod::setMethod);
     setMethod(tabWidget->currentIndex());
 
     // Pipeline
     // Use disparityVisualizationImageChanged() instead of disparityImageChanged()
     // to capture changes due to visualization method switch
-    connect(pipeline, SIGNAL(disparityVisualizationImageChanged()), this, SLOT(updateDisplayBackground()));
-    connect(pipeline, SIGNAL(disparityImageChanged()), this, SLOT(updateDisplayValues()));
+    connect(pipeline, &Pipeline::Pipeline::disparityVisualizationImageChanged, this, &WindowStereoMethod::updateDisplayBackground);
+    connect(pipeline, &Pipeline::Pipeline::disparityImageChanged, this, &WindowStereoMethod::updateDisplayValues);
 }
 
 WindowStereoMethod::~WindowStereoMethod ()
@@ -312,18 +319,6 @@ void WindowStereoMethod::fillVisualizationMethods ()
             comboBoxVisualizationMethod->setItemData(item++, methods[i].tooltip, Qt::ToolTipRole);
         }
     }
-}
-
-void WindowStereoMethod::visualizationMethodChanged (int index)
-{
-    pipeline->setDisparityVisualizationMethod(comboBoxVisualizationMethod->itemData(index).toInt());
-}
-
-void WindowStereoMethod::updateVisualizationMethod (int method)
-{
-    bool oldState = comboBoxVisualizationMethod->blockSignals(true);
-    comboBoxVisualizationMethod->setCurrentIndex(comboBoxVisualizationMethod->findData(method));
-    comboBoxVisualizationMethod->blockSignals(oldState);
 }
 
 
