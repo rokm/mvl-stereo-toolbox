@@ -66,7 +66,7 @@ endif()
 generate_export_header(mvl_stereo_pipeline EXPORT_FILE_NAME export.h)
 
 install(TARGETS mvl_stereo_pipeline DESTINATION ${CMAKE_INSTALL_LIBDIR})
-install(FILES ${pipeline_HEADERS} ${PROJECT_BINARY_DIR}/mvl_stereo_pipeline_export.h DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/MVL/stereo-pipeline)
+install(FILES ${pipeline_HEADERS} ${PROJECT_BINARY_DIR}/export.h DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/MVL/stereo-pipeline)
 
 # Pkg-config for library; only if we have pkg-config installed
 if(PKG_CONFIG_FOUND)
