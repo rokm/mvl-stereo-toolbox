@@ -65,10 +65,10 @@ Toolbox::Toolbox ()
     loadPlugins();
 
     // Create windows
-    windowImagePairSource = new WindowImagePairSource(pipeline, imagePairSources, this);
-    windowRectification = new WindowRectification(pipeline, pipeline->getRectification(), this);
-    windowStereoMethod = new WindowStereoMethod(pipeline, stereoMethods, this);
-    windowReprojection = new WindowReprojection(pipeline, pipeline->getReprojection(), this);
+    windowImagePairSource = new WindowImagePairSource(pipeline, imagePairSources);
+    windowRectification = new WindowRectification(pipeline, pipeline->getRectification());
+    windowStereoMethod = new WindowStereoMethod(pipeline, stereoMethods);
+    windowReprojection = new WindowReprojection(pipeline, pipeline->getReprojection());
 
     // Create GUI
     createGui();
@@ -76,6 +76,10 @@ Toolbox::Toolbox ()
 
 Toolbox::~Toolbox ()
 {
+    delete windowImagePairSource;
+    delete windowRectification;
+    delete windowStereoMethod;
+    delete windowReprojection;
 }
 
 void Toolbox::createGui ()
