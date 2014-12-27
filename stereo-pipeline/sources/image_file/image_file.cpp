@@ -95,11 +95,7 @@ void ImageFile::loadLocalImage ()
     try {
         // Load both images and amit the change signal
         QWriteLocker locker(&frameBufferLock);
-        frameBuffer = cv::imread(fileNameOrUrl.toStdString(), -1);
-        if (frameBuffer.channels() == 4) {
-            // Strip alpha channel
-            cv::cvtColor(frameBuffer, frameBuffer, cv::COLOR_BGRA2BGR);
-        }
+        frameBuffer = cv::imread(fileNameOrUrl.toStdString(), cv::IMREAD_ANYCOLOR);
     } catch (std::exception e) {
         imageLoadingError(QString("Error while loading images: %1").arg(QString::fromStdString(e.what())));
     }
