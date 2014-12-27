@@ -20,8 +20,8 @@
 #include "window_image_pair_source.h"
 #include "image_display_widget.h"
 
-#include <stereo_pipeline.h>
-#include <image_pair_source.h>
+#include <stereo-pipeline/pipeline.h>
+#include <stereo-pipeline/image_pair_source.h>
 
 #include <opencv2/core.hpp>
 #include <opencv2/imgcodecs.hpp>
@@ -32,7 +32,7 @@ namespace StereoToolbox {
 namespace GUI {
 
 
-WindowImagePairSource::WindowImagePairSource (Pipeline::StereoPipeline *p, QList<Pipeline::ImagePairSource *> &s, QWidget *parent)
+WindowImagePairSource::WindowImagePairSource (Pipeline::Pipeline *p, QList<Pipeline::ImagePairSource *> &s, QWidget *parent)
     : QWidget(parent, Qt::Window), pipeline(p), sources(s)
 {
     setWindowTitle("Image source");

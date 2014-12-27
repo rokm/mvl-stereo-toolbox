@@ -27,8 +27,8 @@ namespace MVL {
 namespace StereoToolbox {
 
 namespace Pipeline {
-class StereoReprojection;
-class StereoPipeline;
+class Reprojection;
+class Pipeline;
 } // Pipeline
 
 namespace GUI {
@@ -40,7 +40,7 @@ class WindowReprojection : public QWidget
     Q_OBJECT
 
 public:
-    WindowReprojection (Pipeline::StereoPipeline *, Pipeline::StereoReprojection *, QWidget * = 0);
+    WindowReprojection (Pipeline::Pipeline *, Pipeline::Reprojection *, QWidget * = 0);
     virtual ~WindowReprojection ();
 
 protected slots:
@@ -59,8 +59,8 @@ protected:
 
 protected:
     // Pipeline
-    Pipeline::StereoPipeline *pipeline;
-    Pipeline::StereoReprojection *reprojection;
+    Pipeline::Pipeline *pipeline;
+    Pipeline::Reprojection *reprojection;
 
     // GUI
     QComboBox *comboBoxImage;

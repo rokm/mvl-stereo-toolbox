@@ -6,9 +6,6 @@ set(CMAKE_AUTOMOC TRUE)
 find_package(OpenCV REQUIRED)
 find_package(Qt5Core REQUIRED)
 
-include_directories(${PROJECT_SOURCE_DIR}/../pipeline)
-include_directories(${PROJECT_BINARY_DIR}/../pipeline)
-
 include_directories(${OpenCV_INCLUDE_DIRS})
 
 set(toolbox_SOURCES

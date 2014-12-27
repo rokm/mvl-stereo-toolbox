@@ -28,11 +28,9 @@ namespace StereoToolbox {
 
 namespace Pipeline {
 class ImagePairSource;
+class Pipeline;
 class PluginManager;
-class StereoRectification;
 class StereoMethod;
-class StereoPipeline;
-class StereoReprojection;
 } // Pipeline
 
 namespace GUI {
@@ -88,7 +86,7 @@ protected:
 
     QLabel *statusLabel;
 
-    Pipeline::StereoPipeline *pipeline;
+    Pipeline::Pipeline *pipeline;
 
     Pipeline::PluginManager *plugin_manager;
     QList<Pipeline::ImagePairSource *> imagePairSources;

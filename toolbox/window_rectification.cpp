@@ -21,8 +21,8 @@
 #include "calibration_wizard.h"
 #include "image_display_widget.h"
 
-#include <stereo_pipeline.h>
-#include <stereo_rectification.h>
+#include <stereo-pipeline/pipeline.h>
+#include <stereo-pipeline/rectification.h>
 
 #include <opencv2/imgcodecs.hpp>
 
@@ -32,7 +32,7 @@ namespace StereoToolbox {
 namespace GUI {
 
 
-WindowRectification::WindowRectification (Pipeline::StereoPipeline *p, Pipeline::StereoRectification *r, QWidget *parent)
+WindowRectification::WindowRectification (Pipeline::Pipeline *p, Pipeline::Rectification *r, QWidget *parent)
     : QWidget(parent, Qt::Window), pipeline(p), rectification(r)
 {
     setWindowTitle("Rectification");
@@ -160,7 +160,7 @@ void WindowRectification::updateImage ()
         displayPair->setImagePair(pipeline->getLeftRectifiedImage(), pipeline->getRightRectifiedImage());
     } else if (visualizationType == VisualizationAnaglyph) {
         // Anaglyph
-        Pipeline::StereoPipeline::createAnaglyph(pipeline->getLeftRectifiedImage(), pipeline->getRightRectifiedImage(), anaglyphImage);
+        Pipeline::Pipeline::createAnaglyph(pipeline->getLeftRectifiedImage(), pipeline->getRightRectifiedImage(), anaglyphImage);
         displayPair->setImage(anaglyphImage);
     }
 
@@ -312,7 +312,7 @@ void WindowRectification::saveImages ()
         QString fileNameAnaglyph = tmpFileName.absolutePath() + "/" + tmpFileName.baseName() + "." + ext;
 
         cv::Mat tmpAnaglyph;
-        Pipeline::StereoPipeline::createAnaglyph(tmpImg1, tmpImg2, tmpAnaglyph);
+        Pipeline::Pipeline::createAnaglyph(tmpImg1, tmpImg2, tmpAnaglyph);
 
         try {
             cv::imwrite(fileNameAnaglyph.toStdString(), tmpAnaglyph);

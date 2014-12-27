@@ -29,8 +29,8 @@ namespace MVL {
 namespace StereoToolbox {
 
 namespace Pipeline {
-class StereoPipeline;
-class StereoRectification;
+class Pipeline;
+class Rectification;
 } // Pipeline
 
 namespace GUI {
@@ -44,7 +44,7 @@ class WindowRectification : public QWidget
     Q_OBJECT
 
 public:
-    WindowRectification (Pipeline::StereoPipeline *, Pipeline::StereoRectification *, QWidget * = 0);
+    WindowRectification (Pipeline::Pipeline *, Pipeline::Rectification *, QWidget * = 0);
     virtual ~WindowRectification ();
 
 protected slots:
@@ -61,8 +61,8 @@ protected slots:
 
 protected:
     // Pipeline
-    Pipeline::StereoPipeline *pipeline;
-    Pipeline::StereoRectification *rectification;
+    Pipeline::Pipeline *pipeline;
+    Pipeline::Rectification *rectification;
 
     // GUI
     QPushButton *pushButtonWizard;

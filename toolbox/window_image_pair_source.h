@@ -27,7 +27,7 @@ namespace MVL {
 namespace StereoToolbox {
 
 namespace Pipeline {
-class StereoPipeline;
+class Pipeline;
 class ImagePairSource;
 } // Pipeline
 
@@ -41,7 +41,7 @@ class WindowImagePairSource : public QWidget
     Q_OBJECT
 
 public:
-    WindowImagePairSource (Pipeline::StereoPipeline *, QList<Pipeline::ImagePairSource *> &, QWidget * = 0);
+    WindowImagePairSource (Pipeline::Pipeline *, QList<Pipeline::ImagePairSource *> &, QWidget * = 0);
     virtual ~WindowImagePairSource ();
 
 protected slots:
@@ -56,7 +56,7 @@ protected slots:
 
 protected:
     // Pipeline
-    Pipeline::StereoPipeline *pipeline;
+    Pipeline::Pipeline *pipeline;
     QList<Pipeline::ImagePairSource *> sources;
 
     QString snapshotBaseName;

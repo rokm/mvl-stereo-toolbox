@@ -23,7 +23,7 @@
 #include <QtWidgets>
 #include <QtConcurrent>
 
-#include <stereo_calibration_pattern.h>
+#include <stereo-pipeline/calibration_pattern.h>
 
 #include <opencv2/core.hpp>
 
@@ -262,7 +262,7 @@ protected:
     bool patternFound;
     bool autoProcess;
 
-    Pipeline::StereoCalibrationPattern calibrationPattern;
+    Pipeline::CalibrationPattern calibrationPattern;
     std::vector<cv::Point2f> currentImagePoints;
 
     // These are what we will pass on...

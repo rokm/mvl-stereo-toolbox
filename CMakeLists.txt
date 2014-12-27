@@ -15,8 +15,11 @@ add_definitions(-DPROJECT_VERSION="${PROJECT_VERSION}")
 # Automatically include current dir
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
+include_directories(${PROJECT_SOURCE_DIR})
+include_directories(${PROJECT_BINARY_DIR})
+
 # Library
-add_subdirectory(pipeline)
+add_subdirectory(stereo-pipeline)
 
 # Toolbox
 add_subdirectory(toolbox)

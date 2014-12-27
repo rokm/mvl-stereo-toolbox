@@ -20,8 +20,8 @@
 #include "window_stereo_method.h"
 #include "image_display_widget.h"
 
-#include <stereo_pipeline.h>
-#include <stereo_method.h>
+#include <stereo-pipeline/pipeline.h>
+#include <stereo-pipeline/stereo_method.h>
 
 #include <opencv2/core.hpp>
 #include <opencv2/imgcodecs.hpp>
@@ -37,7 +37,7 @@ namespace StereoToolbox {
 namespace GUI {
 
 
-WindowStereoMethod::WindowStereoMethod (Pipeline::StereoPipeline *p, QList<Pipeline::StereoMethod *> &m, QWidget *parent)
+WindowStereoMethod::WindowStereoMethod (Pipeline::Pipeline *p, QList<Pipeline::StereoMethod *> &m, QWidget *parent)
     : QWidget(parent, Qt::Window), pipeline(p), methods(m)
 {
     setWindowTitle("Stereo method");
@@ -99,7 +99,7 @@ WindowStereoMethod::WindowStereoMethod (Pipeline::StereoPipeline *p, QList<Pipel
     comboBoxVisualizationMethod = comboBox;
 
     fillVisualizationMethods();
-    pipeline->setDisparityVisualizationMethod(Pipeline::StereoPipeline::DisparityVisualizationGrayscale); // Set grayscale as default
+    pipeline->setDisparityVisualizationMethod(Pipeline::Pipeline::DisparityVisualizationGrayscale); // Set grayscale as default
 
     buttonsLayout->addStretch();
 
@@ -241,7 +241,7 @@ void WindowStereoMethod::saveImage ()
         } else if (ext == "bin") {
             // Save raw disparity in custom binary matrix format
             try {
-                Pipeline::StereoPipeline::writeMatrixToBinaryFile(tmpDisparity, fileName);
+                Pipeline::Pipeline::writeMatrixToBinaryFile(tmpDisparity, fileName);
             } catch (QString e) {
                 qWarning() << "Failed to save binary file:" << e;
             }
@@ -297,10 +297,10 @@ void WindowStereoMethod::fillVisualizationMethods ()
         const char *text;
         const char *tooltip;
     } methods[] = {
-        { Pipeline::StereoPipeline::DisparityVisualizationNone, "None", "No visualization." },
-        { Pipeline::StereoPipeline::DisparityVisualizationGrayscale, "Grayscale", "Grayscale." },
-        { Pipeline::StereoPipeline::DisparityVisualizationColorCuda, "Color (CUDA)", "HSV color (CUDA)." },
-        { Pipeline::StereoPipeline::DisparityVisualizationColorCpu, "Color (CPU)", "HSV color (CPU)." },
+        { Pipeline::Pipeline::DisparityVisualizationNone, "None", "No visualization." },
+        { Pipeline::Pipeline::DisparityVisualizationGrayscale, "Grayscale", "Grayscale." },
+        { Pipeline::Pipeline::DisparityVisualizationColorCuda, "Color (CUDA)", "HSV color (CUDA)." },
+        { Pipeline::Pipeline::DisparityVisualizationColorCpu, "Color (CPU)", "HSV color (CPU)." },
     };
 
     const QList<int> &supportedMethods = pipeline->getSupportedDisparityVisualizationMethods();

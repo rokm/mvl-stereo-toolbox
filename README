@@ -1,6 +1,6 @@
 MVL Stereo Toolbox
 ~~~~~~~~~~~~~~~~~~
-(C) 2013 Rok Mandeljc <rok.mandeljc@fe.uni-lj.si>
+(C) 2013-2015 Rok Mandeljc <rok.mandeljc@fe.uni-lj.si>
 Machine Vision Laboratory
 University of Ljubljana, Faculty of Electrical Engineering
 
@@ -39,7 +39,7 @@ of a stereo pipeline. As such, main highlights are:
 MVL Stereo Toolbox has following dependencies:
 - C++ compiler and CMake
 - Qt 5
-- OpenCV (tested with 2.4.3, 2.4.5, 2.4.6 and 2.4.7)
+- OpenCV 3.0.0
 
 The above will build stereo pipeline model and toolbox GUI. In addition,
 stereo method plugins for all CPU-based methods provided in OpenCV are
@@ -51,8 +51,8 @@ dependencies:
 - unicap development libraries and headers for unicap image pair source (linux-only)
 - DC1394 development libraries and headers for dc1394 image pair source (linux-only)
 - libelas for Efficient LArge Scale stereo method plugin (linux-only)
-- OpenCV with GPU module for GPU-based stereo method plugins
-- CUDA (at least 5.0) in combination with OpenCV GPU module for modified GPU-based reprojection method
+- OpenCV with CUDA stereo module for CUDA-based stereo method plugins
+- CUDA (at least 5.0) in combination with OpenCV CUDA module for modified CUDA-based reprojection method
 
 To build the toolbox, use cmake; in unpacked source directory, issue:
 
@@ -79,13 +79,13 @@ CUDA architecture. However, this module is missing from some OpenCV
 installations (most notably, on my Fedora development box).
 
 The toolbox' cmake script will automatically detect presence or absence
-of OpenCV GPU module and accordingly enable/disable corresponding plugins.
+of OpenCV CUDA module and accordingly enable/disable corresponding plugins.
 
-In case you build GPU-enabled OpenCV yourself, you can override the version
+In case you build CUDA-enabled OpenCV yourself, you can override the version
 that toolbox is built against. To do so, use -DOpenCV_DIR switch when issuing
 cmake, e.g.:
 
-cmake -DOpenCV_DIR=/opt/opencv-2.4.6-gpu/share/OpenCV <the-rest-of-options>
+cmake -DOpenCV_DIR=/opt/opencv-3.0.0-gpu/share/OpenCV <the-rest-of-options>
 
 
 2.2 Installing libelas for ELAS stereo method plugin (linux-only):

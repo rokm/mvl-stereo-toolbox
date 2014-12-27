@@ -27,7 +27,7 @@ namespace MVL {
 namespace StereoToolbox {
 
 namespace Pipeline {
-class StereoPipeline;
+class Pipeline;
 class StereoMethod;
 } // Pipeline
 
@@ -41,7 +41,7 @@ class WindowStereoMethod : public QWidget
     Q_OBJECT
 
 public:
-    WindowStereoMethod (Pipeline::StereoPipeline *, QList<Pipeline::StereoMethod *> &, QWidget * = 0);
+    WindowStereoMethod (Pipeline::Pipeline *, QList<Pipeline::StereoMethod *> &, QWidget * = 0);
     virtual ~WindowStereoMethod ();
 
 protected slots:
@@ -65,7 +65,7 @@ protected:
 
 protected:
     // Pipeline
-    Pipeline::StereoPipeline *pipeline;
+    Pipeline::Pipeline *pipeline;
     QList<Pipeline::StereoMethod *> methods;
 
     // GUI

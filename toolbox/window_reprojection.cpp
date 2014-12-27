@@ -20,8 +20,8 @@
 #include "window_reprojection.h"
 #include "image_display_widget.h"
 
-#include <stereo_pipeline.h>
-#include <stereo_reprojection.h>
+#include <stereo-pipeline/pipeline.h>
+#include <stereo-pipeline/reprojection.h>
 
 #include <opencv2/imgcodecs.hpp>
 
@@ -31,7 +31,7 @@ namespace StereoToolbox {
 namespace GUI {
 
 
-WindowReprojection::WindowReprojection (Pipeline::StereoPipeline *p, Pipeline::StereoReprojection *r, QWidget *parent)
+WindowReprojection::WindowReprojection (Pipeline::Pipeline *p, Pipeline::Reprojection *r, QWidget *parent)
     : QWidget(parent, Qt::Window), pipeline(p), reprojection(r)
 {
     setWindowTitle("Reprojection");
@@ -184,10 +184,10 @@ void WindowReprojection::fillReprojectionMethods ()
         const char *text;
         const char *tooltip;
     } methods[] = {
-        { Pipeline::StereoReprojection::ReprojectionMethodToolboxCpu, "Toolbox CPU", "Toolbox-modified CPU method (handles ROI)." },
-        { Pipeline::StereoReprojection::ReprojectionMethodToolboxCuda, "Toolbox CUDA", "Toolbox-modified CUDA method (handles ROI)." },
-        { Pipeline::StereoReprojection::ReprojectionMethodOpenCvCpu, "OpenCV CPU", "Stock OpenCV CPU method." },
-        { Pipeline::StereoReprojection::ReprojectionMethodOpenCvCuda, "OpenCV CUDA", "Stock OpenCV CUDA method." },
+        { Pipeline::Reprojection::ReprojectionMethodToolboxCpu, "Toolbox CPU", "Toolbox-modified CPU method (handles ROI)." },
+        { Pipeline::Reprojection::ReprojectionMethodToolboxCuda, "Toolbox CUDA", "Toolbox-modified CUDA method (handles ROI)." },
+        { Pipeline::Reprojection::ReprojectionMethodOpenCvCpu, "OpenCV CPU", "Stock OpenCV CPU method." },
+        { Pipeline::Reprojection::ReprojectionMethodOpenCvCuda, "OpenCV CUDA", "Stock OpenCV CUDA method." },
     };
 
     const QList<int> &supportedMethods = reprojection->getSupportedReprojectionMethods();
@@ -256,7 +256,7 @@ void WindowReprojection::saveReprojectionResult ()
         } else {
             // Save reprojected points in custom binary matrix format
             try {
-                Pipeline::StereoPipeline::writeMatrixToBinaryFile(tmpReprojection, fileName);
+                Pipeline::Pipeline::writeMatrixToBinaryFile(tmpReprojection, fileName);
             } catch (QString e) {
                 qWarning() << "Failed to save binary file:" << e;
             }

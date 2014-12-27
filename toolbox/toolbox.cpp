@@ -19,13 +19,13 @@
 
 #include "toolbox.h"
 
-#include <image_pair_source.h>
-#include <plugin_factory.h>
-#include <plugin_manager.h>
-#include <stereo_method.h>
-#include <stereo_pipeline.h>
-#include <stereo_rectification.h>
-#include <stereo_reprojection.h>
+#include <stereo-pipeline/image_pair_source.h>
+#include <stereo-pipeline/pipeline.h>
+#include <stereo-pipeline/plugin_factory.h>
+#include <stereo-pipeline/plugin_manager.h>
+#include <stereo-pipeline/rectification.h>
+#include <stereo-pipeline/reprojection.h>
+#include <stereo-pipeline/stereo_method.h>
 
 #include "window_image_pair_source.h"
 #include "window_rectification.h"
@@ -49,7 +49,7 @@ Toolbox::Toolbox ()
     plugin_manager = new Pipeline::PluginManager(this);
 
     // Create pipeline
-    pipeline = new Pipeline::StereoPipeline(this);
+    pipeline = new Pipeline::Pipeline(this);
     pipeline->setUseStereoMethodThread(true);
 
     // If available, initialize first GPU
