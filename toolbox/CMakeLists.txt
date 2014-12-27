@@ -33,7 +33,11 @@ add_executable(MVLStereoToolbox ${toolbox_SOURCES} ${toolbox_HEADERS})
 
 qt5_use_modules(MVLStereoToolbox Widgets Concurrent)
 
-target_link_libraries(MVLStereoToolbox ${OpenCV_LIBS})
+target_link_libraries(MVLStereoToolbox opencv_core opencv_calib3d)
+if(OPENCV_CUDASTEREO_FOUND)
+    target_link_libraries(MVLStereoToolbox opencv_cudastereo)
+endif()
+
 target_link_libraries(MVLStereoToolbox mvl_stereo_pipeline)
 
 install(TARGETS MVLStereoToolbox DESTINATION ${CMAKE_INSTALL_BINDIR})

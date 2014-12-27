@@ -21,7 +21,6 @@
 #include "image_file_widget.h"
 
 #include <opencv2/imgcodecs.hpp>
-#include <opencv2/imgproc.hpp>
 
 
 namespace MVL {
@@ -128,11 +127,7 @@ void ImageFile::processRemoteReply (QNetworkReply *reply)
         // Set output image, and decode
         try {
             QWriteLocker locker(&frameBufferLock);
-            cv::imdecode(cv::Mat(1, payload.size(), CV_8UC1, payload.data()), -1, &frameBuffer);
-            if (frameBuffer.channels() == 4) {
-                // Strip alpha channel
-                cv::cvtColor(frameBuffer, frameBuffer, cv::COLOR_BGRA2BGR);
-            }
+            cv::imdecode(cv::Mat(1, payload.size(), CV_8UC1, payload.data()), cv::IMREAD_ANYCOLOR, &frameBuffer);
         } catch (std::exception e) {
             imageLoadingError(QString("Error while decoding retrieved image: %1").arg(QString::fromStdString(e.what())));
         }

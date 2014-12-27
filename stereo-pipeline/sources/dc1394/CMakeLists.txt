@@ -30,7 +30,8 @@ set(plugin_HEADERS
 
 add_library(${plugin_name} SHARED ${plugin_SOURCES} ${plugin_HEADERS})
 qt5_use_modules(${plugin_name} Widgets)
-target_link_libraries(${plugin_name} ${OpenCV_LIBS} ${DC1394_LIBRARIES})
+target_link_libraries(${plugin_name} ${DC1394_LIBRARIES})
+target_link_libraries(${plugin_name} opencv_core opencv_imgproc)
 set_target_properties(${plugin_name} PROPERTIES PREFIX "")
 
 install(TARGETS ${plugin_name} DESTINATION ${MVL_STEREO_PIPELINE_PLUGIN_DIR})

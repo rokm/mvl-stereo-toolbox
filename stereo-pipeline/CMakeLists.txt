@@ -58,7 +58,7 @@ endif()
 # *** Library ***
 add_library(mvl_stereo_pipeline SHARED ${pipeline_SOURCES} ${pipeline_HEADERS} ${pipeline_CUDA_SOURCES} ${pipeline_CUDA_OBJECTS})
 qt5_use_modules(mvl_stereo_pipeline Core Concurrent)
-target_link_libraries(mvl_stereo_pipeline ${OpenCV_LIBS})
+target_link_libraries(mvl_stereo_pipeline opencv_core)
 if(CUDA_FOUND)
     target_link_libraries(mvl_stereo_pipeline ${CUDA_CUDART_LIBRARY})
 endif()

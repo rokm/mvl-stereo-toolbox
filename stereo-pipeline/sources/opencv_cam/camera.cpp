@@ -20,8 +20,6 @@
 #include "camera.h"
 #include "camera_widget.h"
 
-#include <opencv2/imgproc.hpp>
-
 #define NUM_BUFFERS 32
 
 
