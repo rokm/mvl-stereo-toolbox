@@ -27,6 +27,24 @@ namespace Utils {
 
 
 // *********************************************************************
+// *                              Helpers                              *
+// *********************************************************************
+QString cvDepthToString (int depth)
+{
+    switch (depth) {
+        case CV_8U: return "CV_8U";
+        case CV_8S: return "CV_8S";
+        case CV_16U: return "CV_16U";
+        case CV_16S: return "CV_16S";
+        case CV_32S: return "CV_32S";
+        case CV_32F: return "CV_32F";
+        case CV_64F: return "CV_64F";
+        default: return "unk";
+    }
+}
+
+
+// *********************************************************************
 // *       Functions for dumping/loading matrix to a binary file       *
 // *********************************************************************
 static QDataStream &operator << (QDataStream &stream, const cv::Mat &matrix)

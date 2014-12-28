@@ -28,6 +28,8 @@ namespace MVL {
 namespace StereoToolbox {
 namespace Utils {
 
+// Helpers
+QString cvDepthToString (int);
 
 // Functions for dumping/loading matrix to a binary file
 void writeMatrixToBinaryFile (const cv::Mat &, const QString &, bool = true);
