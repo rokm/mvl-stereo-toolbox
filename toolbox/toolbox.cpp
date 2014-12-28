@@ -64,11 +64,20 @@ Toolbox::Toolbox ()
     // Load plugins
     loadPlugins();
 
-    // Create windows
+    // Create windows; set Qt::WA_QuitOnClose to false so that closing
+    // the main window will close the application (these windows are
+    // unparented!)
     windowImagePairSource = new WindowImagePairSource(pipeline, imagePairSources);
+    windowImagePairSource->setAttribute(Qt::WA_QuitOnClose, false);
+
     windowRectification = new WindowRectification(pipeline, pipeline->getRectification());
+    windowRectification->setAttribute(Qt::WA_QuitOnClose, false);
+
     windowStereoMethod = new WindowStereoMethod(pipeline, stereoMethods);
+    windowStereoMethod->setAttribute(Qt::WA_QuitOnClose, false);
+
     windowReprojection = new WindowReprojection(pipeline, pipeline->getReprojection());
+    windowReprojection->setAttribute(Qt::WA_QuitOnClose, false);
 
     // Create GUI
     createGui();
