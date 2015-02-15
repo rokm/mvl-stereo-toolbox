@@ -22,8 +22,7 @@
 #include <opencv2/opencv_modules.hpp>
 #include <opencv2/calib3d.hpp>
 
-#ifdef HAVE_OPENCV_CUDA
-#include <opencv2/cuda.hpp>
+#ifdef HAVE_OPENCV_CUDASTEREO
 #include <opencv2/cudastereo.hpp>
 #ifdef HAVE_CUDA
 #include <cuda_runtime.h>
@@ -41,7 +40,7 @@ namespace Pipeline {
 
 // Forward-declarations for toolbox-modified methods
 void reprojectDisparityImage (const cv::Mat &, cv::Mat &, const cv::Mat &, int, int);
-#ifdef HAVE_OPENCV_CUDA
+#ifdef HAVE_OPENCV_CUDASTEREO
 #ifdef HAVE_CUDA
 void reprojectDisparityImageCuda (const cv::cuda::PtrStepSz<unsigned char>, cv::cuda::PtrStepSz<float3>, const float *, unsigned short, unsigned short);
 #endif
