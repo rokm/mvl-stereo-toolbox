@@ -134,7 +134,7 @@ SourceWidget::SourceWidget (Source *s, QWidget *parent)
     layout->addWidget(line, 6, 0, 1, 3);
 
     // Video info
-    label = new QLabel("<b>Video info<b>", this);
+    label = new QLabel("<b>Video info</b>", this);
     layout->addWidget(label, 7, 0, 1, 3);
 
     labelVideoWidth = new QLabel(this);
