@@ -197,7 +197,7 @@ void Rectification::initializeRectification ()
     Q_D(Rectification);
 
     try {
-        cv::stereoRectify(d->M1, d->D1, d->M2, d->D2, d->imageSize, d->R, d->T, d->R1, d->R2, d->P1, d->P2, d->Q, cv::CALIB_ZERO_DISPARITY, 0, d->imageSize, &d->validRoi1, &d->validRoi2);
+        cv::stereoRectify(d->M1, d->D1, d->M2, d->D2, d->imageSize, d->R, d->T, d->R1, d->R2, d->P1, d->P2, d->Q, d->zeroDisparity ? cv::CALIB_ZERO_DISPARITY : 0, d->alpha, d->imageSize, &d->validRoi1, &d->validRoi2);
     } catch (...) {
         d->isValid = false;
         emit stateChanged(d->isValid);
@@ -275,6 +275,51 @@ const cv::Rect &Rectification::getRoi () const
 {
     Q_D(const Rectification);
     return d->roi;
+}
+
+
+// *********************************************************************
+// *                      Rectification parameters                     *
+// *********************************************************************
+void Rectification::setZeroDisparity (bool newValue)
+{
+    Q_D(Rectification);
+
+    if (newValue != d->zeroDisparity) {
+        d->zeroDisparity = newValue;
+
+        emit zeroDisparityChanged();
+
+        // Reinitialize rectification
+        initializeRectification();
+    }
+}
+
+bool Rectification::getZeroDisparity () const
+{
+    Q_D(const Rectification);
+    return d->zeroDisparity;
+}
+
+
+void Rectification::setAlpha (float newAlpha)
+{
+    Q_D(Rectification);
+
+    if (newAlpha != d->alpha) {
+        d->alpha = newAlpha;
+
+        emit alphaChanged();
+
+        // Reinitialize rectification
+        initializeRectification();
+    }
+}
+
+float Rectification::getAlpha () const
+{
+    Q_D(const Rectification);
+    return d->alpha;
 }
 
 

@@ -59,6 +59,12 @@ public:
     const cv::Rect &getRoi () const;
     void setRoi (const cv::Rect &);
 
+    float getAlpha () const;
+    void setAlpha (float);
+
+    bool getZeroDisparity () const;
+    void setZeroDisparity (bool);
+
     void rectifyImagePair (const cv::Mat &, const cv::Mat &, cv::Mat &, cv::Mat &) const;
 
     bool getState () const;
@@ -78,6 +84,8 @@ signals:
     void error (QString) const;
 
     void roiChanged ();
+    void zeroDisparityChanged ();
+    void alphaChanged ();
 };
 
 

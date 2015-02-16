@@ -38,6 +38,7 @@ namespace GUI {
 class CalibrationWizard;
 class ImagePairDisplayWidget;
 class RoiDialog;
+class RectificationSettingsDialog;
 
 class WindowRectification : public QWidget
 {
@@ -53,6 +54,7 @@ protected:
     void exportCalibration ();
     void clearCalibration ();
     void modifyRoi ();
+    void modifyRectificationSettings ();
 
     void saveImages ();
 
@@ -69,6 +71,7 @@ protected:
     QPushButton *pushButtonImport;
     QPushButton *pushButtonExport;
     QPushButton *pushButtonClear;
+    QPushButton *pushButtonRectificationSettings;
     QPushButton *pushButtonRoi;
     QPushButton *pushButtonSaveImages;
 
@@ -81,6 +84,9 @@ protected:
 
     // ROI dialog
     RoiDialog *dialogRoi;
+
+    // Rectification settings dialog
+    RectificationSettingsDialog *dialogSettings;
 
     // Wizard
     CalibrationWizard *wizard;
@@ -120,6 +126,25 @@ protected:
     QSpinBox *spinBoxH;
 
     cv::Size imageSize;
+};
+
+class RectificationSettingsDialog : public QDialog
+{
+    Q_OBJECT
+
+public:
+    RectificationSettingsDialog (QWidget * = 0);
+    virtual ~RectificationSettingsDialog();
+
+    void setAlpha (float);
+    float getAlpha () const;
+
+    void setZeroDisparity (bool);
+    bool getZeroDisparity () const;
+
+protected:
+    QDoubleSpinBox *spinBoxAlpha;
+    QCheckBox *checkBoxZeroDisparity;
 };
 
 

@@ -61,6 +61,10 @@ protected:
 
     // ROI
     cv::Rect roi;
+
+    // Rectification options
+    float alpha;
+    bool zeroDisparity;
 };
 
 
@@ -71,6 +75,9 @@ RectificationPrivate::RectificationPrivate (Rectification *rectification)
     performRectification = true;
 
     isVerticalStereo = false;
+
+    alpha = 0;
+    zeroDisparity = true;
 }
 
 

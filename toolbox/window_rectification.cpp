@@ -78,11 +78,18 @@ WindowRectification::WindowRectification (Pipeline::Pipeline *p, Pipeline::Recti
     // Spacer
     buttonsLayout->addItem(new QSpacerItem(100, 100, QSizePolicy::Expanding, QSizePolicy::Expanding), 0, 2, 2, 1);
 
+    // Rectification settings
+    pushButton = new QPushButton("Rectification settings");
+    pushButton->setToolTip("Set rectification settings.");
+    connect(pushButton, &QPushButton::clicked, this, &WindowRectification::modifyRectificationSettings);
+    buttonsLayout->addWidget(pushButton, 0, 3, 1, 1);
+    pushButtonRectificationSettings = pushButton;
+
     // ROI
     pushButton = new QPushButton("ROI");
     pushButton->setToolTip("Modify ROI on rectified images.");
     connect(pushButton, &QPushButton::clicked, this, &WindowRectification::modifyRoi);
-    buttonsLayout->addWidget(pushButton, 0, 3, 2, 1);
+    buttonsLayout->addWidget(pushButton, 1, 3, 1, 1);
     pushButtonRoi = pushButton;
 
     // Spacer
@@ -138,6 +145,9 @@ WindowRectification::WindowRectification (Pipeline::Pipeline *p, Pipeline::Recti
 
     // Roi dialog
     dialogRoi = new RoiDialog(this);
+
+    // Rectification settings dialog
+    dialogSettings = new RectificationSettingsDialog(this);
 
     // Rectification
     connect(rectification, &Pipeline::Rectification::stateChanged, this, &WindowRectification::updateState);
@@ -257,6 +267,19 @@ void WindowRectification::modifyRoi ()
     // Run dialog
     if (dialogRoi->exec() == QDialog::Accepted) {
         rectification->setRoi(dialogRoi->getRoi());
+    }
+}
+
+void WindowRectification::modifyRectificationSettings ()
+{
+    // Update dialog
+    dialogSettings->setAlpha(rectification->getAlpha());
+    dialogSettings->setZeroDisparity(rectification->getZeroDisparity());
+
+    // Run dialog
+    if (dialogSettings->exec() == QDialog::Accepted) {
+        rectification->setAlpha(dialogSettings->getAlpha());
+        rectification->setZeroDisparity(dialogSettings->getZeroDisparity());
     }
 }
 
@@ -506,6 +529,92 @@ cv::Rect RoiDialog::getRoi () const
     } else {
         return cv::Rect();
     }
+}
+
+
+// *********************************************************************
+// *                   Rectification settings dialog                   *
+// *********************************************************************
+RectificationSettingsDialog::RectificationSettingsDialog (QWidget *parent)
+    : QDialog(parent)
+{
+    QFormLayout *layout = new QFormLayout(this);
+
+    QLabel *label;
+    QCheckBox *checkBox;
+    QDoubleSpinBox *spinBox;
+    QFrame *line;
+
+    setWindowTitle("Rectification settings");
+
+    // Alpha
+    label = new QLabel("Alpha", this);
+    label->setToolTip("Free scaling parameter. Alpha=0 means that the rectified images are zoomed and shifted \n"
+                      "so that only valid pixels are visible (no black areas after rectification). Alpha=1 means \n"
+                      "that the rectified image is decimated and shifted so that all the pixels from the original \n"
+                      "images from the cameras are retained in the rectified images (no source image pixels are lost).\n"
+                      "If set to -1, default scaling is performed.");
+
+    spinBox = new QDoubleSpinBox(this);
+    spinBox->setKeyboardTracking(false);
+    spinBox->setRange(-1, 1);
+    spinBox->setDecimals(2);
+    spinBox->setSingleStep(0.10);
+    spinBoxAlpha = spinBox;
+
+    layout->addRow(label, spinBox);
+
+    // Separator
+    line = new QFrame(this);
+    line->setFrameStyle(QFrame::HLine | QFrame::Sunken);
+
+    layout->addRow(line);
+
+    // Zero disparity
+    checkBox = new QCheckBox("CALIB_ZERO_DISPARITY", this);
+    checkBox->setToolTip("If the flag is set, the function makes the principal points of each camera have the same pixel coordinates in the rectified views.");
+    //connect(checkBox, &QCheckBox::stateChanged, this, &RoiDialog::refreshDialog);
+    checkBoxZeroDisparity = checkBox;
+
+    layout->addRow(checkBox);
+
+    // Separator
+    line = new QFrame(this);
+    line->setFrameStyle(QFrame::HLine | QFrame::Sunken);
+
+    layout->addRow(line);
+
+    // Button box
+    QDialogButtonBox *buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, Qt::Horizontal, this);
+    layout->addRow(buttonBox);
+    connect(buttonBox, &QDialogButtonBox::accepted, this, &RoiDialog::accept);
+    connect(buttonBox, &QDialogButtonBox::rejected, this, &RoiDialog::reject);
+}
+
+RectificationSettingsDialog::~RectificationSettingsDialog ()
+{
+}
+
+
+void RectificationSettingsDialog::setAlpha (float alpha)
+{
+    spinBoxAlpha->setValue(alpha);
+}
+
+float RectificationSettingsDialog::getAlpha () const
+{
+    return spinBoxAlpha->value();
+}
+
+
+void RectificationSettingsDialog::setZeroDisparity (bool value)
+{
+    checkBoxZeroDisparity->setChecked(value);
+}
+
+bool RectificationSettingsDialog::getZeroDisparity () const
+{
+    return checkBoxZeroDisparity->isChecked();
 }
 
 
