@@ -58,7 +58,7 @@ Source::Source (QObject *parent)
     rightCamera = NULL;
 
     // Enumerate cameras
-    refreshCameraList();
+    //refreshCameraList();
 }
 
 Source::~Source ()
