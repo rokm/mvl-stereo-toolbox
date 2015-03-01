@@ -43,7 +43,7 @@ public:
     // These are actually signals, but they are not allowed in non-QObject classes
 public:
     virtual void imagesChanged () = 0;
-    virtual void error (const QString) = 0;
+    virtual void error (QString) = 0;
 };
 
 

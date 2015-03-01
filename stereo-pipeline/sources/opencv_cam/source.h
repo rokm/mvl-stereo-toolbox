@@ -74,7 +74,7 @@ signals:
 
     // Signals from interface
     void imagesChanged ();
-    void error (const QString);
+    void error (QString);
 
 protected:
     QVector<ocv_camera_id_t> entries;

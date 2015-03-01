@@ -77,7 +77,7 @@ signals:
 
     // Signals from interface
     void imagesChanged ();
-    void error (const QString);
+    void error (QString);
 
 protected:
     dc1394_t *fw;
