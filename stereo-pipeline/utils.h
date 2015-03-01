@@ -20,6 +20,8 @@
 #ifndef MVL_STEREO_TOOLBOX__PIPELINE__UTILS_H
 #define MVL_STEREO_TOOLBOX__PIPELINE__UTILS_H
 
+#include <stereo-pipeline/export.h>
+
 #include <QtCore>
 #include <opencv2/core.hpp>
 
@@ -29,14 +31,14 @@ namespace StereoToolbox {
 namespace Utils {
 
 // Helpers
-QString cvDepthToString (int);
+MVL_STEREO_PIPELINE_EXPORT QString cvDepthToString (int);
 
 // Functions for dumping/loading matrix to a binary file
-void writeMatrixToBinaryFile (const cv::Mat &, const QString &, bool = true);
+MVL_STEREO_PIPELINE_EXPORT void writeMatrixToBinaryFile (const cv::Mat &, const QString &, bool = true);
 
 // Additional visualization
-void createColorCodedDisparityCpu (const cv::Mat &, cv::Mat &, int);
-void createAnaglyph (const cv::Mat &, const cv::Mat &, cv::Mat &);
+MVL_STEREO_PIPELINE_EXPORT void createColorCodedDisparityCpu (const cv::Mat &, cv::Mat &, int);
+MVL_STEREO_PIPELINE_EXPORT void createAnaglyph (const cv::Mat &, const cv::Mat &, cv::Mat &);
 
 
 } // Utils
