@@ -432,6 +432,9 @@ float DisparityImageDisplayWidget::getDisparityAtPixel (const QPoint &pos)
             case CV_8U: {
                 return disparity.at<unsigned char>(y, x);
             }
+            case CV_16S: {
+                return disparity.at<short>(y, x);
+            }
             case CV_32F: {
                 return disparity.at<float>(y, x);
             }

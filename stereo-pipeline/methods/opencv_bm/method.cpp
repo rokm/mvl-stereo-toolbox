@@ -132,11 +132,9 @@ void Method::computeDisparityImage (const cv::Mat &img1, const cv::Mat &img2, cv
     bm->compute(tmpImg1, tmpImg2, tmpDisparity);
     locker.unlock();
 
-    // Normalize to output
+    // Normalize to output float format
     if (tmpDisparity.type() == CV_16SC1) {
-        tmpDisparity.convertTo(disparity, CV_8U, 1/16.0);
-    } else if (tmpDisparity.type() == CV_32FC1) {
-        tmpDisparity.convertTo(disparity, CV_8U);
+        tmpDisparity.convertTo(disparity, CV_32F, 1/16.0);
     }
 
     // Number of disparities

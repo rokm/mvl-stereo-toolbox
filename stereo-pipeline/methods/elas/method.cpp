@@ -124,11 +124,11 @@ void Method::computeDisparityImage (const cv::Mat &img1, const cv::Mat &img2, cv
     elas.process(tmpImg1.ptr<uint8_t>(), tmpImg2.ptr<uint8_t>(), tmpDisp1.ptr<float>(), tmpDisp2.ptr<float>(), dims);
     locker.unlock();
 
-    // Convert to output
+    // Copy corresponding output (already in float format)
     if (returnLeft) {
-        tmpDisp1.convertTo(disparity, CV_8U);
+        tmpDisp1.copyTo(disparity);
     } else {
-        tmpDisp2.convertTo(disparity, CV_8U);
+        tmpDisp2.copyTo(disparity);
     }
 
     // Number of disparities
