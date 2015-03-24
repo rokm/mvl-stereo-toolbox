@@ -62,6 +62,16 @@ static QDataStream &operator << (QDataStream &stream, const cv::Mat &matrix)
                     stream << entry;
                     break;
                 }
+                case CV_16SC1: {
+                    const short &entry = matrix.at<short>(y, x);
+                    stream << entry;
+                    break;
+                }
+                case CV_32FC1: {
+                    const float &entry = matrix.at<float>(y, x);
+                    stream << entry;
+                    break;
+                }
                 case CV_32FC3: {
                     const cv::Vec3f &entry = matrix.at<cv::Vec3f>(y, x);
                     stream << entry[0] << entry[1] << entry[2];
