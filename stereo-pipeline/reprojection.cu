@@ -29,7 +29,8 @@ namespace Pipeline {
 __constant__ float cq[16];
 __constant__ unsigned short off_x, off_y;
 
-__global__ void reproject_kernel (const cv::cuda::PtrStepSz<unsigned char> disparity, cv::cuda::PtrStepSz<float3> points)
+template <typename TYPE>
+__global__ void reproject_kernel (const cv::cuda::PtrStepSz<TYPE> disparity, cv::cuda::PtrStepSz<float3> points)
 {
     const int x = blockIdx.x * blockDim.x + threadIdx.x;
     const int y = blockIdx.y * blockDim.y + threadIdx.y;
@@ -43,7 +44,7 @@ __global__ void reproject_kernel (const cv::cuda::PtrStepSz<unsigned char> dispa
     const float qz = (x + off_x) * cq[ 8] + (y + off_y) * cq[ 9] + cq[11];
     const float qw = (x + off_x) * cq[12] + (y + off_y) * cq[13] + cq[15];
 
-    const unsigned char d = disparity(y, x);
+    const TYPE d = disparity(y, x);
 
     const float iW = 1.f / (qw + cq[14] * d);
 
@@ -55,8 +56,8 @@ __global__ void reproject_kernel (const cv::cuda::PtrStepSz<unsigned char> dispa
     points(y, x) = v;
 }
 
-
-void reprojectDisparityImageCuda (const cv::cuda::PtrStepSz<unsigned char> disparity, cv::cuda::PtrStepSz<float3> points, const float *q, unsigned short offsetX, unsigned short offsetY)
+template <typename TYPE>
+void reprojectDisparityImageCuda (const cv::cuda::PtrStepSzb disparity, cv::cuda::PtrStepSz<float3> points, const float *q, unsigned short offsetX, unsigned short offsetY)
 {
     dim3 block(32, 8);
     dim3 grid(cv::cudev::divUp(disparity.cols, block.x), cv::cudev::divUp(disparity.rows, block.y));
@@ -65,10 +66,14 @@ void reprojectDisparityImageCuda (const cv::cuda::PtrStepSz<unsigned char> dispa
     cudaSafeCall(cudaMemcpyToSymbol(off_x, &offsetX, sizeof(offsetX)));
     cudaSafeCall(cudaMemcpyToSymbol(off_y, &offsetY, sizeof(offsetY)));
 
-    reproject_kernel<<<grid, block, 0>>>(disparity, points);
+    reproject_kernel<TYPE><<<grid, block, 0>>>((cv::cuda::PtrStepSz<TYPE>)disparity, points);
     cudaSafeCall(cudaGetLastError());
 }
 
+template void reprojectDisparityImageCuda<unsigned char> (const cv::cuda::PtrStepSzb disparity, cv::cuda::PtrStepSz<float3> points, const float *q, unsigned short offsetX, unsigned short offsetY);
+template void reprojectDisparityImageCuda<short> (const cv::cuda::PtrStepSzb disparity, cv::cuda::PtrStepSz<float3> points, const float *q, unsigned short offsetX, unsigned short offsetY);
+template void reprojectDisparityImageCuda<int> (const cv::cuda::PtrStepSzb disparity, cv::cuda::PtrStepSz<float3> points, const float *q, unsigned short offsetX, unsigned short offsetY);
+template void reprojectDisparityImageCuda<float> (const cv::cuda::PtrStepSzb disparity, cv::cuda::PtrStepSz<float3> points, const float *q, unsigned short offsetX, unsigned short offsetY);
 
 } // Pipeline
 } // StereoToolbox

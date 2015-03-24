@@ -40,9 +40,10 @@ namespace Pipeline {
 
 // Forward-declarations for toolbox-modified methods
 void reprojectDisparityImage (const cv::Mat &, cv::Mat &, const cv::Mat &, int, int);
+
 #ifdef HAVE_OPENCV_CUDASTEREO
 #ifdef HAVE_CUDA
-void reprojectDisparityImageCuda (const cv::cuda::PtrStepSz<unsigned char>, cv::cuda::PtrStepSz<float3>, const float *, unsigned short, unsigned short);
+template <typename TYPE> void reprojectDisparityImageCuda (const cv::cuda::PtrStepSzb, cv::cuda::PtrStepSz<float3>, const float *, unsigned short, unsigned short);
 #endif
 #endif
 
@@ -161,7 +162,27 @@ void Reprojection::reprojectStereoDisparity (const cv::Mat &disparity, cv::Mat &
             cv::cuda::GpuMat gpu_disparity, gpu_points;
             gpu_disparity.upload(disparity);
             gpu_points.create(disparity.size(), CV_32FC3);
-            reprojectDisparityImageCuda(gpu_disparity, gpu_points, d->Q.ptr<float>(), offsetX, offsetY);
+            switch (disparity.type()) {
+                case CV_8UC1: {
+                    reprojectDisparityImageCuda<unsigned char>(gpu_disparity, gpu_points, d->Q.ptr<float>(), offsetX, offsetY);
+                    break;
+                }
+                case CV_16SC1: {
+                    reprojectDisparityImageCuda<short>(gpu_disparity, gpu_points, d->Q.ptr<float>(), offsetX, offsetY);
+                    break;
+                }
+                case CV_32SC1: {
+                    reprojectDisparityImageCuda<int>(gpu_disparity, gpu_points, d->Q.ptr<float>(), offsetX, offsetY);
+                    break;
+                }
+                case CV_32FC1: {
+                    reprojectDisparityImageCuda<float>(gpu_disparity, gpu_points, d->Q.ptr<float>(), offsetX, offsetY);
+                    break;
+                }
+                default: {
+                    throw QString("Unhandled disparity format %1!").arg(disparity.type());
+                }
+            }
             gpu_points.download(points);
             break;
         }
