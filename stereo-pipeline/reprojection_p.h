@@ -49,15 +49,13 @@ ReprojectionPrivate::ReprojectionPrivate (Reprojection *reprojection)
     // Create list of supported methods
     supportedMethods.append(Reprojection::MethodToolboxCpu);
     supportedMethods.append(Reprojection::MethodOpenCvCpu);
-#ifdef HAVE_OPENCV_CUDA
+#ifdef HAVE_OPENCV_CUDASTEREO
     try {
         if (cv::cuda::getCudaEnabledDeviceCount()) {
 #ifdef HAVE_CUDA
             supportedMethods.append(Reprojection::MethodToolboxCuda);
 #endif
-#ifdef HAVE_OPENCV_CUDASTEREO
             supportedMethods.append(Reprojection::MethodOpenCvCuda);
-#endif
         }
     } catch (...) {
         // Nothing to do :)
