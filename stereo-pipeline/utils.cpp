@@ -67,6 +67,11 @@ static QDataStream &operator << (QDataStream &stream, const cv::Mat &matrix)
                     stream << entry;
                     break;
                 }
+                case CV_32SC1: {
+                    const int &entry = matrix.at<int>(y, x);
+                    stream << entry;
+                    break;
+                }
                 case CV_32FC1: {
                     const float &entry = matrix.at<float>(y, x);
                     stream << entry;
@@ -127,13 +132,14 @@ void writeMatrixToBinaryFile (const cv::Mat &matrix, const QString &fileName, bo
 // *********************************************************************
 // *                 Additional visualization functions                *
 // *********************************************************************
-void createColorCodedDisparityCpu (const cv::Mat &disparity, cv::Mat &image, int numLevels)
+template <typename TYPE>
+void __createColorCodedDisparityCpu (const cv::Mat &disparity, cv::Mat &image, int numLevels)
 {
     image.create(disparity.rows, disparity.cols, CV_8UC3);
 
     for (int i = 0; i < disparity.rows; i++) {
         for (int j = 0; j < disparity.cols; j++) {
-            unsigned char d = disparity.at<unsigned char>(i, j);
+            short d = disparity.at<TYPE>(i, j);
 
             unsigned int H = ((numLevels - d) * 240)/numLevels;
             const float S = 1;
@@ -197,6 +203,27 @@ void createColorCodedDisparityCpu (const cv::Mat &disparity, cv::Mat &image, int
             unsigned char r = (unsigned char)(std::max(0.0f, std::min(z, 1.0f)) * 255.f);
 
             image.at<cv::Vec3b>(i, j) = cv::Vec3b(b, g, r);
+        }
+    }
+}
+
+void createColorCodedDisparityCpu (const cv::Mat &disparity, cv::Mat &image, int numLevels)
+{
+    switch (disparity.type()) {
+        case CV_8UC1: {
+            return __createColorCodedDisparityCpu<unsigned char>(disparity, image, numLevels);
+        }
+        case CV_16SC1: {
+            return __createColorCodedDisparityCpu<short>(disparity, image, numLevels);
+        }
+        case CV_32SC1: {
+            return __createColorCodedDisparityCpu<int>(disparity, image, numLevels);
+        }
+        case CV_32FC1: {
+            return __createColorCodedDisparityCpu<float>(disparity, image, numLevels);
+        }
+        default: {
+            throw QString("Unhandled disparity format %1!").arg(disparity.type());
         }
     }
 }
