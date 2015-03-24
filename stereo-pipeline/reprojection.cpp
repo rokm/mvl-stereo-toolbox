@@ -126,7 +126,7 @@ const cv::Mat &Reprojection::getReprojectionMatrix () const
 // *********************************************************************
 // *                           Reprojection                            *
 // *********************************************************************
-void Reprojection::reprojectStereoDisparity (const cv::Mat &disparity, cv::Mat &points, int offsetX, int offsetY) const
+void Reprojection::reprojectStereoDisparity (const cv::Mat &disparity_, cv::Mat &points, int offsetX, int offsetY) const
 {
     Q_D(const Reprojection);
 
@@ -136,6 +136,10 @@ void Reprojection::reprojectStereoDisparity (const cv::Mat &disparity, cv::Mat &
         return;
     }
 
+    // Filter out negative disparities before reprojection
+    cv::Mat disparity = max(disparity_, 0);
+
+    // Choose reprojection method
     switch (d->reprojectionMethod) {
         case MethodToolboxCpu: {
             // Toolbox-modified method; handles ROI offset
