@@ -181,7 +181,8 @@ void Reprojection::reprojectStereoDisparity (const cv::Mat &disparity, cv::Mat &
 // We use modified versions of OpenCV reprojectImageTo3D functions; the
 // original ones do not support setting x and y coordinate offset, which
 // we need to properly support ROIs.
-void reprojectDisparityImage (const cv::Mat &disparity, cv::Mat &points, const cv::Mat &Q, int offsetX, int offsetY)
+template <typename TYPE>
+void __reprojectDisparityImage (const cv::Mat &disparity, cv::Mat &points, const cv::Mat &Q, int offsetX, int offsetY)
 {
     points.create(disparity.size(), CV_32FC3);
 
@@ -193,7 +194,7 @@ void reprojectDisparityImage (const cv::Mat &disparity, cv::Mat &points, const c
 
     // Go over all
     for (int yi = 0; yi < disparity.rows; yi++) {
-        const unsigned char *disp_ptr = disparity.ptr<unsigned char>(yi);
+        const TYPE *disp_ptr = disparity.ptr<TYPE>(yi);
         cv::Vec3f *point_ptr = points.ptr<cv::Vec3f>(yi);
 
         int y = yi + offsetY;
@@ -213,6 +214,27 @@ void reprojectDisparityImage (const cv::Mat &disparity, cv::Mat &points, const c
             point_ptr[xi][0] = (q[0][0]*x + qx + q[0][2]*d)*iw;
             point_ptr[xi][1] = (q[1][0]*x + qy + q[1][2]*d)*iw;
             point_ptr[xi][2] = (q[2][0]*x + qz + q[2][2]*d)*iw;
+        }
+    }
+}
+
+void reprojectDisparityImage (const cv::Mat &disparity, cv::Mat &points, const cv::Mat &Q, int offsetX, int offsetY)
+{
+    switch (disparity.type()) {
+        case CV_8UC1: {
+            return __reprojectDisparityImage<unsigned char>(disparity, points, Q, offsetX, offsetY);
+        }
+        case CV_16SC1: {
+            return __reprojectDisparityImage<short>(disparity, points, Q, offsetX, offsetY);
+        }
+        case CV_32SC1: {
+            return __reprojectDisparityImage<int>(disparity, points, Q, offsetX, offsetY);
+        }
+        case CV_32FC1: {
+            return __reprojectDisparityImage<float>(disparity, points, Q, offsetX, offsetY);
+        }
+        default: {
+            throw QString("Unhandled disparity format %1!").arg(disparity.type());
         }
     }
 }
