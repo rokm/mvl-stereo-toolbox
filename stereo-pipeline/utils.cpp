@@ -139,7 +139,7 @@ void __createColorCodedDisparityCpu (const cv::Mat &disparity, cv::Mat &image, i
 
     for (int i = 0; i < disparity.rows; i++) {
         for (int j = 0; j < disparity.cols; j++) {
-            short d = disparity.at<TYPE>(i, j);
+            TYPE d = disparity.at<TYPE>(i, j);
 
             unsigned int H = ((numLevels - d) * 240)/numLevels;
             const float S = 1;
