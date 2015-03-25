@@ -103,8 +103,9 @@ void Method::computeDisparityImage (const cv::Mat &img1, const cv::Mat &img2, cv
     bm->compute(gpu_img1, gpu_img2, gpu_disp);
     locker.unlock();
 
-    // Download
-    gpu_disp.download(disparity);
+    // Download and convert
+    gpu_disp.download(tmpDisparity);
+    tmpDisparity.convertTo(disparity, CV_32F);
 
     // Number of disparities
     numDisparities = getNumDisparities();

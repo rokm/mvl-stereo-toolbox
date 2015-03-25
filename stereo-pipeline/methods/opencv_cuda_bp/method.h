@@ -87,9 +87,9 @@ protected:
     cv::Ptr<cv::cuda::StereoBeliefPropagation> bp;
     QMutex mutex;
 
-    cv::Mat tmpDisp;
-
     int imageWidth, imageHeight;
+
+    cv::Mat tmpDisparity;
 };
 
 

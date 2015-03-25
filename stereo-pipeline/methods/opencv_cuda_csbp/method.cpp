@@ -122,7 +122,9 @@ void Method::computeDisparityImage (const cv::Mat &img1, const cv::Mat &img2, cv
     }
 
     // Download and return
-    gpu_disp.download(disparity);
+    gpu_disp.download(tmpDisparity);
+    tmpDisparity.convertTo(disparity, CV_32FC1);
+
     numDisparities = getNumDisparities();
 }
 

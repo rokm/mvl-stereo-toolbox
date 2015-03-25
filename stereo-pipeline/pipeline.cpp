@@ -451,7 +451,7 @@ void Pipeline::computeDisparityImageInThread ()
         try {
             QTime timer; timer.start();
             // Make sure disparity image is of correct size
-            d->disparityImage.create(d->rectifiedImageL.rows, d->rectifiedImageL.cols, CV_8UC1);
+            d->disparityImage.create(d->rectifiedImageL.rows, d->rectifiedImageL.cols, CV_32FC1);
 
             // Compute disparity
             d->stereoMethod->computeDisparityImage(d->rectifiedImageL, d->rectifiedImageR, d->disparityImage, d->disparityLevels);

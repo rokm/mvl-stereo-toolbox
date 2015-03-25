@@ -93,8 +93,9 @@ protected:
     cv::Ptr<cv::cuda::StereoConstantSpaceBP> bp;
     QMutex mutex;
 
-    cv::Mat tmpDisp;
     int imageWidth, imageHeight;
+
+    cv::Mat tmpDisparity;
 };
 
 

@@ -74,6 +74,7 @@ protected:
     QMutex mutex;
 
     cv::Mat tmpImg1, tmpImg2;
+    cv::Mat tmpDisparity;
 };
 
 

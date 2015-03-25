@@ -116,12 +116,22 @@ void Method::computeDisparityImage (const cv::Mat &img1, const cv::Mat &img2, cv
     imageChannels = img1.channels();
 
     // Compute disparity image
+    tmpDisparity.create(img1.rows, img1.cols, CV_16SC1);
+
     QMutexLocker locker(&mutex);
     sgbm->compute(img1, img2, tmpDisparity);
     locker.unlock();
 
     // Normalize to output float format
-    tmpDisparity.convertTo(disparity, CV_32FC1, 1/16.0);
+    switch (tmpDisparity.type()) {
+        case CV_16SC1: {
+            tmpDisparity.convertTo(disparity, CV_32F, 1/16.0);
+            break;
+        }
+        default: {
+            tmpDisparity.convertTo(disparity, CV_32F);
+        }
+    }
 
     // Number of disparities
     numDisparities = getNumDisparities();
