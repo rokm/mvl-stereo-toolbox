@@ -1,4 +1,9 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 2.8.11)
+
+if(POLICY CMP0048)
+    cmake_policy(SET CMP0048 OLD)
+endif()
+
 project(MVLStereoToolbox CXX)
 set(PROJECT_VERSION 2.0.0)
 

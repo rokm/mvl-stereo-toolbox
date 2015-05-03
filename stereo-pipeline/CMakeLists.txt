@@ -1,4 +1,9 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 2.8.11)
+
+if(POLICY CMP0048)
+    cmake_policy(SET CMP0048 OLD)
+endif()
+
 project(libmvl_stereo_pipeline CXX)
 
 include(GenerateExportHeader)
@@ -8,6 +13,7 @@ set(CMAKE_AUTOMOC TRUE)
 find_package(PkgConfig QUIET)
 find_package(OpenCV 3.0.0 REQUIRED)
 find_package(Qt5Core REQUIRED)
+find_package(Qt5Concurrent REQUIRED)
 
 find_package(CUDA 5.0)
 
@@ -57,7 +63,7 @@ endif()
 
 # *** Library ***
 add_library(mvl_stereo_pipeline SHARED ${pipeline_SOURCES} ${pipeline_HEADERS} ${pipeline_CUDA_SOURCES} ${pipeline_CUDA_OBJECTS})
-qt5_use_modules(mvl_stereo_pipeline Core Concurrent)
+target_link_libraries(mvl_stereo_pipeline Qt5::Core Qt5::Concurrent)
 target_link_libraries(mvl_stereo_pipeline opencv_core opencv_calib3d)
 if(CUDA_FOUND)
     target_link_libraries(mvl_stereo_pipeline ${CUDA_LIBRARIES})

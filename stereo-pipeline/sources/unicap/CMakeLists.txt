@@ -1,9 +1,14 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 2.8.11)
+
+if(POLICY CMP0048)
+    cmake_policy(SET CMP0048 OLD)
+endif()
+
 project(source_unicap CXX)
 
 find_package(PkgConfig REQUIRED)
 find_package(OpenCV 3.0.0 REQUIRED core)
-find_package(Qt5Core REQUIRED)
+find_package(Qt5Widgets REQUIRED)
 
 pkg_check_modules(UNICAP REQUIRED libunicap)
 include_directories(${UNICAP_INCLUDE_DIRS})
@@ -29,7 +34,7 @@ set(plugin_HEADERS
 )
 
 add_library(${plugin_name} SHARED ${plugin_SOURCES} ${plugin_HEADERS})
-qt5_use_modules(${plugin_name} Widgets)
+target_link_libraries(${plugin_name} Qt5::Widgets)
 target_link_libraries(${plugin_name} ${UNICAP_LIBRARIES})
 target_link_libraries(${plugin_name} opencv_core)
 set_target_properties(${plugin_name} PROPERTIES PREFIX "")

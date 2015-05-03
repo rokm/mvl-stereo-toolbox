@@ -1,10 +1,16 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 2.8.11)
+
+if(POLICY CMP0048)
+    cmake_policy(SET CMP0048 OLD)
+endif()
+
 project(toolbox CXX)
 
 set(CMAKE_AUTOMOC TRUE)
 
 find_package(OpenCV 3.0.0 REQUIRED)
-find_package(Qt5Core REQUIRED)
+find_package(Qt5Widgets REQUIRED)
+find_package(Qt5Concurrent REQUIRED)
 
 include_directories(${OpenCV_INCLUDE_DIRS})
 
@@ -31,7 +37,7 @@ set(toolbox_HEADERS
 
 add_executable(MVLStereoToolbox ${toolbox_SOURCES} ${toolbox_HEADERS})
 
-qt5_use_modules(MVLStereoToolbox Widgets Concurrent)
+target_link_libraries(MVLStereoToolbox Qt5::Widgets Qt5::Concurrent)
 
 target_link_libraries(MVLStereoToolbox opencv_core opencv_calib3d)
 if(OPENCV_CUDASTEREO_FOUND)

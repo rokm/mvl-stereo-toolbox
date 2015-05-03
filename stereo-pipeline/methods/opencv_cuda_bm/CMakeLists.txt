@@ -1,8 +1,13 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 2.8.11)
+
+if(POLICY CMP0048)
+    cmake_policy(SET CMP0048 OLD)
+endif()
+
 project(method_opencv_cuda_bm CXX)
 
 find_package(OpenCV 3.0.0 REQUIRED core cudastereo imgproc)
-find_package(Qt5Core REQUIRED)
+find_package(Qt5Widgets REQUIRED)
 
 set(plugin_name ${PROJECT_NAME})
 
@@ -18,7 +23,7 @@ set(plugin_HEADERS
 )
 
 add_library(${plugin_name} SHARED ${plugin_SOURCES} ${plugin_HEADERS})
-qt5_use_modules(${plugin_name} Widgets)
+target_link_libraries(${plugin_name} Qt5::Widgets)
 target_link_libraries(${plugin_name} opencv_core opencv_cudastereo opencv_imgproc)
 set_target_properties(${plugin_name} PROPERTIES PREFIX "")
 
