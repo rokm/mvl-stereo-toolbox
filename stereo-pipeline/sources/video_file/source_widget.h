@@ -53,6 +53,8 @@ protected:
     QLineEdit *lineEditVideoFile;
     QPushButton *pushButtonOpen;
 
+    QWidget *widgetVideo;
+
     QLabel *labelVideoWidth;
     QLabel *labelVideoHeight;
     QLabel *labelVideoFps;

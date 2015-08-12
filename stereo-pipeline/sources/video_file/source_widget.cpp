@@ -37,6 +37,7 @@ SourceWidget::SourceWidget (Source *s, QWidget *parent)
     QPushButton *button;
     QLineEdit *lineEdit;
     QFrame *line;
+    QHBoxLayout *hbox;
     QString tooltip;
 
     // Name
@@ -58,25 +59,30 @@ SourceWidget::SourceWidget (Source *s, QWidget *parent)
 
     baseLayout->addWidget(scrollArea);
 
-    QGridLayout *layout = new QGridLayout(scrollArea->widget());
+    QVBoxLayout *layout = new QVBoxLayout(scrollArea->widget());
 
     // Video file
+    hbox = new QHBoxLayout();
+
     tooltip = "Video file path or URL.";
 
     label = new QLabel("Video file: ", this);
     label->setToolTip(tooltip);
 
-    layout->addWidget(label, 0, 0, 1, 1);
+    hbox->addWidget(label);
 
     lineEdit = new QLineEdit(this);
     lineEditVideoFile = lineEdit;
 
-    layout->addWidget(lineEdit, 0, 1, 1, 1);
+    hbox->addWidget(lineEdit);
 
     button = new QPushButton("Browse");
     connect(button, &QPushButton::clicked, this, &SourceWidget::browseForVideoFile);
 
-    layout->addWidget(button, 0, 2, 1, 1);
+    hbox->addWidget(button);
+    hbox->setContentsMargins(0, 0, 0, 0);
+
+    layout->addLayout(hbox);
 
     // Open
     tooltip = "Open video file.";
@@ -86,14 +92,26 @@ SourceWidget::SourceWidget (Source *s, QWidget *parent)
     connect(button, &QPushButton::clicked, this, &SourceWidget::openVideoFile);
     pushButtonOpen = button;
 
-    layout->addWidget(button, 1, 0, 1, 3);
+    layout->addWidget(button);
 
+
+    // Video playback/info widget and layout
+    widgetVideo = new QWidget();
+    layout->addWidget(widgetVideo);
+
+    // Spacer
+    layout->addStretch();
+
+
+    // *** Setup the playback/info widget and layout ***
+    QVBoxLayout *layoutVideo = new QVBoxLayout(widgetVideo);
+    layoutVideo->setContentsMargins(0, 0, 0, 0);
 
     // Separator
     line = new QFrame(this);
     line->setFrameStyle(QFrame::HLine | QFrame::Sunken);
 
-    layout->addWidget(line, 2, 0, 1, 3);
+    layoutVideo->addWidget(line);
 
     // Playback
     tooltip = "Start/pause playback.";
@@ -111,18 +129,19 @@ SourceWidget::SourceWidget (Source *s, QWidget *parent)
     connect(source, &Source::playbackStateChanged, button, &QPushButton::setChecked);
     pushButtonPlayPause = button;
 
-    layout->addWidget(button, 3, 0, 1, 3);
+    layoutVideo->addWidget(button);
 
     // Position label
-    labelVideoPosition = new QLabel(this);
+    labelVideoPosition = new QLabel("Position: ", this);
     labelVideoPosition->setAlignment(Qt::AlignHCenter);
-    layout->addWidget(labelVideoPosition, 4, 0, 1, 3);
+    layoutVideo->addWidget(labelVideoPosition);
 
     // Position slider
     sliderPosition = new QSlider(Qt::Horizontal, this);
     sliderPosition->setSingleStep(1);
     sliderPosition->setPageStep(100);
-    layout->addWidget(sliderPosition, 5, 0, 1, 3);
+    sliderPosition->setTracking(false);
+    layoutVideo->addWidget(sliderPosition);
     connect(sliderPosition, &QSlider::valueChanged, source, [this] (int value) {
         source->setVideoPosition(value - 1);
     });
@@ -131,26 +150,23 @@ SourceWidget::SourceWidget (Source *s, QWidget *parent)
     line = new QFrame(this);
     line->setFrameStyle(QFrame::HLine | QFrame::Sunken);
 
-    layout->addWidget(line, 6, 0, 1, 3);
+    layoutVideo->addWidget(line);
 
     // Video info
     label = new QLabel("<b>Video info</b>", this);
-    layout->addWidget(label, 7, 0, 1, 3);
+    layoutVideo->addWidget(label);
 
     labelVideoWidth = new QLabel(this);
-    layout->addWidget(labelVideoWidth, 8, 0, 1, 3);
+    layoutVideo->addWidget(labelVideoWidth);
 
     labelVideoHeight = new QLabel(this);
-    layout->addWidget(labelVideoHeight, 9, 0, 1, 3);
+    layoutVideo->addWidget(labelVideoHeight);
 
     labelVideoFps = new QLabel(this);
-    layout->addWidget(labelVideoFps, 10, 0, 1, 3);
+    layoutVideo->addWidget(labelVideoFps);
 
     labelVideoLength = new QLabel(this);
-    layout->addWidget(labelVideoLength, 11, 0, 1, 3);
-
-    // Spacer
-    layout->addItem(new QSpacerItem(100, 100, QSizePolicy::Expanding, QSizePolicy::Expanding), 12, 0, 1, 3);
+    layoutVideo->addWidget(labelVideoLength);
 
     // Init
     connect(source, &Source::videoFileReadyChanged, this, &SourceWidget::videoFileReadyChanged);
@@ -198,6 +214,8 @@ void SourceWidget::videoFileReadyChanged (bool available)
     float fps = 0.0f;
 
     if (available) {
+        widgetVideo->show();
+
         width = source->getVideoWidth();
         height = source->getVideoHeight();
         fps = source->getVideoFps();
@@ -210,6 +228,8 @@ void SourceWidget::videoFileReadyChanged (bool available)
 
         labelVideoPosition->setText(QString("Position: %1/%2").arg(0).arg(length));
     } else {
+        widgetVideo->hide();
+
         labelVideoWidth->setText("Width: N/A");
         labelVideoHeight->setText("Height: N/A");
         labelVideoFps->setText("FPS: N/A");
