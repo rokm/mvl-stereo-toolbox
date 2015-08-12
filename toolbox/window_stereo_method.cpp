@@ -243,21 +243,21 @@ void WindowStereoMethod::saveImage ()
             try {
                 cv::FileStorage fs(fileName.toStdString(), cv::FileStorage::WRITE);
                 fs << "disparity" << tmpDisparity;
-            } catch (cv::Exception e) {
+            } catch (cv::Exception &e) {
                 qWarning() << "Failed to save matrix:" << QString::fromStdString(e.what());
             }
         } else if (ext == "bin") {
             // Save raw disparity in custom binary matrix format
             try {
                 Utils::writeMatrixToBinaryFile(tmpDisparity, fileName);
-            } catch (QString e) {
+            } catch (QString &e) {
                 qWarning() << "Failed to save binary file:" << e;
             }
         } else {
             // Save disparity visualization as image using cv::imwrite
             try {
                 cv::imwrite(fileName.toStdString(), tmpDisparityVisualization);
-            } catch (cv::Exception e) {
+            } catch (cv::Exception &e) {
                 qWarning() << "Failed to save image:" << QString::fromStdString(e.what());
             }
         }
@@ -276,7 +276,7 @@ void WindowStereoMethod::importParameters ()
     if (!fileName.isNull()) {
         try {
             pipeline->getStereoMethod()->loadParameters(fileName);
-        } catch (QString e) {
+        } catch (QString &e) {
             QMessageBox::warning(this, "Error", "Failed to import parameters: " + e);
         }
     }
@@ -288,7 +288,7 @@ void WindowStereoMethod::exportParameters ()
     if (!fileName.isNull()) {
         try {
             pipeline->getStereoMethod()->saveParameters(fileName);
-        } catch (QString e) {
+        } catch (QString &e) {
             QMessageBox::warning(this, "Error", "Failed to export parameters: " + e);
         }
     }

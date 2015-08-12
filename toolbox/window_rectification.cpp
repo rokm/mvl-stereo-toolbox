@@ -228,7 +228,7 @@ void WindowRectification::importCalibration ()
         lastCalibrationFilename = fileName; // Store filename
         try {
             rectification->loadStereoCalibration(fileName);
-        } catch (QString e) {
+        } catch (QString &e) {
             QMessageBox::warning(this, "Error", "Failed to import calibration: " + e);
         }
     }
@@ -248,7 +248,7 @@ void WindowRectification::exportCalibration ()
 
         try {
             rectification->saveStereoCalibration(fileName);
-        } catch (QString e) {
+        } catch (QString &e) {
             QMessageBox::warning(this, "Error", "Failed to export calibration: " + e);
         }
     }
@@ -329,7 +329,7 @@ void WindowRectification::saveImages ()
         try {
             cv::imwrite(fileNameLeft.toStdString(), tmpImg1);
             cv::imwrite(fileNameRight.toStdString(), tmpImg2);
-        } catch (cv::Exception e) {
+        } catch (cv::Exception &e) {
             QMessageBox::warning(this, "Error", "Failed to save rectified image pair: " + QString::fromStdString(e.what()));
         }
     } else if (visualizationType == VisualizationAnaglyph) {
@@ -340,7 +340,7 @@ void WindowRectification::saveImages ()
 
         try {
             cv::imwrite(fileNameAnaglyph.toStdString(), tmpAnaglyph);
-        } catch (cv::Exception e) {
+        } catch (cv::Exception &e) {
             QMessageBox::warning(this, "Error", "Failed to save anaglyph: " + QString::fromStdString(e.what()));
         }
     }

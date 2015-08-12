@@ -930,7 +930,7 @@ void CalibrationWizardPageDetection::processImage ()
         cv::Mat image;
         try {
             image = cv::imread(images[imageCounter].toStdString());
-        } catch (cv::Exception e) {
+        } catch (cv::Exception &e) {
             QMessageBox::warning(this, "Image load", "Failed to load image: " + QString::fromStdString(e.what()));
 
             displayImage->setText("Failed to load image!");
@@ -1765,7 +1765,7 @@ bool CalibrationWizardPageCalibration::calibrationFunction ()
 
     try {
         calibrationRMSE = cv::calibrateCamera(worldPoints, imagePoints, imageSize, cameraMatrix, distCoeffs, cv::noArray(), cv::noArray(), flags);
-    } catch (cv::Exception e) {
+    } catch (cv::Exception &e) {
         emit error("Calibration failed: " + QString::fromStdString(e.what()));
         return false;
     }
@@ -2032,7 +2032,7 @@ bool CalibrationWizardPageStereoCalibration::calibrationFunction ()
                                               imageSize, R, T, E, F,
                                               flags,
                                               cv::TermCriteria(cv::TermCriteria::COUNT + cv::TermCriteria::EPS, 100, 1e-6));
-    } catch (cv::Exception e) {
+    } catch (cv::Exception &e) {
         emit error("Calibration failed: " + QString::fromStdString(e.what()));
         return false;
     }
@@ -2326,7 +2326,7 @@ void CalibrationWizardPageStereoResult::exportCalibration ()
                 field(fieldPrefix + "T").value<cv::Mat>(),
                 field(fieldPrefix + "ImageSize").value<cv::Size>()
             );
-        } catch (QString e) {
+        } catch (QString &e) {
             QMessageBox::warning(this, "Error", "Failed to export calibration: " + e);
         }
     }

@@ -168,7 +168,7 @@ void WindowImagePairSource::saveImages ()
     try {
         cv::imwrite(dir.absoluteFilePath(fileNameLeft).toStdString(), tmpImg1);
         cv::imwrite(dir.absoluteFilePath(fileNameRight).toStdString(), tmpImg2);
-    } catch (cv::Exception e) {
+    } catch (cv::Exception &e) {
         qWarning() << "Failed to save images:" << QString::fromStdString(e.what());
     }
 }
@@ -213,7 +213,7 @@ void WindowImagePairSource::snapshotImages ()
         try {
             cv::imwrite(dir.absoluteFilePath(fileNameLeft).toStdString(), tmpImg1);
             cv::imwrite(dir.absoluteFilePath(fileNameRight).toStdString(), tmpImg2);
-        } catch (cv::Exception e) {
+        } catch (cv::Exception &e) {
             qWarning() << "Failed to save images:" << QString::fromStdString(e.what());
             snapshotBaseName = QString(); // Clear the image basename
         }

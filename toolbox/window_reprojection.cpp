@@ -246,14 +246,14 @@ void WindowReprojection::saveReprojectionResult ()
             try {
                 cv::FileStorage fs(fileName.toStdString(), cv::FileStorage::WRITE);
                 fs << "points" << tmpReprojection;
-            } catch (cv::Exception e) {
+            } catch (cv::Exception &e) {
                 qWarning() << "Failed to save matrix:" << QString::fromStdString(e.what());
             }
         } else {
             // Save reprojected points in custom binary matrix format
             try {
                 Utils::writeMatrixToBinaryFile(tmpReprojection, fileName);
-            } catch (QString e) {
+            } catch (QString &e) {
                 qWarning() << "Failed to save binary file:" << e;
             }
         }

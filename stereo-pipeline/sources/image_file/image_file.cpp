@@ -95,7 +95,7 @@ void ImageFile::loadLocalImage ()
         // Load both images and amit the change signal
         QWriteLocker locker(&frameBufferLock);
         frameBuffer = cv::imread(fileNameOrUrl.toStdString(), cv::IMREAD_ANYCOLOR);
-    } catch (std::exception e) {
+    } catch (std::exception &e) {
         imageLoadingError(QString("Error while loading images: %1").arg(QString::fromStdString(e.what())));
     }
 
@@ -128,7 +128,7 @@ void ImageFile::processRemoteReply (QNetworkReply *reply)
         try {
             QWriteLocker locker(&frameBufferLock);
             cv::imdecode(cv::Mat(1, payload.size(), CV_8UC1, payload.data()), cv::IMREAD_ANYCOLOR, &frameBuffer);
-        } catch (std::exception e) {
+        } catch (std::exception &e) {
             imageLoadingError(QString("Error while decoding retrieved image: %1").arg(QString::fromStdString(e.what())));
         }
     }
