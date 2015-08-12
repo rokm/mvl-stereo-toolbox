@@ -297,7 +297,7 @@ void Pipeline::rectifyImages ()
 
     // Make sure we have rectification object set
     if (!d->rectification) {
-        emit error("Stereo rectification object not set!");
+        emit error(ErrorGeneral, "Stereo rectification object not set!");
         return;
     }
 
@@ -308,7 +308,7 @@ void Pipeline::rectifyImages ()
 
     // Make sure input images are of same size
     if (d->inputImageL.cols != d->inputImageR.cols || d->inputImageL.rows != d->inputImageR.rows) {
-        emit error("Input images do not have same dimensions!");
+        emit error(ErrorRectification, "Input images do not have same dimensions!");
         return;
     }
 
@@ -419,7 +419,7 @@ void Pipeline::computeDisparityImage ()
 
     // Make sure we have stereo method set
     if (!d->stereoMethod) {
-        emit error("Stereo method not set!");
+        emit error(ErrorGeneral, "Stereo method not set!");
         return;
     }
 
@@ -459,8 +459,7 @@ void Pipeline::computeDisparityImageInThread ()
             d->disparityImageComputationTime = timer.elapsed();
         } catch (std::exception &e) {
             d->disparityImage = cv::Mat(); // Clear
-            qWarning() << "Stereo method error: " << e.what();
-            emit error(QString("Stereo method error: %1").arg(QString::fromStdString(e.what())));
+            emit error(ErrorStereoMethod, QString::fromStdString(e.what()));
         }
     }
 
@@ -516,7 +515,7 @@ void Pipeline::setDisparityVisualizationMethod (int newMethod)
     // Make sure method is supported
     if (!d->supportedDisparityVisualizationMethods.contains(newMethod)) {
         d->disparityVisualizationMethod = VisualizationNone;
-        emit error(QString("Reprojection method %1 not supported!").arg(newMethod));
+        emit error(ErrorReprojection, QString("Reprojection method %1 not supported!").arg(newMethod));
     } else {
         d->disparityVisualizationMethod = newMethod;
     }
@@ -662,7 +661,7 @@ void Pipeline::reprojectDisparityImage ()
 
     // Make sure we have reprojection object set
     if (!d->reprojection) {
-        emit error("Stereo reprojection object not set!");
+        emit error(ErrorGeneral, "Stereo reprojection object not set!");
         return;
     }
 
@@ -684,7 +683,7 @@ void Pipeline::reprojectDisparityImage ()
         d->reprojection->reprojectStereoDisparity(d->disparityImage, d->reprojectedImage, roi.x, roi.y);
         d->reprojectionComputationTime = timer.elapsed();
     } catch (std::exception &e) {
-        qWarning() << "Failed to reproject:" << QString::fromStdString(e.what());
+        emit error(ErrorReprojection, QString::fromStdString(e.what()));
         d->reprojectedImage = cv::Mat();
     }
 

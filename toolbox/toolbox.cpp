@@ -234,10 +234,12 @@ void Toolbox::setActiveButtonState (QPushButton *button, bool active)
 // *********************************************************************
 // *                         Status message                            *
 // *********************************************************************
-void Toolbox::displayError (const QString error)
+void Toolbox::displayError (int errorType, const QString &errorMessage)
 {
     statusLabel->setText("Status: ERROR");
-    statusLabel->setToolTip(error);
+    if (errorType == Pipeline::Pipeline::ErrorGeneral) {
+        statusLabel->setToolTip(errorMessage);
+    }
 }
 
 void Toolbox::clearError ()

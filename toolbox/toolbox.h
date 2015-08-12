@@ -53,7 +53,7 @@ protected:
     void createGui ();
     void loadPlugins ();
 
-    void displayError (const QString);
+    void displayError (int, const QString &);
     void clearError ();
 
     void showWindowOnTop (QWidget *);

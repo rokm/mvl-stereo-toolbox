@@ -155,6 +155,13 @@ WindowRectification::WindowRectification (Pipeline::Pipeline *p, Pipeline::Recti
 
     // Calibration wizard
     wizard = new CalibrationWizard(this);
+
+    // Pipeline's error signalization
+    connect(pipeline, &Pipeline::Pipeline::error, this, [this] (int errorType, const QString &errorMessage) {
+        if (errorType == Pipeline::Pipeline::ErrorRectification) {
+            QMessageBox::warning(this, "Rectification Error", errorMessage);
+        }
+    });
 }
 
 WindowRectification::~WindowRectification ()

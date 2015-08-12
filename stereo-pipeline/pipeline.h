@@ -117,6 +117,15 @@ public:
     const cv::Mat &getReprojectedImage () const;
     int getReprojectionComputationTime () const;
 
+    // Error types
+    enum {
+        ErrorGeneral,
+        ErrorImagePairSource,
+        ErrorRectification,
+        ErrorStereoMethod,
+        ErrorReprojection,
+    };
+
 // NOTE: we need the old signal/slot syntax here!
 protected slots:
     void beginProcessing ();
@@ -130,7 +139,8 @@ protected slots:
     void updateReprojectionMatrix ();
 
 signals:
-    void error (const QString);
+    void error (int, const QString);
+
     void processingCompleted ();
 
     void imagePairSourceStateChanged (bool);

@@ -152,6 +152,13 @@ WindowStereoMethod::WindowStereoMethod (Pipeline::Pipeline *p, QList<Pipeline::S
     // to capture changes due to visualization method switch
     connect(pipeline, &Pipeline::Pipeline::disparityVisualizationImageChanged, this, &WindowStereoMethod::updateDisplayBackground);
     connect(pipeline, &Pipeline::Pipeline::disparityImageChanged, this, &WindowStereoMethod::updateDisplayValues);
+
+    // Pipeline's error signalization
+    connect(pipeline, &Pipeline::Pipeline::error, this, [this] (int errorType, const QString &errorMessage) {
+        if (errorType == Pipeline::Pipeline::ErrorStereoMethod) {
+            QMessageBox::warning(this, "Stereo Method Error", errorMessage);
+        }
+    });
 }
 
 WindowStereoMethod::~WindowStereoMethod ()

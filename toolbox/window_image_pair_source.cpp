@@ -116,6 +116,13 @@ WindowImagePairSource::WindowImagePairSource (Pipeline::Pipeline *p, QList<Pipel
         displayImageLeft->setImage(pipeline->getLeftImage());
         displayImageRight->setImage(pipeline->getRightImage());
     });
+
+    // Pipeline's error signalization
+    connect(pipeline, &Pipeline::Pipeline::error, this, [this] (int errorType, const QString &errorMessage) {
+        if (errorType == Pipeline::Pipeline::ErrorImagePairSource) {
+            QMessageBox::warning(this, "Image Pair Source Error", errorMessage);
+        }
+    });
 }
 
 WindowImagePairSource::~WindowImagePairSource ()

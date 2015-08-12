@@ -129,6 +129,13 @@ WindowReprojection::WindowReprojection (Pipeline::Pipeline *p, Pipeline::Reproje
     // Pipeline
     connect(pipeline, &Pipeline::Pipeline::disparityVisualizationImageChanged, this, &WindowReprojection::updateDisplayBackground);
     connect(pipeline, &Pipeline::Pipeline::reprojectedImageChanged, this, &WindowReprojection::updateDisplayValues);
+
+    // Pipeline's error signalization
+    connect(pipeline, &Pipeline::Pipeline::error, this, [this] (int errorType, const QString &errorMessage) {
+        if (errorType == Pipeline::Pipeline::ErrorReprojection) {
+            QMessageBox::warning(this, "Reprojection Error", errorMessage);
+        }
+    });
 }
 
 WindowReprojection::~WindowReprojection ()
