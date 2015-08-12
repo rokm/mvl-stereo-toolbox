@@ -63,6 +63,7 @@ SourceWidget::SourceWidget (Source *s, QWidget *parent)
 
     // Video file
     hbox = new QHBoxLayout();
+    hbox->setContentsMargins(0, 0, 0, 0);
 
     tooltip = "Video file path or URL.";
 
@@ -70,7 +71,6 @@ SourceWidget::SourceWidget (Source *s, QWidget *parent)
     label->setToolTip(tooltip);
 
     hbox->addWidget(label);
-    hbox->setContentsMargins(0, 0, 0, 0);
 
     lineEdit = new QLineEdit(this);
     lineEditVideoFile = lineEdit;
