@@ -138,6 +138,8 @@ protected slots:
 
     void updateReprojectionMatrix ();
 
+    void propagateImagePairSourceError (const QString &);
+
 signals:
     void error (int, const QString);
 

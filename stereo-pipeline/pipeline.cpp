@@ -133,6 +133,7 @@ void Pipeline::setImagePairSource (ImagePairSource *newSource)
     if (d->imagePairSource) {
         d->imagePairSource->stopSource(); // Stop the source
         disconnect(dynamic_cast<QObject *>(d->imagePairSource), SIGNAL(imagesChanged()), this, SLOT(beginProcessing()));
+        disconnect(dynamic_cast<QObject *>(d->imagePairSource), SIGNAL(error(const QString &)), this, SLOT(propagateImagePairSourceError(const QString &)));
 
         if (dynamic_cast<QObject *>(d->imagePairSource)->parent() == this) {
             dynamic_cast<QObject *>(d->imagePairSource)->deleteLater(); // Schedule for deletion
@@ -147,6 +148,7 @@ void Pipeline::setImagePairSource (ImagePairSource *newSource)
     // NOTE: we need to use the old syntax, because signal is defined
     // in our abstract ImagePairSource interfae
     connect(dynamic_cast<QObject *>(d->imagePairSource), SIGNAL(imagesChanged()), this, SLOT(beginProcessing()));
+    connect(dynamic_cast<QObject *>(d->imagePairSource), SIGNAL(error(const QString &)), this, SLOT(propagateImagePairSourceError(const QString &)));
 
     // Process
     beginProcessing();
@@ -156,6 +158,13 @@ ImagePairSource *Pipeline::getImagePairSource ()
 {
     Q_D(Pipeline);
     return d->imagePairSource;
+}
+
+
+void Pipeline::propagateImagePairSourceError (const QString &errorMessage)
+{
+    // Propagate the error message with image pair source domain
+    emit error(ErrorImagePairSource, errorMessage);
 }
 
 
