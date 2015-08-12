@@ -74,30 +74,39 @@ SourceWidget::SourceWidget (Source *s, QWidget *parent)
     lineEdit = new QLineEdit(this);
     lineEditVideoFile = lineEdit;
 
+    connect(lineEditVideoFile, &QLineEdit::returnPressed, this, [this] () {
+        if (lineEditVideoFile->text() != videoFilename) {
+            videoFilename = lineEditVideoFile->text();
+            source->openVideoFile(videoFilename);
+        }
+    });
+
     hbox->addWidget(lineEdit);
 
     button = new QPushButton("Browse");
-    connect(button, &QPushButton::clicked, this, &SourceWidget::browseForVideoFile);
+    connect(button, &QPushButton::clicked, this, [this] () {
+        QString filename = QFileDialog::getOpenFileName(this, "Select video file", QString(), "Video files (*.avi *.mp4 *.mkv *.mpeg *.mpg);; All files (*.*)");
+        if (!filename.isEmpty()) {
+            lineEditVideoFile->setText(filename);
+            videoFilename = lineEditVideoFile->text();
+            source->openVideoFile(videoFilename);
+        }
+    });
 
     hbox->addWidget(button);
     hbox->setContentsMargins(0, 0, 0, 0);
 
     layout->addLayout(hbox);
 
-    // Open
-    tooltip = "Open video file.";
-
-    button = new QPushButton("Open", this);
-    button->setToolTip(tooltip);
-    connect(button, &QPushButton::clicked, this, &SourceWidget::openVideoFile);
-    pushButtonOpen = button;
-
-    layout->addWidget(button);
-
+     // Separator
+    line = new QFrame(this);
+    line->setFrameStyle(QFrame::HLine | QFrame::Sunken);
 
     // Video playback/info widget and layout
     widgetVideo = new QWidget();
     layout->addWidget(widgetVideo);
+
+    layout->addWidget(line);
 
     // Spacer
     layout->addStretch();
@@ -106,12 +115,6 @@ SourceWidget::SourceWidget (Source *s, QWidget *parent)
     // *** Setup the playback/info widget and layout ***
     QVBoxLayout *layoutVideo = new QVBoxLayout(widgetVideo);
     layoutVideo->setContentsMargins(0, 0, 0, 0);
-
-    // Separator
-    line = new QFrame(this);
-    line->setFrameStyle(QFrame::HLine | QFrame::Sunken);
-
-    layoutVideo->addWidget(line);
 
     // Playback
     tooltip = "Start/pause playback.";
@@ -131,10 +134,33 @@ SourceWidget::SourceWidget (Source *s, QWidget *parent)
 
     layoutVideo->addWidget(button);
 
-    // Position label
-    labelVideoPosition = new QLabel("Position: ", this);
-    labelVideoPosition->setAlignment(Qt::AlignHCenter);
-    layoutVideo->addWidget(labelVideoPosition);
+    // Position
+    hbox = new QHBoxLayout();
+
+    hbox->addStretch(5);
+
+    label = new QLabel("<b>Frame: </b>", this);
+    hbox->addWidget(label);
+
+    spinBoxFrame = new QSpinBox(this);
+    connect(spinBoxFrame, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, [this] (int value) {
+        source->setVideoPosition(value - 1);
+    });
+    hbox->addWidget(spinBoxFrame);
+
+    hbox->addStretch(1);
+
+    label = new QLabel("<b>Time: </b>", this);
+    hbox->addWidget(label);
+
+    timeEditPosition = new QTimeEdit(this);
+    timeEditPosition->setDisplayFormat("hh:mm:ss.zzz");
+    timeEditPosition->setEnabled(false); // We do not support time-based seek yet
+    hbox->addWidget(timeEditPosition);
+
+    hbox->addStretch(5);
+
+    layoutVideo->addLayout(hbox);
 
     // Position slider
     sliderPosition = new QSlider(Qt::Horizontal, this);
@@ -153,17 +179,14 @@ SourceWidget::SourceWidget (Source *s, QWidget *parent)
     layoutVideo->addWidget(line);
 
     // Video info
-    label = new QLabel("<b>Video info</b>", this);
+    label = new QLabel("<b>Video information:</b>", this);
     layoutVideo->addWidget(label);
 
-    labelVideoWidth = new QLabel(this);
-    layoutVideo->addWidget(labelVideoWidth);
+    labelVideoResolution = new QLabel(this);
+    layoutVideo->addWidget(labelVideoResolution);
 
-    labelVideoHeight = new QLabel(this);
-    layoutVideo->addWidget(labelVideoHeight);
-
-    labelVideoFps = new QLabel(this);
-    layoutVideo->addWidget(labelVideoFps);
+    labelVideoFramerate = new QLabel(this);
+    layoutVideo->addWidget(labelVideoFramerate);
 
     labelVideoLength = new QLabel(this);
     layoutVideo->addWidget(labelVideoLength);
@@ -183,59 +206,31 @@ SourceWidget::~SourceWidget ()
 // *********************************************************************
 // *                             Video file                            *
 // *********************************************************************
-void SourceWidget::browseForVideoFile ()
-{
-    QString filename = QFileDialog::getOpenFileName(this, "Select video file", QString(), "Video files (*.avi *.mp4 *.mkv *.mpeg *.mpg);; All files (*.*)");
-    if (!filename.isEmpty()) {
-        lineEditVideoFile->setText(filename);
-    }
-}
-
-
-void SourceWidget::openVideoFile ()
-{
-    QString fileName = lineEditVideoFile->text();
-
-    // If file name is empty, do the browse first
-    if (fileName.isEmpty()) {
-        browseForVideoFile();
-        fileName = lineEditVideoFile->text();
-    }
-
-    // Open if file name is valid
-    if (!fileName.isEmpty()) {
-        source->openVideoFile(fileName);
-    }
-}
-
 void SourceWidget::videoFileReadyChanged (bool available)
 {
     int width = 0, height = 0, length = 0;
-    float fps = 0.0f;
+    float framerate = 0.0f;
 
     if (available) {
         widgetVideo->show();
 
         width = source->getVideoWidth();
         height = source->getVideoHeight();
-        fps = source->getVideoFps();
+        framerate = source->getVideoFramerate();
         length = source->getVideoLength();
 
-        labelVideoWidth->setText(QString("Width: %1").arg(width));
-        labelVideoHeight->setText(QString("Height: %1").arg(height));
-        labelVideoFps->setText(QString("FPS: %1").arg(fps));
-        labelVideoLength->setText(QString("Length: %1").arg(length));
+        labelVideoResolution->setText(QString("<b>Resolution:</b> %1x%2").arg(width).arg(height));
+        labelVideoFramerate->setText(QString("<b>Framerate:</b> %1").arg(framerate));
+        labelVideoLength->setText(QString("<b>Length:</b> %1").arg(length));
 
-        labelVideoPosition->setText(QString("Position: %1/%2").arg(0).arg(length));
+        spinBoxFrame->setRange(0, length);
+        spinBoxFrame->setSuffix(QString(" / %1").arg(length));
     } else {
         widgetVideo->hide();
 
-        labelVideoWidth->setText("Width: N/A");
-        labelVideoHeight->setText("Height: N/A");
-        labelVideoFps->setText("FPS: N/A");
-        labelVideoLength->setText("Length: N/A");
-
-        labelVideoPosition->setText("Position: N/A");
+        labelVideoResolution->setText("<b>Resolution:</b> N/A");
+        labelVideoFramerate->setText("<b>Framerate:</b> N/A");
+        labelVideoLength->setText("<b>Length:</b> N/A");
     }
 
     pushButtonPlayPause->setEnabled(available);
@@ -250,15 +245,13 @@ void SourceWidget::videoFileReadyChanged (bool available)
 // *********************************************************************
 void SourceWidget::videoPositionChanged (int frame, int length)
 {
-    qint64 milliseconds = frame * 1000 / source->getVideoFps();
-    int h = milliseconds / (1000 * 60 * 60);
-    milliseconds -= h * (1000 * 60 * 60);
-    int m = milliseconds / (1000 * 60);
-    milliseconds -= m * (1000 * 60);
-    int s = milliseconds / (1000);
-    milliseconds -= s * (1000);
+    QTime time = QTime::fromMSecsSinceStartOfDay(frame * 1000 / source->getVideoFramerate());
 
-    labelVideoPosition->setText(QString("Position: %1/%2    %3:%4:%5.%6").arg(frame).arg(length).arg(h, 2, 10, QChar('0')).arg(m, 2, 10, QChar('0')).arg(s, 2, 10, QChar('0')).arg(milliseconds, 3, 10, QChar('0')));
+    timeEditPosition->setTime(time);
+
+    spinBoxFrame->setValue(frame);
+
+    //labelVideoPosition->setText(QString("Position: %1/%2    %3").arg(frame).arg(length).arg(time.toString("hh:mm:ss.zzz")));
 
     sliderPosition->blockSignals(true);
     sliderPosition->setValue(frame);

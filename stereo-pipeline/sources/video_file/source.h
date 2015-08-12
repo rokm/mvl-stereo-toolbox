@@ -49,7 +49,7 @@ public:
 
     int getVideoWidth ();
     int getVideoHeight ();
-    float getVideoFps ();
+    float getVideoFramerate ();
     int getVideoLength ();
 
     void stopPlayback ();

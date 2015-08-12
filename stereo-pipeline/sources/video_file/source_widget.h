@@ -40,8 +40,6 @@ public:
     virtual ~SourceWidget ();
 
 protected:
-    void browseForVideoFile ();
-    void openVideoFile ();
     void videoFileReadyChanged (bool);
 
     void changePlaybackState (bool);
@@ -51,18 +49,18 @@ protected:
     Source *source;
 
     QLineEdit *lineEditVideoFile;
-    QPushButton *pushButtonOpen;
 
     QWidget *widgetVideo;
-
-    QLabel *labelVideoWidth;
-    QLabel *labelVideoHeight;
-    QLabel *labelVideoFps;
+    QLabel *labelVideoResolution;
+    QLabel *labelVideoFramerate;
     QLabel *labelVideoLength;
 
     QPushButton *pushButtonPlayPause;
-    QLabel *labelVideoPosition;
+    QSpinBox *spinBoxFrame;
+    QTimeEdit *timeEditPosition;
     QSlider *sliderPosition;
+
+    QString videoFilename;
 };
 
 

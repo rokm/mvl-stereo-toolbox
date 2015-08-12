@@ -74,11 +74,18 @@ void Source::openVideoFile (const QString &filename)
     // Make sure playback is stopped
     stopPlayback();
 
+    // If filename is empty, do nothing
+    if (filename.isEmpty()) {
+        emit videoFileReadyChanged(false);
+        return;
+    }
+
     // Open video file
     video.open(filename.toStdString());
     if (!video.isOpened()) {
         emit error(QString("Failed to open video '%1'").arg(filename));
         emit videoFileReadyChanged(false);
+        return;
     }
 
     emit videoFileReadyChanged(true);
@@ -95,7 +102,7 @@ int Source::getVideoHeight ()
     return video.get(cv::CAP_PROP_FRAME_HEIGHT);
 }
 
-float Source::getVideoFps ()
+float Source::getVideoFramerate ()
 {
     return video.get(cv::CAP_PROP_FPS);
 }
@@ -124,7 +131,7 @@ void Source::startPlayback ()
     }
 
     // Start playback timer with specified FPS
-    float fps = getVideoFps();
+    float fps = getVideoFramerate();
     if (!fps) {
         fps = 25;
     }
