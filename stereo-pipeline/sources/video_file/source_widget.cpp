@@ -70,6 +70,7 @@ SourceWidget::SourceWidget (Source *s, QWidget *parent)
     label->setToolTip(tooltip);
 
     hbox->addWidget(label);
+    hbox->setContentsMargins(0, 0, 0, 0);
 
     lineEdit = new QLineEdit(this);
     lineEditVideoFile = lineEdit;
@@ -94,7 +95,6 @@ SourceWidget::SourceWidget (Source *s, QWidget *parent)
     });
 
     hbox->addWidget(button);
-    hbox->setContentsMargins(0, 0, 0, 0);
 
     layout->addLayout(hbox);
 
