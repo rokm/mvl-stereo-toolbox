@@ -237,8 +237,18 @@ void Toolbox::setActiveButtonState (QPushButton *button, bool active)
 void Toolbox::displayError (int errorType, const QString &errorMessage)
 {
     statusLabel->setText("Status: ERROR");
+
+    // If this is a general error, show it in the status bar; otherwise,
+    // the corresponding sub window will pop up an error dialog
     if (errorType == Pipeline::Pipeline::ErrorGeneral) {
         statusLabel->setToolTip(errorMessage);
+    }
+
+    // Stop the image pair source, so that the user can resolve the
+    // error
+    Pipeline::ImagePairSource *imagePairSource = pipeline->getImagePairSource();
+    if (imagePairSource) {
+        imagePairSource->stopSource();
     }
 }
 
