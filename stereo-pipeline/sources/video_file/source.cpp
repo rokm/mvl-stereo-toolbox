@@ -74,6 +74,14 @@ void Source::openVideoFile (const QString &filename)
     // Make sure playback is stopped
     stopPlayback();
 
+    // Close previously-opened video
+    video.release();
+
+    // Clear the frames
+    imageLeft = cv::Mat();
+    imageRight = cv::Mat();
+    emit imagesChanged();
+
     // If filename is empty, do nothing
     if (filename.isEmpty()) {
         emit videoFileReadyChanged(false);
@@ -81,7 +89,15 @@ void Source::openVideoFile (const QString &filename)
     }
 
     // Open video file
-    video.open(filename.toStdString());
+    try {
+        video.open(filename.toStdString());
+    } catch (std::exception &e) {
+        emit error(QString("Error while opening video '%1': %2").arg(filename).arg(QString::fromStdString(e.what())));
+        emit videoFileReadyChanged(false);
+        return;
+    }
+
+    // Make sure video was indeed opened
     if (!video.isOpened()) {
         emit error(QString("Failed to open video '%1'").arg(filename));
         emit videoFileReadyChanged(false);
