@@ -1623,6 +1623,7 @@ CalibrationWizardPageCalibration::CalibrationWizardPageCalibration (const QStrin
     // Busy dialog
     dialogBusy = new QProgressDialog("Calibrating... please wait", QString(), 0, 0, this);
     dialogBusy->setModal(true);
+    dialogBusy->reset(); // Workaround for Qt 5.5.0 bug (QTBUG-47042)
 
     // Worker thread
     calibrationComplete = false;
@@ -1831,6 +1832,7 @@ CalibrationWizardPageStereoCalibration::CalibrationWizardPageStereoCalibration (
     // Busy dialog
     dialogBusy = new QProgressDialog("Calibrating... please wait", QString(), 0, 0, this);
     dialogBusy->setModal(true);
+    dialogBusy->reset(); // Workaround for Qt 5.5.0 bug (QTBUG-47042)
 
     // Worker thread
     calibrationComplete = false;

@@ -454,7 +454,7 @@ protected:
     // Worker
     bool calibrationComplete;
     QFutureWatcher<bool> calibrationWatcher;
-    QDialog *dialogBusy;
+    QProgressDialog *dialogBusy;
 
     // Error
     double calibrationRMSE;
@@ -535,7 +535,7 @@ protected:
     // Worker
     bool calibrationComplete;
     QFutureWatcher<bool> calibrationWatcher;
-    QDialog *dialogBusy;
+    QProgressDialog *dialogBusy;
 
     // Error
     double calibrationRMSE;
