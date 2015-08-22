@@ -88,8 +88,8 @@ SourceWidget::SourceWidget (Source *s, QWidget *parent)
     connect(button, &QPushButton::clicked, this, [this] () {
         QString filename = QFileDialog::getOpenFileName(this, "Select video file", QString(), "Video files (*.avi *.mp4 *.mkv *.mpeg *.mpg);; All files (*.*)");
         if (!filename.isEmpty()) {
-            lineEditVideoFile->setText(filename);
-            videoFilename = lineEditVideoFile->text();
+            videoFilename = filename;
+            lineEditVideoFile->setText(videoFilename);
             source->openVideoFile(videoFilename);
         }
     });
@@ -222,9 +222,6 @@ void SourceWidget::videoFileReadyChanged (bool available)
         labelVideoResolution->setText(QString("<b>Resolution:</b> %1x%2").arg(width).arg(height));
         labelVideoFramerate->setText(QString("<b>Framerate:</b> %1").arg(framerate));
         labelVideoLength->setText(QString("<b>Length:</b> %1").arg(length));
-
-        spinBoxFrame->setRange(0, length);
-        spinBoxFrame->setSuffix(QString(" / %1").arg(length));
     } else {
         widgetVideo->hide();
 
@@ -237,6 +234,9 @@ void SourceWidget::videoFileReadyChanged (bool available)
 
     sliderPosition->setEnabled(available);
     sliderPosition->setRange(0, length);
+
+    spinBoxFrame->setRange(0, length);
+    spinBoxFrame->setSuffix(QString(" / %1").arg(length));
 }
 
 
@@ -247,11 +247,13 @@ void SourceWidget::videoPositionChanged (int frame, int length)
 {
     QTime time = QTime::fromMSecsSinceStartOfDay(frame * 1000 / source->getVideoFramerate());
 
+    timeEditPosition->blockSignals(true);
     timeEditPosition->setTime(time);
+    timeEditPosition->blockSignals(false);
 
+    spinBoxFrame->blockSignals(true);
     spinBoxFrame->setValue(frame);
-
-    //labelVideoPosition->setText(QString("Position: %1/%2    %3").arg(frame).arg(length).arg(time.toString("hh:mm:ss.zzz")));
+    spinBoxFrame->blockSignals(false);
 
     sliderPosition->blockSignals(true);
     sliderPosition->setValue(frame);
