@@ -61,6 +61,10 @@ else ()
     set(pipeline_CUDA_OBJECTS "")
 endif()
 
+# Define plugin path
+set(MVL_STEREO_PIPELINE_PLUGIN_DIR "${CMAKE_INSTALL_FULL_LIBDIR}/MVL/stereo-pipeline" CACHE PATH "Path to MVL Stereo Pipeline plugins")
+add_definitions(-DMVL_STEREO_PIPELINE_PLUGIN_DIR="${MVL_STEREO_PIPELINE_PLUGIN_DIR}")
+
 # *** Library ***
 add_library(mvl_stereo_pipeline SHARED ${pipeline_SOURCES} ${pipeline_HEADERS} ${pipeline_CUDA_SOURCES} ${pipeline_CUDA_OBJECTS})
 target_link_libraries(mvl_stereo_pipeline Qt5::Core Qt5::Concurrent)
@@ -87,9 +91,6 @@ if(PKG_CONFIG_FOUND)
 endif()
 
 # *** Bundled plugins ***
-set(MVL_STEREO_PIPELINE_PLUGIN_DIR "${CMAKE_INSTALL_FULL_LIBDIR}/MVL/stereo-pipeline" CACHE PATH "Path to MVL Stereo Pipeline plugins")
-add_definitions(-DMVL_STEREO_PIPELINE_PLUGIN_DIR="${MVL_STEREO_PIPELINE_PLUGIN_DIR}")
-
 # Image file pair source: always build
 add_subdirectory(sources/image_file)
 
