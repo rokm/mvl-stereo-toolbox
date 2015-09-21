@@ -4,13 +4,13 @@ if(POLICY CMP0048)
     cmake_policy(SET CMP0048 OLD)
 endif()
 
-project(MVLStereoToolbox CXX)
+project(MVLStereoToolbox C CXX)
 set(PROJECT_VERSION 2.0.0)
 
 include(GNUInstallDirs)
 
 if(CMAKE_COMPILER_IS_GNUCXX)
-    add_definitions(-std=c++0x)
+    add_definitions(-std=c++11)
     add_definitions(-Wall -Wextra -Wno-unused-parameter)
 endif()
 
