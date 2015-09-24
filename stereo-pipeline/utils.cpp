@@ -135,23 +135,26 @@ void writeMatrixToBinaryFile (const cv::Mat &matrix, const QString &fileName, bo
 template <typename TYPE>
 void __createColorCodedDisparityCpu (const cv::Mat &disparity, cv::Mat &image, int numLevels)
 {
-    image.create(disparity.rows, disparity.cols, CV_8UC3);
+    unsigned int H;
+    const float S = 1;
+    const float V = 1;
+
+    unsigned int hi;
+    float f, p, q, t;
+
+    float x, y, z;
+    unsigned char b, g, r;
 
     for (int i = 0; i < disparity.rows; i++) {
+        const TYPE *disparity_ptr = disparity.ptr<TYPE>(i);
         for (int j = 0; j < disparity.cols; j++) {
-            TYPE d = disparity.at<TYPE>(i, j);
+            H = ((numLevels - disparity_ptr[j]) * 240)/numLevels;
 
-            unsigned int H = ((numLevels - d) * 240)/numLevels;
-            const float S = 1;
-            const float V = 1;
-
-            unsigned int hi = (H/60) % 6;
-            float f = H/60.f - H/60;
-            float p = V * (1 - S);
-            float q = V * (1 - f * S);
-            float t = V * (1 - (1 - f) * S);
-
-            float x, y, z;
+            hi = (H/60) % 6;
+            f = H/60.f - H/60;
+            p = V * (1 - S);
+            q = V * (1 - f * S);
+            t = V * (1 - (1 - f) * S);
 
             switch (hi) {
                 case 0: {
@@ -198,9 +201,9 @@ void __createColorCodedDisparityCpu (const cv::Mat &disparity, cv::Mat &image, i
                 }
             }
 
-            unsigned char b = (unsigned char)(std::max(0.0f, std::min(x, 1.0f)) * 255.f);
-            unsigned char g = (unsigned char)(std::max(0.0f, std::min(y, 1.0f)) * 255.f);
-            unsigned char r = (unsigned char)(std::max(0.0f, std::min(z, 1.0f)) * 255.f);
+            b = cv::saturate_cast<unsigned char>(x*255);
+            g = cv::saturate_cast<unsigned char>(y*255);
+            r = cv::saturate_cast<unsigned char>(z*255);
 
             image.at<cv::Vec3b>(i, j) = cv::Vec3b(b, g, r);
         }
@@ -209,6 +212,8 @@ void __createColorCodedDisparityCpu (const cv::Mat &disparity, cv::Mat &image, i
 
 void createColorCodedDisparityCpu (const cv::Mat &disparity, cv::Mat &image, int numLevels)
 {
+    image.create(disparity.rows, disparity.cols, CV_8UC3);
+
     switch (disparity.type()) {
         case CV_8UC1: {
             return __createColorCodedDisparityCpu<unsigned char>(disparity, image, numLevels);
