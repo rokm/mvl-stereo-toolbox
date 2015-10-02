@@ -20,6 +20,7 @@ set(toolbox_SOURCES
     main.cpp
     toolbox.cpp
     window_image_pair_source.cpp
+    window_point_cloud.cpp
     window_rectification.cpp
     window_reprojection.cpp
     window_stereo_method.cpp
@@ -30,6 +31,7 @@ set(toolbox_HEADERS
     image_display_widget.h
     toolbox.h
     window_image_pair_source.h
+    window_point_cloud.h
     window_rectification.h
     window_reprojection.h
     window_stereo_method.h

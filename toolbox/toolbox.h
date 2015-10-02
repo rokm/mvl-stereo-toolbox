@@ -40,6 +40,7 @@ class WindowImagePairSource;
 class WindowRectification;
 class WindowReprojection;
 class WindowStereoMethod;
+class WindowPointCloud;
 
 class Toolbox : public QWidget
 {
@@ -64,6 +65,7 @@ protected:
     WindowRectification *windowRectification;
     WindowStereoMethod *windowStereoMethod;
     WindowReprojection *windowReprojection;
+    WindowPointCloud *windowPointCloud;
 
     QPushButton *pushButtonImagePairSource;
     QPushButton *pushButtonImagePairSourceActive;
@@ -73,6 +75,8 @@ protected:
     QPushButton *pushButtonStereoMethodActive;
     QPushButton *pushButtonReprojection;
     QPushButton *pushButtonReprojectionActive;
+
+    QPushButton *pushButtonPointCloud;
 
     QLabel *statusLabel;
 

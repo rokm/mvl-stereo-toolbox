@@ -31,6 +31,7 @@
 #include "window_rectification.h"
 #include "window_reprojection.h"
 #include "window_stereo_method.h"
+#include "window_point_cloud.h"
 
 
 namespace MVL {
@@ -79,6 +80,9 @@ Toolbox::Toolbox ()
     windowReprojection = new WindowReprojection(pipeline, pipeline->getReprojection());
     windowReprojection->setAttribute(Qt::WA_QuitOnClose, false);
 
+    windowPointCloud = new WindowPointCloud(pipeline);
+    windowPointCloud->setAttribute(Qt::WA_QuitOnClose, false);
+
     // Create GUI
     createGui();
 }
@@ -89,6 +93,7 @@ Toolbox::~Toolbox ()
     delete windowRectification;
     delete windowStereoMethod;
     delete windowReprojection;
+    delete windowPointCloud;
 }
 
 void Toolbox::createGui ()
@@ -171,7 +176,7 @@ void Toolbox::createGui ()
     layout->addWidget(pushButtonStereoMethodActive, row, 1);
     row++;
 
-    // Reprojection/point cloud
+    // Reprojection
     pushButtonReprojection = new QPushButton("Reprojection", this);
     connect(pushButtonReprojection, &QPushButton::clicked, this, [this] () {
         showWindowOnTop(windowReprojection);
@@ -188,6 +193,16 @@ void Toolbox::createGui ()
 
     layout->addWidget(pushButtonReprojection, row, 0);
     layout->addWidget(pushButtonReprojectionActive, row, 1);
+    row++;
+
+    // Point cloud
+    pushButtonPointCloud = new QPushButton("Point cloud", this);
+    connect(pushButtonPointCloud, &QPushButton::clicked, this, [this] () {
+        showWindowOnTop(windowPointCloud);
+    });
+
+
+    layout->addWidget(pushButtonPointCloud, row, 0);
     row++;
 
     // Separator
