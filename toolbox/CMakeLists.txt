@@ -18,6 +18,7 @@ set(toolbox_SOURCES
     calibration_wizard.cpp
     image_display_widget.cpp
     main.cpp
+    point_cloud_visualization_widget.cpp
     toolbox.cpp
     window_image_pair_source.cpp
     window_point_cloud.cpp
@@ -29,6 +30,7 @@ set(toolbox_SOURCES
 set(toolbox_HEADERS
     calibration_wizard.h
     image_display_widget.h
+    point_cloud_visualization_widget.h
     toolbox.h
     window_image_pair_source.h
     window_point_cloud.h

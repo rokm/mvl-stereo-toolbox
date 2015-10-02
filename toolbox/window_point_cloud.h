@@ -33,6 +33,8 @@ class Pipeline;
 namespace GUI {
 
 
+class PointCloudVisualizationWidget;
+
 class WindowPointCloud : public QWidget
 {
     Q_OBJECT
@@ -44,6 +46,9 @@ public:
 protected:
     // Pipeline
     Pipeline::Pipeline *pipeline;
+
+    // Widget
+    PointCloudVisualizationWidget *visualizationWidget;
 };
 
 

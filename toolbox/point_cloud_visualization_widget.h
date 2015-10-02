@@ -1,5 +1,5 @@
 /*
- * MVL Stereo Toolbox: point cloud window
+ * MVL Stereo Toolbox: point cloud visualization widget
  * Copyright (C) 2015 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
@@ -17,11 +17,10 @@
  *
  */
 
-#include "window_point_cloud.h"
-#include "point_cloud_visualization_widget.h"
+#ifndef POINT_CLOUD_VISUALIZATION_WIDGET_H
+#define POINT_CLOUD_VISUALIZATION_WIDGET_H
 
-#include <stereo-pipeline/pipeline.h>
-
+#include <QtWidgets>
 #include <opencv2/core.hpp>
 
 
@@ -30,26 +29,30 @@ namespace StereoToolbox {
 namespace GUI {
 
 
-WindowPointCloud::WindowPointCloud (Pipeline::Pipeline *p, QWidget *parent)
-    : QWidget(parent, Qt::Window), pipeline(p)
+// *********************************************************************
+// *                 Point cloud visualization widget                  *
+// *********************************************************************
+class PointCloudVisualizationWidget : public QOpenGLWidget
 {
-    setWindowTitle("Point cloud");
-    resize(800, 600);
+    Q_OBJECT
 
-    QVBoxLayout *layout = new QVBoxLayout(this);
-    layout->setContentsMargins(2, 2, 2, 2);
-    layout->setSpacing(2);
+public:
+    PointCloudVisualizationWidget (QWidget * = 0);
+    virtual ~PointCloudVisualizationWidget ();
 
-    // Point cloud visualization widget
-    visualizationWidget = new PointCloudVisualizationWidget(this);
-    layout->addWidget(visualizationWidget);
-}
+protected:
+    virtual void initializeGL ();
+    virtual void resizeGL (int, int);
+    virtual void paintGL ();
 
-WindowPointCloud::~WindowPointCloud ()
-{
-}
+protected:
+    QMatrix4x4 projectionMatrix;
+};
 
 
 } // GUI
 } // StereoToolbox
 } // MVL
+
+
+#endif
