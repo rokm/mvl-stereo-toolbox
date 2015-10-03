@@ -7,6 +7,7 @@ endif()
 project(toolbox CXX)
 
 set(CMAKE_AUTOMOC TRUE)
+set(CMAKE_AUTORCC TRUE)
 
 find_package(OpenCV 3.0.0 REQUIRED)
 find_package(Qt5Widgets REQUIRED)
@@ -20,6 +21,7 @@ set(toolbox_SOURCES
     main.cpp
     point_cloud_visualization_widget.cpp
     toolbox.cpp
+    toolbox.qrc
     window_image_pair_source.cpp
     window_point_cloud.cpp
     window_rectification.cpp

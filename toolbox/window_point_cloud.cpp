@@ -43,6 +43,12 @@ WindowPointCloud::WindowPointCloud (Pipeline::Pipeline *p, QWidget *parent)
     // Point cloud visualization widget
     visualizationWidget = new PointCloudVisualizationWidget(this);
     layout->addWidget(visualizationWidget);
+
+    connect(pipeline, &Pipeline::Pipeline::reprojectedImageChanged, this, [this] () {
+        const cv::Mat &points = pipeline->getReprojectedImage();
+        const cv::Mat &image = pipeline->getLeftRectifiedImage();
+        visualizationWidget->setPointCloud(image, points);
+    });
 }
 
 WindowPointCloud::~WindowPointCloud ()

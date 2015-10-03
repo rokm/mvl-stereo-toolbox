@@ -40,6 +40,8 @@ public:
     PointCloudVisualizationWidget (QWidget * = 0);
     virtual ~PointCloudVisualizationWidget ();
 
+    void setPointCloud (const cv::Mat &, const cv::Mat &);
+
 protected:
     virtual void initializeGL ();
     virtual void resizeGL (int, int);
@@ -47,6 +49,29 @@ protected:
 
 protected:
     QMatrix4x4 projectionMatrix;
+
+    // Point-cloud data
+    cv::Mat image;
+    cv::Mat points;
+    int numPoints;
+    bool freshData;
+
+    // OpenGL
+    QOpenGLShaderProgram shaderProgramPointCloud;
+
+    enum {
+        PointCloudData_VertexX,
+        PointCloudData_VertexY,
+        PointCloudData_VertexZ,
+        PointCloudData_ColorR,
+        PointCloudData_ColorG,
+        PointCloudData_ColorB,
+
+        PointCloudData_Size,
+    };
+    QOpenGLBuffer vboPoints;
+
+    QOpenGLVertexArrayObject vaoPointCloud;
 };
 
 
