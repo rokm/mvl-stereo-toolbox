@@ -39,7 +39,7 @@ class PipelinePrivate
 
     Pipeline * const q_ptr;
 
-    PipelinePrivate (Pipeline *);
+    PipelinePrivate (Pipeline *parent);
 
 protected:
     // Image pair source
@@ -86,40 +86,6 @@ protected:
     cv::Mat reprojectedImage;
     int reprojectionComputationTime;
 };
-
-
-PipelinePrivate::PipelinePrivate (Pipeline *pipeline)
-    : q_ptr(pipeline)
-{
-    imagePairSource = NULL;
-    rectification = NULL;
-    stereoMethod = NULL;
-    reprojection = NULL;
-
-    useStereoMethodThread = false;
-    stereoDroppedFramesCounter = 0;
-
-    imagePairSourceActive = true;
-    rectificationActive = true;
-    stereoMethodActive = true;
-    reprojectionActive = true;
-
-    disparityVisualizationMethod = Pipeline::VisualizationNone; // By default, turn visualization off
-
-    // Create list of supported visualization methods
-    supportedDisparityVisualizationMethods.append(Pipeline::VisualizationNone);
-    supportedDisparityVisualizationMethods.append(Pipeline::VisualizationGrayscale);
-#ifdef HAVE_OPENCV_CUDASTEREO
-    try {
-        if (cv::cuda::getCudaEnabledDeviceCount()) {
-            supportedDisparityVisualizationMethods.append(Pipeline::VisualizationColorCuda);
-        }
-    } catch (...) {
-        // Nothing to do :)
-    }
-#endif
-    supportedDisparityVisualizationMethods.append(Pipeline::VisualizationColorCpu);
-}
 
 
 } // Pipeline

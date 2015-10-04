@@ -31,14 +31,14 @@ namespace StereoToolbox {
 namespace Utils {
 
 // Helpers
-MVL_STEREO_PIPELINE_EXPORT QString cvDepthToString (int);
+MVL_STEREO_PIPELINE_EXPORT QString cvDepthToString (int depth);
 
 // Functions for dumping/loading matrix to a binary file
-MVL_STEREO_PIPELINE_EXPORT void writeMatrixToBinaryFile (const cv::Mat &, const QString &, bool = true);
+MVL_STEREO_PIPELINE_EXPORT void writeMatrixToBinaryFile (const cv::Mat &matrix, const QString &fileName, bool compress = true);
 
 // Additional visualization
-MVL_STEREO_PIPELINE_EXPORT void createColorCodedDisparityCpu (const cv::Mat &, cv::Mat &, int);
-MVL_STEREO_PIPELINE_EXPORT void createAnaglyph (const cv::Mat &, const cv::Mat &, cv::Mat &);
+MVL_STEREO_PIPELINE_EXPORT void createColorCodedDisparityCpu (const cv::Mat &disparity, cv::Mat &image, int numLevels);
+MVL_STEREO_PIPELINE_EXPORT void createAnaglyph (const cv::Mat &left, const cv::Mat &right, cv::Mat &anaglyph);
 
 
 } // Utils

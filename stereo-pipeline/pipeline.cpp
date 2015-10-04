@@ -44,6 +44,40 @@ namespace StereoToolbox {
 namespace Pipeline {
 
 
+PipelinePrivate::PipelinePrivate (Pipeline *parent)
+    : q_ptr(parent)
+{
+    imagePairSource = NULL;
+    rectification = NULL;
+    stereoMethod = NULL;
+    reprojection = NULL;
+
+    useStereoMethodThread = false;
+    stereoDroppedFramesCounter = 0;
+
+    imagePairSourceActive = true;
+    rectificationActive = true;
+    stereoMethodActive = true;
+    reprojectionActive = true;
+
+    disparityVisualizationMethod = Pipeline::VisualizationNone; // By default, turn visualization off
+
+    // Create list of supported visualization methods
+    supportedDisparityVisualizationMethods.append(Pipeline::VisualizationNone);
+    supportedDisparityVisualizationMethods.append(Pipeline::VisualizationGrayscale);
+#ifdef HAVE_OPENCV_CUDASTEREO
+    try {
+        if (cv::cuda::getCudaEnabledDeviceCount()) {
+            supportedDisparityVisualizationMethods.append(Pipeline::VisualizationColorCuda);
+        }
+    } catch (...) {
+        // Nothing to do :)
+    }
+#endif
+    supportedDisparityVisualizationMethods.append(Pipeline::VisualizationColorCpu);
+}
+
+
 Pipeline::Pipeline (QObject *parent)
     : QObject(parent), d_ptr(new PipelinePrivate(this))
 {
@@ -125,7 +159,7 @@ int Pipeline::getGpuDevice () const
 // *                         Image pair source                         *
 // *********************************************************************
 // Source setting
-void Pipeline::setImagePairSource (ImagePairSource *newSource)
+void Pipeline::setImagePairSource (ImagePairSource *source)
 {
     Q_D(Pipeline);
 
@@ -140,7 +174,7 @@ void Pipeline::setImagePairSource (ImagePairSource *newSource)
         }
     }
 
-    d->imagePairSource = newSource;
+    d->imagePairSource = source;
     if (!dynamic_cast<QObject *>(d->imagePairSource)->parent()) {
         dynamic_cast<QObject *>(d->imagePairSource)->setParent(this);
     }
@@ -169,17 +203,17 @@ void Pipeline::propagateImagePairSourceError (const QString &errorMessage)
 
 
 // Source state
-void Pipeline::setImagePairSourceState (bool newState)
+void Pipeline::setImagePairSourceState (bool active)
 {
     Q_D(Pipeline);
 
-    if (newState != d->imagePairSourceActive) {
-        if (!newState && d->imagePairSource) {
+    if (active != d->imagePairSourceActive) {
+        if (!active && d->imagePairSource) {
             d->imagePairSource->stopSource(); // Stop the source
         }
 
-        d->imagePairSourceActive = newState;
-        emit imagePairSourceStateChanged(newState);
+        d->imagePairSourceActive = active;
+        emit imagePairSourceStateChanged(active);
     }
 }
 
@@ -225,7 +259,7 @@ void Pipeline::beginProcessing ()
 // *                           Rectification                           *
 // *********************************************************************
 // Rectification setting
-void Pipeline::setRectification (Rectification *newRectification)
+void Pipeline::setRectification (Rectification *rectification)
 {
     Q_D(Pipeline);
 
@@ -240,7 +274,7 @@ void Pipeline::setRectification (Rectification *newRectification)
         }
     }
 
-    d->rectification = newRectification;
+    d->rectification = rectification;
     if (!d->rectification->parent()) {
         d->rectification->setParent(this);
     }
@@ -262,13 +296,13 @@ Rectification *Pipeline::getRectification ()
 
 
 // Rectification state
-void Pipeline::setRectificationState (bool newState)
+void Pipeline::setRectificationState (bool active)
 {
     Q_D(Pipeline);
 
-    if (newState != d->rectificationActive) {
-        d->rectificationActive = newState;
-        emit rectificationStateChanged(newState);
+    if (active != d->rectificationActive) {
+        d->rectificationActive = active;
+        emit rectificationStateChanged(active);
     }
 }
 
@@ -339,7 +373,7 @@ void Pipeline::rectifyImages ()
 // *                           Stereo method                           *
 // *********************************************************************
 // Method setting
-void Pipeline::setStereoMethod (StereoMethod *newMethod)
+void Pipeline::setStereoMethod (StereoMethod *method)
 {
     Q_D(Pipeline);
 
@@ -352,7 +386,7 @@ void Pipeline::setStereoMethod (StereoMethod *newMethod)
         }
     }
 
-    d->stereoMethod = newMethod;
+    d->stereoMethod = method;
     if (!dynamic_cast<QObject *>(d->stereoMethod)->parent()) {
         dynamic_cast<QObject *>(d->stereoMethod)->deleteLater();
     }
@@ -373,13 +407,13 @@ StereoMethod *Pipeline::getStereoMethod ()
 
 
 // Method state
-void Pipeline::setStereoMethodState (bool newState)
+void Pipeline::setStereoMethodState (bool active)
 {
     Q_D(Pipeline);
 
-    if (newState != d->stereoMethodActive) {
-        d->stereoMethodActive = newState;
-        emit stereoMethodStateChanged(newState);
+    if (active != d->stereoMethodActive) {
+        d->stereoMethodActive = active;
+        emit stereoMethodStateChanged(active);
     }
 }
 
@@ -513,20 +547,20 @@ const cv::Mat &Pipeline::getDisparityVisualizationImage () const
     return d->disparityVisualizationImage;
 }
 
-void Pipeline::setDisparityVisualizationMethod (int newMethod)
+void Pipeline::setDisparityVisualizationMethod (int method)
 {
     Q_D(Pipeline);
 
-    if (newMethod == d->disparityVisualizationMethod) {
+    if (method == d->disparityVisualizationMethod) {
         return;
     }
 
     // Make sure method is supported
-    if (!d->supportedDisparityVisualizationMethods.contains(newMethod)) {
+    if (!d->supportedDisparityVisualizationMethods.contains(method)) {
         d->disparityVisualizationMethod = VisualizationNone;
-        emit error(ErrorReprojection, QString("Reprojection method %1 not supported!").arg(newMethod));
+        emit error(ErrorReprojection, QString("Reprojection method %1 not supported!").arg(method));
     } else {
-        d->disparityVisualizationMethod = newMethod;
+        d->disparityVisualizationMethod = method;
     }
 
     // Emit in any case
@@ -601,7 +635,7 @@ void Pipeline::updateReprojectionMatrix ()
 }
 
 // Reprojection setting
-void Pipeline::setReprojection (Reprojection *newReprojection)
+void Pipeline::setReprojection (Reprojection *reprojection)
 {
     Q_D(Pipeline);
 
@@ -613,7 +647,7 @@ void Pipeline::setReprojection (Reprojection *newReprojection)
         }
     }
 
-    d->reprojection = newReprojection;
+    d->reprojection = reprojection;
     if (!d->reprojection->parent()) {
         d->reprojection->setParent(this);
     }
@@ -632,13 +666,13 @@ Reprojection *Pipeline::getReprojection ()
 
 
 // Reprojection state
-void Pipeline::setReprojectionState (bool newState)
+void Pipeline::setReprojectionState (bool active)
 {
     Q_D(Pipeline);
 
-    if (newState != d->reprojectionActive) {
-        d->reprojectionActive = newState;
-        emit reprojectionStateChanged(newState);
+    if (active != d->reprojectionActive) {
+        d->reprojectionActive = active;
+        emit reprojectionStateChanged(active);
     }
 }
 

@@ -41,7 +41,7 @@ public:
     virtual QString getShortName () const = 0;
     virtual QString getDescription () const = 0;
 
-    virtual QObject *createObject (QObject * = 0) const = 0;
+    virtual QObject *createObject (QObject *parent = 0) const = 0;
 };
 
 

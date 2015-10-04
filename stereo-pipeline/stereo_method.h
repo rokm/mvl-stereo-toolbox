@@ -36,15 +36,15 @@ public:
     virtual QString getShortName () const = 0;
 
     // Config widget
-    virtual QWidget *createConfigWidget (QWidget * = 0) = 0;
+    virtual QWidget *createConfigWidget (QWidget *parent = 0) = 0;
 
     // Disparity image computation
-    virtual void computeDisparityImage (const cv::Mat &, const cv::Mat &, cv::Mat &, int &) = 0;
+    virtual void computeDisparityImage (const cv::Mat &img1, const cv::Mat &img2, cv::Mat &disparity, int &numDisparities) = 0;
 
     // Parameter import/export
-    virtual void loadParameters (const QString &) = 0;
+    virtual void loadParameters (const QString &filename) = 0;
 
-    virtual void saveParameters (const QString &) const = 0;
+    virtual void saveParameters (const QString &filename) const = 0;
 
     // These are actually signals, but they are not allowed in non-QObject classes
 public:

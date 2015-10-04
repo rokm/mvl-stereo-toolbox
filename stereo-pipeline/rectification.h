@@ -41,31 +41,31 @@ class MVL_STEREO_PIPELINE_EXPORT Rectification : public QObject
     QScopedPointer<RectificationPrivate> const d_ptr;
 
 public:
-    Rectification (QObject * = 0);
+    Rectification (QObject *parent = 0);
     virtual ~Rectification ();
 
-    void setStereoCalibration (const cv::Mat &, const cv::Mat &, const cv::Mat &, const cv::Mat &, const cv::Mat &, const cv::Mat &, const cv::Size &);
-    void loadStereoCalibration (const QString &);
-    void saveStereoCalibration (const QString &) const;
+    void setStereoCalibration (const cv::Mat &cameraMatrix1, const cv::Mat &distCoeffs1, const cv::Mat &cameraMatrix2, const cv::Mat &distCoeffs2, const cv::Mat &rotation, const cv::Mat &translation, const cv::Size &imageSize);
+    void loadStereoCalibration (const QString &filename);
+    void saveStereoCalibration (const QString &filename) const;
     void clearStereoCalibration ();
 
     // Static import/export functions
-    static void exportStereoCalibration (const QString &, const cv::Mat &, const cv::Mat &, const cv::Mat &, const cv::Mat &, const cv::Mat &, const cv::Mat &, const cv::Size &);
-    static void importStereoCalibration (const QString &, cv::Mat &, cv::Mat &, cv::Mat &, cv::Mat &, cv::Mat &, cv::Mat &, cv::Size &);
+    static void exportStereoCalibration (const QString &filename, const cv::Mat &cameraMatrix1, const cv::Mat &distCoeffs1, const cv::Mat &cameraMatrix2, const cv::Mat &distCoeffs2, const cv::Mat &rotation, const cv::Mat &translation, const cv::Size &imageSize);
+    static void importStereoCalibration (const QString &filename, cv::Mat &cameraMatrix1, cv::Mat &distCoeffs1, cv::Mat &cameraMatrix2, cv::Mat &distCoeffs2, cv::Mat &rotation, cv::Mat &translation, cv::Size &imageSize);
 
-    void setPerformRectification (bool);
+    void setPerformRectification (bool enable);
     bool getPerformRectification () const;
 
     const cv::Rect &getRoi () const;
-    void setRoi (const cv::Rect &);
+    void setRoi (const cv::Rect &roi);
 
     float getAlpha () const;
-    void setAlpha (float);
+    void setAlpha (float alpha);
 
     bool getZeroDisparity () const;
-    void setZeroDisparity (bool);
+    void setZeroDisparity (bool enable);
 
-    void rectifyImagePair (const cv::Mat &, const cv::Mat &, cv::Mat &, cv::Mat &) const;
+    void rectifyImagePair (const cv::Mat &img1, const cv::Mat &img2, cv::Mat &img1r, cv::Mat &img2r) const;
 
     bool getState () const;
 
@@ -77,11 +77,11 @@ protected:
     void initializeRectification ();
 
 signals:
-    void stateChanged (bool);
+    void stateChanged (bool active);
 
-    void performRectificationChanged (bool);
+    void performRectificationChanged (bool enable);
 
-    void error (QString) const;
+    void error (const QString &message) const;
 
     void roiChanged ();
     void zeroDisparityChanged ();

@@ -46,30 +46,30 @@ class MVL_STEREO_PIPELINE_EXPORT Pipeline : public QObject
     QScopedPointer<PipelinePrivate> const d_ptr;
 
 public:
-    Pipeline (QObject * = 0);
+    Pipeline (QObject *parent = 0);
     virtual ~Pipeline ();
 
     // GPU/CUDA management
     int getNumberOfGpuDevices ();
 
-    void setGpuDevice (int);
+    void setGpuDevice (int dev);
     int getGpuDevice () const;
 
     // Image pair source
-    void setImagePairSource (ImagePairSource *);
+    void setImagePairSource (ImagePairSource *source);
     ImagePairSource *getImagePairSource ();
 
-    void setImagePairSourceState (bool);
+    void setImagePairSourceState (bool active);
     bool getImagePairSourceState () const;
 
     const cv::Mat &getLeftImage () const;
     const cv::Mat &getRightImage () const;
 
     // Rectification
-    void setRectification (Rectification *);
+    void setRectification (Rectification *rectification);
     Rectification *getRectification ();
 
-    void setRectificationState (bool);
+    void setRectificationState (bool active);
     bool getRectificationState () const;
 
     const cv::Mat &getLeftRectifiedImage () const;
@@ -77,10 +77,10 @@ public:
     int getRectificationTime () const;
 
     // Stereo method
-    void setStereoMethod (StereoMethod *);
+    void setStereoMethod (StereoMethod *method);
     StereoMethod *getStereoMethod ();
 
-    void setStereoMethodState (bool);
+    void setStereoMethodState (bool active);
     bool getStereoMethodState () const;
 
     const cv::Mat &getDisparityImage () const;
@@ -88,7 +88,7 @@ public:
     int getDisparityImageComputationTime () const;
 
     // Stereo method thread
-    void setUseStereoMethodThread (bool);
+    void setUseStereoMethodThread (bool enable);
     bool getUseStereoMethodThread () const;
 
     int getStereoDroppedFrames () const;
@@ -101,17 +101,17 @@ public:
         VisualizationColorCpu
     };
 
-    void setDisparityVisualizationMethod (int);
+    void setDisparityVisualizationMethod (int method);
     int getDisparityVisualizationMethod () const;
     const QList<int> &getSupportedDisparityVisualizationMethods () const;
 
     const cv::Mat &getDisparityVisualizationImage () const;
 
     // Reprojection
-    void setReprojection (Reprojection *);
+    void setReprojection (Reprojection *reprojection);
     Reprojection *getReprojection ();
 
-    void setReprojectionState (bool);
+    void setReprojectionState (bool active);
     bool getReprojectionState () const;
 
     const cv::Mat &getReprojectedImage () const;
@@ -138,17 +138,17 @@ protected slots:
 
     void updateReprojectionMatrix ();
 
-    void propagateImagePairSourceError (const QString &);
+    void propagateImagePairSourceError (const QString &message);
 
 signals:
-    void error (int, const QString);
+    void error (int domain, const QString &message);
 
     void processingCompleted ();
 
-    void imagePairSourceStateChanged (bool);
-    void rectificationStateChanged (bool);
-    void stereoMethodStateChanged (bool);
-    void reprojectionStateChanged (bool);
+    void imagePairSourceStateChanged (bool active);
+    void rectificationStateChanged (bool active);
+    void stereoMethodStateChanged (bool active);
+    void reprojectionStateChanged (bool active);
 
     void inputImagesChanged ();
     void rectifiedImagesChanged ();
@@ -156,7 +156,7 @@ signals:
     void disparityVisualizationImageChanged ();
     void reprojectedImageChanged ();
 
-    void disparityVisualizationMethodChanged (int);
+    void disparityVisualizationMethodChanged (int method);
 };
 
 

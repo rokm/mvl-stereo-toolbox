@@ -33,7 +33,7 @@ class ReprojectionPrivate
 
     Reprojection * const q_ptr;
 
-    ReprojectionPrivate (Reprojection *);
+    ReprojectionPrivate (Reprojection *parent);
 
 protected:
     cv::Mat Q;
@@ -41,30 +41,6 @@ protected:
     QList<int> supportedMethods;
     int reprojectionMethod;
 };
-
-
-ReprojectionPrivate::ReprojectionPrivate (Reprojection *reprojection)
-    : q_ptr(reprojection)
-{
-    // Create list of supported methods
-    supportedMethods.append(Reprojection::MethodToolboxCpu);
-    supportedMethods.append(Reprojection::MethodOpenCvCpu);
-#ifdef HAVE_OPENCV_CUDASTEREO
-    try {
-        if (cv::cuda::getCudaEnabledDeviceCount()) {
-#ifdef HAVE_CUDA
-            supportedMethods.append(Reprojection::MethodToolboxCuda);
-#endif
-            supportedMethods.append(Reprojection::MethodOpenCvCuda);
-        }
-    } catch (...) {
-        // Nothing to do :)
-    }
-#endif
-
-    // Default method: Toolbox CPU
-    reprojectionMethod = Reprojection::MethodToolboxCpu;
-}
 
 
 } // Pipeline

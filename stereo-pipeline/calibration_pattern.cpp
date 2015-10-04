@@ -31,15 +31,21 @@ namespace StereoToolbox {
 namespace Pipeline {
 
 
+CalibrationPatternPrivate::CalibrationPatternPrivate (CalibrationPattern *parent)
+    : q_ptr(parent)
+{
+}
+
+
 CalibrationPattern::CalibrationPattern ()
     : d_ptr(new CalibrationPatternPrivate(this))
 {
 }
 
-CalibrationPattern::CalibrationPattern (int width, int height, float size, PatternType type, int levels, float increment)
+CalibrationPattern::CalibrationPattern (int patternWidth, int patternHeight, float elementSize, PatternType patternType, int maxScaleLevel, float scaleIncrement)
     : d_ptr(new CalibrationPatternPrivate(this))
 {
-    setParameters(width, height, size, type, levels, increment);
+    setParameters(patternWidth, patternHeight, elementSize, patternType, maxScaleLevel, scaleIncrement);
 }
 
 CalibrationPattern::~CalibrationPattern ()
@@ -50,20 +56,20 @@ CalibrationPattern::~CalibrationPattern ()
 // *********************************************************************
 // *                            Parameters                             *
 // *********************************************************************
-void CalibrationPattern::setParameters (int newPatternWidth, int newPatternHeight, float newElementSize, PatternType newPatternType, int newMaxScaleLevel, float newScaleIncrement)
+void CalibrationPattern::setParameters (int patternWidth, int patternHeight, float elementSize, PatternType patternType, int maxScaleLevel, float scaleIncrement)
 {
     Q_D(CalibrationPattern);
 
-    d->patternWidth = newPatternWidth;
-    d->patternHeight = newPatternHeight;
+    d->patternWidth = patternWidth;
+    d->patternHeight = patternHeight;
     d->patternSize = cv::Size(d->patternWidth, d->patternHeight);
 
-    d->elementSize = newElementSize;
+    d->elementSize = elementSize;
 
-    d->patternType = newPatternType;
+    d->patternType = patternType;
 
-    d->maxScaleLevel = newMaxScaleLevel;
-    d->scaleIncrement = newScaleIncrement;
+    d->maxScaleLevel = maxScaleLevel;
+    d->scaleIncrement = scaleIncrement;
 }
 
 

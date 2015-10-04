@@ -33,7 +33,7 @@ class RectificationPrivate
 
     Rectification * const q_ptr;
 
-    RectificationPrivate (Rectification *);
+    RectificationPrivate (Rectification *parent);
 
 protected:
     bool isValid;
@@ -66,19 +66,6 @@ protected:
     float alpha;
     bool zeroDisparity;
 };
-
-
-RectificationPrivate::RectificationPrivate (Rectification *rectification)
-    : q_ptr(rectification)
-{
-    isValid = false;
-    performRectification = true;
-
-    isVerticalStereo = false;
-
-    alpha = 0;
-    zeroDisparity = true;
-}
 
 
 } // Pipeline

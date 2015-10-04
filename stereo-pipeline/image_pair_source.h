@@ -34,16 +34,16 @@ class ImagePairSource
 public:
     virtual QString getShortName () const = 0;
 
-    virtual void getImages (cv::Mat &, cv::Mat &) = 0;
+    virtual void getImages (cv::Mat &left, cv::Mat &right) = 0;
     virtual void stopSource () = 0;
 
     // Config widget
-    virtual QWidget *createConfigWidget (QWidget * = 0) = 0;
+    virtual QWidget *createConfigWidget (QWidget *parent = 0) = 0;
 
     // These are actually signals, but they are not allowed in non-QObject classes
 public:
     virtual void imagesChanged () = 0;
-    virtual void error (const QString &) = 0;
+    virtual void error (const QString &message) = 0;
 };
 
 

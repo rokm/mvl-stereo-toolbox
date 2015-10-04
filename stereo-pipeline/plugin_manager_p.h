@@ -33,18 +33,12 @@ class PluginManagerPrivate
 
     PluginManager * const q_ptr;
 
-    PluginManagerPrivate (PluginManager *);
+    PluginManagerPrivate (PluginManager *parent);
 
 protected:
     QDir pluginDirectory;
     QList<QObject *> plugins;
 };
-
-
-PluginManagerPrivate::PluginManagerPrivate (PluginManager *manager)
-    : q_ptr(manager)
-{
-}
 
 
 } // Pipeline

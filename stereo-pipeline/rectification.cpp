@@ -31,6 +31,19 @@ namespace StereoToolbox {
 namespace Pipeline {
 
 
+RectificationPrivate::RectificationPrivate (Rectification *parent)
+    : q_ptr(parent)
+{
+    isValid = false;
+    performRectification = true;
+
+    isVerticalStereo = false;
+
+    alpha = 0;
+    zeroDisparity = true;
+}
+
+
 Rectification::Rectification (QObject *parent)
     : QObject(parent), d_ptr(new RectificationPrivate(this))
 {
@@ -133,7 +146,7 @@ void Rectification::importStereoCalibration (const QString &filename, cv::Mat &c
 // *********************************************************************
 // *                            Calibration                            *
 // *********************************************************************
-void Rectification::setStereoCalibration (const cv::Mat &cameraMatrix1, const cv::Mat &distCoeffs1, const cv::Mat &cameraMatrix2, const cv::Mat &distCoeffs2, const cv::Mat &rotation, const cv::Mat &translation, const cv::Size &size)
+void Rectification::setStereoCalibration (const cv::Mat &cameraMatrix1, const cv::Mat &distCoeffs1, const cv::Mat &cameraMatrix2, const cv::Mat &distCoeffs2, const cv::Mat &rotation, const cv::Mat &translation, const cv::Size &imageSize)
 {
     Q_D(Rectification);
 
@@ -150,7 +163,7 @@ void Rectification::setStereoCalibration (const cv::Mat &cameraMatrix1, const cv
     d->R = rotation;
     d->T = translation;
 
-    d->imageSize = size;
+    d->imageSize = imageSize;
 
     // Initialize rectification
     initializeRectification();
@@ -260,12 +273,12 @@ void Rectification::rectifyImagePair (const cv::Mat &img1, const cv::Mat &img2, 
 // *********************************************************************
 // *                                ROI                                *
 // *********************************************************************
-void Rectification::setRoi (const cv::Rect &newRoi)
+void Rectification::setRoi (const cv::Rect &roi)
 {
     Q_D(Rectification);
 
-    if (newRoi != d->roi) {
-        d->roi = newRoi;
+    if (roi != d->roi) {
+        d->roi = roi;
 
         emit roiChanged();
     }
@@ -281,12 +294,12 @@ const cv::Rect &Rectification::getRoi () const
 // *********************************************************************
 // *                      Rectification parameters                     *
 // *********************************************************************
-void Rectification::setZeroDisparity (bool newValue)
+void Rectification::setZeroDisparity (bool enable)
 {
     Q_D(Rectification);
 
-    if (newValue != d->zeroDisparity) {
-        d->zeroDisparity = newValue;
+    if (enable != d->zeroDisparity) {
+        d->zeroDisparity = enable;
 
         emit zeroDisparityChanged();
 
@@ -302,12 +315,12 @@ bool Rectification::getZeroDisparity () const
 }
 
 
-void Rectification::setAlpha (float newAlpha)
+void Rectification::setAlpha (float alpha)
 {
     Q_D(Rectification);
 
-    if (newAlpha != d->alpha) {
-        d->alpha = newAlpha;
+    if (alpha != d->alpha) {
+        d->alpha = alpha;
 
         emit alphaChanged();
 

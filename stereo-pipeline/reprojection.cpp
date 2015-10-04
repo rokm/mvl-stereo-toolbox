@@ -39,13 +39,37 @@ namespace Pipeline {
 
 
 // Forward-declarations for toolbox-modified methods
-void reprojectDisparityImage (const cv::Mat &, cv::Mat &, const cv::Mat &, int, int);
+void reprojectDisparityImage (const cv::Mat &disparity, cv::Mat &points, const cv::Mat &Q, int offsetX, int offsetY);
 
 #ifdef HAVE_OPENCV_CUDASTEREO
 #ifdef HAVE_CUDA
-template <typename TYPE> void reprojectDisparityImageCuda (const cv::cuda::PtrStepSzb, cv::cuda::PtrStepSz<float3>, const float *, unsigned short, unsigned short);
+template <typename TYPE> void reprojectDisparityImageCuda (const cv::cuda::PtrStepSzb disparity, cv::cuda::PtrStepSz<float3> points, const float *q, unsigned short offsetX, unsigned short offsetY);
 #endif
 #endif
+
+
+ReprojectionPrivate::ReprojectionPrivate (Reprojection *parent)
+    : q_ptr(parent)
+{
+    // Create list of supported methods
+    supportedMethods.append(Reprojection::MethodToolboxCpu);
+    supportedMethods.append(Reprojection::MethodOpenCvCpu);
+#ifdef HAVE_OPENCV_CUDASTEREO
+    try {
+        if (cv::cuda::getCudaEnabledDeviceCount()) {
+#ifdef HAVE_CUDA
+            supportedMethods.append(Reprojection::MethodToolboxCuda);
+#endif
+            supportedMethods.append(Reprojection::MethodOpenCvCuda);
+        }
+    } catch (...) {
+        // Nothing to do :)
+    }
+#endif
+
+    // Default method: Toolbox CPU
+    reprojectionMethod = Reprojection::MethodToolboxCpu;
+}
 
 
 Reprojection::Reprojection (QObject *parent)
@@ -61,20 +85,20 @@ Reprojection::~Reprojection ()
 // *********************************************************************
 // *                        Reprojection method                        *
 // *********************************************************************
-void Reprojection::setReprojectionMethod (int newMethod)
+void Reprojection::setReprojectionMethod (int method)
 {
     Q_D(Reprojection);
 
-    if (newMethod == d->reprojectionMethod) {
+    if (method == d->reprojectionMethod) {
         return;
     }
 
     // Make sure method is supported
-    if (!d->supportedMethods.contains(newMethod)) {
+    if (!d->supportedMethods.contains(method)) {
         d->reprojectionMethod = MethodToolboxCpu;
-        emit error(QString("Reprojection method %1 not supported!").arg(newMethod));
+        emit error(QString("Reprojection method %1 not supported!").arg(method));
     } else {
-        d->reprojectionMethod = newMethod;
+        d->reprojectionMethod = method;
     }
 
     // Emit in any case
@@ -99,7 +123,7 @@ const QList<int> &Reprojection::getSupportedReprojectionMethods () const
 // *********************************************************************
 // *                        Reprojection matrix                        *
 // *********************************************************************
-void Reprojection::setReprojectionMatrix (const cv::Mat &newQ)
+void Reprojection::setReprojectionMatrix (const cv::Mat &Q)
 {
     Q_D(Reprojection);
 
@@ -107,10 +131,10 @@ void Reprojection::setReprojectionMatrix (const cv::Mat &newQ)
     // matrix that is 4x4 CV_64F... however, GPU reprojection code
     // requires it to be 4x4 CV_32F. For performance reasons, we do
     // the conversion here
-    if (newQ.type() == CV_64F) {
-        newQ.convertTo(d->Q, CV_32F); // Convert: CV_64F -> CV_32F
+    if (Q.type() == CV_64F) {
+        Q.convertTo(d->Q, CV_32F); // Convert: CV_64F -> CV_32F
     } else {
-        d->Q = newQ.clone(); // Copy
+        Q.copyTo(d->Q); // Copy
     }
 
     emit reprojectionMatrixChanged();

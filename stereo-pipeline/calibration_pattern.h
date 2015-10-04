@@ -46,16 +46,16 @@ public:
     };
 
     CalibrationPattern ();
-    CalibrationPattern (int, int, float, PatternType, int = 0, float = 0.25);
+    CalibrationPattern (int patternWidth, int patternHeight, float elementSize, PatternType patternType, int maxScaleLevel = 0, float scaleIncrement = 0.25f);
     virtual ~CalibrationPattern ();
 
-    void setParameters (int, int, float, PatternType, int = 0, float = 0.25);
+    void setParameters (int patternWidth, int patternHeight, float elementSize, PatternType patternType, int maxScaleLevel = 0, float scaleIncrement = 0.25f);
 
     const cv::Size getPatternSize () const;
 
     std::vector<cv::Point3f> computePlanarCoordinates () const;
 
-    bool findInImage (const cv::Mat &, std::vector<cv::Point2f> &) const;
+    bool findInImage (const cv::Mat &img, std::vector<cv::Point2f> &points) const;
 };
 
 

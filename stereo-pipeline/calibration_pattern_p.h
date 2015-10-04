@@ -32,7 +32,7 @@ class CalibrationPatternPrivate
 
     CalibrationPattern * const q_ptr;
 
-    CalibrationPatternPrivate (CalibrationPattern *);
+    CalibrationPatternPrivate (CalibrationPattern *parent);
 
 protected:
     int patternWidth;
@@ -46,12 +46,6 @@ protected:
     int maxScaleLevel;
     float scaleIncrement;
 };
-
-
-CalibrationPatternPrivate::CalibrationPatternPrivate (CalibrationPattern *pattern)
-    : q_ptr(pattern)
-{
-}
 
 
 } // Pipeline

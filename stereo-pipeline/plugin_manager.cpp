@@ -29,6 +29,13 @@ namespace StereoToolbox {
 namespace Pipeline {
 
 
+PluginManagerPrivate::PluginManagerPrivate (PluginManager *parent)
+    : q_ptr(parent)
+{
+}
+
+
+
 PluginManager::PluginManager (QObject *parent)
     : QObject(parent), d_ptr(new PluginManagerPrivate(this))
 {
@@ -56,7 +63,7 @@ static void recursiveDirectoryScan (QDir dir, QStringList &files)
     }
 }
 
-void PluginManager::setPluginDirectory (const QString &newDirectory)
+void PluginManager::setPluginDirectory (const QString &path)
 {
     Q_D(PluginManager);
 
@@ -68,8 +75,8 @@ void PluginManager::setPluginDirectory (const QString &newDirectory)
 
     // If path is not provided, use default, which can be overriden
     // by environment variable
-    if (!newDirectory.isEmpty()) {
-        d->pluginDirectory = QDir(newDirectory);
+    if (!path.isEmpty()) {
+        d->pluginDirectory = QDir(path);
     } else {
         QByteArray pluginEnvVariable = qgetenv ("MVL_STEREO_TOOLBOX_PLUGIN_DIR");
         if (!pluginEnvVariable.isEmpty()) {

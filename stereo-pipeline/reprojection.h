@@ -41,7 +41,7 @@ class MVL_STEREO_PIPELINE_EXPORT Reprojection : public QObject
     QScopedPointer<ReprojectionPrivate> const d_ptr;
 
 public:
-    Reprojection (QObject * = 0);
+    Reprojection (QObject *parent = 0);
     ~Reprojection ();
 
     enum {
@@ -51,20 +51,20 @@ public:
         MethodOpenCvCuda,
     };
 
-    void setReprojectionMethod (int);
+    void setReprojectionMethod (int method);
     int getReprojectionMethod () const;
     const QList<int> &getSupportedReprojectionMethods () const;
 
-    void setReprojectionMatrix (const cv::Mat &);
+    void setReprojectionMatrix (const cv::Mat &Q);
     const cv::Mat &getReprojectionMatrix () const;
 
-    void reprojectStereoDisparity (const cv::Mat &, cv::Mat &, int = 0, int = 0) const;
+    void reprojectStereoDisparity (const cv::Mat &disparity_, cv::Mat &points, int offsetX = 0, int offsetY = 0) const;
 
 signals:
-    void reprojectionMethodChanged (int);
+    void reprojectionMethodChanged (int method);
     void reprojectionMatrixChanged ();
 
-    void error (QString);
+    void error (const QString &message);
 };
 
 
