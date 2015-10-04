@@ -20,6 +20,7 @@
 #include "window_point_cloud.h"
 
 #include <stereo-pipeline/pipeline.h>
+#include <stereo-pipeline/utils.h>
 #include <stereo-widgets/point_cloud_visualization_widget.h>
 
 #include <opencv2/core.hpp>
@@ -40,6 +41,20 @@ WindowPointCloud::WindowPointCloud (Pipeline::Pipeline *p, QWidget *parent)
     layout->setContentsMargins(2, 2, 2, 2);
     layout->setSpacing(2);
 
+    // Buttons
+    QHBoxLayout *buttonsLayout = new QHBoxLayout();
+    buttonsLayout->setContentsMargins(0, 0, 0, 0);
+
+    layout->addLayout(buttonsLayout);
+
+    // Save reprojection data
+    pushButtonSavePointCloud = new QPushButton("Save point cloud", this);
+    pushButtonSavePointCloud->setToolTip("Save point cloud.");
+    connect(pushButtonSavePointCloud, &QPushButton::clicked, this, &WindowPointCloud::savePointCloud);
+    buttonsLayout->addWidget(pushButtonSavePointCloud);
+
+    buttonsLayout->addStretch();
+
     // Point cloud visualization widget
     visualizationWidget = new Widgets::PointCloudVisualizationWidget(this);
     layout->addWidget(visualizationWidget);
@@ -53,6 +68,43 @@ WindowPointCloud::WindowPointCloud (Pipeline::Pipeline *p, QWidget *parent)
 
 WindowPointCloud::~WindowPointCloud ()
 {
+}
+
+
+void WindowPointCloud::savePointCloud ()
+{
+    // Create a snapshot of current point cloud
+    cv::Mat image, points;
+
+    pipeline->getLeftRectifiedImage().copyTo(image);
+    pipeline->getReprojectedImage().copyTo(points);
+
+    // Get filename
+    QStringList fileFilters;
+    fileFilters.append("Binary PCD file (*.pcd)");
+    fileFilters.append("ASCII PCD file (*.pcd)");
+
+    QString selectedFilter = fileFilters[0];
+    QString fileName = QFileDialog::getSaveFileName(this, "Save point cloud", lastSavedFile,  fileFilters.join(";;"), &selectedFilter);
+    if (!fileName.isNull()) {
+        // If extension is not given, set default based on selected filter
+        QString ext = QFileInfo(fileName).completeSuffix();
+        if (ext.isEmpty()) {
+            fileName += ".pcd";
+        }
+
+        // Binary
+        bool binaryFormat = selectedFilter == fileFilters[0];
+        qDebug() << binaryFormat << selectedFilter;
+
+        try {
+            Utils::writePointCloudToPcdFile(image, points, fileName, binaryFormat);
+        } catch (const QString &e) {
+            qWarning() << "Failed to save point cloud:" << e;
+        }
+
+        lastSavedFile = fileName;
+    }
 }
 
 

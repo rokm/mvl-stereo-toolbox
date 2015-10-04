@@ -40,6 +40,9 @@ MVL_STEREO_PIPELINE_EXPORT void writeMatrixToBinaryFile (const cv::Mat &matrix, 
 MVL_STEREO_PIPELINE_EXPORT void createColorCodedDisparityCpu (const cv::Mat &disparity, cv::Mat &image, int numLevels);
 MVL_STEREO_PIPELINE_EXPORT void createAnaglyph (const cv::Mat &left, const cv::Mat &right, cv::Mat &anaglyph);
 
+// Point-cloud export to PCD file
+MVL_STEREO_PIPELINE_EXPORT void writePointCloudToPcdFile (const cv::Mat &image, const cv::Mat &points, const QString &fileName, bool binary = true);
+
 
 } // Utils
 } // StereoToolbox

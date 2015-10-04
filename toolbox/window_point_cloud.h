@@ -48,11 +48,18 @@ public:
     virtual ~WindowPointCloud ();
 
 protected:
+    void savePointCloud ();
+
+protected:
     // Pipeline
     Pipeline::Pipeline *pipeline;
 
     // Widget
     Widgets::PointCloudVisualizationWidget *visualizationWidget;
+
+    QPushButton *pushButtonSavePointCloud;
+
+    QString lastSavedFile;
 };
 
 

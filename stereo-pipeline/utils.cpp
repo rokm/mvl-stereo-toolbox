@@ -252,6 +252,118 @@ void createAnaglyph (const cv::Mat &left, const cv::Mat &right, cv::Mat &anaglyp
 }
 
 
+// *********************************************************************
+// *                          PCD file export                          *
+// *********************************************************************
+void writePointCloudToPcdFile (const cv::Mat &image, const cv::Mat &points, const QString &fileName, bool binary)
+{
+    // Validate input data
+    if (image.rows*image.cols != points.rows*points.cols) {
+        throw QString("Size mismatch between image and points matrices!");
+    }
+
+    // Count valid points
+    int validPoints = 0;
+    for (int y = 0; y < points.rows; y++) {
+        const cv::Vec3f *pointsPtr = points.ptr<cv::Vec3f>(y);
+        for (int x = 0; x < points.cols; x++) {
+            const cv::Vec3f &xyz = pointsPtr[x];
+            if (std::isfinite(xyz[2])) {
+                validPoints++;
+            }
+        }
+    }
+
+    // Open file
+    QFile file(fileName);
+    if (!file.open(QIODevice::WriteOnly)) {
+        throw QString("Failed to open file!");
+    }
+
+    // Prepare ASCII header
+    QString header = QString(
+        "# .PCD v0.7 - Point Cloud Data file format\n"
+        "VERSION 0.7\n"
+        "FIELDS x y z rgb\n"
+        "SIZE 4 4 4 4\n"
+        "TYPE F F F F\n"
+        "COUNT 1 1 1 1\n"
+        "WIDTH %1\n"
+        "HEIGHT %2\n"
+        "VIEWPOINT 0 0 0 1 0 0 0\n"
+        "POINTS %3\n"
+        "DATA %4\n").arg(validPoints).arg(1).arg(validPoints).arg(binary ? "binary" : "ascii");
+
+    if (binary) {
+        QDataStream stream(&file);
+        stream.setVersion(QDataStream::Qt_5_0);
+        stream.setByteOrder(QDataStream::LittleEndian);
+        stream.setFloatingPointPrecision(QDataStream::SinglePrecision);
+
+        // Write header
+        QByteArray headerBytes = header.toLatin1();
+        stream.writeRawData(headerBytes.data(), headerBytes.size());
+
+        for (int y = 0; y < image.rows; y++) {
+            const cv::Vec3b *imagePtr = image.ptr<cv::Vec3b>(y);
+            const cv::Vec3f *pointsPtr = points.ptr<cv::Vec3f>(y);
+            for (int x = 0; x < image.cols; x++) {
+                const cv::Vec3b &bgr = imagePtr[x];
+                const cv::Vec3f &xyz = pointsPtr[x];
+
+                if (!std::isfinite(xyz[2])) {
+                    continue;
+                }
+
+                // Convert RGB to PCL floating-point representation
+                union {
+                    unsigned int i;
+                    float f;
+                } rgb;
+
+                rgb.i = static_cast<unsigned int>(bgr[2]) << 16 |
+                        static_cast<unsigned int>(bgr[1]) << 8 |
+                        static_cast<unsigned int>(bgr[0]);
+
+                // Store
+                stream << xyz[0] << xyz[1] << xyz[2] << rgb.f;
+            }
+        }
+
+    } else {
+        QTextStream stream(&file);
+        stream.setRealNumberPrecision(8);
+
+        stream << header;
+
+        for (int y = 0; y < image.rows; y++) {
+            const cv::Vec3b *imagePtr = image.ptr<cv::Vec3b>(y);
+            const cv::Vec3f *pointsPtr = points.ptr<cv::Vec3f>(y);
+            for (int x = 0; x < image.cols; x++) {
+                const cv::Vec3b &bgr = imagePtr[x];
+                const cv::Vec3f &xyz = pointsPtr[x];
+
+                if (!std::isfinite(xyz[2])) {
+                    continue;
+                }
+
+                // Convert RGB to PCL floating-point representation
+                union {
+                    unsigned int i;
+                    float f;
+                } rgb;
+
+                rgb.i = static_cast<unsigned int>(bgr[2]) << 16 |
+                        static_cast<unsigned int>(bgr[1]) << 8 |
+                        static_cast<unsigned int>(bgr[0]);
+
+                // Store
+                stream << xyz[0] << " " << xyz[1] << " " << xyz[2] << " " << rgb.f << "\n";
+            }
+        }
+    }
+}
+
 } // Utils
 } // StereoToolbox
 } // MVL
