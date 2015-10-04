@@ -1,5 +1,5 @@
 /*
- * MVL Stereo Toolbox: point cloud visualization widget
+ * Stereo Widgets: point cloud visualization widget
  * Copyright (C) 2015 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
@@ -17,35 +17,23 @@
  *
  */
 
-#ifndef POINT_CLOUD_VISUALIZATION_WIDGET_H
-#define POINT_CLOUD_VISUALIZATION_WIDGET_H
-
-#include <QtWidgets>
-#include <opencv2/core.hpp>
+#ifndef MVL_STEREO_TOOLBOX__WIDGETS__POINT_CLOUD_VISUALIZATION_WIDGET_P_H
+#define MVL_STEREO_TOOLBOX__WIDGETS__POINT_CLOUD_VISUALIZATION_WIDGET_P_H
 
 
 namespace MVL {
 namespace StereoToolbox {
-namespace GUI {
+namespace Widgets {
 
 
-// *********************************************************************
-// *                 Point cloud visualization widget                  *
-// *********************************************************************
-class PointCloudVisualizationWidget : public QOpenGLWidget
+class PointCloudVisualizationWidgetPrivate
 {
-    Q_OBJECT
-
-public:
-    PointCloudVisualizationWidget (QWidget * = 0);
-    virtual ~PointCloudVisualizationWidget ();
-
-    void setPointCloud (const cv::Mat &, const cv::Mat &);
+    Q_DISABLE_COPY(PointCloudVisualizationWidgetPrivate)
+    Q_DECLARE_PUBLIC(PointCloudVisualizationWidget)
 
 protected:
-    virtual void initializeGL ();
-    virtual void resizeGL (int, int);
-    virtual void paintGL ();
+    PointCloudVisualizationWidgetPrivate (PointCloudVisualizationWidget *parent);
+    PointCloudVisualizationWidget * const q_ptr;
 
 protected:
     QMatrix4x4 projectionMatrix;
@@ -59,23 +47,13 @@ protected:
     // OpenGL
     QOpenGLShaderProgram shaderProgramPointCloud;
 
-    enum {
-        PointCloudData_VertexX,
-        PointCloudData_VertexY,
-        PointCloudData_VertexZ,
-        PointCloudData_ColorR,
-        PointCloudData_ColorG,
-        PointCloudData_ColorB,
-
-        PointCloudData_Size,
-    };
-    QOpenGLBuffer vboPoints;
+    QOpenGLBuffer vboPoints; // 6 (XYZ+RGB) floats per vertex
 
     QOpenGLVertexArrayObject vaoPointCloud;
 };
 
 
-} // GUI
+} // Widgets
 } // StereoToolbox
 } // MVL
 

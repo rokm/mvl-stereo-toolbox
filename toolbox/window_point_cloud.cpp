@@ -18,9 +18,9 @@
  */
 
 #include "window_point_cloud.h"
-#include "point_cloud_visualization_widget.h"
 
 #include <stereo-pipeline/pipeline.h>
+#include <stereo-widgets/point_cloud_visualization_widget.h>
 
 #include <opencv2/core.hpp>
 
@@ -41,7 +41,7 @@ WindowPointCloud::WindowPointCloud (Pipeline::Pipeline *p, QWidget *parent)
     layout->setSpacing(2);
 
     // Point cloud visualization widget
-    visualizationWidget = new PointCloudVisualizationWidget(this);
+    visualizationWidget = new Widgets::PointCloudVisualizationWidget(this);
     layout->addWidget(visualizationWidget);
 
     connect(pipeline, &Pipeline::Pipeline::reprojectedImageChanged, this, [this] () {

@@ -7,7 +7,6 @@ endif()
 project(toolbox CXX)
 
 set(CMAKE_AUTOMOC TRUE)
-set(CMAKE_AUTORCC TRUE)
 
 find_package(OpenCV 3.0.0 REQUIRED)
 find_package(Qt5Widgets REQUIRED)
@@ -18,9 +17,7 @@ include_directories(${OpenCV_INCLUDE_DIRS})
 set(toolbox_SOURCES
     calibration_wizard.cpp
     main.cpp
-    point_cloud_visualization_widget.cpp
     toolbox.cpp
-    toolbox.qrc
     window_image_pair_source.cpp
     window_point_cloud.cpp
     window_rectification.cpp
@@ -30,7 +27,6 @@ set(toolbox_SOURCES
 
 set(toolbox_HEADERS
     calibration_wizard.h
-    point_cloud_visualization_widget.h
     toolbox.h
     window_image_pair_source.h
     window_point_cloud.h

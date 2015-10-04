@@ -30,6 +30,10 @@ namespace Pipeline {
 class Pipeline;
 } // Pipeline
 
+namespace Widgets {
+class PointCloudVisualizationWidget;
+} // Widgets
+
 namespace GUI {
 
 
@@ -48,7 +52,7 @@ protected:
     Pipeline::Pipeline *pipeline;
 
     // Widget
-    PointCloudVisualizationWidget *visualizationWidget;
+    Widgets::PointCloudVisualizationWidget *visualizationWidget;
 };
 
 

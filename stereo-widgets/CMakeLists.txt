@@ -22,6 +22,10 @@ set(widgets_SOURCES
     image_display_widget.cpp
     image_pair_display_widget.cpp
     reprojection_display_widget.cpp
+
+    point_cloud_visualization_widget.cpp
+
+    stereo-widgets.qrc
 )
 
 set(widgets_HEADERS
@@ -30,6 +34,8 @@ set(widgets_HEADERS
     image_display_widget.h
     image_pair_display_widget.h
     reprojection_display_widget.h
+
+    point_cloud_visualization_widget.h
 )
 
 
