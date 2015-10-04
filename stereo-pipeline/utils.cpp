@@ -129,6 +129,98 @@ void writeMatrixToBinaryFile (const cv::Mat &matrix, const QString &fileName, bo
 }
 
 
+static QDataStream &operator >> (QDataStream &stream, cv::Mat &matrix)
+{
+    quint32 cols, rows;
+    quint16 channels, depth;
+
+    stream >> cols; // Width
+    stream >> rows; // Height
+    stream >> channels; // Number of channels
+    stream >> depth; // Depth
+
+    matrix.create(rows, cols, CV_MAKETYPE(depth, channels));
+
+    for (int y = 0; y < matrix.rows; y++) {
+        for (int x = 0; x < matrix.cols; x++) {
+            switch (matrix.type()) {
+                case CV_8UC1: {
+                    unsigned char &entry = matrix.at<unsigned char>(y, x);
+                    stream >> entry;
+                    break;
+                }
+                case CV_16SC1: {
+                    short &entry = matrix.at<short>(y, x);
+                    stream >> entry;
+                    break;
+                }
+                case CV_32SC1: {
+                    int &entry = matrix.at<int>(y, x);
+                    stream >> entry;
+                    break;
+                }
+                case CV_32FC1: {
+                    float &entry = matrix.at<float>(y, x);
+                    stream >> entry;
+                    break;
+                }
+                case CV_32FC3: {
+                    cv::Vec3f &entry = matrix.at<cv::Vec3f>(y, x);
+                    stream >> entry[0];
+                    stream >> entry[1];
+                    stream >> entry[2];
+                    break;
+                }
+                default: {
+                    throw QString("Unhandled matrix format %1!").arg(matrix.type());
+                }
+            }
+        }
+    }
+
+    return stream;
+}
+
+void readMatrixFromBinaryFile (cv::Mat &matrix, const QString &fileName)
+{
+    QFile file(fileName);
+    if (!file.open(QIODevice::ReadOnly)) {
+        throw QString("Failed to open file!");
+    }
+
+    QDataStream stream(&file);
+    stream.setVersion(QDataStream::Qt_5_0);
+    stream.setByteOrder(QDataStream::LittleEndian);
+    stream.setFloatingPointPrecision(QDataStream::SinglePrecision);
+
+    // Read and validate signature
+    quint8 signature[4];
+    stream >> signature[0];
+    stream >> signature[1];
+    stream >> signature[2];
+    stream >> signature[3];
+
+    if (signature[0] != 'B' || signature[1] != 'M' || signature[2] != 'D' || (signature[3] != ' ' && signature[3] != 'C')) {
+        throw QString("Invalid binary matrix file!!");
+    }
+
+    if (signature[3] == ' ') {
+        stream >> matrix;
+    } else {
+        QByteArray compressedData;
+        stream >> compressedData;
+
+        QByteArray tmpData = qUncompress(compressedData);
+        QDataStream tmpStream(&tmpData, QIODevice::ReadOnly);
+        tmpStream.setVersion(QDataStream::Qt_5_0);
+        tmpStream.setByteOrder(QDataStream::LittleEndian);
+        tmpStream.setFloatingPointPrecision(QDataStream::SinglePrecision);
+
+        tmpStream >> matrix;
+    }
+}
+
+
 // *********************************************************************
 // *                 Additional visualization functions                *
 // *********************************************************************

@@ -35,6 +35,7 @@ MVL_STEREO_PIPELINE_EXPORT QString cvDepthToString (int depth);
 
 // Functions for dumping/loading matrix to a binary file
 MVL_STEREO_PIPELINE_EXPORT void writeMatrixToBinaryFile (const cv::Mat &matrix, const QString &fileName, bool compress = true);
+MVL_STEREO_PIPELINE_EXPORT void readMatrixFromBinaryFile (cv::Mat &matrix, const QString &fileName);
 
 // Additional visualization
 MVL_STEREO_PIPELINE_EXPORT void createColorCodedDisparityCpu (const cv::Mat &disparity, cv::Mat &image, int numLevels);
