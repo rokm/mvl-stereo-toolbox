@@ -122,7 +122,7 @@ void PointCloudVisualizationWidget::resizeGL (int w, int h)
 
     // Perspective projection
     d->projectionMatrix.setToIdentity();
-    d->projectionMatrix.perspective(60.0f, float(w)/float(h), 0.001f, 100.0f);
+    d->projectionMatrix.perspective(60.0f, float(w)/float(h), 0.1f, 10000.0f);
 }
 
 void PointCloudVisualizationWidget::paintGL ()
