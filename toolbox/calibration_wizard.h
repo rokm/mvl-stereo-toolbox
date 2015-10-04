@@ -43,12 +43,13 @@ namespace Pipeline {
 class CalibrationPattern;
 } // Pipeline
 
+namespace Widgets {
+    class CalibrationPatternDisplayWidget;
+    class ImageDisplayWidget;
+    class ImagePairDisplayWidget;
+} // Widgets
+
 namespace GUI {
-
-
-class CalibrationPatternDisplayWidget;
-class ImageDisplayWidget;
-class ImagePairDisplayWidget;
 
 
 // *********************************************************************
@@ -240,7 +241,7 @@ protected:
 protected:
     QString fieldPrefix;
 
-    CalibrationPatternDisplayWidget *displayImage;
+    Widgets::CalibrationPatternDisplayWidget *displayImage;
 
     QLabel *labelStatus;
 
@@ -569,7 +570,7 @@ protected:
     QString fieldPrefix;
 
     CameraParametersWidget *boxCameraParameters;
-    ImageDisplayWidget *displayImage;
+    Widgets::ImageDisplayWidget *displayImage;
 };
 
 // Left camera
@@ -616,7 +617,7 @@ protected:
     CameraParametersWidget *boxLeftCameraParameters;
     CameraParametersWidget *boxRightCameraParameters;
 
-    ImagePairDisplayWidget *displayImage;
+    Widgets::ImagePairDisplayWidget *displayImage;
 };
 
 

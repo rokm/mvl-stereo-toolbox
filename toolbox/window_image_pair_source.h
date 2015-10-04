@@ -31,10 +31,12 @@ class Pipeline;
 class ImagePairSource;
 } // Pipeline
 
+namespace Widgets {
+    class ImageDisplayWidget;
+} // Widgets
+
 namespace GUI {
 
-
-class ImageDisplayWidget;
 
 class WindowImagePairSource : public QWidget
 {
@@ -60,8 +62,8 @@ protected:
     QString snapshotBaseName;
 
     // GUI
-    ImageDisplayWidget *displayImageLeft;
-    ImageDisplayWidget *displayImageRight;
+    Widgets::ImageDisplayWidget *displayImageLeft;
+    Widgets::ImageDisplayWidget *displayImageRight;
 
     QStatusBar *statusBar;
 };

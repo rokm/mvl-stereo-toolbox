@@ -33,10 +33,14 @@ class Pipeline;
 class Rectification;
 } // Pipeline
 
+namespace Widgets {
+class ImagePairDisplayWidget;
+} // Widgets
+
 namespace GUI {
 
+
 class CalibrationWizard;
-class ImagePairDisplayWidget;
 class RoiDialog;
 class RectificationSettingsDialog;
 
@@ -77,7 +81,7 @@ protected:
 
     QComboBox *comboBoxVisualizationMethod;
 
-    ImagePairDisplayWidget *displayPair;
+    Widgets::ImagePairDisplayWidget *displayPair;
 
     QStatusBar *statusBar;
     QCheckBox *checkBoxRectifyImages;

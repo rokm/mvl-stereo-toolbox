@@ -18,11 +18,11 @@
  */
 
 #include "window_stereo_method.h"
-#include "image_display_widget.h"
 
 #include <stereo-pipeline/pipeline.h>
 #include <stereo-pipeline/stereo_method.h>
 #include <stereo-pipeline/utils.h>
+#include <stereo-widgets/disparity_display_widget.h>
 
 #include <opencv2/core.hpp>
 #include <opencv2/imgcodecs.hpp>
@@ -124,12 +124,12 @@ WindowStereoMethod::WindowStereoMethod (Pipeline::Pipeline *p, QList<Pipeline::S
     splitter->addWidget(tabWidget);
 
     // Disparity image
-    displayDisparityImage = new DisparityImageDisplayWidget("Disparity image", this);
+    displayDisparityImage = new Widgets::DisparityDisplayWidget("Disparity image", this);
     displayDisparityImage->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     displayDisparityImage->resize(400, 600); // Make sure scroll area has some size
     splitter->addWidget(displayDisparityImage);
 
-    connect(displayDisparityImage, &DisparityImageDisplayWidget::disparityUnderMouseChanged, this, &WindowStereoMethod::displayDisparity);
+    connect(displayDisparityImage, &Widgets::DisparityDisplayWidget::disparityUnderMouseChanged, this, &WindowStereoMethod::displayDisparity);
 
     // Status bar
     statusBar = new QStatusBar(this);

@@ -19,11 +19,11 @@
 
 #include "window_rectification.h"
 #include "calibration_wizard.h"
-#include "image_display_widget.h"
 
 #include <stereo-pipeline/pipeline.h>
 #include <stereo-pipeline/rectification.h>
 #include <stereo-pipeline/utils.h>
+#include <stereo-widgets/image_pair_display_widget.h>
 
 #include <opencv2/imgcodecs.hpp>
 
@@ -124,7 +124,7 @@ WindowRectification::WindowRectification (Pipeline::Pipeline *p, Pipeline::Recti
     pushButtonSaveImages = pushButton;
 
     // Rectified image pair
-    displayPair = new ImagePairDisplayWidget("Rectified image pair", this);
+    displayPair = new Widgets::ImagePairDisplayWidget("Rectified image pair", this);
     displayPair->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     layout->addWidget(displayPair, 1, 0);
 

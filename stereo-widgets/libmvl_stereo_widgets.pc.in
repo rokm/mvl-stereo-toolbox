@@ -1,0 +1,12 @@
+prefix=@CMAKE_INSTALL_PREFIX@
+exec_prefix=${prefix}
+libdir=@CMAKE_INSTALL_FULL_LIBDIR@
+includedir=@CMAKE_INSTALL_FULL_INCLUDEDIR@
+plugindir=@MVL_STEREO_PIPELINE_PLUGIN_DIR@
+
+Name: @PROJECT_NAME@
+Description: MVL Stereo Widgets shared library
+Version: @PROJECT_VERSION@
+Libs: -L${libdir} -lmvl_stereo_widgets
+Cflags: -I${includedir}/MVL
+

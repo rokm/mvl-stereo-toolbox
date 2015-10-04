@@ -25,6 +25,7 @@ include_directories(${PROJECT_BINARY_DIR})
 
 # Library
 add_subdirectory(stereo-pipeline)
+add_subdirectory(stereo-widgets)
 
 # Toolbox
 add_subdirectory(toolbox)

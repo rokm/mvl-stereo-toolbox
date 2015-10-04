@@ -31,10 +31,12 @@ class Pipeline;
 class StereoMethod;
 } // Pipeline
 
+namespace Widgets {
+class DisparityDisplayWidget;
+} // Widgets
+
 namespace GUI {
 
-
-class DisparityImageDisplayWidget;
 
 class WindowStereoMethod : public QWidget
 {
@@ -70,7 +72,7 @@ protected:
     QComboBox *comboBoxVisualizationMethod;
     QPushButton *pushButtonSaveImage;
 
-    DisparityImageDisplayWidget *displayDisparityImage;
+    Widgets::DisparityDisplayWidget *displayDisparityImage;
 
     QLabel *labelDisparity;
     QStatusBar *statusBar;

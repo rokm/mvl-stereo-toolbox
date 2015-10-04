@@ -31,9 +31,12 @@ class Reprojection;
 class Pipeline;
 } // Pipeline
 
+namespace Widgets {
+class ReprojectionDisplayWidget;
+} // Widgets
+
 namespace GUI {
 
-class ReprojectedImageDisplayWidget;
 
 class WindowReprojection : public QWidget
 {
@@ -63,7 +66,7 @@ protected:
     QComboBox *comboBoxReprojectionMethod;
     QPushButton *pushButtonSaveReprojection;
 
-    ReprojectedImageDisplayWidget *displayReprojectedImage;
+    Widgets::ReprojectionDisplayWidget *displayReprojectedImage;
 
     QLabel *labelCoordinates;
     QStatusBar *statusBar;

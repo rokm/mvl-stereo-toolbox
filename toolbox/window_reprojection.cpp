@@ -18,11 +18,11 @@
  */
 
 #include "window_reprojection.h"
-#include "image_display_widget.h"
 
 #include <stereo-pipeline/pipeline.h>
 #include <stereo-pipeline/reprojection.h>
 #include <stereo-pipeline/utils.h>
+#include <stereo-widgets/reprojection_display_widget.h>
 
 #include <opencv2/imgcodecs.hpp>
 
@@ -112,12 +112,12 @@ WindowReprojection::WindowReprojection (Pipeline::Pipeline *p, Pipeline::Reproje
     buttonsLayout->addStretch();
 
     // Reprojected image viewer
-    displayReprojectedImage = new ReprojectedImageDisplayWidget("Reprojected image", this);
+    displayReprojectedImage = new Widgets::ReprojectionDisplayWidget("Reprojected image", this);
     displayReprojectedImage->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     displayReprojectedImage->resize(400, 600); // Make sure scroll area has some size
     layout->addWidget(displayReprojectedImage);
 
-    connect(displayReprojectedImage, &ReprojectedImageDisplayWidget::coordinatesUnderMouseChanged, this, &WindowReprojection::displayCoordinates);
+    connect(displayReprojectedImage, &Widgets::ReprojectionDisplayWidget::coordinatesUnderMouseChanged, this, &WindowReprojection::displayCoordinates);
 
     // Status bar
     statusBar = new QStatusBar(this);

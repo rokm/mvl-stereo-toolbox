@@ -18,9 +18,11 @@
  */
 
 #include "calibration_wizard.h"
-#include "image_display_widget.h"
 
 #include <stereo-pipeline/rectification.h>
+#include <stereo-widgets/image_display_widget.h>
+#include <stereo-widgets/image_pair_display_widget.h>
+#include <stereo-widgets/calibration_pattern_display_widget.h>
 
 #include <opencv2/calib3d.hpp>
 #include <opencv2/imgcodecs.hpp>
@@ -667,7 +669,7 @@ CalibrationWizardPageDetection::CalibrationWizardPageDetection (const QString &f
     layout->addWidget(separator, 1, 0, 1, 2);
 
     // Display
-    displayImage = new CalibrationPatternDisplayWidget("Invalid image!", this);
+    displayImage = new Widgets::CalibrationPatternDisplayWidget("Invalid image!", this);
     displayImage->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     layout->addWidget(displayImage, 2, 0, 1, 2);
 
@@ -2107,7 +2109,7 @@ CalibrationWizardPageResult::CalibrationWizardPageResult (const QString &fieldPr
     splitter->addWidget(boxCameraParameters);
 
     // Undistorted image
-    displayImage = new ImageDisplayWidget("Undistorted image", this);
+    displayImage = new Widgets::ImageDisplayWidget("Undistorted image", this);
     displayImage->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     displayImage->resize(400, 600);
     splitter->addWidget(displayImage);
@@ -2204,7 +2206,7 @@ CalibrationWizardPageStereoResult::CalibrationWizardPageStereoResult (QWidget *p
     layout->addWidget(splitter);
 
     // Undistorted image
-    displayImage = new ImagePairDisplayWidget("Rectified image pair", this);
+    displayImage = new Widgets::ImagePairDisplayWidget("Rectified image pair", this);
     displayImage->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     displayImage->resize(400, 600);
     splitter->addWidget(displayImage);

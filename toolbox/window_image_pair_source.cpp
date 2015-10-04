@@ -18,10 +18,10 @@
  */
 
 #include "window_image_pair_source.h"
-#include "image_display_widget.h"
 
 #include <stereo-pipeline/pipeline.h>
 #include <stereo-pipeline/image_pair_source.h>
+#include <stereo-widgets/image_display_widget.h>
 
 #include <opencv2/core.hpp>
 #include <opencv2/imgcodecs.hpp>
@@ -82,11 +82,11 @@ WindowImagePairSource::WindowImagePairSource (Pipeline::Pipeline *p, QList<Pipel
     imagesWidget->resize(800, 300); // Make sure image widget has some space
     imagesWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
-    displayImageLeft = new ImageDisplayWidget("Left image", this);
+    displayImageLeft = new Widgets::ImageDisplayWidget("Left image", this);
     displayImageLeft->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     imagesLayout->addWidget(displayImageLeft);
 
-    displayImageRight = new ImageDisplayWidget("Right image", this);
+    displayImageRight = new Widgets::ImageDisplayWidget("Right image", this);
     displayImageRight->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     imagesLayout->addWidget(displayImageRight);
 

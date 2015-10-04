@@ -17,7 +17,6 @@ include_directories(${OpenCV_INCLUDE_DIRS})
 
 set(toolbox_SOURCES
     calibration_wizard.cpp
-    image_display_widget.cpp
     main.cpp
     point_cloud_visualization_widget.cpp
     toolbox.cpp
@@ -31,7 +30,6 @@ set(toolbox_SOURCES
 
 set(toolbox_HEADERS
     calibration_wizard.h
-    image_display_widget.h
     point_cloud_visualization_widget.h
     toolbox.h
     window_image_pair_source.h
@@ -51,5 +49,6 @@ if(OPENCV_CUDASTEREO_FOUND)
 endif()
 
 target_link_libraries(MVLStereoToolbox mvl_stereo_pipeline)
+target_link_libraries(MVLStereoToolbox mvl_stereo_widgets)
 
 install(TARGETS MVLStereoToolbox DESTINATION ${CMAKE_INSTALL_BINDIR})
