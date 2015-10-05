@@ -222,6 +222,11 @@ void WindowStereoMethod::saveImage ()
     pipeline->getDisparityImage().copyTo(tmpDisparity);
     pipeline->getDisparityVisualizationImage().copyTo(tmpDisparityVisualization);
 
+    if (!tmpDisparity.data) {
+        QMessageBox::information(this, "No data", "No data to export!");
+        return;
+    }
+
     // Get filename
     QStringList fileFilters;
     fileFilters.append("Image files (*.png *.jpg *.pgm *.ppm *.tif *.bmp)");
@@ -229,7 +234,7 @@ void WindowStereoMethod::saveImage ()
     fileFilters.append("OpenCV storage files (*.xml *.yml *.yaml");
 
     QString selectedFilter;
-    QString fileName = QFileDialog::getSaveFileName(this, "Save disparity image", lastSavedFile,  fileFilters.join(";;"), &selectedFilter);
+    QString fileName = QFileDialog::getSaveFileName(this, "Save disparity", lastSavedFile,  fileFilters.join(";;"), &selectedFilter);
     if (!fileName.isNull()) {
         // If extension is not given, set default based on selected filter
         QString ext = QFileInfo(fileName).completeSuffix();
@@ -250,22 +255,27 @@ void WindowStereoMethod::saveImage ()
             try {
                 cv::FileStorage fs(fileName.toStdString(), cv::FileStorage::WRITE);
                 fs << "disparity" << tmpDisparity;
-            } catch (cv::Exception &e) {
-                qWarning() << "Failed to save matrix:" << QString::fromStdString(e.what());
+            } catch (const cv::Exception &e) {
+                QMessageBox::warning(this, "Error", "Failed to save matrix: " + QString::fromStdString(e.what()));
             }
         } else if (ext == "bin") {
             // Save raw disparity in custom binary matrix format
             try {
                 Utils::writeMatrixToBinaryFile(tmpDisparity, fileName);
-            } catch (QString &e) {
-                qWarning() << "Failed to save binary file:" << e;
+            } catch (const QString &e) {
+                QMessageBox::warning(this, "Error", "Failed to save binary file: " + e);
             }
         } else {
             // Save disparity visualization as image using cv::imwrite
+            if (!tmpDisparityVisualization.data) {
+                QMessageBox::information(this, "No data", "No data to export!");
+                return;
+            }
+
             try {
                 cv::imwrite(fileName.toStdString(), tmpDisparityVisualization);
-            } catch (cv::Exception &e) {
-                qWarning() << "Failed to save image:" << QString::fromStdString(e.what());
+            } catch (const cv::Exception &e) {
+                QMessageBox::warning(this, "Error", "Failed to save image: " + QString::fromStdString(e.what()));
             }
         }
 

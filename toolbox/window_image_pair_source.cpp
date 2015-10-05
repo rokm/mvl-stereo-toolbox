@@ -147,13 +147,19 @@ void WindowImagePairSource::saveImages ()
 {
     // Make snapshot of images - because it can take a while to get
     // the filename...
-    cv::Mat tmpImg1, tmpImg2;
+    cv::Mat tmpImageLeft, tmpImageRight;
 
-    pipeline->getLeftImage().copyTo(tmpImg1);
-    pipeline->getRightImage().copyTo(tmpImg2);
+    pipeline->getLeftImage().copyTo(tmpImageLeft);
+    pipeline->getRightImage().copyTo(tmpImageRight);
+
+    // Make sure images are actually available
+    if (!tmpImageLeft.data || !tmpImageRight.data) {
+        QMessageBox::information(this, "No data", "No data to export!");
+        return;
+    }
 
     // Get filename
-    QString fileName = QFileDialog::getSaveFileName(this, "Save rectified images");
+    QString fileName = QFileDialog::getSaveFileName(this, "Save image pair");
     if (fileName.isNull()) {
         return;
     }
@@ -165,7 +171,7 @@ void WindowImagePairSource::saveImages ()
     QString ext = tmpFileName.completeSuffix();
 
     if (ext.isEmpty()) {
-        ext = "ppm";
+        ext = "png";
     }
 
     // Create filenames
@@ -173,10 +179,10 @@ void WindowImagePairSource::saveImages ()
     QString fileNameRight = QString("%1R.%2").arg(base).arg(ext);
 
     try {
-        cv::imwrite(dir.absoluteFilePath(fileNameLeft).toStdString(), tmpImg1);
-        cv::imwrite(dir.absoluteFilePath(fileNameRight).toStdString(), tmpImg2);
-    } catch (cv::Exception &e) {
-        qWarning() << "Failed to save images:" << QString::fromStdString(e.what());
+        cv::imwrite(dir.absoluteFilePath(fileNameLeft).toStdString(), tmpImageLeft);
+        cv::imwrite(dir.absoluteFilePath(fileNameRight).toStdString(), tmpImageRight);
+    } catch (const cv::Exception &e) {
+        QMessageBox::warning(this, "Error", "Failed to save image pair: " + QString::fromStdString(e.what()));
     }
 }
 
@@ -184,10 +190,16 @@ void WindowImagePairSource::snapshotImages ()
 {
     // Make snapshot of images - because it can take a while to get
     // the filename...
-    cv::Mat tmpImg1, tmpImg2;
+    cv::Mat tmpImageLeft, tmpImageRight;
 
-    pipeline->getLeftImage().copyTo(tmpImg1);
-    pipeline->getRightImage().copyTo(tmpImg2);
+    pipeline->getLeftImage().copyTo(tmpImageLeft);
+    pipeline->getRightImage().copyTo(tmpImageRight);
+
+    // Make sure images are actually available
+    if (!tmpImageLeft.data || !tmpImageRight.data) {
+        QMessageBox::information(this, "No data", "No data to export!");
+        return;
+    }
 
     // Get basename if not already set
     if (snapshotBaseName.isEmpty()) {
@@ -204,7 +216,7 @@ void WindowImagePairSource::snapshotImages ()
     QString ext = tmpFileName.completeSuffix();
 
     if (ext.isEmpty()) {
-        ext = "ppm";
+        ext = "png";
     }
 
     // Now, construct filename, and find unoccupied counter value
@@ -218,10 +230,10 @@ void WindowImagePairSource::snapshotImages ()
         }
 
         try {
-            cv::imwrite(dir.absoluteFilePath(fileNameLeft).toStdString(), tmpImg1);
-            cv::imwrite(dir.absoluteFilePath(fileNameRight).toStdString(), tmpImg2);
-        } catch (cv::Exception &e) {
-            qWarning() << "Failed to save images:" << QString::fromStdString(e.what());
+            cv::imwrite(dir.absoluteFilePath(fileNameLeft).toStdString(), tmpImageLeft);
+            cv::imwrite(dir.absoluteFilePath(fileNameRight).toStdString(), tmpImageRight);
+        } catch (const cv::Exception &e) {
+            QMessageBox::warning(this, "Error", "Failed to save image pair: " + QString::fromStdString(e.what()));
             snapshotBaseName = QString(); // Clear the image basename
         }
 
@@ -231,7 +243,7 @@ void WindowImagePairSource::snapshotImages ()
 
 void WindowImagePairSource::selectSnapshotFilename ()
 {
-    snapshotBaseName = QFileDialog::getSaveFileName(this, "Select basename for images snapshots", snapshotBaseName.isEmpty() ? "image.ppm" : snapshotBaseName);
+    snapshotBaseName = QFileDialog::getSaveFileName(this, "Select basename for images snapshots", snapshotBaseName.isEmpty() ? "image.png" : snapshotBaseName);
 }
 
 

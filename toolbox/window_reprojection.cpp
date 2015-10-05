@@ -228,13 +228,19 @@ void WindowReprojection::saveReprojectionResult ()
 
     pipeline->getReprojectedImage().copyTo(tmpReprojection);
 
+    // Make sure images are actually available
+    if (!tmpReprojection.data) {
+        QMessageBox::information(this, "No data", "No data to export!");
+        return;
+    }
+
     // Get filename
     QStringList fileFilters;
     fileFilters.append("Binary files (*.bin)");
     fileFilters.append("OpenCV storage files (*.xml *.yml *.yaml");
 
     QString selectedFilter = fileFilters[0];
-    QString fileName = QFileDialog::getSaveFileName(this, "Save reprojection result", lastSavedFile,  fileFilters.join(";;"), &selectedFilter);
+    QString fileName = QFileDialog::getSaveFileName(this, "Save reprojected points", lastSavedFile,  fileFilters.join(";;"), &selectedFilter);
     if (!fileName.isNull()) {
         // If extension is not given, set default based on selected filter
         QString ext = QFileInfo(fileName).completeSuffix();
@@ -253,15 +259,15 @@ void WindowReprojection::saveReprojectionResult ()
             try {
                 cv::FileStorage fs(fileName.toStdString(), cv::FileStorage::WRITE);
                 fs << "points" << tmpReprojection;
-            } catch (cv::Exception &e) {
-                qWarning() << "Failed to save matrix:" << QString::fromStdString(e.what());
+            } catch (const cv::Exception &e) {
+                QMessageBox::warning(this, "Error", "Failed to save matrix: " + QString::fromStdString(e.what()));
             }
         } else {
             // Save reprojected points in custom binary matrix format
             try {
                 Utils::writeMatrixToBinaryFile(tmpReprojection, fileName);
-            } catch (QString &e) {
-                qWarning() << "Failed to save binary file:" << e;
+            } catch (const QString &e) {
+                QMessageBox::warning(this, "Error", "Failed to save binary file:" + e);
             }
         }
 

@@ -74,10 +74,16 @@ WindowPointCloud::~WindowPointCloud ()
 void WindowPointCloud::savePointCloud ()
 {
     // Create a snapshot of current point cloud
-    cv::Mat image, points;
+    cv::Mat tmpImage, tmpPoints;
 
-    pipeline->getLeftRectifiedImage().copyTo(image);
-    pipeline->getReprojectedImage().copyTo(points);
+    pipeline->getLeftRectifiedImage().copyTo(tmpImage);
+    pipeline->getReprojectedImage().copyTo(tmpPoints);
+
+    // Make sure images are actually available
+    if (!tmpPoints.data || !tmpImage.data) {
+        QMessageBox::information(this, "No data", "No data to export!");
+        return;
+    }
 
     // Get filename
     QStringList fileFilters;
@@ -93,14 +99,10 @@ void WindowPointCloud::savePointCloud ()
             fileName += ".pcd";
         }
 
-        // Binary
-        bool binaryFormat = selectedFilter == fileFilters[0];
-        qDebug() << binaryFormat << selectedFilter;
-
         try {
-            Utils::writePointCloudToPcdFile(image, points, fileName, binaryFormat);
+            Utils::writePointCloudToPcdFile(tmpImage, tmpPoints, fileName, selectedFilter == fileFilters[0]);
         } catch (const QString &e) {
-            qWarning() << "Failed to save point cloud:" << e;
+            QMessageBox::warning(this, "Error", "Failed to save point cloud: " + e);
         }
 
         lastSavedFile = fileName;

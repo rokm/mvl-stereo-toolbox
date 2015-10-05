@@ -298,10 +298,16 @@ void WindowRectification::saveImages ()
 {
     // Make snapshot of images - because it can take a while to get
     // the filename...
-    cv::Mat tmpImg1, tmpImg2;
+    cv::Mat tmpImageLeft, tmpImageRight;
 
-    pipeline->getLeftRectifiedImage().copyTo(tmpImg1);
-    pipeline->getRightRectifiedImage().copyTo(tmpImg2);
+    pipeline->getLeftRectifiedImage().copyTo(tmpImageLeft);
+    pipeline->getRightRectifiedImage().copyTo(tmpImageRight);
+
+    // Make sure images are actually available
+    if (!tmpImageLeft.data || !tmpImageRight.data) {
+        QMessageBox::information(this, "No data", "No data to export!");
+        return;
+    }
 
     // Save image pair or anaglyph, based on selected visualization type
     int visualizationType = comboBoxVisualizationMethod->itemData(comboBoxVisualizationMethod->currentIndex()).toInt();
@@ -319,13 +325,12 @@ void WindowRectification::saveImages ()
         return;
     }
 
-
     QFileInfo tmpFileName(fileName);
 
     // Extension
     QString ext = tmpFileName.completeSuffix();
     if (ext.isEmpty()) {
-        ext = "jpg";
+        ext = "png";
     }
 
     if (visualizationType == VisualizationImagePair) {
@@ -334,20 +339,20 @@ void WindowRectification::saveImages ()
         QString fileNameRight = tmpFileName.absolutePath() + "/" + tmpFileName.baseName() + "R" + "." + ext;
 
         try {
-            cv::imwrite(fileNameLeft.toStdString(), tmpImg1);
-            cv::imwrite(fileNameRight.toStdString(), tmpImg2);
-        } catch (cv::Exception &e) {
+            cv::imwrite(fileNameLeft.toStdString(), tmpImageLeft);
+            cv::imwrite(fileNameRight.toStdString(), tmpImageRight);
+        } catch (const cv::Exception &e) {
             QMessageBox::warning(this, "Error", "Failed to save rectified image pair: " + QString::fromStdString(e.what()));
         }
     } else if (visualizationType == VisualizationAnaglyph) {
         QString fileNameAnaglyph = tmpFileName.absolutePath() + "/" + tmpFileName.baseName() + "." + ext;
 
         cv::Mat tmpAnaglyph;
-        Utils::createAnaglyph(tmpImg1, tmpImg2, tmpAnaglyph);
+        Utils::createAnaglyph(tmpImageLeft, tmpImageRight, tmpAnaglyph);
 
         try {
             cv::imwrite(fileNameAnaglyph.toStdString(), tmpAnaglyph);
-        } catch (cv::Exception &e) {
+        } catch (const cv::Exception &e) {
             QMessageBox::warning(this, "Error", "Failed to save anaglyph: " + QString::fromStdString(e.what()));
         }
     }
