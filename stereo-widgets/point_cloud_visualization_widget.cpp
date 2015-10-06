@@ -77,6 +77,9 @@ void PointCloudVisualizationWidget::setPointCloud (const cv::Mat &image, const c
 }
 
 
+// *********************************************************************
+// *                          OpenGL functions                         *
+// *********************************************************************
 void PointCloudVisualizationWidget::initializeGL ()
 {
     Q_D(PointCloudVisualizationWidget);
@@ -185,6 +188,65 @@ void PointCloudVisualizationWidget::paintGL ()
     glFunctions->glDrawArrays(GL_POINTS, 0, d->numPoints);
 
     d->shaderProgramPointCloud.release();
+}
+
+
+// *********************************************************************
+// *                             User input                            *
+// *********************************************************************
+void PointCloudVisualizationWidget::mousePressEvent (QMouseEvent *event)
+{
+    // Chain up to parent first...
+    QOpenGLWidget::mousePressEvent(event);
+    if (event->isAccepted()) {
+        return;
+    }
+
+    // TODO: our handling
+}
+
+void PointCloudVisualizationWidget::mouseReleaseEvent (QMouseEvent *event)
+{
+    // Chain up to parent first...
+    QOpenGLWidget::mouseReleaseEvent(event);
+    if (event->isAccepted()) {
+        return;
+    }
+
+    // TODO: our handling
+}
+
+void PointCloudVisualizationWidget::mouseMoveEvent (QMouseEvent *event)
+{
+    // Chain up to parent first...
+    QOpenGLWidget::mouseMoveEvent(event);
+    if (event->isAccepted()) {
+        return;
+    }
+
+    // TODO: our handling
+}
+
+void PointCloudVisualizationWidget::wheelEvent (QWheelEvent *event)
+{
+    // Chain up to parent first...
+    QOpenGLWidget::wheelEvent(event);
+    if (event->isAccepted()) {
+        return;
+    }
+
+    // TODO: our handling
+}
+
+void PointCloudVisualizationWidget::keyPressEvent (QKeyEvent *event)
+{
+    // Chain up to parent first...
+    QOpenGLWidget::keyPressEvent(event);
+    if (event->isAccepted()) {
+        return;
+    }
+
+    // TODO: our handling
 }
 
 
