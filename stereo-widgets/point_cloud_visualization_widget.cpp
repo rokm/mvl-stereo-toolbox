@@ -33,13 +33,19 @@ PointCloudVisualizationWidgetPrivate::PointCloudVisualizationWidgetPrivate (Poin
 
 
 PointCloudVisualizationWidget::PointCloudVisualizationWidget (QWidget *parent)
-    : QOpenGLWidget(parent), d_ptr(new PointCloudVisualizationWidgetPrivate(this))
+    : PointCloudVisualizationWidget(new PointCloudVisualizationWidgetPrivate(this), parent)
 {
+    // Hooray for C++11 constructor delegation
 }
 
 PointCloudVisualizationWidget::PointCloudVisualizationWidget (PointCloudVisualizationWidgetPrivate *d, QWidget *parent)
     : QOpenGLWidget(parent), d_ptr(d)
 {
+    // Set OpenGL to 3.3 core profile
+    QSurfaceFormat fmt;
+    fmt.setVersion(3, 3);
+    fmt.setProfile(QSurfaceFormat::CoreProfile);
+    setFormat(fmt);
 }
 
 PointCloudVisualizationWidget::~PointCloudVisualizationWidget ()
