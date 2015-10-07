@@ -2,6 +2,10 @@
   <qresource>
     <file>shaders/pointcloud.frag</file>
     <file>shaders/pointcloud.vert</file>
+
+    <file>shaders/volumetric_line.frag</file>
+    <file>shaders/volumetric_line.geom</file>
+    <file>shaders/volumetric_line.vert</file>
   </qresource>
 </RCC>
 

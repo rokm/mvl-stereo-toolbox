@@ -36,6 +36,22 @@ protected:
     PointCloudVisualizationWidget * const q_ptr;
 
 protected:
+    enum RotationConstraint {
+        ConstraintNoAxes,
+        ConstraintCameraAxes,
+        ConstraintObjectAxes,
+    };
+
+    void beginRotation (const QPointF &pos, RotationConstraint constraint);
+    void doRotation (const QPointF &pos);
+    void endRotation ();
+
+    void projectOnSphere (QVector3D &v) const;
+    QQuaternion rotationFromMove (const QVector3D &vFrom, const QVector3D &vTo) const;
+    QVector3D constrainToAxis (const QVector3D &vector, const QVector3D &axis) const;
+    int findNearestConstraintAxis (const QVector3D &vector) const;
+
+protected:
     QMatrix4x4 projectionMatrix;
 
     // Point-cloud data
@@ -44,12 +60,31 @@ protected:
     int numPoints;
     bool freshData;
 
+    // Trackball
+    int width, height;
+    const float trackBallRadius;
+
+    QVector3D cameraAxes[3];
+    QVector3D objectAxes[3];
+
+    RotationConstraint rotationConstraint;
+    int rotationAxisIndex;
+
+    QQuaternion orientation, prevOrientation;
+    QVector3D position, prevPosition;
+
+    bool rotationActive;
+    QPointF prevRotationPos;
+
     // OpenGL
     QOpenGLShaderProgram shaderProgramPointCloud;
-
     QOpenGLBuffer vboPoints; // 6 (XYZ+RGB) floats per vertex
-
     QOpenGLVertexArrayObject vaoPointCloud;
+
+    QOpenGLShaderProgram shaderProgramVolumetricLine;
+    QOpenGLBuffer vboCircle;
+    QOpenGLVertexArrayObject vaoCircle;
+    int numCircleVertices;
 };
 
 
