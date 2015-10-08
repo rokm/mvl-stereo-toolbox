@@ -26,8 +26,9 @@ namespace StereoToolbox {
 namespace Widgets {
 
 
-class PointCloudVisualizationWidgetPrivate
+class PointCloudVisualizationWidgetPrivate : public QObject
 {
+    Q_OBJECT
     Q_DISABLE_COPY(PointCloudVisualizationWidgetPrivate)
     Q_DECLARE_PUBLIC(PointCloudVisualizationWidget)
 
@@ -45,6 +46,10 @@ protected:
     void beginRotation (const QPointF &pos, RotationConstraint constraint);
     void doRotation (const QPointF &pos);
     void endRotation ();
+
+    void performZooming (int steps);
+
+    void performMovement ();
 
     void projectOnSphere (QVector3D &v) const;
     QQuaternion rotationFromMove (const QVector3D &vFrom, const QVector3D &vTo) const;
@@ -75,6 +80,11 @@ protected:
 
     bool rotationActive;
     QPointF prevRotationPos;
+
+    QVector3D translationVelocity, translationAcceleration;
+    QVector3D rotationVelocity, rotationAcceleration;
+
+    QTimer *timer;
 
     // OpenGL
     QOpenGLShaderProgram shaderProgramPointCloud;

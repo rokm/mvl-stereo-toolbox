@@ -32,11 +32,19 @@ PointCloudVisualizationWidgetPrivate::PointCloudVisualizationWidgetPrivate (Poin
       rotationConstraint(ConstraintNoAxes),
       rotationAxisIndex(0),
       rotationActive(false),
-      prevRotationPos(0.0f, 0.0f)
+      prevRotationPos(0.0f, 0.0f),
+      timer(new QTimer(this))
 {
     cameraAxes[0] = objectAxes[0] = QVector3D(1.0f, 0.0f, 0.0f);
     cameraAxes[1] = objectAxes[1] = QVector3D(0.0f, 1.0f, 0.0f);
     cameraAxes[2] = objectAxes[2] = QVector3D(0.0f, 0.0f, 1.0f);
+
+    translationAcceleration = QVector3D(-0.1f, -0.1f, -0.1f);
+    rotationAcceleration = QVector3D(-0.1f, -0.1f, -0.1f);
+
+    timer->setInterval(1000/30); // 30 FPS
+    connect(timer, &QTimer::timeout, this, &PointCloudVisualizationWidgetPrivate::performMovement);
+    timer->start();
 }
 
 
@@ -386,13 +394,20 @@ void PointCloudVisualizationWidget::mouseMoveEvent (QMouseEvent *event)
 
 void PointCloudVisualizationWidget::wheelEvent (QWheelEvent *event)
 {
+    Q_D(PointCloudVisualizationWidget);
+
     // Chain up to parent first...
     QOpenGLWidget::wheelEvent(event);
     if (event->isAccepted()) {
         return;
     }
 
-    // TODO: our handling
+    // Pass zoom event to renderer
+    int numDegrees = event->delta() / 8;
+    int numSteps = numDegrees / 15;
+    d->performZooming(numSteps);
+
+    event->accept();
 }
 
 void PointCloudVisualizationWidget::keyPressEvent (QKeyEvent *event)
@@ -416,6 +431,74 @@ void PointCloudVisualizationWidget::keyPressEvent (QKeyEvent *event)
         case Qt::Key_5: {
             d->orientation = QQuaternion();
             d->position = QVector3D();
+            break;
+        }
+
+        // Rotation keys
+        case Qt::Key_1: {
+            d->rotationVelocity += QVector3D(0.0, 0.0, -1.0);
+            break;
+        }
+        case Qt::Key_3: {
+            d->rotationVelocity += QVector3D(0.0, 0.0, 1.0);
+            break;
+        }
+
+        case Qt::Key_4: {
+            d->rotationVelocity += QVector3D(0.0, -1.0, 0.0);
+            break;
+        }
+        case Qt::Key_6: {
+            d->rotationVelocity += QVector3D(0.0, 1.0, 0.0);
+            break;
+        }
+
+        case Qt::Key_8: {
+            d->rotationVelocity += QVector3D(1.0, 0.0, 0.0);
+            break;
+        }
+        case Qt::Key_2: {
+            d->rotationVelocity += QVector3D(-1.0, 0.0, 0.0);
+            break;
+        }
+
+        case Qt::Key_X: {
+            if (d->rotationActive && d->rotationConstraint != PointCloudVisualizationWidgetPrivate::ConstraintNoAxes) {
+                // There's three camera/object axes to cycle through
+                d->rotationAxisIndex = (d->rotationAxisIndex + 1) % 3;
+            }
+            break;
+        }
+
+        // Zoom keys
+        case Qt::Key_Plus: {
+            d->performZooming(1);
+            break;
+        }
+
+        case Qt::Key_Minus: {
+            d->performZooming(-1);
+            break;
+        }
+
+        // Strafe keys
+        case Qt::Key_A: {
+            d->translationVelocity += QVector3D(0.05f, 0.0f, 0.0f);
+            break;
+        }
+
+        case Qt::Key_D: {
+            d->translationVelocity += QVector3D(-0.05f, 0.0f, 0.0f);
+            break;
+        }
+
+        case Qt::Key_W: {
+            d->translationVelocity += QVector3D(0.0f, -0.05f, 0.0f);
+            break;
+        }
+
+        case Qt::Key_S: {
+            d->translationVelocity += QVector3D(0.0f, 0.05f, 0.0f);
             break;
         }
 
@@ -515,6 +598,59 @@ void PointCloudVisualizationWidgetPrivate::endRotation ()
 
     // Update the display
     q->update();
+}
+
+void PointCloudVisualizationWidgetPrivate::performZooming (int steps)
+{
+    Q_Q(PointCloudVisualizationWidget);
+    translationVelocity += QVector3D(0.0f, 0.0f, steps*0.05f);
+    q->update();
+}
+
+
+void PointCloudVisualizationWidgetPrivate::performMovement ()
+{
+    Q_Q(PointCloudVisualizationWidget);
+
+    bool update = false;
+
+    // Update position (if velocity isn't zero)
+    if (translationVelocity.length()) {
+        position += translationVelocity;
+        update = true;
+    }
+
+    // Update rotation
+    if (rotationVelocity.length()) {
+        orientation *= QQuaternion::fromAxisAndAngle(1.0, 0.0, 0.0, rotationVelocity.x());
+        orientation *= QQuaternion::fromAxisAndAngle(0.0, 1.0, 0.0, rotationVelocity.y());
+        orientation *= QQuaternion::fromAxisAndAngle(0.0, 0.0, 1.0, rotationVelocity.z());
+        update = true;
+    }
+
+    // Update translatory velocity
+    translationVelocity += QVector3D(translationVelocity.x()*translationAcceleration.x(),
+                                     translationVelocity.y()*translationAcceleration.y(),
+                                     translationVelocity.z()*translationAcceleration.z());
+
+    // If component is less than 1e-6, round it to zero
+    if (fabs(translationVelocity.x()) < 1e-6) translationVelocity.setX(0.0);
+    if (fabs(translationVelocity.y()) < 1e-6) translationVelocity.setY(0.0);
+    if (fabs(translationVelocity.z()) < 1e-6) translationVelocity.setZ(0.0);
+
+    // Update rotational velocity
+    rotationVelocity += QVector3D(rotationVelocity.x()*rotationAcceleration.x(),
+                                  rotationVelocity.y()*rotationAcceleration.y(),
+                                  rotationVelocity.z()*rotationAcceleration.z());
+
+    if (fabs(rotationVelocity.x()) < 1e-6) rotationVelocity.setX(0.0);
+    if (fabs(rotationVelocity.y()) < 1e-6) rotationVelocity.setY(0.0);
+    if (fabs(rotationVelocity.z()) < 1e-6) rotationVelocity.setZ(0.0);
+
+    // Signal that position/orientation changed
+    if (update) {
+        q->update();
+    }
 }
 
 
