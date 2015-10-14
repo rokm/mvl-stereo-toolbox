@@ -39,6 +39,9 @@ PointCloudVisualizationWidgetPrivate::PointCloudVisualizationWidgetPrivate (Poin
     cameraAxes[1] = objectAxes[1] = QVector3D(0.0f, 1.0f, 0.0f);
     cameraAxes[2] = objectAxes[2] = QVector3D(0.0f, 0.0f, 1.0f);
 
+    position = defaultPosition = QVector3D(0.0f, 0.0f, 0.0f);
+    orientation = defaultOrientation = QQuaternion::fromAxisAndAngle(1.0f, 0.0f, 0.0f, 180.0f); // This rotates the coordinate system of OpenCV to the one used by OpenGL
+
     translationAcceleration = QVector3D(-0.1f, -0.1f, -0.1f);
     rotationAcceleration = QVector3D(-0.1f, -0.1f, -0.1f);
 
@@ -120,79 +123,9 @@ void PointCloudVisualizationWidget::initializeGL ()
     glFunctions->glEnable(GL_MULTISAMPLE);
     glFunctions->glEnable(GL_SAMPLE_ALPHA_TO_COVERAGE);
 
-    // *** OpenGL: point cloud ***
-    if (true) {
-        // Shader program
-        d->shaderProgramPointCloud.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shaders/pointcloud.vert");
-        d->shaderProgramPointCloud.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shaders/pointcloud.frag");
-        if (!d->shaderProgramPointCloud.link()) {
-            qWarning() << this << "Failed to link shader program for point-cloud!";
-        }
-        d->shaderProgramPointCloud.bind();
-
-        // Create VAO
-        d->vaoPointCloud.create();
-        QOpenGLVertexArrayObject::Binder vaoBinder(&d->vaoPointCloud);
-
-        // Create VBO
-        if (!d->vboPoints.create()) {
-            qWarning() << "Failed to create point-cloud VBO!";
-        }
-        d->vboPoints.setUsagePattern(QOpenGLBuffer::DynamicDraw);
-        d->vboPoints.bind();
-
-        // Set up attribute buffers
-        d->shaderProgramPointCloud.enableAttributeArray("vertex");
-        d->shaderProgramPointCloud.enableAttributeArray("color");
-
-        d->shaderProgramPointCloud.setAttributeBuffer("vertex", GL_FLOAT, 0*sizeof(float), 3, 6*sizeof(float));
-        d->shaderProgramPointCloud.setAttributeBuffer("color", GL_FLOAT, 3*sizeof(float), 3, 6*sizeof(float));
-    }
-
-    // *** OpenGL: trackball ***
-    if (true) {
-        // Shader program
-        d->shaderProgramVolumetricLine.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shaders/volumetric_line.vert");
-        d->shaderProgramVolumetricLine.addShaderFromSourceFile(QOpenGLShader::Geometry, ":/shaders/volumetric_line.geom");
-        d->shaderProgramVolumetricLine.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shaders/volumetric_line.frag");
-        if (!d->shaderProgramVolumetricLine.link()) {
-            qWarning() << this << "Failed to link shader program for volumetric line!";
-        }
-        d->shaderProgramVolumetricLine.bind();
-
-        // Create VAO
-        d->vaoCircle.create();
-        QOpenGLVertexArrayObject::Binder vaoBinder(&d->vaoCircle);
-
-        // Create VBO
-        d->numCircleVertices = 30;
-
-        if (!d->vboCircle.create()) {
-            qWarning() << "Failed to create circle VBO!";
-        }
-        d->vboCircle.setUsagePattern(QOpenGLBuffer::StaticDraw);
-        d->vboCircle.bind();
-
-        // Generate vertices for circle (this assumes that the circle will
-        // be drawn using GL_LINE_STRIP_ADJACENCY, hence we start at i = -1
-        // and end at numVertices+1)
-        d->vboCircle.allocate((d->numCircleVertices+3)*2*sizeof(float));
-        float *bufferPtr = static_cast<float *>(d->vboCircle.map(QOpenGLBuffer::WriteOnly));
-
-        for (int i = -1; i <= d->numCircleVertices+1; i++) {
-            float portion = float(i) / float(d->numCircleVertices) * 2*M_PI;
-            *bufferPtr++ = std::cos(portion);
-            *bufferPtr++ = std::sin(portion);
-        }
-        d->vboCircle.unmap();
-
-        d->numCircleVertices += 3;
-
-        // Set up attribute buffers
-        d->shaderProgramPointCloud.enableAttributeArray("vertex");
-
-        d->shaderProgramPointCloud.setAttributeBuffer("vertex", GL_FLOAT, 0*sizeof(float), 2);
-    }
+    // Initialize shader programs, buffers, etc.
+    d->initializePointCloud();
+    d->initializeTrackBall();
 }
 
 void PointCloudVisualizationWidget::resizeGL (int w, int h)
@@ -221,111 +154,13 @@ void PointCloudVisualizationWidget::paintGL ()
     glFunctions->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // Upload the data, if necessary
-    if (d->freshData) {
-        d->freshData = false;
-
-        // Bind
-        d->vboPoints.bind();
-
-        // Resize buffer if necessary
-        int bufferSize = d->numPoints * 6*sizeof(float);
-        if (d->vboPoints.size() != bufferSize) {
-            d->vboPoints.allocate(bufferSize);
-        }
-
-        // Map
-        float *bufferPtr = static_cast<float *>(d->vboPoints.map(QOpenGLBuffer::WriteOnly));
-
-        // Fill
-        for (int y = 0; y < d->image.rows; y++) {
-            const cv::Vec3b *imagePtr = d->image.ptr<cv::Vec3b>(y);
-            const cv::Vec3f *pointsPtr = d->points.ptr<cv::Vec3f>(y);
-
-            for (int x = 0; x < d->image.cols; x++) {
-                const cv::Vec3b &bgr = imagePtr[x];
-                const cv::Vec3f &xyz = pointsPtr[x];
-
-                float *ptr = bufferPtr + (y*d->image.cols + x)*6;
-                *ptr++ =  xyz[0]/1000.0;
-                *ptr++ = -xyz[1]/1000.0;
-                *ptr++ = -xyz[2]/1000.0;
-                *ptr++ =  bgr[2]/255.0f;
-                *ptr++ =  bgr[1]/255.0f;
-                *ptr++ =  bgr[0]/255.0f;
-            }
-        }
-
-        d->vboPoints.unmap();
-    }
+    d->uploadPointCloud();
 
     // Render point-cloud
-    if (true) {
-        QMatrix4x4 viewMatrix;
-        viewMatrix.setToIdentity();
-        viewMatrix.translate(d->position);
-        viewMatrix.rotate(d->orientation.conjugate()); // Conjugate = inverse rotation
-
-        QOpenGLVertexArrayObject::Binder vaoBinder(&d->vaoPointCloud);
-        d->shaderProgramPointCloud.bind();
-        d->shaderProgramPointCloud.setUniformValue("pvm", d->projectionMatrix*viewMatrix);
-
-        glFunctions->glDrawArrays(GL_POINTS, 0, d->numPoints);
-
-        d->shaderProgramPointCloud.release();
-    }
+    d->renderPointCloud(glFunctions);
 
     // Render track-ball
-    if (d->rotationActive) {
-        QMatrix4x4 modelMatrix;
-
-        QOpenGLVertexArrayObject::Binder vaoBinder(&d->vaoCircle);
-        d->shaderProgramVolumetricLine.bind();
-
-        modelMatrix.scale(d->trackBallRadius, d->trackBallRadius);
-        if (d->rotationConstraint == PointCloudVisualizationWidgetPrivate::ConstraintObjectAxes) {
-            modelMatrix.rotate(d->orientation.conjugate()); // Conjugate = inverse rotation
-        }
-
-        int backupRGB, backupA;
-        glFunctions->glGetIntegerv(GL_BLEND_EQUATION_RGB, &backupRGB);
-        glFunctions->glGetIntegerv(GL_BLEND_EQUATION_ALPHA, &backupA);
-        glFunctions->glBlendEquationSeparate(GL_MAX, GL_MAX);
-
-        glFunctions->glDisable(GL_DEPTH_TEST);
-        d->shaderProgramVolumetricLine.setUniformValue("radius", 0.01f);
-
-        QColor defaultColor = QColor::fromRgbF(1.0f, 1.0f, 1.0f, 0.25f);
-
-        if (d->rotationConstraint == PointCloudVisualizationWidgetPrivate::ConstraintNoAxes) {
-            // "Spherical zone" controller
-            d->shaderProgramVolumetricLine.setUniformValue("color", defaultColor);
-            d->shaderProgramVolumetricLine.setUniformValue("pvm", modelMatrix);
-            glFunctions->glDrawArrays(GL_LINE_STRIP_ADJACENCY, 0, d->numCircleVertices);
-        } else {
-            QColor activeColor = QColor::fromRgbF(1.0f, 1.0f, 1.0f, 0.50f);
-
-            // Three perpendicular circles
-            d->shaderProgramVolumetricLine.setUniformValue("color", (d->rotationAxisIndex == 2) ? activeColor : defaultColor);
-            d->shaderProgramVolumetricLine.setUniformValue("pvm", modelMatrix);
-            glFunctions->glDrawArrays(GL_LINE_STRIP_ADJACENCY, 0, d->numCircleVertices);
-
-            modelMatrix.rotate(90, 1.0, 0.0, 0.0);
-            d->shaderProgramVolumetricLine.setUniformValue("color", (d->rotationAxisIndex == 1) ? activeColor : defaultColor);
-            d->shaderProgramVolumetricLine.setUniformValue("pvm", modelMatrix);
-            glFunctions->glDrawArrays(GL_LINE_STRIP_ADJACENCY, 0, d->numCircleVertices);
-
-            modelMatrix.rotate(90, 0.0, 1.0, 0.0);
-            d->shaderProgramVolumetricLine.setUniformValue("color", (d->rotationAxisIndex == 0) ? activeColor : defaultColor);
-            d->shaderProgramVolumetricLine.setUniformValue("pvm", modelMatrix);
-            glFunctions->glDrawArrays(GL_LINE_STRIP_ADJACENCY, 0, d->numCircleVertices);
-        }
-
-        glFunctions->glEnable(GL_DEPTH_TEST);
-
-        glFunctions->glBlendEquationSeparate(backupRGB, backupA);
-
-        d->shaderProgramVolumetricLine.release();
-    }
+    d->renderTrackBall(glFunctions);
 }
 
 
@@ -429,44 +264,40 @@ void PointCloudVisualizationWidget::keyPressEvent (QKeyEvent *event)
     switch (event->key()) {
         // Reset position and orientation - default view
         case Qt::Key_5: {
-            d->orientation = QQuaternion();
-            d->position = QVector3D();
+            d->resetView();
             break;
         }
 
         // Rotation keys
         case Qt::Key_1: {
-            d->rotationVelocity += QVector3D(0.0, 0.0, -1.0);
+            d->addRotationVelocity(0.0f, 0.0f, -1.0f);
             break;
         }
         case Qt::Key_3: {
-            d->rotationVelocity += QVector3D(0.0, 0.0, 1.0);
+            d->addRotationVelocity(0.0f, 0.0f, 1.0f);
             break;
         }
 
         case Qt::Key_4: {
-            d->rotationVelocity += QVector3D(0.0, -1.0, 0.0);
+            d->addRotationVelocity(0.0f, -1.0f, 0.0f);
             break;
         }
         case Qt::Key_6: {
-            d->rotationVelocity += QVector3D(0.0, 1.0, 0.0);
+            d->addRotationVelocity(0.0f, 1.0f, 0.0f);
             break;
         }
 
         case Qt::Key_8: {
-            d->rotationVelocity += QVector3D(1.0, 0.0, 0.0);
+            d->addRotationVelocity(1.0f, 0.0f, 0.0f);
             break;
         }
         case Qt::Key_2: {
-            d->rotationVelocity += QVector3D(-1.0, 0.0, 0.0);
+            d->addRotationVelocity(-1.0f, 0.0f, 0.0f);
             break;
         }
 
         case Qt::Key_X: {
-            if (d->rotationActive && d->rotationConstraint != PointCloudVisualizationWidgetPrivate::ConstraintNoAxes) {
-                // There's three camera/object axes to cycle through
-                d->rotationAxisIndex = (d->rotationAxisIndex + 1) % 3;
-            }
+            d->switchRotationAxis();
             break;
         }
 
@@ -483,22 +314,22 @@ void PointCloudVisualizationWidget::keyPressEvent (QKeyEvent *event)
 
         // Strafe keys
         case Qt::Key_A: {
-            d->translationVelocity += QVector3D(0.05f, 0.0f, 0.0f);
+            d->addTranslationVelocity(0.05f, 0.0f, 0.0f);
             break;
         }
 
         case Qt::Key_D: {
-            d->translationVelocity += QVector3D(-0.05f, 0.0f, 0.0f);
+            d->addTranslationVelocity(-0.05f, 0.0f, 0.0f);
             break;
         }
 
         case Qt::Key_W: {
-            d->translationVelocity += QVector3D(0.0f, -0.05f, 0.0f);
+            d->addTranslationVelocity(0.0f, -0.05f, 0.0f);
             break;
         }
 
         case Qt::Key_S: {
-            d->translationVelocity += QVector3D(0.0f, 0.05f, 0.0f);
+            d->addTranslationVelocity(0.0f, 0.05f, 0.0f);
             break;
         }
 
@@ -510,13 +341,223 @@ void PointCloudVisualizationWidget::keyPressEvent (QKeyEvent *event)
 
     // If event was processed, mark it as accepted and signal position change
     event->accept();
-    update();
 }
 
 
 // *********************************************************************
-// *                          Scene rotation                           *
+// *              Data initialization, upload and rendering            *
 // *********************************************************************
+void PointCloudVisualizationWidgetPrivate::initializePointCloud ()
+{
+    // Shader program
+    shaderProgramBasicElement.compile();
+    shaderProgramBasicElement.bind();
+
+    // Create VAO
+    vaoPointCloud.create();
+    QOpenGLVertexArrayObject::Binder vaoBinder(&vaoPointCloud);
+
+    // Create VBO
+    if (!vboPoints.create()) {
+        qWarning() << "Failed to create point-cloud VBO!";
+    }
+    vboPoints.setUsagePattern(QOpenGLBuffer::DynamicDraw);
+    vboPoints.bind();
+
+    // Set up attribute buffers
+    shaderProgramBasicElement.setVertex(GL_FLOAT, 0*sizeof(float), 3, 6*sizeof(float));
+    shaderProgramBasicElement.setColor(GL_FLOAT, 3*sizeof(float), 3, 6*sizeof(float));
+}
+
+void PointCloudVisualizationWidgetPrivate::initializeTrackBall ()
+{
+    // Shader program
+    shaderProgramVolumetricLine.compile();
+    shaderProgramVolumetricLine.bind();
+
+    // Create VAO
+    vaoCircle.create();
+    QOpenGLVertexArrayObject::Binder vaoBinder(&vaoCircle);
+
+    // Create VBO
+    numCircleVertices = 30;
+
+    if (!vboCircle.create()) {
+        qWarning() << "Failed to create circle VBO!";
+    }
+    vboCircle.setUsagePattern(QOpenGLBuffer::StaticDraw);
+    vboCircle.bind();
+
+    // Generate vertices for circle (this assumes that the circle will
+    // be drawn using GL_LINE_STRIP_ADJACENCY, hence we start at i = -1
+    // and end at numVertices+1)
+    vboCircle.allocate((numCircleVertices+3)*2*sizeof(float));
+    float *bufferPtr = static_cast<float *>(vboCircle.map(QOpenGLBuffer::WriteOnly));
+
+    for (int i = -1; i <= numCircleVertices+1; i++) {
+        float portion = float(i) / float(numCircleVertices) * 2*M_PI;
+        *bufferPtr++ = std::cos(portion);
+        *bufferPtr++ = std::sin(portion);
+    }
+    vboCircle.unmap();
+
+    numCircleVertices += 3;
+
+    // Set up attribute buffers
+    shaderProgramVolumetricLine.setVertex(GL_FLOAT, 0*sizeof(float), 2);
+}
+
+
+void PointCloudVisualizationWidgetPrivate::uploadPointCloud ()
+{
+    if (freshData) {
+        freshData = false;
+
+        // Bind
+        vboPoints.bind();
+
+        // Resize buffer if necessary
+        int bufferSize = numPoints * 6*sizeof(float);
+        if (vboPoints.size() != bufferSize) {
+            vboPoints.allocate(bufferSize);
+        }
+
+        // Map
+        float *bufferPtr = static_cast<float *>(vboPoints.map(QOpenGLBuffer::WriteOnly));
+
+        // Fill
+        for (int y = 0; y < image.rows; y++) {
+            const cv::Vec3b *imagePtr = image.ptr<cv::Vec3b>(y);
+            const cv::Vec3f *pointsPtr = points.ptr<cv::Vec3f>(y);
+
+            for (int x = 0; x < image.cols; x++) {
+                const cv::Vec3b &bgr = imagePtr[x];
+                const cv::Vec3f &xyz = pointsPtr[x];
+
+                float *ptr = bufferPtr + (y*image.cols + x)*6;
+                *ptr++ = xyz[0]/1000.0;
+                *ptr++ = xyz[1]/1000.0;
+                *ptr++ = xyz[2]/1000.0;
+                *ptr++ = bgr[2]/255.0f;
+                *ptr++ = bgr[1]/255.0f;
+                *ptr++ = bgr[0]/255.0f;
+            }
+        }
+
+        vboPoints.unmap();
+    }
+}
+
+void PointCloudVisualizationWidgetPrivate::renderPointCloud (QOpenGLFunctions *glFunctions)
+{
+    QMatrix4x4 viewMatrix;
+    viewMatrix.translate(position);
+    viewMatrix.rotate(orientation.conjugate()); // Conjugate = inverse rotation
+
+    QOpenGLVertexArrayObject::Binder vaoBinder(&vaoPointCloud);
+    shaderProgramBasicElement.bind();
+    shaderProgramBasicElement.setPvmMatrix(projectionMatrix*viewMatrix);
+
+    glFunctions->glDrawArrays(GL_POINTS, 0, numPoints);
+
+    shaderProgramBasicElement.release();
+}
+
+void PointCloudVisualizationWidgetPrivate::renderTrackBall (QOpenGLFunctions *glFunctions)
+{
+    if (!rotationActive) {
+        return;
+    }
+
+    QMatrix4x4 modelMatrix;
+
+    QOpenGLVertexArrayObject::Binder vaoBinder(&vaoCircle);
+    shaderProgramVolumetricLine.bind();
+
+    modelMatrix.scale(trackBallRadius, trackBallRadius);
+    if (rotationConstraint == ConstraintObjectAxes) {
+        modelMatrix.rotate(orientation.conjugate()); // Conjugate = inverse rotation
+    }
+
+    int backupRGB, backupA;
+    glFunctions->glGetIntegerv(GL_BLEND_EQUATION_RGB, &backupRGB);
+    glFunctions->glGetIntegerv(GL_BLEND_EQUATION_ALPHA, &backupA);
+    glFunctions->glBlendEquationSeparate(GL_MAX, GL_MAX);
+
+    glFunctions->glDisable(GL_DEPTH_TEST);
+    shaderProgramVolumetricLine.setLineWidth(0.01f);
+
+    const QColor defaultColor = QColor::fromRgbF(1.0f, 1.0f, 1.0f, 0.25f);
+
+    if (rotationConstraint == ConstraintNoAxes) {
+        // "Spherical zone" controller
+        shaderProgramVolumetricLine.setColor(defaultColor);
+        shaderProgramVolumetricLine.setPvmMatrix(modelMatrix);
+        glFunctions->glDrawArrays(GL_LINE_STRIP_ADJACENCY, 0, numCircleVertices);
+    } else {
+        const QColor activeColor = QColor::fromRgbF(1.0f, 1.0f, 1.0f, 0.50f);
+
+        // Three perpendicular circles
+        shaderProgramVolumetricLine.setColor((rotationAxisIndex == 2) ? activeColor : defaultColor);
+        shaderProgramVolumetricLine.setPvmMatrix(modelMatrix);
+        glFunctions->glDrawArrays(GL_LINE_STRIP_ADJACENCY, 0, numCircleVertices);
+
+        modelMatrix.rotate(90.0f, 1.0f, 0.0f, 0.0f);
+        shaderProgramVolumetricLine.setColor((rotationAxisIndex == 1) ? activeColor : defaultColor);
+        shaderProgramVolumetricLine.setPvmMatrix(modelMatrix);
+        glFunctions->glDrawArrays(GL_LINE_STRIP_ADJACENCY, 0, numCircleVertices);
+
+        modelMatrix.rotate(90.0f, 0.0f, 1.0f, 0.0f);
+        shaderProgramVolumetricLine.setColor((rotationAxisIndex == 0) ? activeColor : defaultColor);
+        shaderProgramVolumetricLine.setPvmMatrix(modelMatrix);
+        glFunctions->glDrawArrays(GL_LINE_STRIP_ADJACENCY, 0, numCircleVertices);
+    }
+
+    // Restore OpenGL state
+    glFunctions->glEnable(GL_DEPTH_TEST);
+    glFunctions->glBlendEquationSeparate(backupRGB, backupA);
+
+    shaderProgramVolumetricLine.release();
+}
+
+
+// *********************************************************************
+// *                        Viewpoint movement                         *
+// *********************************************************************
+void PointCloudVisualizationWidgetPrivate::resetView ()
+{
+    Q_Q(PointCloudVisualizationWidget);
+
+    // Reset position and orientation
+    orientation = defaultOrientation;
+    position = defaultPosition;
+
+    // Reset the movement, as well
+    translationVelocity = QVector3D();
+    rotationVelocity = QVector3D();
+
+    q->update();
+}
+
+void PointCloudVisualizationWidgetPrivate::addRotationVelocity (float vx, float vy, float vz)
+{
+    rotationVelocity += QVector3D(vx, vy, vz);
+}
+
+void PointCloudVisualizationWidgetPrivate::addTranslationVelocity (float vx, float vy, float vz)
+{
+    translationVelocity += QVector3D(vx, vy, vz);
+}
+
+void PointCloudVisualizationWidgetPrivate::switchRotationAxis ()
+{
+    if (rotationActive && rotationConstraint != ConstraintNoAxes) {
+        // There's three camera/object axes to cycle through
+        rotationAxisIndex = (rotationAxisIndex + 1) % 3;
+    }
+}
+
+
 void PointCloudVisualizationWidgetPrivate::beginRotation (const QPointF &pos, RotationConstraint constraint)
 {
     // Store rotation constraint type
@@ -524,8 +565,6 @@ void PointCloudVisualizationWidgetPrivate::beginRotation (const QPointF &pos, Ro
 
     // Transform to [-1,1] range
     prevRotationPos = QPointF((2*pos.x()- width) / width, (height - 2*pos.y()) / height);
-
-    prevOrientation = orientation;
 
     rotationActive = true;
 }
@@ -763,6 +802,91 @@ int PointCloudVisualizationWidgetPrivate::findNearestConstraintAxis (const QVect
     }
 
     return nearest;
+}
+
+
+// *********************************************************************
+// *                   Shader program: basic element                   *
+// *********************************************************************
+void ShaderProgramBasicElement::compile ()
+{
+    // Compile shader program
+    addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shaders/basic_element.vert");
+    addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shaders/basic_element.frag");
+    if (!link()) {
+        qWarning() << this << "Failed to link basic element shader program!";
+    }
+
+    // Cache attribute and uniform locations
+    attributeVertex = attributeLocation("vertex");
+    attributeColor = attributeLocation("color");
+    uniformPvm = uniformLocation("pvm");
+}
+
+void ShaderProgramBasicElement::setPvmMatrix (const QMatrix4x4 &pvm)
+{
+    setUniformValue(uniformPvm, pvm);
+}
+
+void ShaderProgramBasicElement::setVertex (GLenum type, int offset, int tupleSize, int stride)
+{
+    setAttributeBuffer(attributeVertex, type, offset, tupleSize, stride);
+    enableAttributeArray(attributeVertex);
+}
+
+void ShaderProgramBasicElement::setColor (GLenum type, int offset, int tupleSize, int stride)
+{
+    setAttributeBuffer(attributeColor, type, offset, tupleSize, stride);
+    enableAttributeArray(attributeColor);
+}
+
+void ShaderProgramBasicElement::setColor (const QColor &color)
+{
+    setAttributeValue(attributeColor, color);
+    disableAttributeArray(attributeColor);
+}
+
+
+// *********************************************************************
+// *                  Shader program: volumetric line                  *
+// *********************************************************************
+void ShaderProgramVolumetricLine::compile ()
+{
+    // Compile shader program
+    addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shaders/volumetric_line.vert");
+    addShaderFromSourceFile(QOpenGLShader::Geometry, ":/shaders/volumetric_line.geom");
+    addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shaders/volumetric_line.frag");
+    if (!link()) {
+        qWarning() << this << "Failed to link volumetric line shader program!";
+    }
+
+    // Cache attribute and uniform locations
+    attributeVertex = attributeLocation("vertex");
+    uniformPvm = uniformLocation("pvm");
+    uniformRadius = uniformLocation("radius");
+    uniformColor = uniformLocation("color");
+}
+
+void ShaderProgramVolumetricLine::setVertex (GLenum type, int offset, int tupleSize, int stride)
+{
+    setAttributeBuffer(attributeVertex, type, offset, tupleSize, stride);
+    enableAttributeArray(attributeVertex);
+}
+
+
+void ShaderProgramVolumetricLine::setPvmMatrix (const QMatrix4x4 &pvm)
+{
+    setUniformValue(uniformPvm, pvm);
+}
+
+void ShaderProgramVolumetricLine::setLineWidth (float width)
+{
+    setUniformValue(uniformRadius, width);
+}
+
+void ShaderProgramVolumetricLine::setColor (const QColor &color)
+{
+    setUniformValue(uniformColor, color);
 }
 
 

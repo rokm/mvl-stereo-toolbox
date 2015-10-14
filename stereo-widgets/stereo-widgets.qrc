@@ -1,7 +1,7 @@
 <RCC>
   <qresource>
-    <file>shaders/pointcloud.frag</file>
-    <file>shaders/pointcloud.vert</file>
+    <file>shaders/basic_element.frag</file>
+    <file>shaders/basic_element.vert</file>
 
     <file>shaders/volumetric_line.frag</file>
     <file>shaders/volumetric_line.geom</file>

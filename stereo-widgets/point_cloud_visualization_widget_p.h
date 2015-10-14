@@ -26,6 +26,43 @@ namespace StereoToolbox {
 namespace Widgets {
 
 
+class ShaderProgramBasicElement : public QOpenGLShaderProgram
+{
+public:
+    void compile ();
+
+    void setVertex (GLenum type, int offset, int tupleSize, int stride = 0);
+    void setColor (GLenum type, int offset, int tupleSize, int stride = 0);
+    void setColor (const QColor &color);
+
+    void setPvmMatrix (const QMatrix4x4 &pvm);
+
+protected:
+    int attributeVertex;
+    int attributeColor;
+    int uniformPvm;
+};
+
+class ShaderProgramVolumetricLine : public QOpenGLShaderProgram
+{
+public:
+    void compile ();
+
+    void setVertex (GLenum type, int offset, int tupleSize, int stride = 0);
+
+    void setPvmMatrix (const QMatrix4x4 &pvm);
+    void setColor (const QColor &color);
+    void setLineWidth (float width);
+
+protected:
+    int attributeVertex;
+    int uniformPvm;
+    int uniformColor;
+    int uniformRadius;
+};
+
+
+
 class PointCloudVisualizationWidgetPrivate : public QObject
 {
     Q_OBJECT
@@ -43,9 +80,23 @@ protected:
         ConstraintObjectAxes,
     };
 
+    void initializePointCloud ();
+    void initializeTrackBall ();
+
+    void uploadPointCloud ();
+
+    void renderPointCloud (QOpenGLFunctions *glFunctions);
+    void renderTrackBall (QOpenGLFunctions *glFunctions);
+
     void beginRotation (const QPointF &pos, RotationConstraint constraint);
     void doRotation (const QPointF &pos);
     void endRotation ();
+
+    void resetView ();
+    void addRotationVelocity (float vx, float vy, float vz);
+    void addTranslationVelocity (float vx, float vy, float vz);
+
+    void switchRotationAxis ();
 
     void performZooming (int steps);
 
@@ -75,8 +126,8 @@ protected:
     RotationConstraint rotationConstraint;
     int rotationAxisIndex;
 
-    QQuaternion orientation, prevOrientation;
-    QVector3D position, prevPosition;
+    QQuaternion orientation, defaultOrientation;
+    QVector3D position, defaultPosition;
 
     bool rotationActive;
     QPointF prevRotationPos;
@@ -86,12 +137,14 @@ protected:
 
     QTimer *timer;
 
-    // OpenGL
-    QOpenGLShaderProgram shaderProgramPointCloud;
+    // OpenGL shader programs
+    ShaderProgramBasicElement shaderProgramBasicElement;
+    ShaderProgramVolumetricLine shaderProgramVolumetricLine;
+
+    // OpenGL data buffers
     QOpenGLBuffer vboPoints; // 6 (XYZ+RGB) floats per vertex
     QOpenGLVertexArrayObject vaoPointCloud;
 
-    QOpenGLShaderProgram shaderProgramVolumetricLine;
     QOpenGLBuffer vboCircle;
     QOpenGLVertexArrayObject vaoCircle;
     int numCircleVertices;
