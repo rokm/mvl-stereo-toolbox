@@ -426,21 +426,43 @@ void PointCloudVisualizationWidgetPrivate::uploadPointCloud ()
         float *bufferPtr = static_cast<float *>(vboPoints.map(QOpenGLBuffer::WriteOnly));
 
         // Fill
-        for (int y = 0; y < image.rows; y++) {
-            const cv::Vec3b *imagePtr = image.ptr<cv::Vec3b>(y);
-            const cv::Vec3f *pointsPtr = points.ptr<cv::Vec3f>(y);
+        if (image.channels() == 3) {
+            // Three-channel (BGR) image
+            for (int y = 0; y < image.rows; y++) {
+                const cv::Vec3b *imagePtr = image.ptr<cv::Vec3b>(y);
+                const cv::Vec3f *pointsPtr = points.ptr<cv::Vec3f>(y);
 
-            for (int x = 0; x < image.cols; x++) {
-                const cv::Vec3b &bgr = imagePtr[x];
-                const cv::Vec3f &xyz = pointsPtr[x];
+                for (int x = 0; x < image.cols; x++) {
+                    const cv::Vec3b &bgr = imagePtr[x];
+                    const cv::Vec3f &xyz = pointsPtr[x];
 
-                float *ptr = bufferPtr + (y*image.cols + x)*6;
-                *ptr++ = xyz[0]/1000.0;
-                *ptr++ = xyz[1]/1000.0;
-                *ptr++ = xyz[2]/1000.0;
-                *ptr++ = bgr[2]/255.0f;
-                *ptr++ = bgr[1]/255.0f;
-                *ptr++ = bgr[0]/255.0f;
+                    float *ptr = bufferPtr + (y*image.cols + x)*6;
+                    *ptr++ = xyz[0]/1000.0;
+                    *ptr++ = xyz[1]/1000.0;
+                    *ptr++ = xyz[2]/1000.0;
+                    *ptr++ = bgr[2]/255.0f;
+                    *ptr++ = bgr[1]/255.0f;
+                    *ptr++ = bgr[0]/255.0f;
+                }
+            }
+        } else {
+            // Single-channel (grayscale) image
+            for (int y = 0; y < image.rows; y++) {
+                const unsigned char *imagePtr = image.ptr<unsigned char>(y);
+                const cv::Vec3f *pointsPtr = points.ptr<cv::Vec3f>(y);
+
+                for (int x = 0; x < image.cols; x++) {
+                    const unsigned char &gray = imagePtr[x];
+                    const cv::Vec3f &xyz = pointsPtr[x];
+
+                    float *ptr = bufferPtr + (y*image.cols + x)*6;
+                    *ptr++ = xyz[0]/1000.0;
+                    *ptr++ = xyz[1]/1000.0;
+                    *ptr++ = xyz[2]/1000.0;
+                    *ptr++ = gray/255.0f;
+                    *ptr++ = gray/255.0f;
+                    *ptr++ = gray/255.0f;
+                }
             }
         }
 

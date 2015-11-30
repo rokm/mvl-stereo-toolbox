@@ -397,25 +397,33 @@ void writePointCloudToPcdFile (const cv::Mat &image, const cv::Mat &points, cons
         stream.writeRawData(headerBytes.data(), headerBytes.size());
 
         for (int y = 0; y < image.rows; y++) {
-            const cv::Vec3b *imagePtr = image.ptr<cv::Vec3b>(y);
             const cv::Vec3f *pointsPtr = points.ptr<cv::Vec3f>(y);
             for (int x = 0; x < image.cols; x++) {
-                const cv::Vec3b &bgr = imagePtr[x];
                 const cv::Vec3f &xyz = pointsPtr[x];
 
                 if (!std::isfinite(xyz[2])) {
                     continue;
                 }
 
-                // Convert RGB to PCL floating-point representation
+                // Convert RGB/gray to PCL floating-point representation
                 union {
                     unsigned int i;
                     float f;
                 } rgb;
 
-                rgb.i = static_cast<unsigned int>(bgr[2]) << 16 |
-                        static_cast<unsigned int>(bgr[1]) << 8 |
-                        static_cast<unsigned int>(bgr[0]);
+                if (image.channels() == 3) {
+                    const cv::Vec3b &bgr = image.at<cv::Vec3b>(y, x);
+
+                    rgb.i = static_cast<unsigned int>(bgr[2]) << 16 |
+                            static_cast<unsigned int>(bgr[1]) << 8 |
+                            static_cast<unsigned int>(bgr[0]);
+                } else {
+                    const unsigned char &gray = image.at<unsigned char>(y, x);
+
+                    rgb.i = static_cast<unsigned int>(gray) << 16 |
+                            static_cast<unsigned int>(gray) << 8 |
+                            static_cast<unsigned int>(gray);
+                }
 
                 // Store
                 stream << xyz[0] << xyz[1] << xyz[2] << rgb.f;
@@ -429,25 +437,33 @@ void writePointCloudToPcdFile (const cv::Mat &image, const cv::Mat &points, cons
         stream << header;
 
         for (int y = 0; y < image.rows; y++) {
-            const cv::Vec3b *imagePtr = image.ptr<cv::Vec3b>(y);
             const cv::Vec3f *pointsPtr = points.ptr<cv::Vec3f>(y);
             for (int x = 0; x < image.cols; x++) {
-                const cv::Vec3b &bgr = imagePtr[x];
                 const cv::Vec3f &xyz = pointsPtr[x];
 
                 if (!std::isfinite(xyz[2])) {
                     continue;
                 }
 
-                // Convert RGB to PCL floating-point representation
+                // Convert RGB/gray to PCL floating-point representation
                 union {
                     unsigned int i;
                     float f;
                 } rgb;
 
-                rgb.i = static_cast<unsigned int>(bgr[2]) << 16 |
-                        static_cast<unsigned int>(bgr[1]) << 8 |
-                        static_cast<unsigned int>(bgr[0]);
+                if (image.channels() == 3) {
+                    const cv::Vec3b &bgr = image.at<cv::Vec3b>(y, x);
+
+                    rgb.i = static_cast<unsigned int>(bgr[2]) << 16 |
+                            static_cast<unsigned int>(bgr[1]) << 8 |
+                            static_cast<unsigned int>(bgr[0]);
+                } else {
+                    const unsigned char &gray = image.at<unsigned char>(y, x);
+
+                    rgb.i = static_cast<unsigned int>(gray) << 16 |
+                            static_cast<unsigned int>(gray) << 8 |
+                            static_cast<unsigned int>(gray);
+                }
 
                 // Store
                 stream << xyz[0] << " " << xyz[1] << " " << xyz[2] << " " << rgb.f << "\n";
