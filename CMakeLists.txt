@@ -7,6 +7,8 @@ endif()
 project(MVLStereoToolbox C CXX)
 set(PROJECT_VERSION 2.0.0)
 
+option(WITH_GUI "Disable GUI elements (builds only stereo pipeline library)" ON)
+
 include(GNUInstallDirs)
 
 if(CMAKE_COMPILER_IS_GNUCXX)
@@ -23,10 +25,14 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 include_directories(${PROJECT_SOURCE_DIR})
 include_directories(${PROJECT_BINARY_DIR})
 
-# Library
+# Stereo pipeline library
 add_subdirectory(stereo-pipeline)
-add_subdirectory(stereo-widgets)
 
-# Toolbox
-add_subdirectory(toolbox)
+if(WITH_GUI)
+    # Stereo widgets library
+    add_subdirectory(stereo-widgets)
+
+    # Toolbox
+    add_subdirectory(toolbox)
+endif()
 
