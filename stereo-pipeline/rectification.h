@@ -69,8 +69,30 @@ public:
 
     bool getState () const;
 
+    // Individual calibration parameters
     const cv::Size &getImageSize () const;
+
+    const cv::Mat &getCameraMatrix1 () const;
+    const cv::Mat &getDistortionCoefficients1 () const;
+
+    const cv::Mat &getCameraMatrix2 () const;
+    const cv::Mat &getDistortionCoefficients2 () const;
+
+    const cv::Mat &getRotationBetweenCameras () const;
+    const cv::Mat &getTranslationBetweenCameras () const;
+
+    const cv::Mat &getEssentialMatrix () const;
+    const cv::Mat &getFundamentalMatrix () const;
+
+    // Rectification parameters
+    const cv::Mat &getRectificationTransformMatrix1 () const;
+    const cv::Mat &getRectifiedCameraMatrix1 () const;
+
+    const cv::Mat &getRectificationTransformMatrix2 () const;
+    const cv::Mat &getRectifiedCameraMatrix2 () const;
+
     const cv::Mat &getReprojectionMatrix () const;
+
     float getStereoBaseline () const;
 
 protected:

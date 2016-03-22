@@ -54,37 +54,13 @@ Rectification::~Rectification ()
 }
 
 
+// *********************************************************************
+// *                               State                               *
+// *********************************************************************
 bool Rectification::getState () const
 {
     Q_D(const Rectification);
     return d->isValid;
-}
-
-
-const cv::Mat &Rectification::getReprojectionMatrix () const
-{
-    Q_D(const Rectification);
-    return d->Q;
-}
-
-
-const cv::Size &Rectification::getImageSize () const
-{
-    Q_D(const Rectification);
-    return d->imageSize;
-}
-
-float Rectification::getStereoBaseline () const
-{
-    Q_D(const Rectification);
-
-    // Q(3,2) is 1/baseline; units are same as on the pattern, which in
-    // our code is millimeters
-    if (d->Q.type() == CV_32F) {
-        return 1.0 / d->Q.at<float>(3, 2);
-    } else {
-        return 1.0 / d->Q.at<double>(3, 2);
-    }
 }
 
 
@@ -354,6 +330,116 @@ bool Rectification::getPerformRectification () const
 {
     Q_D(const Rectification);
     return d->performRectification;
+}
+
+
+// *********************************************************************
+// *                  Individual calibration elements                  *
+// *********************************************************************
+const cv::Size &Rectification::getImageSize () const
+{
+    Q_D(const Rectification);
+    return d->imageSize;
+}
+
+const cv::Mat &Rectification::getCameraMatrix1 () const
+{
+    Q_D(const Rectification);
+    return d->M1;
+}
+
+const cv::Mat &Rectification::getDistortionCoefficients1 () const
+{
+    Q_D(const Rectification);
+    return d->D1;
+}
+
+
+const cv::Mat &Rectification::getCameraMatrix2 () const
+{
+    Q_D(const Rectification);
+    return d->M2;
+}
+
+const cv::Mat &Rectification::getDistortionCoefficients2 () const
+{
+    Q_D(const Rectification);
+    return d->D2;
+}
+
+
+const cv::Mat &Rectification::getRotationBetweenCameras () const
+{
+    Q_D(const Rectification);
+    return d->R;
+}
+
+const cv::Mat &Rectification::getTranslationBetweenCameras () const
+{
+    Q_D(const Rectification);
+    return d->T;
+}
+
+const cv::Mat &Rectification::getEssentialMatrix () const
+{
+    Q_D(const Rectification);
+    return d->E;
+}
+
+const cv::Mat &Rectification::getFundamentalMatrix () const
+{
+    Q_D(const Rectification);
+    return d->F;
+}
+
+
+// *********************************************************************
+// *                 Individual rectification elements                 *
+// *********************************************************************
+const cv::Mat &Rectification::getRectificationTransformMatrix1 () const
+{
+    Q_D(const Rectification);
+    return d->R1;
+}
+
+const cv::Mat &Rectification::getRectifiedCameraMatrix1 () const
+{
+    Q_D(const Rectification);
+    return d->P1;
+}
+
+
+const cv::Mat &Rectification::getRectificationTransformMatrix2 () const
+{
+    Q_D(const Rectification);
+    return d->R2;
+}
+
+const cv::Mat &Rectification::getRectifiedCameraMatrix2 () const
+{
+    Q_D(const Rectification);
+    return d->P1;
+}
+
+
+const cv::Mat &Rectification::getReprojectionMatrix () const
+{
+    Q_D(const Rectification);
+    return d->Q;
+}
+
+
+float Rectification::getStereoBaseline () const
+{
+    Q_D(const Rectification);
+
+    // Q(3,2) is 1/baseline; units are same as on the pattern, which in
+    // our code is millimeters
+    if (d->Q.type() == CV_32F) {
+        return 1.0 / d->Q.at<float>(3, 2);
+    } else {
+        return 1.0 / d->Q.at<double>(3, 2);
+    }
 }
 
 
