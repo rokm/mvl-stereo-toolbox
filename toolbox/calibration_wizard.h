@@ -565,12 +565,18 @@ public:
     virtual ~CalibrationWizardPageResult ();
 
     virtual void initializePage ();
+    virtual void setVisible (bool);
+
+protected:
+    void exportCalibration ();
 
 protected:
     QString fieldPrefix;
 
     CameraParametersWidget *boxCameraParameters;
     Widgets::ImageDisplayWidget *displayImage;
+
+    QMetaObject::Connection customButtonConnection;
 };
 
 // Left camera

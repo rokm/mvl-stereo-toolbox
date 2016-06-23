@@ -2140,6 +2140,52 @@ void CalibrationWizardPageResult::initializePage ()
     displayImage->setImage(undistortedImage);
 }
 
+void CalibrationWizardPageResult::setVisible (bool visible)
+{
+    QWizardPage::setVisible(visible);
+
+    // On Windows, this function gets called without wizard being set...
+    if (!wizard()) {
+        return;
+    }
+
+    if (visible) {
+        wizard()->setButtonText(QWizard::CustomButton1, tr("&Export"));
+        wizard()->setOption(QWizard::HaveCustomButton1, true);
+        customButtonConnection = connect(wizard(), &QWizard::customButtonClicked, this, &CalibrationWizardPageResult::exportCalibration);
+    } else {
+        wizard()->setOption(QWizard::HaveCustomButton1, false);
+        QObject::disconnect(customButtonConnection);
+    }
+}
+
+void CalibrationWizardPageResult::exportCalibration ()
+{
+    QString fileName = QFileDialog::getSaveFileName(this, "Save camera calibration to file", QString(), "OpenCV storage file (*.xml *.yml *.yaml)");
+    if (!fileName.isNull()) {
+        QString ext = QFileInfo(fileName).completeSuffix();
+        if (ext.isEmpty()) {
+            ext = "yml";
+            fileName += "." + ext;
+        }
+
+        // Get parameters
+        cv::Mat cameraMatrix = field(fieldPrefix + "CameraMatrix").value<cv::Mat>();
+        cv::Mat distCoeffs = field(fieldPrefix + "DistCoeffs").value<cv::Mat>();
+        cv::Size imageSize = field(fieldPrefix + "ImageSize").value<cv::Size>();
+
+        // Store
+        cv::FileStorage storage(fileName.toStdString(), cv::FileStorage::WRITE);
+        if (storage.isOpened()) {
+            storage << "imageSize" << imageSize;
+            storage << "cameraMatrix" << cameraMatrix;
+            storage << "distCoeffs" << distCoeffs;
+        } else {
+            QMessageBox::warning(this, "Error", QString("Failed to export calibration to '%1'").arg(fileName));
+        }
+    }
+}
+
 
 // *********************************************************************
 // *                    Page: result: left camera                      *
