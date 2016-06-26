@@ -268,7 +268,6 @@ void Pipeline::setRectification (Rectification *rectification)
         disconnect(d->rectification, &Rectification::stateChanged, this, &Pipeline::rectifyImages);
         disconnect(d->rectification, &Rectification::performRectificationChanged, this, &Pipeline::rectifyImages);
         disconnect(d->rectification, &Rectification::stateChanged, this, &Pipeline::updateReprojectionMatrix);
-        disconnect(d->rectification, &Rectification::roiChanged, this, &Pipeline::rectifyImages);
         if (d->rectification->parent() == this) {
             d->rectification->deleteLater(); // Schedule for deletion
         }
@@ -282,7 +281,6 @@ void Pipeline::setRectification (Rectification *rectification)
     connect(d->rectification, &Rectification::stateChanged, this, &Pipeline::rectifyImages);
     connect(d->rectification, &Rectification::performRectificationChanged, this, &Pipeline::rectifyImages);
     connect(d->rectification, &Rectification::stateChanged, this, &Pipeline::updateReprojectionMatrix);
-    connect(d->rectification, &Rectification::roiChanged, this, &Pipeline::rectifyImages);
 
     // Rectify images
     rectifyImages();
@@ -722,8 +720,7 @@ void Pipeline::reprojectDisparityImage ()
     // Reproject
     try {
         QTime timer; timer.start();
-        const cv::Rect &roi = d->rectification->getRoi();
-        d->reprojection->reprojectStereoDisparity(d->disparityImage, d->reprojectedImage, roi.x, roi.y);
+        d->reprojection->reprojectStereoDisparity(d->disparityImage, d->reprojectedImage);
         d->reprojectionComputationTime = timer.elapsed();
     } catch (std::exception &e) {
         emit error(ErrorReprojection, QString::fromStdString(e.what()));

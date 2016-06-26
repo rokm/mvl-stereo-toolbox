@@ -41,7 +41,6 @@ namespace GUI {
 
 
 class CalibrationWizard;
-class RoiDialog;
 class RectificationSettingsDialog;
 
 class WindowRectification : public QWidget
@@ -57,7 +56,6 @@ protected:
     void importCalibration ();
     void exportCalibration ();
     void clearCalibration ();
-    void modifyRoi ();
     void modifyRectificationSettings ();
 
     void saveImages ();
@@ -76,7 +74,6 @@ protected:
     QPushButton *pushButtonExport;
     QPushButton *pushButtonClear;
     QPushButton *pushButtonRectificationSettings;
-    QPushButton *pushButtonRoi;
     QPushButton *pushButtonSaveImages;
 
     QComboBox *comboBoxVisualizationMethod;
@@ -85,9 +82,6 @@ protected:
 
     QStatusBar *statusBar;
     QCheckBox *checkBoxRectifyImages;
-
-    // ROI dialog
-    RoiDialog *dialogRoi;
 
     // Rectification settings dialog
     RectificationSettingsDialog *dialogSettings;
@@ -104,32 +98,6 @@ protected:
         VisualizationAnaglyph = 1,
     };
     cv::Mat anaglyphImage;
-};
-
-class RoiDialog : public QDialog
-{
-    Q_OBJECT
-
-public:
-    RoiDialog (QWidget * = 0);
-    virtual ~RoiDialog ();
-
-    void setImageSizeAndRoi (const cv::Size &, const cv::Rect &);
-
-    cv::Rect getRoi () const;
-
-protected:
-    void refreshDialog ();
-
-protected:
-    QCheckBox *checkBoxEnabled;
-    QCheckBox *checkBoxCenter;
-    QSpinBox *spinBoxX;
-    QSpinBox *spinBoxY;
-    QSpinBox *spinBoxW;
-    QSpinBox *spinBoxH;
-
-    cv::Size imageSize;
 };
 
 class RectificationSettingsDialog : public QDialog

@@ -56,9 +56,6 @@ public:
     void setPerformRectification (bool enable);
     bool getPerformRectification () const;
 
-    const cv::Rect &getRoi () const;
-    void setRoi (const cv::Rect &roi);
-
     float getAlpha () const;
     void setAlpha (float alpha);
 
@@ -105,7 +102,6 @@ signals:
 
     void error (const QString &message) const;
 
-    void roiChanged ();
     void zeroDisparityChanged ();
     void alphaChanged ();
 };

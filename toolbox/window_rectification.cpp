@@ -85,13 +85,6 @@ WindowRectification::WindowRectification (Pipeline::Pipeline *p, Pipeline::Recti
     buttonsLayout->addWidget(pushButton, 0, 3, 1, 1);
     pushButtonRectificationSettings = pushButton;
 
-    // ROI
-    pushButton = new QPushButton("ROI");
-    pushButton->setToolTip("Modify ROI on rectified images.");
-    connect(pushButton, &QPushButton::clicked, this, &WindowRectification::modifyRoi);
-    buttonsLayout->addWidget(pushButton, 1, 3, 1, 1);
-    pushButtonRoi = pushButton;
-
     // Spacer
     buttonsLayout->addItem(new QSpacerItem(100, 100, QSizePolicy::Expanding, QSizePolicy::Expanding), 0, 4, 2, 1);
 
@@ -142,9 +135,6 @@ WindowRectification::WindowRectification (Pipeline::Pipeline *p, Pipeline::Recti
 
     // Pipeline
     connect(pipeline, &Pipeline::Pipeline::rectifiedImagesChanged, this, &WindowRectification::updateImage);
-
-    // Roi dialog
-    dialogRoi = new RoiDialog(this);
 
     // Rectification settings dialog
     dialogSettings = new RectificationSettingsDialog(this);
@@ -266,16 +256,6 @@ void WindowRectification::clearCalibration ()
     rectification->clearStereoCalibration();
 }
 
-void WindowRectification::modifyRoi ()
-{
-    // Update image size and ROI
-    dialogRoi->setImageSizeAndRoi(rectification->getImageSize(), rectification->getRoi());
-
-    // Run dialog
-    if (dialogRoi->exec() == QDialog::Accepted) {
-        rectification->setRoi(dialogRoi->getRoi());
-    }
-}
 
 void WindowRectification::modifyRectificationSettings ()
 {
@@ -360,191 +340,6 @@ void WindowRectification::saveImages ()
 
 
 // *********************************************************************
-// *                             ROI dialog                            *
-// *********************************************************************
-RoiDialog::RoiDialog (QWidget *parent)
-    : QDialog(parent)
-{
-    QFormLayout *layout = new QFormLayout(this);
-
-    QLabel *label;
-    QCheckBox *checkBox;
-    QSpinBox *spinBox;
-    QFrame *line;
-
-    setWindowTitle("ROI");
-
-    // Enabled
-    checkBox = new QCheckBox("ROI enabled", this);
-    checkBox->setToolTip("ROI enabled or not.");
-    connect(checkBox, &QCheckBox::stateChanged, this, &RoiDialog::refreshDialog);
-    checkBoxEnabled = checkBox;
-
-    layout->addRow(checkBox);
-
-    // Separator
-    line = new QFrame(this);
-    line->setFrameStyle(QFrame::HLine | QFrame::Sunken);
-
-    layout->addRow(line);
-
-    // Center
-    checkBox = new QCheckBox("Center ROI", this);
-    checkBox->setToolTip("Whether to center ROI and compute offsets automatically.");
-    connect(checkBox, &QCheckBox::stateChanged, this, &RoiDialog::refreshDialog);
-    checkBoxCenter = checkBox;
-
-    layout->addRow(checkBox);
-
-    // X
-    label = new QLabel("X", this);
-    label->setToolTip("ROI horizontal offset.");
-
-    spinBox = new QSpinBox(this);
-    spinBox->setKeyboardTracking(false);
-    spinBox->setRange(0, 9999);
-    connect(spinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &RoiDialog::refreshDialog);
-    spinBoxX = spinBox;
-
-    layout->addRow(label, spinBox);
-
-    // Y
-    label = new QLabel("Y", this);
-    label->setToolTip("ROI vertical offset.");
-
-    spinBox = new QSpinBox(this);
-    spinBox->setKeyboardTracking(false);
-    spinBox->setRange(0, 9999);
-    connect(spinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &RoiDialog::refreshDialog);
-    spinBoxY = spinBox;
-
-    layout->addRow(label, spinBox);
-
-    // Width
-    label = new QLabel("Width", this);
-    label->setToolTip("ROI width.");
-
-    spinBox = new QSpinBox(this);
-    spinBox->setKeyboardTracking(false);
-    spinBox->setRange(0, 9999);
-    connect(spinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &RoiDialog::refreshDialog);
-    spinBoxW = spinBox;
-
-    layout->addRow(label, spinBox);
-
-    // Height
-    label = new QLabel("Height", this);
-    label->setToolTip("ROI height.");
-
-    spinBox = new QSpinBox(this);
-    spinBox->setKeyboardTracking(false);
-    spinBox->setRange(0, 9999);
-    connect(spinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &RoiDialog::refreshDialog);
-    spinBoxH = spinBox;
-
-    layout->addRow(label, spinBox);
-
-    // Separator
-    line = new QFrame(this);
-    line->setFrameStyle(QFrame::HLine | QFrame::Sunken);
-
-    layout->addRow(line);
-
-    // Button box
-    QDialogButtonBox *buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, Qt::Horizontal, this);
-    layout->addRow(buttonBox);
-    connect(buttonBox, &QDialogButtonBox::accepted, this, &RoiDialog::accept);
-    connect(buttonBox, &QDialogButtonBox::rejected, this, &RoiDialog::reject);
-}
-
-RoiDialog::~RoiDialog ()
-{
-}
-
-
-void RoiDialog::setImageSizeAndRoi (const cv::Size &size, const cv::Rect &currentRoi)
-{
-    // Store image size
-    imageSize = size;
-
-    // Set ROI values
-    spinBoxX->setValue(currentRoi.x);
-    spinBoxY->setValue(currentRoi.y);
-    spinBoxW->setValue(currentRoi.width);
-    spinBoxH->setValue(currentRoi.height);
-
-    if (currentRoi == cv::Rect()) {
-        checkBoxEnabled->setChecked(false);
-    } else {
-        checkBoxEnabled->setChecked(true);
-
-        if (currentRoi.x == (imageSize.width - currentRoi.width)/2 && currentRoi.y == (imageSize.height - currentRoi.height)/2) {
-            checkBoxCenter->setChecked(true);
-        } else {
-            checkBoxCenter->setChecked(false);
-        }
-    }
-
-    // Initial refresh
-    refreshDialog();
-}
-
-void RoiDialog::refreshDialog ()
-{
-    // Enable/disable widgets
-    if (checkBoxEnabled->isChecked()) {
-        checkBoxCenter->setEnabled(true);
-        if (checkBoxCenter->isChecked()) {
-            spinBoxX->setEnabled(false);
-            spinBoxY->setEnabled(false);
-        } else {
-            spinBoxX->setEnabled(true);
-            spinBoxY->setEnabled(true);
-        }
-        spinBoxW->setEnabled(true);
-        spinBoxH->setEnabled(true);
-
-    } else {
-        checkBoxCenter->setEnabled(false);
-        spinBoxX->setEnabled(false);
-        spinBoxY->setEnabled(false);
-        spinBoxW->setEnabled(false);
-        spinBoxH->setEnabled(false);
-    }
-
-    // Make sure that ROI offset + ROI dimension <= image dimension
-    spinBoxX->setRange(0, imageSize.width - spinBoxW->value());
-    spinBoxY->setRange(0, imageSize.height - spinBoxH->value());
-
-    spinBoxW->setRange(0, imageSize.width - spinBoxX->value());
-    spinBoxH->setRange(0, imageSize.height - spinBoxY->value());
-
-    // Update values
-    if (checkBoxEnabled->isChecked()) {
-        if (checkBoxCenter->isChecked()) {
-            spinBoxX->setValue((imageSize.width - spinBoxW->value())/2);
-            spinBoxY->setValue((imageSize.height - spinBoxH->value())/2);
-        }
-    } else {
-        spinBoxX->setValue(0);
-        spinBoxY->setValue(0);
-        spinBoxW->setValue(imageSize.width);
-        spinBoxH->setValue(imageSize.height);
-    }
-}
-
-
-cv::Rect RoiDialog::getRoi () const
-{
-    if (checkBoxEnabled->isChecked()) {
-        return cv::Rect(spinBoxX->value(), spinBoxY->value(), spinBoxW->value(), spinBoxH->value());
-    } else {
-        return cv::Rect();
-    }
-}
-
-
-// *********************************************************************
 // *                   Rectification settings dialog                   *
 // *********************************************************************
 RectificationSettingsDialog::RectificationSettingsDialog (QWidget *parent)
@@ -585,7 +380,6 @@ RectificationSettingsDialog::RectificationSettingsDialog (QWidget *parent)
     // Zero disparity
     checkBox = new QCheckBox("CALIB_ZERO_DISPARITY", this);
     checkBox->setToolTip("If the flag is set, the function makes the principal points of each camera have the same pixel coordinates in the rectified views.");
-    //connect(checkBox, &QCheckBox::stateChanged, this, &RoiDialog::refreshDialog);
     checkBoxZeroDisparity = checkBox;
 
     layout->addRow(checkBox);
@@ -599,8 +393,8 @@ RectificationSettingsDialog::RectificationSettingsDialog (QWidget *parent)
     // Button box
     QDialogButtonBox *buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, Qt::Horizontal, this);
     layout->addRow(buttonBox);
-    connect(buttonBox, &QDialogButtonBox::accepted, this, &RoiDialog::accept);
-    connect(buttonBox, &QDialogButtonBox::rejected, this, &RoiDialog::reject);
+    connect(buttonBox, &QDialogButtonBox::accepted, this, &RectificationSettingsDialog::accept);
+    connect(buttonBox, &QDialogButtonBox::rejected, this, &RectificationSettingsDialog::reject);
 }
 
 RectificationSettingsDialog::~RectificationSettingsDialog ()

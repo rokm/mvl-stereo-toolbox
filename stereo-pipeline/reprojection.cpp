@@ -24,9 +24,6 @@
 
 #ifdef HAVE_OPENCV_CUDASTEREO
 #include <opencv2/cudastereo.hpp>
-#ifdef HAVE_CUDA
-#include <cuda_runtime.h>
-#endif
 #endif
 
 
@@ -38,28 +35,14 @@ namespace StereoToolbox {
 namespace Pipeline {
 
 
-// Forward-declarations for toolbox-modified methods
-void reprojectDisparityImage (const cv::Mat &disparity, cv::Mat &points, const cv::Mat &Q, int offsetX, int offsetY);
-
-#ifdef HAVE_OPENCV_CUDASTEREO
-#ifdef HAVE_CUDA
-template <typename TYPE> void reprojectDisparityImageCuda (const cv::cuda::PtrStepSzb disparity, cv::cuda::PtrStepSz<float3> points, const float *q, unsigned short offsetX, unsigned short offsetY);
-#endif
-#endif
-
-
 ReprojectionPrivate::ReprojectionPrivate (Reprojection *parent)
     : q_ptr(parent)
 {
     // Create list of supported methods
-    supportedMethods.append(Reprojection::MethodToolboxCpu);
     supportedMethods.append(Reprojection::MethodOpenCvCpu);
 #ifdef HAVE_OPENCV_CUDASTEREO
     try {
         if (cv::cuda::getCudaEnabledDeviceCount()) {
-#ifdef HAVE_CUDA
-            supportedMethods.append(Reprojection::MethodToolboxCuda);
-#endif
             supportedMethods.append(Reprojection::MethodOpenCvCuda);
         }
     } catch (...) {
@@ -67,8 +50,8 @@ ReprojectionPrivate::ReprojectionPrivate (Reprojection *parent)
     }
 #endif
 
-    // Default method: Toolbox CPU
-    reprojectionMethod = Reprojection::MethodToolboxCpu;
+    // Default method: OpenCV CPU
+    reprojectionMethod = Reprojection::MethodOpenCvCpu;
 }
 
 
@@ -95,7 +78,7 @@ void Reprojection::setReprojectionMethod (int method)
 
     // Make sure method is supported
     if (!d->supportedMethods.contains(method)) {
-        d->reprojectionMethod = MethodToolboxCpu;
+        d->reprojectionMethod = MethodOpenCvCpu;
         emit error(QString("Reprojection method %1 not supported!").arg(method));
     } else {
         d->reprojectionMethod = method;
@@ -150,7 +133,7 @@ const cv::Mat &Reprojection::getReprojectionMatrix () const
 // *********************************************************************
 // *                           Reprojection                            *
 // *********************************************************************
-void Reprojection::reprojectStereoDisparity (const cv::Mat &disparity_, cv::Mat &points, int offsetX, int offsetY) const
+void Reprojection::reprojectStereoDisparity (const cv::Mat &disparity_, cv::Mat &points) const
 {
     Q_D(const Reprojection);
 
@@ -161,15 +144,10 @@ void Reprojection::reprojectStereoDisparity (const cv::Mat &disparity_, cv::Mat 
     }
 
     // Filter out negative disparities before reprojection
-    cv::Mat disparity = max(disparity_, 0);
+    cv::Mat disparity = cv::max(disparity_, 0);
 
     // Choose reprojection method
     switch (d->reprojectionMethod) {
-        case MethodToolboxCpu: {
-            // Toolbox-modified method; handles ROI offset
-            reprojectDisparityImage(disparity, points, d->Q, offsetX, offsetY);
-            break;
-        }
         case MethodOpenCvCpu: {
             // Stock OpenCV method; does not handle ROI offset
             cv::reprojectImageTo3D(disparity, points, d->Q, false, CV_32F);
@@ -184,106 +162,10 @@ void Reprojection::reprojectStereoDisparity (const cv::Mat &disparity_, cv::Mat 
             gpu_points.download(points);
             break;
         }
-#ifdef HAVE_CUDA
-        case MethodToolboxCuda: {
-            // Toolbox-modified CUDA method; handles ROI offset
-            cv::cuda::GpuMat gpu_disparity, gpu_points;
-            gpu_disparity.upload(disparity);
-            gpu_points.create(disparity.size(), CV_32FC3);
-            switch (disparity.type()) {
-                case CV_8UC1: {
-                    reprojectDisparityImageCuda<unsigned char>(gpu_disparity, gpu_points, d->Q.ptr<float>(), offsetX, offsetY);
-                    break;
-                }
-                case CV_16SC1: {
-                    reprojectDisparityImageCuda<short>(gpu_disparity, gpu_points, d->Q.ptr<float>(), offsetX, offsetY);
-                    break;
-                }
-                case CV_32SC1: {
-                    reprojectDisparityImageCuda<int>(gpu_disparity, gpu_points, d->Q.ptr<float>(), offsetX, offsetY);
-                    break;
-                }
-                case CV_32FC1: {
-                    reprojectDisparityImageCuda<float>(gpu_disparity, gpu_points, d->Q.ptr<float>(), offsetX, offsetY);
-                    break;
-                }
-                default: {
-                    throw QString("Unhandled disparity format %1!").arg(disparity.type());
-                }
-            }
-            gpu_points.download(points);
-            break;
-        }
-#endif
 #endif
         default: {
             points = cv::Mat();
             break;
-        }
-    }
-}
-
-
-// *********************************************************************
-// *                      Reprojection functions                       *
-// *********************************************************************
-// We use modified versions of OpenCV reprojectImageTo3D functions; the
-// original ones do not support setting x and y coordinate offset, which
-// we need to properly support ROIs.
-template <typename TYPE>
-void __reprojectDisparityImage (const cv::Mat &disparity, cv::Mat &points, const cv::Mat &Q, int offsetX, int offsetY)
-{
-    points.create(disparity.size(), CV_32FC3);
-
-    // Get Q coefficients
-    float q[4][4];
-    Q.convertTo(cv::Mat(4, 4, CV_32F, q), CV_32F);
-
-    float qx, qy, qz, qw, d, iw;
-
-    // Go over all
-    for (int yi = 0; yi < disparity.rows; yi++) {
-        const TYPE *disp_ptr = disparity.ptr<TYPE>(yi);
-        cv::Vec3f *point_ptr = points.ptr<cv::Vec3f>(yi);
-
-        int y = yi + offsetY;
-
-        qx = q[0][1]*y + q[0][3];
-        qy = q[1][1]*y + q[1][3];
-        qz = q[2][1]*y + q[2][3];
-        qw = q[3][1]*y + q[3][3];
-
-        for (int xi = 0; xi < disparity.cols; xi++) {
-            int x = xi + offsetX;
-
-            d = disp_ptr[xi];
-
-            iw = 1.0 / (q[3][0]*x + qw + q[3][2]*d);
-
-            point_ptr[xi][0] = (q[0][0]*x + qx + q[0][2]*d)*iw;
-            point_ptr[xi][1] = (q[1][0]*x + qy + q[1][2]*d)*iw;
-            point_ptr[xi][2] = (q[2][0]*x + qz + q[2][2]*d)*iw;
-        }
-    }
-}
-
-void reprojectDisparityImage (const cv::Mat &disparity, cv::Mat &points, const cv::Mat &Q, int offsetX, int offsetY)
-{
-    switch (disparity.type()) {
-        case CV_8UC1: {
-            return __reprojectDisparityImage<unsigned char>(disparity, points, Q, offsetX, offsetY);
-        }
-        case CV_16SC1: {
-            return __reprojectDisparityImage<short>(disparity, points, Q, offsetX, offsetY);
-        }
-        case CV_32SC1: {
-            return __reprojectDisparityImage<int>(disparity, points, Q, offsetX, offsetY);
-        }
-        case CV_32FC1: {
-            return __reprojectDisparityImage<float>(disparity, points, Q, offsetX, offsetY);
-        }
-        default: {
-            throw QString("Unhandled disparity format %1!").arg(disparity.type());
         }
     }
 }

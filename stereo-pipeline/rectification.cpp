@@ -198,9 +198,6 @@ void Rectification::initializeRectification ()
     initUndistortRectifyMap(d->M1, d->D1, d->R1, d->P1, d->imageSize, CV_16SC2, d->map11, d->map12);
     initUndistortRectifyMap(d->M2, d->D2, d->R2, d->P2, d->imageSize, CV_16SC2, d->map21, d->map22);
 
-    // Reset ROI
-    d->roi = cv::Rect();
-
     // Change state
     d->isValid = true;
     emit stateChanged(d->isValid);
@@ -218,13 +215,8 @@ void Rectification::rectifyImagePair (const cv::Mat &img1, const cv::Mat &img2, 
 
     if (!d->isValid || !d->performRectification) {
         // Pass-through
-        if (!d->roi.width || !d->roi.height) {
-            img1.copyTo(img1r);
-            img2.copyTo(img2r);
-        } else {
-            img1(d->roi).copyTo(img1r);
-            img2(d->roi).copyTo(img2r);
-        }
+        img1.copyTo(img1r);
+        img2.copyTo(img2r);
     } else {
         if (img1.cols != d->imageSize.width || img1.rows != d->imageSize.height || img2.cols != d->imageSize.width || img2.rows != d->imageSize.height) {
             img1r = cv::Mat();
@@ -234,36 +226,10 @@ void Rectification::rectifyImagePair (const cv::Mat &img1, const cv::Mat &img2, 
         }
 
         // Two simple remaps using look-up tables
-        if (!d->roi.width || !d->roi.height) {
-            // Full maps
-            cv::remap(img1, img1r, d->map11, d->map12, cv::INTER_LINEAR);
-            cv::remap(img2, img2r, d->map21, d->map22, cv::INTER_LINEAR);
-        } else {
-            // Subsection of maps
-            cv::remap(img1, img1r, d->map11(d->roi), d->map12(d->roi), cv::INTER_LINEAR);
-            cv::remap(img2, img2r, d->map21(d->roi), d->map22(d->roi), cv::INTER_LINEAR);
-        }
+        // Full maps
+        cv::remap(img1, img1r, d->map11, d->map12, cv::INTER_LINEAR);
+        cv::remap(img2, img2r, d->map21, d->map22, cv::INTER_LINEAR);
     }
-}
-
-// *********************************************************************
-// *                                ROI                                *
-// *********************************************************************
-void Rectification::setRoi (const cv::Rect &roi)
-{
-    Q_D(Rectification);
-
-    if (roi != d->roi) {
-        d->roi = roi;
-
-        emit roiChanged();
-    }
-}
-
-const cv::Rect &Rectification::getRoi () const
-{
-    Q_D(const Rectification);
-    return d->roi;
 }
 
 

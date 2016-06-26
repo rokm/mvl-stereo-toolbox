@@ -40,9 +40,6 @@ add_executable(MVLStereoToolbox ${toolbox_SOURCES} ${toolbox_HEADERS})
 target_link_libraries(MVLStereoToolbox Qt5::Widgets Qt5::Concurrent)
 
 target_link_libraries(MVLStereoToolbox opencv_core opencv_calib3d)
-if(OPENCV_CUDASTEREO_FOUND)
-    target_link_libraries(MVLStereoToolbox opencv_cudastereo)
-endif()
 
 target_link_libraries(MVLStereoToolbox mvl_stereo_pipeline)
 target_link_libraries(MVLStereoToolbox mvl_stereo_widgets)

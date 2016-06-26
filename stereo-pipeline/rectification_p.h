@@ -59,9 +59,6 @@ protected:
     // Rectification maps
     cv::Mat map11, map12, map21, map22;
 
-    // ROI
-    cv::Rect roi;
-
     // Rectification options
     float alpha;
     bool zeroDisparity;

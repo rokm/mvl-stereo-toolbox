@@ -199,8 +199,6 @@ void WindowReprojection::fillReprojectionMethods ()
         const char *text;
         const char *tooltip;
     } methods[] = {
-        { Pipeline::Reprojection::MethodToolboxCpu, "Toolbox CPU", "Toolbox-modified CPU method (handles ROI)." },
-        { Pipeline::Reprojection::MethodToolboxCuda, "Toolbox CUDA", "Toolbox-modified CUDA method (handles ROI)." },
         { Pipeline::Reprojection::MethodOpenCvCpu, "OpenCV CPU", "Stock OpenCV CPU method." },
         { Pipeline::Reprojection::MethodOpenCvCuda, "OpenCV CUDA", "Stock OpenCV CUDA method." },
     };

@@ -15,8 +15,6 @@ find_package(OpenCV 3.0.0 REQUIRED)
 find_package(Qt5Core REQUIRED)
 find_package(Qt5Concurrent REQUIRED)
 
-find_package(CUDA 5.0)
-
 set(pipeline_SOURCES
     calibration_pattern.cpp
     pipeline.cpp
@@ -38,43 +36,16 @@ set(pipeline_HEADERS
     utils.h
 )
 
-set(pipeline_CUDA_SOURCES
-    reprojection.cu
-)
-
 include_directories(${OpenCV_INCLUDE_DIRS})
-
-# If we have OpenCV with CUDA and CUDA compiler, enable our own CUDA
-# sources
-if(CUDA_FOUND)
-    add_definitions(-DHAVE_CUDA)
-    set(CUDA_HOST_COMPILER "${CMAKE_CXX_COMPILER}")
-    if (CMAKE_COMPILER_IS_GNUCXX)
-        list(APPEND CUDA_NVCC_FLAGS "-Xcompiler -fPIC")
-    endif()
-    include_directories(${CUDA_TOOLKIT_INCLUDE})
-endif()
-
-if (OPENCV_CUDEV_FOUND AND CUDA_FOUND)
-    cuda_compile(pipeline_CUDA_OBJECTS ${pipeline_CUDA_SOURCES})
-else ()
-    set(pipeline_CUDA_OBJECTS "")
-endif()
 
 # Define plugin path
 set(MVL_STEREO_PIPELINE_PLUGIN_DIR "${CMAKE_INSTALL_FULL_LIBDIR}/MVL/stereo-pipeline" CACHE PATH "Path to MVL Stereo Pipeline plugins")
 add_definitions(-DMVL_STEREO_PIPELINE_PLUGIN_DIR="${MVL_STEREO_PIPELINE_PLUGIN_DIR}")
 
 # *** Library ***
-add_library(mvl_stereo_pipeline SHARED ${pipeline_SOURCES} ${pipeline_HEADERS} ${pipeline_CUDA_SOURCES} ${pipeline_CUDA_OBJECTS})
+add_library(mvl_stereo_pipeline SHARED ${pipeline_SOURCES} ${pipeline_HEADERS})
 target_link_libraries(mvl_stereo_pipeline Qt5::Core Qt5::Concurrent)
 target_link_libraries(mvl_stereo_pipeline opencv_core opencv_calib3d)
-if(CUDA_FOUND)
-    target_link_libraries(mvl_stereo_pipeline ${CUDA_LIBRARIES})
-endif()
-if (OPENCV_CUDEV_FOUND)
-    target_link_libraries(mvl_stereo_pipeline opencv_cudev)
-endif()
 if(OPENCV_CUDASTEREO_FOUND)
     target_link_libraries(mvl_stereo_pipeline opencv_cudastereo)
 endif()
