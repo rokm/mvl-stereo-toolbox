@@ -27,11 +27,6 @@
 #include <opencv2/core.hpp>
 #include <opencv2/imgcodecs.hpp>
 
-// Work-around for MSVC
-#ifdef _MSC_VER
-#define isnan(x) _isnan(x)
-#endif
-
 
 namespace MVL {
 namespace StereoToolbox {
@@ -201,7 +196,7 @@ void WindowStereoMethod::updateDisplayValues ()
 
 void WindowStereoMethod::displayDisparity (float disparity)
 {
-    if (isnan(disparity)) {
+    if (std::isnan(disparity)) {
         labelDisparity->setText("");
     } else {
         labelDisparity->setText(QString("Disp: %1").arg(disparity, 0, 'f', 2));
