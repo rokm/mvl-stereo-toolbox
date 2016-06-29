@@ -115,7 +115,7 @@ function uncompressed = inflate (compressed)
     %
     % Uncompress zlib (deflate)-compressed byte array.
     
-    assert(isa(compressed, 'uint8'), isvector(compressed), 'Input must be an uint8 vector!');
+    assert(isa(compressed, 'uint8') && isvector(compressed), 'Input must be an uint8 vector!');
 
     inflater = java.util.zip.InflaterInputStream(java.io.ByteArrayInputStream(compressed));
     buffer = java.io.ByteArrayOutputStream();
@@ -123,4 +123,5 @@ function uncompressed = inflate (compressed)
     inflater.close();
     
     uncompressed = typecast(buffer.toByteArray(), 'uint8')';
+    buffer.close();
 end
