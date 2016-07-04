@@ -39,7 +39,7 @@ public:
     virtual QWidget *createConfigWidget (QWidget *parent = 0) = 0;
 
     // Disparity image computation
-    virtual void computeDisparityImage (const cv::Mat &img1, const cv::Mat &img2, cv::Mat &disparity, int &numDisparities) = 0;
+    virtual void computeDisparity (const cv::Mat &img1, const cv::Mat &img2, cv::Mat &disparity, int &numDisparities) = 0;
 
     // Parameter import/export
     virtual void loadParameters (const QString &filename) = 0;

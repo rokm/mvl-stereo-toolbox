@@ -377,7 +377,7 @@ void Pipeline::setStereoMethod (StereoMethod *method)
 
     // Change method
     if (dynamic_cast<QObject *>(d->stereoMethod)) {
-        disconnect(dynamic_cast<QObject *>(d->stereoMethod), SIGNAL(parameterChanged()), this, SLOT(computeDisparityImage()));
+        disconnect(dynamic_cast<QObject *>(d->stereoMethod), SIGNAL(parameterChanged()), this, SLOT(computeDisparity()));
 
         if (dynamic_cast<QObject *>(d->stereoMethod)->parent() == this) {
             dynamic_cast<QObject *>(d->stereoMethod)->deleteLater(); // Schedule for deletion
@@ -391,7 +391,7 @@ void Pipeline::setStereoMethod (StereoMethod *method)
 
     // NOTE: we need to use the old syntax, because signal is defined
     // in our abstract ImagePairSource interfae
-    connect(dynamic_cast<QObject *>(d->stereoMethod), SIGNAL(parameterChanged()), this, SLOT(computeDisparityImage()));
+    connect(dynamic_cast<QObject *>(d->stereoMethod), SIGNAL(parameterChanged()), this, SLOT(computeDisparity()));
 
     // Compute new disparity image
     computeDisparity();
@@ -501,7 +501,7 @@ void Pipeline::computeDisparityInThread ()
             d->disparity.create(imageL.rows, imageL.cols, CV_32FC1);
 
             // Compute disparity
-            d->stereoMethod->computeDisparityImage(imageL, imageR, d->disparity, d->disparityLevels);
+            d->stereoMethod->computeDisparity(imageL, imageR, d->disparity, d->disparityLevels);
 
             // Store left image for point-cloud RGB data
             imageL.copyTo(d->pointCloudRgb);

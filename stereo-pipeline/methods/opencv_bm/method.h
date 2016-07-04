@@ -42,7 +42,7 @@ public:
 
     virtual QString getShortName () const;
     virtual QWidget *createConfigWidget (QWidget * = 0);
-    virtual void computeDisparityImage (const cv::Mat &, const cv::Mat &, cv::Mat &, int &);
+    virtual void computeDisparity (const cv::Mat &, const cv::Mat &, cv::Mat &, int &);
     virtual void loadParameters (const QString &);
     virtual void saveParameters (const QString &) const;
 

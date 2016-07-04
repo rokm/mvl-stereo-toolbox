@@ -109,7 +109,7 @@ void Method::usePreset (int type)
 // *********************************************************************
 // *                    Disparity image computation                    *
 // *********************************************************************
-void Method::computeDisparityImage (const cv::Mat &img1, const cv::Mat &img2, cv::Mat &disparity, int &numDisparities)
+void Method::computeDisparity (const cv::Mat &img1, const cv::Mat &img2, cv::Mat &disparity, int &numDisparities)
 {
     // Store in case user wants to compute optimal parameters
     imageWidth = img1.cols;
