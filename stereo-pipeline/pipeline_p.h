@@ -68,23 +68,24 @@ protected:
     int stereoDroppedFramesCounter;
 
     // Cached disparity image
-    cv::Mat disparityImage;
+    cv::Mat disparity;
     int disparityLevels;
-    int disparityImageComputationTime;
+    int disparityTime;
 
     // Disparity visualization
     QList<int> supportedDisparityVisualizationMethods;
 
     int disparityVisualizationMethod;
-    cv::Mat disparityVisualizationImage;
+    cv::Mat disparityVisualization;
 
     // Reprojection
     bool reprojectionActive;
     Reprojection *reprojection;
 
-    // Cached reprojected image
-    cv::Mat reprojectedImage;
-    int reprojectionComputationTime;
+    // Cached point cloud
+    cv::Mat pointCloudRgb;
+    cv::Mat pointCloudXyz;
+    int reprojectionTime;
 };
 
 

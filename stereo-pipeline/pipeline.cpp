@@ -82,16 +82,16 @@ Pipeline::Pipeline (QObject *parent)
     : QObject(parent), d_ptr(new PipelinePrivate(this))
 {
     connect(this, &Pipeline::inputImagesChanged, this, &Pipeline::rectifyImages);
-    connect(this, &Pipeline::rectifiedImagesChanged, this, &Pipeline::computeDisparityImage);
-    connect(this, &Pipeline::disparityImageChanged, this, &Pipeline::reprojectDisparityImage);
-    connect(this, &Pipeline::reprojectedImageChanged, this, &Pipeline::processingCompleted);
+    connect(this, &Pipeline::rectifiedImagesChanged, this, &Pipeline::computeDisparity);
+    connect(this, &Pipeline::disparityChanged, this, &Pipeline::reprojectPoints);
+    connect(this, &Pipeline::pointCloudChanged, this, &Pipeline::processingCompleted);
 
     connect(this, &Pipeline::imagePairSourceStateChanged, this, &Pipeline::beginProcessing);
     connect(this, &Pipeline::rectificationStateChanged, this, &Pipeline::rectifyImages);
-    connect(this, &Pipeline::stereoMethodStateChanged, this, &Pipeline::computeDisparityImage);
-    connect(this, &Pipeline::reprojectionStateChanged, this, &Pipeline::reprojectDisparityImage);
+    connect(this, &Pipeline::stereoMethodStateChanged, this, &Pipeline::computeDisparity);
+    connect(this, &Pipeline::reprojectionStateChanged, this, &Pipeline::reprojectPoints);
 
-    connect(this, &Pipeline::disparityVisualizationMethodChanged, this, &Pipeline::computeDisparityImageVisualization);
+    connect(this, &Pipeline::disparityVisualizationMethodChanged, this, &Pipeline::computeDisparityVisualization);
 
     // Create rectification
     setRectification(new Rectification(this));
@@ -394,7 +394,7 @@ void Pipeline::setStereoMethod (StereoMethod *method)
     connect(dynamic_cast<QObject *>(d->stereoMethod), SIGNAL(parameterChanged()), this, SLOT(computeDisparityImage()));
 
     // Compute new disparity image
-    computeDisparityImage();
+    computeDisparity();
 }
 
 StereoMethod *Pipeline::getStereoMethod ()
@@ -423,10 +423,10 @@ bool Pipeline::getStereoMethodState () const
 
 
 // Image retrieval
-const cv::Mat &Pipeline::getDisparityImage () const
+const cv::Mat &Pipeline::getDisparity () const
 {
     Q_D(const Pipeline);
-    return d->disparityImage;
+    return d->disparity;
 }
 
 int Pipeline::getNumberOfDisparityLevels () const
@@ -435,15 +435,15 @@ int Pipeline::getNumberOfDisparityLevels () const
     return d->disparityLevels;
 }
 
-int Pipeline::getDisparityImageComputationTime () const
+int Pipeline::getDisparityComputationTime () const
 {
     Q_D(const Pipeline);
-    return d->disparityImageComputationTime;
+    return d->disparityTime;
 }
 
 
 // Processing
-void Pipeline::computeDisparityImage ()
+void Pipeline::computeDisparity ()
 {
     Q_D(Pipeline);
 
@@ -468,46 +468,55 @@ void Pipeline::computeDisparityImage ()
         // Start processing if not processing already; otherwise drop
         if (!d->stereoMethodWatcher.isRunning()) {
             d->stereoDroppedFramesCounter = 0;
-            QFuture<void> future = QtConcurrent::run(this, &Pipeline::computeDisparityImageInThread);
+            QFuture<void> future = QtConcurrent::run(this, &Pipeline::computeDisparityInThread);
             d->stereoMethodWatcher.setFuture(future);
         } else {
             d->stereoDroppedFramesCounter++;
         }
     } else {
         // Direct call
-        computeDisparityImageInThread();
+        computeDisparityInThread();
     }
 }
 
 
-void Pipeline::computeDisparityImageInThread ()
+void Pipeline::computeDisparityInThread ()
 {
     Q_D(Pipeline);
 
     // If input images are not set, clear disparity image; otherwise,
     // compute new disparity image
     if (d->rectifiedImageL.empty() || d->rectifiedImageR.empty()) {
-        d->disparityImage = cv::Mat();
+        d->disparity = cv::Mat();
     } else {
         try {
+            // Make a copy - FIXME: add a lock?
+            cv::Mat imageL, imageR;
+            d->rectifiedImageL.copyTo(imageL);
+            d->rectifiedImageR.copyTo(imageR);
+
             QTime timer; timer.start();
+
             // Make sure disparity image is of correct size
-            d->disparityImage.create(d->rectifiedImageL.rows, d->rectifiedImageL.cols, CV_32FC1);
+            d->disparity.create(imageL.rows, imageL.cols, CV_32FC1);
 
             // Compute disparity
-            d->stereoMethod->computeDisparityImage(d->rectifiedImageL, d->rectifiedImageR, d->disparityImage, d->disparityLevels);
+            d->stereoMethod->computeDisparityImage(imageL, imageR, d->disparity, d->disparityLevels);
 
-            d->disparityImageComputationTime = timer.elapsed();
+            // Store left image for point-cloud RGB data
+            imageL.copyTo(d->pointCloudRgb);
+
+            d->disparityTime = timer.elapsed();
         } catch (std::exception &e) {
-            d->disparityImage = cv::Mat(); // Clear
+            d->disparity = cv::Mat(); // Clear
             emit error(ErrorStereoMethod, QString::fromStdString(e.what()));
         }
     }
 
-    emit disparityImageChanged();
+    emit disparityChanged();
 
     // Visualize disparity
-    computeDisparityImageVisualization();
+    computeDisparityVisualization();
 }
 
 
@@ -539,10 +548,10 @@ int Pipeline::getStereoDroppedFrames () const
 // *********************************************************************
 // *                   Stereo disparity visualization                  *
 // *********************************************************************
-const cv::Mat &Pipeline::getDisparityVisualizationImage () const
+const cv::Mat &Pipeline::getDisparityVisualization () const
 {
     Q_D(const Pipeline);
-    return d->disparityVisualizationImage;
+    return d->disparityVisualization;
 }
 
 void Pipeline::setDisparityVisualizationMethod (int method)
@@ -578,45 +587,45 @@ const QList<int> &Pipeline::getSupportedDisparityVisualizationMethods () const
 }
 
 
-void Pipeline::computeDisparityImageVisualization ()
+void Pipeline::computeDisparityVisualization ()
 {
     Q_D(Pipeline);
 
     switch (d->disparityVisualizationMethod) {
         case VisualizationNone: {
-            d->disparityVisualizationImage = cv::Mat();
+            d->disparityVisualization = cv::Mat();
             break;
         }
         case VisualizationGrayscale: {
             // Raw grayscale disparity
-            d->disparityImage.convertTo(d->disparityVisualizationImage, CV_8U, 255.0/d->disparityLevels);
+            d->disparity.convertTo(d->disparityVisualization, CV_8U, 255.0/d->disparityLevels);
             break;
         }
 #ifdef HAVE_OPENCV_CUDASTEREO
         case VisualizationColorCuda: {
             try {
                 // Hue-color-coded disparity
-                cv::cuda::GpuMat gpu_disp(d->disparityImage);
+                cv::cuda::GpuMat gpu_disp(d->disparity);
                 cv::cuda::GpuMat gpu_disp_color;
                 cv::Mat disp_color;
 
                 cv::cuda::drawColorDisp(gpu_disp, gpu_disp_color, d->disparityLevels);
-                gpu_disp_color.download(d->disparityVisualizationImage);
+                gpu_disp_color.download(d->disparityVisualization);
             } catch (...) {
                 // The above calls can fail
-                d->disparityVisualizationImage = cv::Mat();
+                d->disparityVisualization = cv::Mat();
             }
 
             break;
         }
 #endif
         case VisualizationColorCpu :{
-            Utils::createColorCodedDisparityCpu(d->disparityImage, d->disparityVisualizationImage, d->disparityLevels);
+            Utils::createColorCodedDisparityCpu(d->disparity, d->disparityVisualization, d->disparityLevels);
             break;
         }
     }
 
-    emit disparityVisualizationImageChanged();
+    emit disparityVisualizationChanged();
 }
 
 
@@ -639,7 +648,7 @@ void Pipeline::setReprojection (Reprojection *reprojection)
 
     // Change reprojection
     if (d->reprojection) {
-        disconnect(d->reprojection, &Reprojection::reprojectionMethodChanged, this, &Pipeline::reprojectDisparityImage);
+        disconnect(d->reprojection, &Reprojection::reprojectionMethodChanged, this, &Pipeline::reprojectPoints);
         if (d->reprojection->parent() == this) {
             d->reprojection->deleteLater(); // Schedule for deletion
         }
@@ -650,10 +659,10 @@ void Pipeline::setReprojection (Reprojection *reprojection)
         d->reprojection->setParent(this);
     }
 
-    connect(d->reprojection, &Reprojection::reprojectionMethodChanged, this, &Pipeline::reprojectDisparityImage);
+    connect(d->reprojection, &Reprojection::reprojectionMethodChanged, this, &Pipeline::reprojectPoints);
 
-    // Reproject disparity image
-    reprojectDisparityImage();
+    // Reproject points
+    reprojectPoints();
 }
 
 Reprojection *Pipeline::getReprojection ()
@@ -681,22 +690,35 @@ bool Pipeline::getReprojectionState () const
 }
 
 
-// Image retrieval
-const cv::Mat &Pipeline::getReprojectedImage () const
+// Point-cloud retrieval
+void Pipeline::getPointCloud (cv::Mat &xyz, cv::Mat &rgb) const
 {
     Q_D(const Pipeline);
-    return d->reprojectedImage;
+    d->pointCloudXyz.copyTo(xyz);
+    d->pointCloudRgb.copyTo(rgb);
 }
 
-int Pipeline::getReprojectionComputationTime () const
+const cv::Mat &Pipeline::getPointCloudXyz () const
 {
     Q_D(const Pipeline);
-    return d->reprojectionComputationTime;
+    return d->pointCloudXyz;
+}
+
+const cv::Mat &Pipeline::getPointCloudRgb () const
+{
+    Q_D(const Pipeline);
+    return d->pointCloudRgb;
+}
+
+int Pipeline::getReprojectionTime () const
+{
+    Q_D(const Pipeline);
+    return d->reprojectionTime;
 }
 
 
 // Processing
-void Pipeline::reprojectDisparityImage ()
+void Pipeline::reprojectPoints ()
 {
     Q_D(Pipeline);
 
@@ -707,7 +729,7 @@ void Pipeline::reprojectDisparityImage ()
     }
 
     // Make sure we have disparity image
-    if (d->disparityImage.empty()) {
+    if (d->disparity.empty()) {
         return;
     }
 
@@ -720,14 +742,14 @@ void Pipeline::reprojectDisparityImage ()
     // Reproject
     try {
         QTime timer; timer.start();
-        d->reprojection->reprojectStereoDisparity(d->disparityImage, d->reprojectedImage);
-        d->reprojectionComputationTime = timer.elapsed();
+        d->reprojection->reprojectStereoDisparity(d->disparity, d->pointCloudXyz);
+        d->reprojectionTime = timer.elapsed();
     } catch (std::exception &e) {
         emit error(ErrorReprojection, QString::fromStdString(e.what()));
-        d->reprojectedImage = cv::Mat();
+        d->pointCloudXyz = cv::Mat();
     }
 
-    emit reprojectedImageChanged();
+    emit pointCloudChanged();
 }
 
 

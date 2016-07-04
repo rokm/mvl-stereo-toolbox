@@ -127,8 +127,8 @@ WindowReprojection::WindowReprojection (Pipeline::Pipeline *p, Pipeline::Reproje
     statusBar->addPermanentWidget(labelCoordinates);
 
     // Pipeline
-    connect(pipeline, &Pipeline::Pipeline::disparityVisualizationImageChanged, this, &WindowReprojection::updateDisplayBackground);
-    connect(pipeline, &Pipeline::Pipeline::reprojectedImageChanged, this, &WindowReprojection::updateDisplayValues);
+    connect(pipeline, &Pipeline::Pipeline::disparityVisualizationChanged, this, &WindowReprojection::updateDisplayBackground);
+    connect(pipeline, &Pipeline::Pipeline::pointCloudChanged, this, &WindowReprojection::updateDisplayValues);
 
     // Pipeline's error signalization
     connect(pipeline, &Pipeline::Pipeline::error, this, [this] (int errorType, const QString &errorMessage) {
@@ -148,7 +148,7 @@ void WindowReprojection::updateDisplayBackground ()
     switch (comboBoxImage->currentIndex()) {
         case 0: {
             // Disparity visualization
-            displayReprojectedImage->setImage(pipeline->getDisparityVisualizationImage());
+            displayReprojectedImage->setImage(pipeline->getDisparityVisualization());
             break;
         }
         case 1: {
@@ -166,13 +166,13 @@ void WindowReprojection::updateDisplayBackground ()
 
 void WindowReprojection::updateDisplayValues ()
 {
-    const cv::Mat &reprojectedPoints = pipeline->getReprojectedImage();
+    const cv::Mat &reprojectedPoints = pipeline->getPointCloudXyz();
 
     displayReprojectedImage->setPoints(reprojectedPoints);
 
     // If reprojected points are valid, display computation time
     if (!reprojectedPoints.empty()) {
-        statusBar->showMessage(QString("Disparity image (%1x%2) reprojected in %3 milliseconds.").arg(reprojectedPoints.cols).arg(reprojectedPoints.rows).arg(pipeline->getReprojectionComputationTime()));
+        statusBar->showMessage(QString("Disparity image (%1x%2) reprojected in %3 milliseconds.").arg(reprojectedPoints.cols).arg(reprojectedPoints.rows).arg(pipeline->getReprojectionTime()));
     } else {
         statusBar->showMessage("Reprojection not available.");
     }
@@ -224,7 +224,7 @@ void WindowReprojection::saveReprojectionResult ()
     // the filename...
     cv::Mat tmpReprojection;
 
-    pipeline->getReprojectedImage().copyTo(tmpReprojection);
+    pipeline->getPointCloudXyz().copyTo(tmpReprojection);
 
     // Make sure images are actually available
     if (!tmpReprojection.data) {

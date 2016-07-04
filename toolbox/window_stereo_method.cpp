@@ -145,8 +145,8 @@ WindowStereoMethod::WindowStereoMethod (Pipeline::Pipeline *p, QList<Pipeline::S
     // Pipeline
     // Use disparityVisualizationImageChanged() instead of disparityImageChanged()
     // to capture changes due to visualization method switch
-    connect(pipeline, &Pipeline::Pipeline::disparityVisualizationImageChanged, this, &WindowStereoMethod::updateDisplayBackground);
-    connect(pipeline, &Pipeline::Pipeline::disparityImageChanged, this, &WindowStereoMethod::updateDisplayValues);
+    connect(pipeline, &Pipeline::Pipeline::disparityVisualizationChanged, this, &WindowStereoMethod::updateDisplayBackground);
+    connect(pipeline, &Pipeline::Pipeline::disparityChanged, this, &WindowStereoMethod::updateDisplayValues);
 
     // Pipeline's error signalization
     connect(pipeline, &Pipeline::Pipeline::error, this, [this] (int errorType, const QString &errorMessage) {
@@ -173,7 +173,7 @@ void WindowStereoMethod::setMethod (int i)
 
 void WindowStereoMethod::updateDisplayBackground ()
 {
-    const cv::Mat &disparityVisualization = pipeline->getDisparityVisualizationImage();
+    const cv::Mat &disparityVisualization = pipeline->getDisparityVisualization();
 
     // Disparity image
     displayDisparityImage->setImage(disparityVisualization);
@@ -181,14 +181,14 @@ void WindowStereoMethod::updateDisplayBackground ()
 
 void WindowStereoMethod::updateDisplayValues ()
 {
-    const cv::Mat &disparity = pipeline->getDisparityImage();
+    const cv::Mat &disparity = pipeline->getDisparity();
 
     // Disparity image
     displayDisparityImage->setDisparity(disparity);
 
     // If image is valid, display computation time
     if (!disparity.empty()) {
-        statusBar->showMessage(QString("Disparity image (%1x%2, %3) computed in %4 milliseconds; dropped %5 frames.").arg(disparity.cols).arg(disparity.rows).arg(Utils::cvDepthToString(disparity.depth())).arg(pipeline->getDisparityImageComputationTime()).arg(pipeline->getStereoDroppedFrames()));
+        statusBar->showMessage(QString("Disparity image (%1x%2, %3) computed in %4 milliseconds; dropped %5 frames.").arg(disparity.cols).arg(disparity.rows).arg(Utils::cvDepthToString(disparity.depth())).arg(pipeline->getDisparityComputationTime()).arg(pipeline->getStereoDroppedFrames()));
     } else {
         statusBar->showMessage(QString("Disparity image not available."));
     }
@@ -214,8 +214,8 @@ void WindowStereoMethod::saveImage ()
     cv::Mat tmpDisparity;
     cv::Mat tmpDisparityVisualization;
 
-    pipeline->getDisparityImage().copyTo(tmpDisparity);
-    pipeline->getDisparityVisualizationImage().copyTo(tmpDisparityVisualization);
+    pipeline->getDisparity().copyTo(tmpDisparity);
+    pipeline->getDisparityVisualization().copyTo(tmpDisparityVisualization);
 
     if (!tmpDisparity.data) {
         QMessageBox::information(this, "No data", "No data to export!");

@@ -83,9 +83,9 @@ public:
     void setStereoMethodState (bool active);
     bool getStereoMethodState () const;
 
-    const cv::Mat &getDisparityImage () const;
+    const cv::Mat &getDisparity () const;
     int getNumberOfDisparityLevels () const;
-    int getDisparityImageComputationTime () const;
+    int getDisparityComputationTime () const;
 
     // Stereo method thread
     void setUseStereoMethodThread (bool enable);
@@ -105,7 +105,7 @@ public:
     int getDisparityVisualizationMethod () const;
     const QList<int> &getSupportedDisparityVisualizationMethods () const;
 
-    const cv::Mat &getDisparityVisualizationImage () const;
+    const cv::Mat &getDisparityVisualization () const;
 
     // Reprojection
     void setReprojection (Reprojection *reprojection);
@@ -114,8 +114,11 @@ public:
     void setReprojectionState (bool active);
     bool getReprojectionState () const;
 
-    const cv::Mat &getReprojectedImage () const;
-    int getReprojectionComputationTime () const;
+    int getReprojectionTime () const;
+
+    void getPointCloud (cv::Mat &xyz, cv::Mat &rgb) const;
+    const cv::Mat &getPointCloudXyz () const;
+    const cv::Mat &getPointCloudRgb () const;
 
     // Error types
     enum {
@@ -130,11 +133,11 @@ public:
 protected slots:
     void beginProcessing ();
     void rectifyImages ();
-    void computeDisparityImage ();
-    void computeDisparityImageVisualization ();
-    void reprojectDisparityImage ();
+    void computeDisparity ();
+    void computeDisparityVisualization ();
+    void reprojectPoints ();
 
-    void computeDisparityImageInThread ();
+    void computeDisparityInThread ();
 
     void updateReprojectionMatrix ();
 
@@ -152,9 +155,9 @@ signals:
 
     void inputImagesChanged ();
     void rectifiedImagesChanged ();
-    void disparityImageChanged ();
-    void disparityVisualizationImageChanged ();
-    void reprojectedImageChanged ();
+    void disparityChanged ();
+    void disparityVisualizationChanged ();
+    void pointCloudChanged ();
 
     void disparityVisualizationMethodChanged (int method);
 };

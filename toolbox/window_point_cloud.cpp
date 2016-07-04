@@ -59,9 +59,9 @@ WindowPointCloud::WindowPointCloud (Pipeline::Pipeline *p, QWidget *parent)
     visualizationWidget = new Widgets::PointCloudVisualizationWidget(this);
     layout->addWidget(visualizationWidget);
 
-    connect(pipeline, &Pipeline::Pipeline::reprojectedImageChanged, this, [this] () {
-        const cv::Mat &points = pipeline->getReprojectedImage();
-        const cv::Mat &image = pipeline->getLeftRectifiedImage();
+    connect(pipeline, &Pipeline::Pipeline::pointCloudChanged, this, [this] () {
+        cv::Mat points, image;
+        pipeline->getPointCloud(points, image);
         visualizationWidget->setPointCloud(image, points);
     });
 }
@@ -76,8 +76,7 @@ void WindowPointCloud::savePointCloud ()
     // Create a snapshot of current point cloud
     cv::Mat tmpImage, tmpPoints;
 
-    pipeline->getLeftRectifiedImage().copyTo(tmpImage);
-    pipeline->getReprojectedImage().copyTo(tmpPoints);
+    pipeline->getPointCloud(tmpPoints, tmpImage);
 
     // Make sure images are actually available
     if (!tmpPoints.data || !tmpImage.data) {
