@@ -315,6 +315,8 @@ void CalibrationWizardPageImages::addImages ()
             QTextStream stream(&listFile);
             QString line;
 
+            QDir listFileDir = QFileInfo(fileNames[0]).absoluteDir();
+
             // Clear file names
             fileNames.clear();
 
@@ -323,7 +325,11 @@ void CalibrationWizardPageImages::addImages ()
                 if (line.isNull()) {
                     break;
                 } else {
-                    fileNames << line;
+                    if (QFileInfo(line).isRelative()) {
+                        fileNames << listFileDir.absoluteFilePath(line);
+                    } else {
+                        fileNames << line;
+                    }
                 }
             }
 
