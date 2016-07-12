@@ -52,7 +52,7 @@ endif()
 
 generate_export_header(mvl_stereo_pipeline EXPORT_FILE_NAME export.h)
 
-install(TARGETS mvl_stereo_pipeline DESTINATION ${CMAKE_INSTALL_LIBDIR})
+install(TARGETS mvl_stereo_pipeline EXPORT mvl_stereo_pipeline_targets DESTINATION ${CMAKE_INSTALL_LIBDIR})
 install(FILES ${pipeline_HEADERS} ${PROJECT_BINARY_DIR}/export.h DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/MVL/stereo-pipeline)
 
 # Pkg-config for library; only if we have pkg-config installed
@@ -60,6 +60,33 @@ if(PKG_CONFIG_FOUND)
     configure_file(${PROJECT_SOURCE_DIR}/libmvl_stereo_pipeline.pc.in ${PROJECT_BINARY_DIR}/libmvl_stereo_pipeline.pc @ONLY)
     install(FILES ${PROJECT_BINARY_DIR}/libmvl_stereo_pipeline.pc DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig)
 endif()
+
+# CMake config file
+include(CMakePackageConfigHelpers)
+
+set(LIB_INSTALL_DIR ${CMAKE_INSTALL_LIBDIR})
+set(INCLUDE_INSTALL_DIR ${CMAKE_INSTALL_INCLUDEDIR}/MVL)
+
+configure_package_config_file(libvml_stereo_pipeline-config.cmake.in
+    ${CMAKE_CURRENT_BINARY_DIR}/libmvl_stereo_pipeline-config.cmake
+    INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/libmvl_stereo_pipeline
+    PATH_VARS LIB_INSTALL_DIR INCLUDE_INSTALL_DIR MVL_STEREO_PIPELINE_PLUGIN_DIR)
+
+write_basic_package_version_file(
+    ${CMAKE_CURRENT_BINARY_DIR}/libmvl_stereo_pipeline-config-version.cmake
+    VERSION ${PROJECT_VERSION}
+    COMPATIBILITY SameMajorVersion)
+
+install(FILES
+    ${CMAKE_CURRENT_BINARY_DIR}/libmvl_stereo_pipeline-config.cmake
+    ${CMAKE_CURRENT_BINARY_DIR}/libmvl_stereo_pipeline-config-version.cmake
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/libmvl_stereo_pipeline)
+
+install(
+    EXPORT mvl_stereo_pipeline_targets
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/libmvl_stereo_pipeline
+    FILE libmvl_stereo_pipeline-targets.cmake
+)
 
 # *** Bundled plugins ***
 # Image file pair source: always build
