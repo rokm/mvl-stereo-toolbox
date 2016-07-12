@@ -1,11 +1,11 @@
 @PACKAGE_INIT@
 
-set_and_check(libmvl_stereo_pipeline_INCLUDE_DIRS "@PACKAGE_INCLUDE_INSTALL_DIR@")
-set_and_check(libmvl_stereo_pipeline_LIBRARY_DIRS "@PACKAGE_LIB_INSTALL_DIR@")
+set_and_check(libmvl_stereo_widgets_INCLUDE_DIRS "@PACKAGE_INCLUDE_INSTALL_DIR@")
+set_and_check(libmvl_stereo_widgets_LIBRARY_DIRS "@PACKAGE_LIB_INSTALL_DIR@")
 
 find_package(OpenCV 3.0.0 REQUIRED)
 find_package(Qt5Core REQUIRED)
 
-include("${CMAKE_CURRENT_LIST_DIR}/libmvl_stereo_pipeline-targets.cmake")
+include("${CMAKE_CURRENT_LIST_DIR}/libmvl_stereo_widgets-targets.cmake")
 
-set(libmvl_stereo_pipeline_LIBRARIES mvl_stereo_pipeline)
+set(libmvl_stereo_widgets_LIBRARIES mvl_stereo_widgets)
