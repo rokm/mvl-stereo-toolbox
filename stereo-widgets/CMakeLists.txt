@@ -43,8 +43,8 @@ include_directories(${OpenCV_INCLUDE_DIRS})
 
 # *** Library ***
 add_library(mvl_stereo_widgets SHARED ${widgets_SOURCES} ${widgets_HEADERS})
-target_link_libraries(mvl_stereo_widgets Qt5::Core Qt5::Widgets)
-target_link_libraries(mvl_stereo_widgets opencv_core)
+target_link_libraries(mvl_stereo_widgets PUBLIC Qt5::Core Qt5::Widgets)
+target_link_libraries(mvl_stereo_widgets PUBLIC opencv_core)
 
 generate_export_header(mvl_stereo_widgets EXPORT_FILE_NAME export.h)
 

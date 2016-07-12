@@ -44,10 +44,10 @@ add_definitions(-DMVL_STEREO_PIPELINE_PLUGIN_DIR="${MVL_STEREO_PIPELINE_PLUGIN_D
 
 # *** Library ***
 add_library(mvl_stereo_pipeline SHARED ${pipeline_SOURCES} ${pipeline_HEADERS})
-target_link_libraries(mvl_stereo_pipeline Qt5::Core Qt5::Concurrent)
-target_link_libraries(mvl_stereo_pipeline opencv_core opencv_calib3d)
+target_link_libraries(mvl_stereo_pipeline PUBLIC Qt5::Core PRIVATE Qt5::Concurrent)
+target_link_libraries(mvl_stereo_pipeline PUBLIC opencv_core PRIVATE opencv_calib3d)
 if(OPENCV_CUDASTEREO_FOUND)
-    target_link_libraries(mvl_stereo_pipeline opencv_cudastereo)
+    target_link_libraries(mvl_stereo_pipeline PRIVATE opencv_cudastereo)
 endif()
 
 generate_export_header(mvl_stereo_pipeline EXPORT_FILE_NAME export.h)
