@@ -20,6 +20,8 @@
 #ifndef MVL_STEREO_TOOLBOX__WIDGETS__POINT_CLOUD_VISUALIZATION_WIDGET_H
 #define MVL_STEREO_TOOLBOX__WIDGETS__POINT_CLOUD_VISUALIZATION_WIDGET_H
 
+#include <stereo-widgets/export.h>
+
 #include <QtWidgets>
 #include <opencv2/core.hpp>
 
@@ -31,7 +33,7 @@ namespace Widgets {
 
 class PointCloudVisualizationWidgetPrivate;
 
-class PointCloudVisualizationWidget : public QOpenGLWidget
+class MVL_STEREO_WIDGETS_EXPORT PointCloudVisualizationWidget : public QOpenGLWidget
 {
     Q_OBJECT
     Q_DISABLE_COPY(PointCloudVisualizationWidget)
