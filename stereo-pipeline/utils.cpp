@@ -327,6 +327,12 @@ void createColorCodedDisparityCpu (const cv::Mat &disparity, cv::Mat &image, int
 
 void createAnaglyph (const cv::Mat &left, const cv::Mat &right, cv::Mat &anaglyph)
 {
+    // Make sure images are valid
+    if (left.empty() || right.empty()) {
+        anaglyph = cv::Mat();
+        return;
+    }
+
     // Split left and right image into channels - BGR!
     cv::Mat leftChannels[3];
     cv::Mat rightChannels[3];
