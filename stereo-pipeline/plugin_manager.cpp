@@ -107,11 +107,11 @@ void PluginManager::setPluginDirectory (const QString &path)
                 plugin->setParent(this);
                 d->plugins.append(plugin);
             } else {
-                qDebug() << "Failed to cast plugged object to PluginFactory!";
+                qWarning() << "Failed to cast plugged object to PluginFactory!";
                 delete plugin;
             }
         } else {
-            qDebug() << "Failed to load plugin:" << loader.errorString();
+            qWarning() << "Failed to load plugin:" << loader.errorString();
         }
     }
 }

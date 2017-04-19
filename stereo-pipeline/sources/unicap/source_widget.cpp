@@ -28,18 +28,20 @@ namespace Pipeline {
 namespace SourceUnicap {
 
 
-SourceWidget::SourceWidget (Source *s, QWidget *parent)
-    : QWidget(parent), source(s)
+// *********************************************************************
+// *                           Source widget                           *
+// *********************************************************************
+SourceWidget::SourceWidget (Source *source, QWidget *parent)
+    : QWidget(parent)
 {
-    configLeftDevice = NULL;
-    configRightDevice = NULL;
-
     // Build layout
     QVBoxLayout *baseLayout = new QVBoxLayout(this);
 
     QLabel *label;
     QFrame *line;
+    QHBoxLayout *hbox;
     QPushButton *button;
+    QComboBox *comboBox;
     QString tooltip;
 
     // Name
@@ -63,9 +65,43 @@ SourceWidget::SourceWidget (Source *s, QWidget *parent)
 
     QFormLayout *layout = new QFormLayout(scrollArea->widget());
 
+    // Single/dual camera mode switch
+    comboBox = new QComboBox(this);
+
+    comboBox->addItem("Single-camera mode");
+    comboBox->addItem("Dual-camera mode");
+
+    connect(comboBox, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), [this, comboBox, source] (int index) {
+        source->setSingleCameraMode(index == 0);
+    });
+
+    connect(source, &Source::singleCameraModeChanged, this, [this, comboBox] (bool enabled) {
+        // Update combo box
+        comboBox->blockSignals(true);
+        comboBox->setCurrentIndex(!enabled);
+        comboBox->blockSignals(false);
+
+        // Update camera frames
+        if (enabled) {
+            frameLeftCamera->setLabel("<b>Combined camera</b>");
+            frameRightCamera->hide();
+        } else {
+            frameLeftCamera->setLabel("<b>Left camera</b>");
+            frameRightCamera->show();
+        }
+    });
+    comboBox->setCurrentIndex(!source->getSingleCameraMode());
+
+    layout->addRow(comboBox);
+
+    // Separator
+    line = new QFrame(this);
+    line->setFrameStyle(QFrame::HLine | QFrame::Sunken);
+
+    layout->addRow(line);
 
     // Rescan
-    tooltip = "Rescan Unicap devices.";
+    tooltip = "Rescan connected cameras.";
 
     button = new QPushButton("Rescan");
     button->setToolTip(tooltip);
@@ -79,19 +115,37 @@ SourceWidget::SourceWidget (Source *s, QWidget *parent)
 
     layout->addRow(line);
 
-    // Devices
-    boxDevices = new QHBoxLayout();
-    layout->addRow(boxDevices);
+    // *** Cameras ***
+    hbox = new QHBoxLayout();
+    layout->addRow(hbox);
 
-    boxDevices->addWidget(createDeviceFrame(true)); // Left device frame
-    boxDevices->addWidget(createDeviceFrame(false)); // Right device frame
+    // Left
+    frameLeftCamera = new CameraFrame(source, this);
+    frameLeftCamera->setLabel("<b>Left camera</b>");
 
-    connect(source, &Source::leftCameraChanged, this, [this] () {
-        updateCamera(configLeftDevice, frameLeftDevice, source->getLeftCamera());
+    connect(frameLeftCamera, &CameraFrame::deviceSelected, this, [this, source] (int device) {
+        source->setLeftCamera(device);
     });
-    connect(source, &Source::rightCameraChanged, this, [this] () {
-        updateCamera(configRightDevice, frameRightDevice, source->getRightCamera());
+
+    connect(source, &Source::leftCameraChanged, this, [this, source] () {
+        frameLeftCamera->setCamera(source->getLeftCamera());
     });
+
+    hbox->addWidget(frameLeftCamera);
+
+    // Right
+    frameRightCamera = new CameraFrame(source, this);
+    frameRightCamera->setLabel("<b>Right camera</b>");
+
+    connect(frameRightCamera, &CameraFrame::deviceSelected, this, [this, source] (int device) {
+        source->setRightCamera(device);
+    });
+
+    connect(source, &Source::rightCameraChanged, this, [this, source] () {
+        frameRightCamera->setCamera(source->getRightCamera());
+    });
+
+    hbox->addWidget(frameRightCamera);
 }
 
 SourceWidget::~SourceWidget ()
@@ -99,86 +153,66 @@ SourceWidget::~SourceWidget ()
 }
 
 
-
-QWidget *SourceWidget::createDeviceFrame (bool left)
+// *********************************************************************
+// *                           Camera frame                            *
+// *********************************************************************
+CameraFrame::CameraFrame (Source *source, QWidget *parent)
+    : QFrame(parent)
 {
-    QFrame *deviceFrame, *frame;
-    QLabel *label;
-    QComboBox *comboBox;
-    QString tooltip;
+    setFrameStyle(QFrame::Box | QFrame::Sunken);
 
-    QFormLayout *layout;
+    widgetCameraConfig = nullptr;
 
-    // Camera frame
-    deviceFrame = new QFrame(this);
-    deviceFrame->setFrameStyle(QFrame::Box | QFrame::Sunken);
-    layout = new QFormLayout(deviceFrame);
+    QFormLayout *layout = new QFormLayout(this);
 
     // Label
-    label = new QLabel(left ? "<b>Left device</b>" : "<b>Right device</b>", deviceFrame);
-    label->setAlignment(Qt::AlignCenter);
-    layout->addRow(label);
+    labelCamera = new QLabel(this);
+    labelCamera->setAlignment(Qt::AlignCenter);
+    layout->addRow(labelCamera);
 
     // Combo box
-    tooltip = left ? "Left Unicap device." : "Right Unicap device.";
-
-    comboBox = new QComboBox(deviceFrame);
-    comboBox->setModel(source);
-    comboBox->setToolTip(tooltip);
-    connect(comboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, &SourceWidget::deviceSelected);
-    if (left) {
-        comboBoxLeftDevice = comboBox;
-    } else {
-        comboBoxRightDevice = comboBox;
-    }
-    layout->addRow(comboBox);
+    comboBoxCamera = new QComboBox(this);
+    comboBoxCamera->setModel(source);
+    connect(comboBoxCamera, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, [this] (int index) {
+        QVariant item = comboBoxCamera->itemData(index);
+        int device = item.isValid() ? item.toInt() : -1;
+        emit deviceSelected(device);
+    });
+    layout->addRow(comboBoxCamera);
 
     // Camera config frame
-    frame = new QFrame(deviceFrame);
-    QVBoxLayout *deviceFrameLayout = new QVBoxLayout(frame);
-    frame->setContentsMargins(0, 0, 0, 0);
-    deviceFrameLayout->setContentsMargins(0, 0, 0, 0);
-    layout->addRow(frame);
-    if (left) {
-        frameLeftDevice = frame;
-    } else {
-        frameRightDevice = frame;
-    }
+    frameCamera = new QFrame(this);
+    frameCamera->setContentsMargins(0, 0, 0, 0);
+    layout->addRow(frameCamera);
 
-    return deviceFrame;
+    QVBoxLayout *frameLayout = new QVBoxLayout(frameCamera);
+    frameLayout->setContentsMargins(0, 0, 0, 0);
+}
+
+CameraFrame::~CameraFrame ()
+{
 }
 
 
-// *********************************************************************
-// *                          Device selection                         *
-// *********************************************************************
-void SourceWidget::deviceSelected (int index)
+void CameraFrame::setCamera (Camera *camera)
 {
-    QComboBox *comboBox = qobject_cast<QComboBox *>(QObject::sender());
-    QVariant c = comboBox->itemData(index);
-    int device = c.isValid() ? c.toInt() : -1;
-
-    if (comboBox == comboBoxLeftDevice) {
-        source->setLeftCamera(device);
-    } else if (comboBox == comboBoxRightDevice) {
-        source->setRightCamera(device);
-    }
-}
-
-void SourceWidget::updateCamera (QWidget *&deviceConfig, QFrame *&deviceFrame, Camera *newDevice)
-{
-    // Remove config widget for old device
-    if (deviceConfig) {
-        deviceFrame->layout()->removeWidget(deviceConfig);
-        deviceConfig->deleteLater();
-        deviceConfig = NULL;
+    // Remove config widget for old camera
+    if (widgetCameraConfig) {
+        frameCamera->layout()->removeWidget(widgetCameraConfig);
+        widgetCameraConfig->deleteLater();
+        widgetCameraConfig = nullptr;
     }
 
     // Get new device's config widget
-    if (newDevice) {
-        deviceConfig = newDevice->createConfigWidget(this);
-        deviceFrame->layout()->addWidget(deviceConfig);
+    if (camera) {
+        widgetCameraConfig = camera->createConfigWidget(this);
+        frameCamera->layout()->addWidget(widgetCameraConfig);
     }
+}
+
+void CameraFrame::setLabel (const QString &text)
+{
+    labelCamera->setText(text);
 }
 
 
