@@ -32,38 +32,45 @@ namespace SourceOpenCvCam {
 class Source;
 class Camera;
 
+class CameraFrame;
+
+
 class SourceWidget : public QWidget
 {
     Q_OBJECT
 
 public:
-    SourceWidget (Source *, QWidget * = 0);
+    SourceWidget (Source *source, QWidget *parent = 0);
     virtual ~SourceWidget ();
 
 protected:
-    void deviceSelected (int);
+    CameraFrame *frameLeftCamera;
+    CameraFrame *frameRightCamera;
+};
 
-    QWidget *createDeviceFrame (bool);
 
-    void updateCamera (QWidget *&, QFrame *&, Camera *);
+
+class CameraFrame : public QFrame
+{
+    Q_OBJECT
+
+public:
+    CameraFrame (Source *source, QWidget *parent);
+    virtual ~CameraFrame ();
+
+    void setCamera (Camera *camera);
+
+    void setLabel (const QString &text);
+
+signals:
+    void deviceSelected (int index);
 
 protected:
-    Source *source;
+    QLabel *labelCamera;
+    QComboBox *comboBoxCamera;
 
-    // GUI
-    QComboBox *comboBoxLeftDevice;
-    QComboBox *comboBoxRightDevice;
-
-    QPushButton *pushButtonCaptureLeftDevice;
-    QPushButton *pushButtonCaptureRightDevice;
-
-    QHBoxLayout *boxDevices;
-
-    QFrame *frameLeftDevice;
-    QFrame *frameRightDevice;
-
-    QWidget *configLeftDevice;
-    QWidget *configRightDevice;
+    QFrame *frameCamera;
+    QWidget *widgetCameraConfig;
 };
 
 

@@ -36,13 +36,16 @@ class Source : public QAbstractListModel, public ImagePairSource
     Q_INTERFACES(MVL::StereoToolbox::Pipeline::ImagePairSource)
 
 public:
-    Source (QObject * = 0);
+    Source (QObject *parent = 0);
     virtual ~Source ();
 
     virtual QString getShortName () const;
     virtual void getImages (cv::Mat &, cv::Mat &);
     virtual void stopSource ();
     virtual QWidget *createConfigWidget (QWidget * = 0);
+
+    bool getSingleCameraMode () const;
+    void setSingleCameraMode (bool enabled);
 
     int getNumberOfCameras () const;
     const ocv_camera_id_t& getCameraInfo (int) const;
@@ -69,6 +72,8 @@ protected:
     void synchronizeFrames ();
 
 signals:
+    void singleCameraModeChanged (bool enabled);
+
     void leftCameraChanged ();
     void rightCameraChanged ();
 
@@ -80,6 +85,7 @@ protected:
     QVector<ocv_camera_id_t> entries;
     QVector<bool> active;
 
+    bool singleCameraMode;
     Camera *leftCamera;
     Camera *rightCamera;
 
@@ -90,6 +96,8 @@ protected:
 
     cv::Mat imageLeft;
     cv::Mat imageRight;
+
+    cv::Mat imageCombined;
 };
 
 
