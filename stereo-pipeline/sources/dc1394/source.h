@@ -47,6 +47,9 @@ public:
     virtual void stopSource ();
     virtual QWidget *createConfigWidget (QWidget * = 0);
 
+    bool getSingleCameraMode () const;
+    void setSingleCameraMode (bool enabled);
+
     int getNumberOfCameras () const;
     const dc1394camera_id_t &getCameraInfo (int) const;
     void setLeftCamera (int);
@@ -72,6 +75,8 @@ protected:
     void synchronizeFrames ();
 
 signals:
+    void singleCameraModeChanged (bool enabled);
+
     void leftCameraChanged ();
     void rightCameraChanged ();
 
@@ -85,6 +90,7 @@ protected:
     QList<dc1394camera_id_t> entries;
     QVector<bool> active;
 
+    bool singleCameraMode;
     Camera *leftCamera;
     Camera *rightCamera;
 
@@ -95,6 +101,8 @@ protected:
 
     cv::Mat imageLeft;
     cv::Mat imageRight;
+
+    cv::Mat imageCombined;
 };
 
 

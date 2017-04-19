@@ -29,11 +29,11 @@ namespace SourceDC1394 {
 
 
 Source::Source (QObject *parent)
-    : QAbstractListModel(parent), ImagePairSource()
+    : QAbstractListModel(parent), ImagePairSource(),
+      singleCameraMode(false),
+      leftCamera(nullptr),
+      rightCamera(nullptr)
 {
-    leftCamera = NULL;
-    rightCamera = NULL;
-
     // FireWire bus
     fw = dc1394_new();
     if (!fw) {
@@ -55,6 +55,22 @@ Source::~Source ()
     }
 }
 
+
+bool Source::getSingleCameraMode () const
+{
+    return singleCameraMode;
+}
+
+void Source::setSingleCameraMode (bool enabled)
+{
+    if (enabled != singleCameraMode) {
+        startStopCapture(false); // Stop capture
+
+        singleCameraMode = enabled;
+
+        emit singleCameraModeChanged(enabled);
+    }
+}
 
 
 // *********************************************************************
@@ -259,10 +275,10 @@ void Source::startStopCapture (bool start)
     if (start) {
         leftFrameReady = rightFrameReady = false;
         if (leftCamera) leftCamera->startCapture();
-        if (rightCamera) rightCamera->startCapture();
+        if (rightCamera && !singleCameraMode) rightCamera->startCapture(); // Do not start if we are in single-camera mode
     } else {
         if (leftCamera) leftCamera->stopCapture();
-        if (rightCamera) rightCamera->stopCapture();
+        if (rightCamera) rightCamera->stopCapture(); // Always stop, just in case...
     }
 }
 
@@ -278,24 +294,39 @@ void Source::synchronizeFrames ()
         rightFrameReady = true;
     }
 
-    bool requireLeft = (leftCamera && leftCamera->getCaptureState());
-    bool requireRight = (rightCamera && rightCamera->getCaptureState());
+    if (singleCameraMode) {
+        // Single camera mode: we need to split the left frame
+        if (leftFrameReady) {
+            leftCamera->copyFrame(imageCombined);
 
-    if ((!requireLeft || leftFrameReady) && (!requireRight || rightFrameReady)) {
-        if (requireLeft) {
-            leftCamera->copyFrame(imageLeft);
-        } else {
-            imageLeft = cv::Mat();
-        }
-        if (requireRight) {
-            rightCamera->copyFrame(imageRight);
-        } else {
-            imageRight = cv::Mat();
-        }
-        leftFrameReady = false;
-        rightFrameReady = false;
+            imageCombined(cv::Rect(0, 0, imageCombined.cols/2, imageCombined.rows)).copyTo(imageLeft);
+            imageCombined(cv::Rect(imageCombined.cols/2, 0, imageCombined.cols/2, imageCombined.rows)).copyTo(imageRight);
 
-        emit imagesChanged();
+            leftFrameReady = false;
+
+            emit imagesChanged();
+        }
+    } else {
+        // Dual camera mode: we need to synchronize left and right frame
+        bool requireLeft = (leftCamera && leftCamera->getCaptureState());
+        bool requireRight = (rightCamera && rightCamera->getCaptureState());
+
+        if ((!requireLeft || leftFrameReady) && (!requireRight || rightFrameReady)) {
+            if (requireLeft) {
+                leftCamera->copyFrame(imageLeft);
+            } else {
+                imageLeft = cv::Mat();
+            }
+            if (requireRight) {
+                rightCamera->copyFrame(imageRight);
+            } else {
+                imageRight = cv::Mat();
+            }
+            leftFrameReady = false;
+            rightFrameReady = false;
+
+            emit imagesChanged();
+        }
     }
 }
 
