@@ -34,6 +34,7 @@ namespace Pipeline {
 class ImagePairSource;
 class Rectification;
 class StereoMethod;
+class DisparityVisualization;
 class Reprojection;
 
 class PipelinePrivate;
@@ -94,16 +95,13 @@ public:
     int getStereoDroppedFrames () const;
 
     // Disparity visualization
-    enum {
-        VisualizationNone,
-        VisualizationGrayscale,
-        VisualizationColorCuda,
-        VisualizationColorCpu
-    };
+    void setVisualization (DisparityVisualization *visualization);
+    DisparityVisualization *getVisualization ();
 
-    void setDisparityVisualizationMethod (int method);
-    int getDisparityVisualizationMethod () const;
-    const QList<int> &getSupportedDisparityVisualizationMethods () const;
+    void setVisualizationState (bool active);
+    bool getVisualizationState () const;
+
+    int getVisualizationTime () const;
 
     const cv::Mat &getDisparityVisualization () const;
 
@@ -126,6 +124,7 @@ public:
         ErrorImagePairSource,
         ErrorRectification,
         ErrorStereoMethod,
+        ErrorVisualization,
         ErrorReprojection,
     };
 
@@ -151,6 +150,7 @@ signals:
     void imagePairSourceStateChanged (bool active);
     void rectificationStateChanged (bool active);
     void stereoMethodStateChanged (bool active);
+    void visualizationStateChanged (bool active);
     void reprojectionStateChanged (bool active);
 
     void inputImagesChanged ();

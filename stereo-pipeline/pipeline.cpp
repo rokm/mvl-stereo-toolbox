@@ -19,6 +19,7 @@
 
 #include <stereo-pipeline/pipeline.h>
 
+#include <stereo-pipeline/disparity_visualization.h>
 #include <stereo-pipeline/image_pair_source.h>
 #include <stereo-pipeline/plugin_factory.h>
 #include <stereo-pipeline/rectification.h>
@@ -50,6 +51,7 @@ PipelinePrivate::PipelinePrivate (Pipeline *parent)
     imagePairSource = NULL;
     rectification = NULL;
     stereoMethod = NULL;
+    visualization = NULL;
     reprojection = NULL;
 
     useStereoMethodThread = false;
@@ -58,23 +60,10 @@ PipelinePrivate::PipelinePrivate (Pipeline *parent)
     imagePairSourceActive = true;
     rectificationActive = true;
     stereoMethodActive = true;
+    visualizationActive = true;
     reprojectionActive = true;
 
-    disparityVisualizationMethod = Pipeline::VisualizationNone; // By default, turn visualization off
-
-    // Create list of supported visualization methods
-    supportedDisparityVisualizationMethods.append(Pipeline::VisualizationNone);
-    supportedDisparityVisualizationMethods.append(Pipeline::VisualizationGrayscale);
-#ifdef HAVE_OPENCV_CUDASTEREO
-    try {
-        if (cv::cuda::getCudaEnabledDeviceCount()) {
-            supportedDisparityVisualizationMethods.append(Pipeline::VisualizationColorCuda);
-        }
-    } catch (...) {
-        // Nothing to do :)
-    }
-#endif
-    supportedDisparityVisualizationMethods.append(Pipeline::VisualizationColorCpu);
+    visualizationTime = 0;
 }
 
 
@@ -91,10 +80,11 @@ Pipeline::Pipeline (QObject *parent)
     connect(this, &Pipeline::stereoMethodStateChanged, this, &Pipeline::computeDisparity);
     connect(this, &Pipeline::reprojectionStateChanged, this, &Pipeline::reprojectPoints);
 
-    connect(this, &Pipeline::disparityVisualizationMethodChanged, this, &Pipeline::computeDisparityVisualization);
-
     // Create rectification
     setRectification(new Rectification(this));
+
+    // Create visualization
+    setVisualization(new DisparityVisualization(this));
 
     // Create reprojection
     setReprojection(new Reprojection(this));
@@ -545,84 +535,101 @@ int Pipeline::getStereoDroppedFrames () const
 }
 
 
+
 // *********************************************************************
-// *                   Stereo disparity visualization                  *
+// *                      Disparity visualization                      *
 // *********************************************************************
+// Visualization setting
+void Pipeline::setVisualization (DisparityVisualization *visualization)
+{
+    Q_D(Pipeline);
+
+    // Change visualization
+    if (d->visualization) {
+        disconnect(d->visualization, &DisparityVisualization::visualizationMethodChanged, this, &Pipeline::computeDisparityVisualization);
+        if (d->visualization->parent() == this) {
+            d->visualization->deleteLater(); // Schedule for deletion
+        }
+    }
+
+    d->visualization = visualization;
+    if (!d->visualization->parent()) {
+        d->visualization->setParent(this);
+    }
+
+    connect(d->visualization, &DisparityVisualization::visualizationMethodChanged, this, &Pipeline::computeDisparityVisualization);
+
+    // Compute visualization
+    computeDisparityVisualization();
+}
+
+DisparityVisualization *Pipeline::getVisualization ()
+{
+    Q_D(Pipeline);
+    return d->visualization;
+}
+
+
+// Reprojection state
+void Pipeline::setVisualizationState (bool active)
+{
+    Q_D(Pipeline);
+
+    if (active != d->visualizationActive) {
+        d->visualizationActive = active;
+        emit visualizationStateChanged(active);
+    }
+}
+
+bool Pipeline::getVisualizationState () const
+{
+    Q_D(const Pipeline);
+    return d->visualizationActive;
+}
+
+
+// Visualization retrieval
 const cv::Mat &Pipeline::getDisparityVisualization () const
 {
     Q_D(const Pipeline);
     return d->disparityVisualization;
 }
 
-void Pipeline::setDisparityVisualizationMethod (int method)
-{
-    Q_D(Pipeline);
-
-    if (method == d->disparityVisualizationMethod) {
-        return;
-    }
-
-    // Make sure method is supported
-    if (!d->supportedDisparityVisualizationMethods.contains(method)) {
-        d->disparityVisualizationMethod = VisualizationNone;
-        emit error(ErrorReprojection, QString("Reprojection method %1 not supported!").arg(method));
-    } else {
-        d->disparityVisualizationMethod = method;
-    }
-
-    // Emit in any case
-    emit disparityVisualizationMethodChanged(d->disparityVisualizationMethod);
-}
-
-int Pipeline::getDisparityVisualizationMethod () const
+int Pipeline::getVisualizationTime () const
 {
     Q_D(const Pipeline);
-    return d->disparityVisualizationMethod;
+    return d->visualizationTime;
 }
 
-const QList<int> &Pipeline::getSupportedDisparityVisualizationMethods () const
-{
-    Q_D(const Pipeline);
-    return d->supportedDisparityVisualizationMethods;
-}
-
-
+// Processing
 void Pipeline::computeDisparityVisualization ()
 {
     Q_D(Pipeline);
 
-    switch (d->disparityVisualizationMethod) {
-        case VisualizationNone: {
-            d->disparityVisualization = cv::Mat();
-            break;
-        }
-        case VisualizationGrayscale: {
-            // Raw grayscale disparity
-            d->disparity.convertTo(d->disparityVisualization, CV_8U, 255.0/d->disparityLevels);
-            break;
-        }
-#ifdef HAVE_OPENCV_CUDASTEREO
-        case VisualizationColorCuda: {
-            try {
-                // Hue-color-coded disparity
-                cv::cuda::GpuMat gpu_disp(d->disparity);
-                cv::cuda::GpuMat gpu_disp_color;
-                cv::Mat disp_color;
+    // Make sure we have visualization object set
+    if (!d->visualization) {
+        emit error(ErrorGeneral, "Disparity visualization object not set!");
+        return;
+    }
 
-                cv::cuda::drawColorDisp(gpu_disp, gpu_disp_color, d->disparityLevels);
-                gpu_disp_color.download(d->disparityVisualization);
-            } catch (...) {
-                // The above calls can fail
-                d->disparityVisualization = cv::Mat();
-            }
+    // Make sure we have disparity image
+    if (d->disparity.empty()) {
+        return;
+    }
 
-            break;
-        }
-#endif
-        case VisualizationColorCpu :{
-            Utils::createColorCodedDisparityCpu(d->disparity, d->disparityVisualization, d->disparityLevels);
-            break;
-        }
+    // Make sure reprojection is marked as active
+    if (!d->visualizationActive) {
+        return;
+    }
+
+    // Visualize
+    try {
+        QTime timer; timer.start();
+        d->visualization->visualizeDisparity(d->disparity, d->disparityLevels, d->disparityVisualization);
+        d->visualizationTime = timer.elapsed();
+    } catch (std::exception &e) {
+        emit error(ErrorVisualization, QString::fromStdString(e.what()));
+        d->disparityVisualization = cv::Mat();
     }
 
     emit disparityVisualizationChanged();

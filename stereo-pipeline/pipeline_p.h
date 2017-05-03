@@ -73,9 +73,10 @@ protected:
     int disparityTime;
 
     // Disparity visualization
-    QList<int> supportedDisparityVisualizationMethods;
+    DisparityVisualization *visualization;
+    bool visualizationActive;
+    int visualizationTime;
 
-    int disparityVisualizationMethod;
     cv::Mat disparityVisualization;
 
     // Reprojection

@@ -21,6 +21,7 @@
 
 #include <stereo-pipeline/pipeline.h>
 #include <stereo-pipeline/stereo_method.h>
+#include <stereo-pipeline/disparity_visualization.h>
 #include <stereo-pipeline/utils.h>
 #include <stereo-widgets/disparity_display_widget.h>
 
@@ -34,7 +35,7 @@ namespace GUI {
 
 
 WindowStereoMethod::WindowStereoMethod (Pipeline::Pipeline *p, QList<Pipeline::StereoMethod *> &m, QWidget *parent)
-    : QWidget(parent, Qt::Window), pipeline(p), methods(m)
+    : QWidget(parent, Qt::Window), pipeline(p), methods(m), visualization(pipeline->getVisualization())
 {
     setWindowTitle("Stereo method");
     resize(800, 600);
@@ -93,16 +94,16 @@ WindowStereoMethod::WindowStereoMethod (Pipeline::Pipeline *p, QList<Pipeline::S
     comboBoxVisualizationMethod = comboBox;
 
     connect(comboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, [this] (int index) {
-        pipeline->setDisparityVisualizationMethod(comboBoxVisualizationMethod->itemData(index).toInt());
+        visualization->setVisualizationMethod(comboBoxVisualizationMethod->itemData(index).toInt());
     });
-    connect(pipeline, &Pipeline::Pipeline::disparityVisualizationMethodChanged, this, [this] (int method) {
+    connect(visualization, &Pipeline::DisparityVisualization::visualizationMethodChanged, this, [this] (int method) {
         comboBoxVisualizationMethod->blockSignals(true);
         comboBoxVisualizationMethod->setCurrentIndex(comboBoxVisualizationMethod->findData(method));
         comboBoxVisualizationMethod->blockSignals(false);
     });
 
     fillVisualizationMethods();
-    pipeline->setDisparityVisualizationMethod(Pipeline::Pipeline::VisualizationGrayscale); // Set grayscale as default
+    visualization->setVisualizationMethod(Pipeline::DisparityVisualization::MethodGrayscale); // Set grayscale as default
 
     buttonsLayout->addStretch();
 
@@ -152,6 +153,8 @@ WindowStereoMethod::WindowStereoMethod (Pipeline::Pipeline *p, QList<Pipeline::S
     connect(pipeline, &Pipeline::Pipeline::error, this, [this] (int errorType, const QString &errorMessage) {
         if (errorType == Pipeline::Pipeline::ErrorStereoMethod) {
             QMessageBox::warning(this, "Stereo Method Error", errorMessage);
+        } else if (errorType == Pipeline::Pipeline::ErrorVisualization) {
+            QMessageBox::warning(this, "Visualization Error", errorMessage);
         }
     });
 }
@@ -317,13 +320,12 @@ void WindowStereoMethod::fillVisualizationMethods ()
         const char *text;
         const char *tooltip;
     } methods[] = {
-        { Pipeline::Pipeline::VisualizationNone, "None", "No visualization." },
-        { Pipeline::Pipeline::VisualizationGrayscale, "Grayscale", "Grayscale." },
-        { Pipeline::Pipeline::VisualizationColorCuda, "Color (CUDA)", "HSV color (CUDA)." },
-        { Pipeline::Pipeline::VisualizationColorCpu, "Color (CPU)", "HSV color (CPU)." },
+        { Pipeline::DisparityVisualization::MethodGrayscale, "Grayscale", "Grayscale." },
+        { Pipeline::DisparityVisualization::MethodColorCuda, "Color (CUDA)", "HSV color (CUDA)." },
+        { Pipeline::DisparityVisualization::MethodColorCpu, "Color (CPU)", "HSV color (CPU)." },
     };
 
-    const QList<int> &supportedMethods = pipeline->getSupportedDisparityVisualizationMethods();
+    const QList<int> &supportedMethods = visualization->getSupportedVisualizationMethods();
 
     int item = 0;
     for (unsigned int i = 0; i < sizeof(methods)/sizeof(methods[0]); i++) {

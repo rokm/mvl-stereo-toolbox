@@ -29,6 +29,7 @@ namespace StereoToolbox {
 namespace Pipeline {
 class Pipeline;
 class StereoMethod;
+class DisparityVisualization;
 } // Pipeline
 
 namespace Widgets {
@@ -65,6 +66,7 @@ protected:
     // Pipeline
     Pipeline::Pipeline *pipeline;
     QList<Pipeline::StereoMethod *> methods;
+    Pipeline::DisparityVisualization *visualization;
 
     // GUI
     QPushButton *pushButtonExportParameters;
