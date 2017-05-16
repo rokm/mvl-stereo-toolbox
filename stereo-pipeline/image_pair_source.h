@@ -42,8 +42,8 @@ public:
 
     // These are actually signals, but they are not allowed in non-QObject classes
 public:
-    virtual void imagesChanged () = 0;
-    virtual void error (const QString &message) = 0;
+    virtual void imagesChanged (cv::Mat imageL, cv::Mat imageR) = 0;
+    virtual void error (QString message) = 0;
 };
 
 

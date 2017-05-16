@@ -31,6 +31,7 @@ ImageFileWidget::ImageFileWidget (ImageFile *f, QWidget *parent)
     : QWidget(parent), file(f)
 {
     QFormLayout *layout = new QFormLayout(this);
+    layout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
 
     QLabel *label;
     QPushButton *button;
@@ -128,7 +129,7 @@ ImageFileWidget::ImageFileWidget (ImageFile *f, QWidget *parent)
         textEditFilename->setText(QString("%1").arg(file->getImageFilename()));
         labelResolution->setText(QString("%1x%2").arg(file->getImageWidth()).arg(file->getImageHeight()));
         labelChannels->setText(QString("%1").arg(file->getImageChannels()));
-    });
+    }, Qt::QueuedConnection);
 }
 
 ImageFileWidget::~ImageFileWidget ()

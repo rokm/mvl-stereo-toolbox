@@ -27,9 +27,16 @@
 #include <opencv2/core.hpp>
 
 
+Q_DECLARE_METATYPE(cv::Mat);
+
+
 namespace MVL {
 namespace StereoToolbox {
 namespace Pipeline {
+
+namespace AsyncPipeline {
+    class SourceElement;
+}
 
 
 class PipelinePrivate
@@ -43,12 +50,8 @@ class PipelinePrivate
 
 protected:
     // Image pair source
-    bool imagePairSourceActive;
-    ImagePairSource *imagePairSource;
-
-    // Cached input images
-    cv::Mat inputImageL;
-    cv::Mat inputImageR;
+    AsyncPipeline::SourceElement *source;
+    cv::Mat inputImageL, inputImageR;
 
     // Stereo rectification
     bool rectificationActive;

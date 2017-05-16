@@ -71,12 +71,14 @@ SourceWidget::SourceWidget (Source *s, QWidget *parent)
         // Get filename
         QStringList filenames = QFileDialog::getOpenFileNames(this, "Load left and right image", QFileInfo(source->getLeftImageFile()->getImageFilename()).filePath(), "Images (*.png *.jpg *.pgm *.ppm *.tif *.bmp)");
 
-        // Take first two images
         if (filenames.size() >= 2) {
-            // Load image pair
-            source->loadImagePair(filenames[0], filenames[1], false);
+            emit requestImageLoad(filenames[0], filenames[1]);
         }
     });
+    connect(this, &SourceWidget::requestImageLoad, source, [this] (QString filenameLeft, QString filenameRight) {
+        // Load image pair
+        source->loadImagePair(filenameLeft, filenameRight, false);
+    }, Qt::QueuedConnection);
 
     layout->addRow(button);
 
@@ -86,8 +88,8 @@ SourceWidget::SourceWidget (Source *s, QWidget *parent)
     button = new QPushButton("Periodic refresh", this);
     button->setToolTip(tooltip);
     button->setCheckable(true);
-    connect(button, &QPushButton::toggled, source, &Source::setPeriodicRefreshState);
-    connect(source, &Source::periodicRefreshStateChanged, button, &QPushButton::setChecked);
+    connect(button, &QPushButton::toggled, source, &Source::setPeriodicRefreshState, Qt::QueuedConnection);
+    connect(source, &Source::periodicRefreshStateChanged, button, &QPushButton::setChecked, Qt::QueuedConnection);
 
     layout->addRow(button);
 
@@ -103,8 +105,8 @@ SourceWidget::SourceWidget (Source *s, QWidget *parent)
     spinBox->setSingleStep(1000);
     spinBox->setValue(1000);
     spinBox->setSuffix(" ms"); //
-    connect(spinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), source, &Source::setRefreshPeriod);
-    connect(source, &Source::refreshPeriodChanged, spinBox, &QSpinBox::setValue);
+    connect(spinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), source, &Source::setRefreshPeriod, Qt::QueuedConnection);
+    connect(source, &Source::refreshPeriodChanged, spinBox, &QSpinBox::setValue, Qt::QueuedConnection);
 
     layout->addRow(label, spinBox);
 

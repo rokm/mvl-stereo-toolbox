@@ -43,7 +43,7 @@ class WindowImagePairSource : public QWidget
     Q_OBJECT
 
 public:
-    WindowImagePairSource (Pipeline::Pipeline *, QList<Pipeline::ImagePairSource *> &, QWidget * = 0);
+    WindowImagePairSource (Pipeline::Pipeline *, QList<QObject *> &, QWidget * = 0);
     virtual ~WindowImagePairSource ();
 
 protected:
@@ -57,7 +57,7 @@ protected:
 protected:
     // Pipeline
     Pipeline::Pipeline *pipeline;
-    QList<Pipeline::ImagePairSource *> sources;
+    QList<QObject *> sources;
 
     QString snapshotBaseName;
 

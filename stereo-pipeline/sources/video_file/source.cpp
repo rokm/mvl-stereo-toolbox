@@ -80,11 +80,11 @@ void Source::openVideoFile (const QString &filename)
     // Clear the frames
     imageLeft = cv::Mat();
     imageRight = cv::Mat();
-    emit imagesChanged();
+    emit imagesChanged(cv::Mat(), cv::Mat());
 
     // If filename is empty, do nothing
     if (filename.isEmpty()) {
-        emit videoFileReadyChanged(false);
+        emit videoFileChanged(false);
         return;
     }
 
@@ -93,18 +93,18 @@ void Source::openVideoFile (const QString &filename)
         video.open(filename.toStdString());
     } catch (std::exception &e) {
         emit error(QString("Error while opening video '%1': %2").arg(filename).arg(QString::fromStdString(e.what())));
-        emit videoFileReadyChanged(false);
+        emit videoFileChanged(false);
         return;
     }
 
     // Make sure video was indeed opened
     if (!video.isOpened()) {
         emit error(QString("Failed to open video '%1'").arg(filename));
-        emit videoFileReadyChanged(false);
+        emit videoFileChanged(false);
         return;
     }
 
-    emit videoFileReadyChanged(true);
+    emit videoFileChanged(true);
     emit videoPositionChanged(video.get(cv::CAP_PROP_POS_FRAMES), video.get(cv::CAP_PROP_FRAME_COUNT));
 }
 
@@ -187,7 +187,7 @@ void Source::playbackFunction ()
 
     imagesLock.unlock();
 
-    emit imagesChanged();
+    emit imagesChanged(imageLeft.clone(), imageRight.clone());
 }
 
 

@@ -44,9 +44,9 @@ PropertyWidget::PropertyWidget (Camera *c, int p, bool integer_value, QWidget *p
 
     connect(camera, &Camera::propertyChanged, this, &PropertyWidget::updateProperty);
 
-    connect(this, static_cast<void (PropertyWidget::*)(double)>(&PropertyWidget::valueChanged), this, [this] (double newValue) {
+    connect(this, static_cast<void (PropertyWidget::*)(double)>(&PropertyWidget::valueChanged), camera, [this] (double newValue) {
         camera->setProperty(property, newValue);
-    });
+    }, Qt::QueuedConnection);
 
     // Get initial property value; as per OpenCV docs, assume that if 0
     // is returned, property is not supported. Additionally, tests

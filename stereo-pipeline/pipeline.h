@@ -57,14 +57,15 @@ public:
     int getGpuDevice () const;
 
     // Image pair source
-    void setImagePairSource (ImagePairSource *source);
-    ImagePairSource *getImagePairSource ();
+    void setImagePairSource (QObject *source);
+    QObject *getImagePairSource ();
 
     void setImagePairSourceState (bool active);
     bool getImagePairSourceState () const;
 
-    const cv::Mat &getLeftImage () const;
-    const cv::Mat &getRightImage () const;
+
+    cv::Mat getLeftImage () const;
+    cv::Mat getRightImage () const;
 
     // Rectification
     void setRectification (Rectification *rectification);
@@ -128,6 +129,9 @@ public:
         ErrorReprojection,
     };
 
+signals:
+    void inputImagesChanged (cv::Mat imgL, cv::Mat imgR);
+
 // NOTE: we need the old signal/slot syntax here!
 protected slots:
     void beginProcessing ();
@@ -140,8 +144,6 @@ protected slots:
 
     void updateReprojectionMatrix ();
 
-    void propagateImagePairSourceError (const QString &message);
-
 signals:
     void error (int domain, const QString &message);
 
@@ -153,13 +155,15 @@ signals:
     void visualizationStateChanged (bool active);
     void reprojectionStateChanged (bool active);
 
-    void inputImagesChanged ();
+    //void inputImagesChanged ();
     void rectifiedImagesChanged ();
     void disparityChanged ();
     void disparityVisualizationChanged ();
     void pointCloudChanged ();
 
     void disparityVisualizationMethodChanged (int method);
+
+    friend PipelinePrivate;
 };
 
 

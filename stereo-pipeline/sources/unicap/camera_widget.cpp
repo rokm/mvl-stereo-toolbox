@@ -33,6 +33,7 @@ CameraWidget::CameraWidget (Camera *c, QWidget *parent)
 {
     QFormLayout *layout = new QFormLayout(this);
     layout->setContentsMargins(0, 0, 0, 0);
+    layout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
 
     QLabel *label;
     QComboBox *comboBox;
@@ -41,9 +42,9 @@ CameraWidget::CameraWidget (Camera *c, QWidget *parent)
 
     QString tooltip;
 
-    connect(camera, &Camera::formatChanged, this, &CameraWidget::updateFormat);
-    connect(camera, &Camera::captureStarted, this, &CameraWidget::updateCameraState);
-    connect(camera, &Camera::captureFinished, this, &CameraWidget::updateCameraState);
+    connect(camera, &Camera::formatChanged, this, &CameraWidget::updateFormat, Qt::QueuedConnection);
+    connect(camera, &Camera::captureStarted, this, &CameraWidget::updateCameraState, Qt::QueuedConnection);
+    connect(camera, &Camera::captureFinished, this, &CameraWidget::updateCameraState, Qt::QueuedConnection);
 
     // Separator
     line = new QFrame(this);
@@ -97,13 +98,13 @@ CameraWidget::CameraWidget (Camera *c, QWidget *parent)
     button->setToolTip(tooltip);
     button->setCheckable(true);
 
-    connect(button, &QPushButton::toggled, this, [this] (bool start) {
+    connect(button, &QPushButton::toggled, camera, [this] (bool start) {
         if (start) {
             camera->startCapture();
         } else {
             camera->stopCapture();
         }
-    });
+    }, Qt::QueuedConnection);
 
     pushButtonCapture = button;
 
@@ -122,9 +123,9 @@ CameraWidget::CameraWidget (Camera *c, QWidget *parent)
     label->setToolTip(tooltip);
 
     comboBox = new QComboBox(this);
-    connect(comboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, [this] (int index) {
+    connect(comboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), camera, [this] (int index) {
         camera->setFormat(camera->getSupportedFormats()[index]);
-    });
+    }, Qt::QueuedConnection);
     comboBoxFormat = comboBox;
 
     layout->addRow(label, comboBox);
@@ -142,9 +143,9 @@ CameraWidget::CameraWidget (Camera *c, QWidget *parent)
     labelSize1 = label;
 
     widgetSize = new SizeWidget(this);
-    connect(widgetSize, &SizeWidget::sizeChanged, this, [this] (unicap_rect_t newSize) {
+    connect(widgetSize, &SizeWidget::sizeChanged, camera, [this] (unicap_rect_t newSize) {
         camera->setSize(newSize);
-    });
+    }, Qt::QueuedConnection);
 
     layout->addRow(label, widgetSize);
 
@@ -156,9 +157,9 @@ CameraWidget::CameraWidget (Camera *c, QWidget *parent)
     labelSize2 = label;
 
     comboBox = new QComboBox(this);
-    connect(comboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, [this] (int index) {
+    connect(comboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), camera, [this] (int index) {
         camera->setSize(format.sizes[index]);
-    });
+    }, Qt::QueuedConnection);
 
     comboBoxSize = comboBox;
 

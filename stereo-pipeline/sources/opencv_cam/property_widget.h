@@ -36,7 +36,7 @@ class PropertyWidget : public QDoubleSpinBox
     Q_OBJECT
 
 public:
-    PropertyWidget (Camera *, int, bool, QWidget * = 0);
+    PropertyWidget (Camera *c, int p, bool integer_value, QWidget *parent = nullptr);
     virtual ~PropertyWidget ();
 
 protected:

@@ -42,9 +42,9 @@ PropertyWidget::PropertyWidget (Camera *c, const unicap_property_t &p, QWidget *
                 pushButtonValue = new QPushButton(this);
                 pushButtonValue->setCheckable(true);
 
-                connect(pushButtonValue, &QPushButton::toggled, this, [this] (bool newValue) {
+                connect(pushButtonValue, &QPushButton::toggled, camera, [this] (bool newValue) {
                     camera->setPropertyValue(property.identifier, newValue);
-                });
+                }, Qt::QueuedConnection);
                 layout->addWidget(pushButtonValue);
 
                 type = TypeOnOff;
@@ -63,9 +63,9 @@ PropertyWidget::PropertyWidget (Camera *c, const unicap_property_t &p, QWidget *
                     spinBoxValue->setSuffix(" " + unit);
                 }
 
-                connect(spinBoxValue, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, [this] (double newValue) {
+                connect(spinBoxValue, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), camera, [this] (double newValue) {
                     camera->setPropertyValue(property.identifier, newValue);
-                });
+                }, Qt::QueuedConnection);
                 layout->addWidget(spinBoxValue);
 
                 type = TypeValue;
@@ -75,9 +75,9 @@ PropertyWidget::PropertyWidget (Camera *c, const unicap_property_t &p, QWidget *
         case UNICAP_PROPERTY_TYPE_VALUE_LIST: {
             comboBoxValue = new QComboBox(this);
 
-            connect(comboBoxValue, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, [this] (int index) {
+            connect(comboBoxValue, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), camera, [this] (int index) {
                 camera->setPropertyValue(property.identifier, property.value_list.values[index]);
-            });
+            }, Qt::QueuedConnection);
             layout->addWidget(comboBoxValue);
 
             for (int i = 0; i < property.value_list.value_count; i++) {
@@ -90,9 +90,9 @@ PropertyWidget::PropertyWidget (Camera *c, const unicap_property_t &p, QWidget *
         case UNICAP_PROPERTY_TYPE_MENU: {
             comboBoxValue = new QComboBox(this);
 
-            connect(comboBoxValue, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, [this] (int index) {
+            connect(comboBoxValue, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), camera, [this] (int index) {
                 camera->setPropertyValue(property.identifier, property.menu.menu_items[index]);
-            });
+            }, Qt::QueuedConnection);
             layout->addWidget(comboBoxValue);
 
             for (int i = 0; i < property.menu.menu_item_count; i++) {
@@ -113,10 +113,10 @@ PropertyWidget::PropertyWidget (Camera *c, const unicap_property_t &p, QWidget *
     // Mode
     int numModes = 0;
     comboBoxMode = new QComboBox(this);
-    connect(comboBoxMode, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, [this] (int index) {
+    connect(comboBoxMode, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), camera, [this] (int index) {
         int mode = comboBoxMode->itemData(index).toInt();
         camera->setPropertyMode(property.identifier, (Camera::PropertyMode)mode);
-    });
+    }, Qt::QueuedConnection);
     layout->addWidget(comboBoxMode);
 
     if (property.flags_mask & UNICAP_FLAGS_MANUAL) {

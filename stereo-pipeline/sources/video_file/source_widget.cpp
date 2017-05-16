@@ -78,9 +78,10 @@ SourceWidget::SourceWidget (Source *s, QWidget *parent)
     connect(lineEditVideoFile, &QLineEdit::returnPressed, this, [this] () {
         if (lineEditVideoFile->text() != videoFilename) {
             videoFilename = lineEditVideoFile->text();
-            source->openVideoFile(videoFilename);
+            emit videoFileLoadRequested(videoFilename);
         }
     });
+    connect(this, &SourceWidget::videoFileLoadRequested, source, &Source::openVideoFile, Qt::QueuedConnection); // A two-piece connection due to different thread affinity
 
     hbox->addWidget(lineEdit);
 
@@ -90,7 +91,7 @@ SourceWidget::SourceWidget (Source *s, QWidget *parent)
         if (!filename.isEmpty()) {
             videoFilename = filename;
             lineEditVideoFile->setText(videoFilename);
-            source->openVideoFile(videoFilename);
+            emit videoFileLoadRequested(videoFilename); // Use same type of connection as above
         }
     });
 
@@ -122,13 +123,13 @@ SourceWidget::SourceWidget (Source *s, QWidget *parent)
     button = new QPushButton("Play", this);
     button->setToolTip(tooltip);
     button->setCheckable(true);
-    connect(button, &QPushButton::toggled, this, [this] (bool active) {
+    connect(button, &QPushButton::toggled, source, [this] (bool active) {
         if (active) {
             source->startPlayback();
         } else {
             source->stopPlayback();
         }
-    });
+    }, Qt::QueuedConnection);
     connect(source, &Source::playbackStateChanged, button, &QPushButton::setChecked);
     pushButtonPlayPause = button;
 
@@ -143,9 +144,9 @@ SourceWidget::SourceWidget (Source *s, QWidget *parent)
     hbox->addWidget(label);
 
     spinBoxFrame = new QSpinBox(this);
-    connect(spinBoxFrame, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, [this] (int value) {
+    connect(spinBoxFrame, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), source, [this] (int value) {
         source->setVideoPosition(value - 1);
-    });
+    }, Qt::QueuedConnection);
     hbox->addWidget(spinBoxFrame);
 
     hbox->addStretch(1);
@@ -170,7 +171,7 @@ SourceWidget::SourceWidget (Source *s, QWidget *parent)
     layoutVideo->addWidget(sliderPosition);
     connect(sliderPosition, &QSlider::valueChanged, source, [this] (int value) {
         source->setVideoPosition(value - 1);
-    });
+    }, Qt::QueuedConnection);
 
     // Separator
     line = new QFrame(this);
@@ -192,10 +193,10 @@ SourceWidget::SourceWidget (Source *s, QWidget *parent)
     layoutVideo->addWidget(labelVideoLength);
 
     // Init
-    connect(source, &Source::videoFileReadyChanged, this, &SourceWidget::videoFileReadyChanged);
-    connect(source, &Source::videoPositionChanged, this, &SourceWidget::videoPositionChanged);
+    connect(source, &Source::videoFileChanged, this, &SourceWidget::updateVideoInfo, Qt::QueuedConnection);
+    connect(source, &Source::videoPositionChanged, this, &SourceWidget::updateVideoPosition, Qt::QueuedConnection);
 
-    videoFileReadyChanged(false);
+    updateVideoInfo(false);
 }
 
 SourceWidget::~SourceWidget ()
@@ -206,7 +207,7 @@ SourceWidget::~SourceWidget ()
 // *********************************************************************
 // *                             Video file                            *
 // *********************************************************************
-void SourceWidget::videoFileReadyChanged (bool available)
+void SourceWidget::updateVideoInfo (bool available)
 {
     int width = 0, height = 0, length = 0;
     float framerate = 0.0f;
@@ -243,7 +244,7 @@ void SourceWidget::videoFileReadyChanged (bool available)
 // *********************************************************************
 // *                              Playback                             *
 // *********************************************************************
-void SourceWidget::videoPositionChanged (int frame, int length)
+void SourceWidget::updateVideoPosition (int frame, int length)
 {
     QTime time = QTime::fromMSecsSinceStartOfDay(frame * 1000 / source->getVideoFramerate());
 

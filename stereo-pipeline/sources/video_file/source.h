@@ -39,13 +39,13 @@ class Source : public QObject, public ImagePairSource
     Q_INTERFACES(MVL::StereoToolbox::Pipeline::ImagePairSource)
 
 public:
-    Source (QObject * = 0);
+    Source (QObject *parent = nullptr);
     virtual ~Source ();
 
     virtual QString getShortName () const;
-    virtual void getImages (cv::Mat &, cv::Mat &);
+    virtual void getImages (cv::Mat &left, cv::Mat &right);
     virtual void stopSource ();
-    virtual QWidget *createConfigWidget (QWidget * = 0);
+    virtual QWidget *createConfigWidget (QWidget *parent = nullptr);
 
     int getVideoWidth ();
     int getVideoHeight ();
@@ -55,21 +55,21 @@ public:
     void stopPlayback ();
     void startPlayback ();
 
-    void setVideoPosition (int);
+    void setVideoPosition (int frame);
 
-    void openVideoFile (const QString &);
+    void openVideoFile (const QString &filename);
 
 protected:
     void playbackFunction ();
 
 signals:
     // Signals from interface
-    void imagesChanged ();
-    void error (const QString &);
+    void imagesChanged (cv::Mat imageL, cv::Mat imageR);
+    void error (QString message);
 
-    void playbackStateChanged (bool);
-    void videoFileReadyChanged (bool);
-    void videoPositionChanged (int, int);
+    void playbackStateChanged (bool playing);
+    void videoFileChanged (bool available);
+    void videoPositionChanged (int position, int length);
 
 protected:
     // Images

@@ -32,7 +32,7 @@ namespace StereoToolbox {
 namespace GUI {
 
 
-WindowImagePairSource::WindowImagePairSource (Pipeline::Pipeline *p, QList<Pipeline::ImagePairSource *> &s, QWidget *parent)
+WindowImagePairSource::WindowImagePairSource (Pipeline::Pipeline *p, QList<QObject *> &s, QWidget *parent)
     : QWidget(parent, Qt::Window), pipeline(p), sources(s)
 {
     setWindowTitle("Image source");
@@ -104,7 +104,8 @@ WindowImagePairSource::WindowImagePairSource (Pipeline::Pipeline *p, QList<Pipel
 
     // Create config tabs
     for (int i = 0; i < sources.size(); i++) {
-        tabWidget->addTab(sources[i]->createConfigWidget(this), sources[i]->getShortName());
+        Pipeline::ImagePairSource *source = qobject_cast<Pipeline::ImagePairSource * >(sources[i]);
+        tabWidget->addTab(source->createConfigWidget(this), source->getShortName());
     }
 
     // Method selection
@@ -112,9 +113,9 @@ WindowImagePairSource::WindowImagePairSource (Pipeline::Pipeline *p, QList<Pipel
     setSource(tabWidget->currentIndex());
 
     // Pipeline
-    connect(pipeline, &Pipeline::Pipeline::inputImagesChanged, this, [this] () {
-        displayImageLeft->setImage(pipeline->getLeftImage());
-        displayImageRight->setImage(pipeline->getRightImage());
+    connect(pipeline, &Pipeline::Pipeline::inputImagesChanged, this, [this] (cv::Mat imageLeft, cv::Mat imageRight) {
+        displayImageLeft->setImage(imageLeft);
+        displayImageRight->setImage(imageRight);
     });
 
     // Pipeline's error signalization

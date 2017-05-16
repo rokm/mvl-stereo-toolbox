@@ -193,7 +193,7 @@ void Source::synchronizeFrames ()
             rightImageReady = false;
         }
 
-        emit imagesChanged();
+        emit imagesChanged(imageLeft.clone(), imageRight.clone());
     }
 }
 

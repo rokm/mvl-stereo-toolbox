@@ -71,9 +71,9 @@ SourceWidget::SourceWidget (Source *source, QWidget *parent)
     comboBox->addItem("Single-camera mode");
     comboBox->addItem("Dual-camera mode");
 
-    connect(comboBox, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), [this, comboBox, source] (int index) {
+    connect(comboBox, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), source, [comboBox, source] (int index) {
         source->setSingleCameraMode(index == 0);
-    });
+    }, Qt::QueuedConnection);
 
     connect(source, &Source::singleCameraModeChanged, this, [this, comboBox] (bool enabled) {
         // Update combo box
@@ -105,7 +105,7 @@ SourceWidget::SourceWidget (Source *source, QWidget *parent)
 
     button = new QPushButton("Rescan");
     button->setToolTip(tooltip);
-    connect(button, &QPushButton::clicked, source, &Source::refreshCameraList);
+    connect(button, &QPushButton::clicked, source, &Source::refreshCameraList, Qt::QueuedConnection);
 
     layout->addRow(button);
 
@@ -123,29 +123,29 @@ SourceWidget::SourceWidget (Source *source, QWidget *parent)
     frameLeftCamera = new CameraFrame(source, this);
     frameLeftCamera->setLabel("<b>Left camera</b>");
 
-    connect(frameLeftCamera, &CameraFrame::deviceSelected, this, [this, source] (int device) {
+    connect(frameLeftCamera, &CameraFrame::deviceSelected, source, [source] (int device) {
         source->setLeftCamera(device);
-    });
+    }, Qt::QueuedConnection);
 
     connect(source, &Source::leftCameraChanged, this, [this, source] () {
         frameLeftCamera->setCamera(source->getLeftCamera());
-    });
+    }, Qt::QueuedConnection);
 
-    hbox->addWidget(frameLeftCamera);
+    hbox->addWidget(frameLeftCamera, 1);
 
     // Right
     frameRightCamera = new CameraFrame(source, this);
     frameRightCamera->setLabel("<b>Right camera</b>");
 
-    connect(frameRightCamera, &CameraFrame::deviceSelected, this, [this, source] (int device) {
+    connect(frameRightCamera, &CameraFrame::deviceSelected, source, [source] (int device) {
         source->setRightCamera(device);
-    });
+    }, Qt::QueuedConnection);
 
     connect(source, &Source::rightCameraChanged, this, [this, source] () {
         frameRightCamera->setCamera(source->getRightCamera());
-    });
+    }, Qt::QueuedConnection);
 
-    hbox->addWidget(frameRightCamera);
+    hbox->addWidget(frameRightCamera, 1);
 }
 
 SourceWidget::~SourceWidget ()

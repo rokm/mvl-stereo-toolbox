@@ -67,8 +67,8 @@ signals:
     void refreshPeriodChanged (int);
 
     // Signals from interface
-    void imagesChanged ();
-    void error (const QString &);
+    void imagesChanged (cv::Mat imageLeft, cv::Mat imageRight);
+    void error (QString message);
 
 protected:
     QTimer *refreshTimer;

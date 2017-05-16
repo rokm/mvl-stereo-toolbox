@@ -39,43 +39,43 @@ class Camera : public QObject
     Q_OBJECT
 
 public:
-    Camera (dc1394camera_t *, QObject * = 0);
+    Camera (dc1394camera_t *c, QObject *parent = nullptr);
     virtual ~Camera ();
 
     // Config widget
-    QWidget *createConfigWidget (QWidget * = 0);
+    QWidget *createConfigWidget (QWidget *parent = nullptr);
 
     // Camera identification
     dc1394camera_id_t getId () const;
-    bool isSameCamera (const dc1394camera_id_t &) const;
+    bool isSameCamera (const dc1394camera_id_t &id) const;
 
     QString getVendor () const;
     QString getModel () const;
 
     // Basic parameters
-    void setIsoSpeed (dc1394speed_t);
+    void setIsoSpeed (dc1394speed_t speed);
     dc1394speed_t getIsoSpeed () const;
 
     QVector<dc1394video_mode_t> getSupportedModes ();
-    void setMode (dc1394video_mode_t);
+    void setMode (dc1394video_mode_t mode);
     dc1394video_mode_t getMode () const;
 
     QVector<dc1394framerate_t> getSupportedFramerates ();
-    void setFramerate (dc1394framerate_t);
+    void setFramerate (dc1394framerate_t fps);
     dc1394framerate_t getFramerate () const;
 
     // Camera features
     const dc1394featureset_t &getFeatureSet () const;
 
-    void setFeatureValue (dc1394feature_t, int);
+    void setFeatureValue (dc1394feature_t feature, int newValue);
     int getFeatureValue (dc1394feature_t);
 
-    void setFeatureAbsoluteValue (dc1394feature_t, double);
+    void setFeatureAbsoluteValue (dc1394feature_t feature, double newValue);
     double getFeatureAbsoluteValue (dc1394feature_t);
 
-    QList<dc1394feature_mode_t> getFeatureModes (dc1394feature_t);
-    void setFeatureMode (dc1394feature_t, dc1394feature_mode_t);
-    dc1394feature_mode_t getFeatureMode (dc1394feature_t);
+    QList<dc1394feature_mode_t> getFeatureModes (dc1394feature_t feature);
+    void setFeatureMode (dc1394feature_t feature, dc1394feature_mode_t mode);
+    dc1394feature_mode_t getFeatureMode (dc1394feature_t feature);
 
     // Camera start/stop
     void startCapture ();
@@ -84,15 +84,16 @@ public:
     bool getCaptureState () const;
 
     // Frame
-    void copyFrame (cv::Mat &);
+    void copyFrame (cv::Mat &frame);
 
 signals:
     void captureStarted ();
     void captureFinished ();
     void frameReady ();
 
-    void error (const QString);
+    void error (QString message);
 
+    void modeChanged ();
     void parameterChanged ();
 
     void workerStopCapture ();
@@ -116,10 +117,10 @@ class CameraCaptureWorker : public QObject
     Q_OBJECT
 
 public:
-    CameraCaptureWorker (dc1394camera_t *, QObject * = 0);
+    CameraCaptureWorker (dc1394camera_t *c, QObject *parent = nullptr);
     virtual ~CameraCaptureWorker ();
 
-    void copyFrame (cv::Mat &);
+    void copyFrame (cv::Mat &frame);
 
     void startCapture ();
     void stopCapture ();
@@ -127,16 +128,16 @@ public:
 protected:
     void grabFrame ();
 
-    void dequeueCaptureBuffer (dc1394video_frame_t *&, bool);
-    void enqueueCaptureBuffer (dc1394video_frame_t *);
-    void convertToOpenCVImage (dc1394video_frame_t *, cv::Mat &image) const;
+    void dequeueCaptureBuffer (dc1394video_frame_t *&frame, bool drainQueue);
+    void enqueueCaptureBuffer (dc1394video_frame_t *frame);
+    void convertToOpenCVImage (dc1394video_frame_t *frame, cv::Mat &image) const;
 
 signals:
     void captureStarted ();
     void captureFinished ();
     void frameReady ();
 
-    void error (const QString);
+    void error (QString);
 
 protected:
     dc1394camera_t *camera;

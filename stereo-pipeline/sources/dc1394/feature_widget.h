@@ -38,14 +38,10 @@ class FeatureWidget : public QWidget
     Q_OBJECT
 
 public:
-    FeatureWidget (Camera *, const dc1394feature_info_t &, QWidget * = 0);
+    FeatureWidget (Camera *c, const dc1394feature_info_t &f, QWidget *parent = nullptr);
     virtual ~FeatureWidget ();
 
 protected:
-    /*void setValue (int);
-    void setAbsoluteValue (double);
-    void modeChanged (int);*/
-
     void updateParameters ();
 
 protected:

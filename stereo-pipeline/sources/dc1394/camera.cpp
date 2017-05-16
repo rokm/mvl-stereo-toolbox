@@ -167,6 +167,7 @@ void Camera::setMode (dc1394video_mode_t mode)
         return;
     }
 
+    emit modeChanged();
     emit parameterChanged();
 }
 

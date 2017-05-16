@@ -40,7 +40,7 @@ class SourceWidget : public QWidget
     Q_OBJECT
 
 public:
-    SourceWidget (Source *source, QWidget *parent = 0);
+    SourceWidget (Source *source, QWidget *parent = nullptr);
     virtual ~SourceWidget ();
 
 protected:

@@ -33,7 +33,7 @@ static const QString featureModeToString (dc1394feature_mode_t);
 FeatureWidget::FeatureWidget (Camera *c, const dc1394feature_info_t &f, QWidget *parent)
     : QWidget(parent), camera(c), feature(f)
 {
-    connect(camera, &Camera::parameterChanged, this, &FeatureWidget::updateParameters);
+    connect(camera, &Camera::parameterChanged, this, &FeatureWidget::updateParameters, Qt::QueuedConnection);
 
     QHBoxLayout *layout = new QHBoxLayout(this);
     layout->setContentsMargins(0, 0, 0, 0);
@@ -43,17 +43,17 @@ FeatureWidget::FeatureWidget (Camera *c, const dc1394feature_info_t &f, QWidget 
     spinBoxValue->setToolTip(QString("Min: %1 Max: %2").arg(feature.min).arg(feature.max));
     spinBoxValue->setKeyboardTracking(false);
     spinBoxValue->setRange(feature.min, feature.max);
-    connect(spinBoxValue, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, [this] (int newValue) {
+    connect(spinBoxValue, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), camera, [this] (int newValue) {
         camera->setFeatureValue(feature.id, newValue);
-    });
+    }, Qt::QueuedConnection);
 
     layout->addWidget(spinBoxValue);
 
     // Mode
     comboBoxMode = new QComboBox(this);
-    connect(comboBoxMode, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, [this] (int index) {
+    connect(comboBoxMode, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), camera, [this] (int index) {
         camera->setFeatureMode(feature.id, (dc1394feature_mode_t)comboBoxMode->itemData(index).toInt());
-    });
+    }, Qt::QueuedConnection);
 
     layout->addWidget(comboBoxMode);
 
@@ -74,9 +74,9 @@ FeatureWidget::FeatureWidget (Camera *c, const dc1394feature_info_t &f, QWidget 
         spinBoxAbsoluteValue->setDecimals(6);
         spinBoxAbsoluteValue->setEnabled(false);
         spinBoxAbsoluteValue->setRange(feature.abs_min, feature.abs_max);
-        connect(spinBoxAbsoluteValue, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, [this] (double newValue) {
+        connect(spinBoxAbsoluteValue, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), camera, [this] (double newValue) {
             camera->setFeatureAbsoluteValue(feature.id, newValue);
-        });
+        }, Qt::QueuedConnection);
         layout->addWidget(spinBoxAbsoluteValue);
     }
 

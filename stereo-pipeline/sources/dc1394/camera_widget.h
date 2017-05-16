@@ -36,15 +36,11 @@ class CameraWidget : public QWidget
     Q_OBJECT
 
 public:
-    CameraWidget (Camera *, QWidget * = 0);
+    CameraWidget (Camera *c, QWidget *parent = nullptr);
     virtual ~CameraWidget ();
 
 protected:
-    /*void captureButtonToggled (bool);*/
     void updateCameraState ();
-
-    /*void modeChanged (int);
-    void framerateChanged (int);*/
 
     void updateParameters ();
 

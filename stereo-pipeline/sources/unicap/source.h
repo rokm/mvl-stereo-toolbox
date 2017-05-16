@@ -39,38 +39,38 @@ class Source : public QAbstractListModel, public ImagePairSource
     Q_INTERFACES(MVL::StereoToolbox::Pipeline::ImagePairSource)
 
 public:
-    Source (QObject * = 0);
+    Source (QObject *parent = nullptr);
     virtual ~Source ();
 
     virtual QString getShortName () const;
-    virtual void getImages (cv::Mat &, cv::Mat &);
+    virtual void getImages (cv::Mat &left, cv::Mat &right);
     virtual void stopSource ();
-    virtual QWidget *createConfigWidget (QWidget * = 0);
+    virtual QWidget *createConfigWidget (QWidget *parent = nullptr);
 
     bool getSingleCameraMode () const;
     void setSingleCameraMode (bool enabled);
 
     int getNumberOfCameras () const;
-    const unicap_device_t &getCameraInfo (int) const;
-    void setLeftCamera (int);
-    void setRightCamera (int);
+    const unicap_device_t &getCameraInfo (int c) const;
+    void setLeftCamera (int c);
+    void setRightCamera (int c);
 
     Camera *getLeftCamera ();
     Camera *getRightCamera ();
 
     // Model
-    virtual int rowCount (const QModelIndex &) const;
+    virtual int rowCount (const QModelIndex &index) const;
     virtual Qt::ItemFlags flags (const QModelIndex &index) const;
     virtual QVariant data (const QModelIndex &index, int role) const;
 
     void refreshCameraList ();
-    void startStopCapture (bool);
+    void startStopCapture (bool start);
 
 protected:
-    void createCamera (Camera *&, int);
-    void releaseCamera (Camera *&);
-    void setActive (int, bool);
-    void setActive (const unicap_device_t &, bool);
+    void createCamera (Camera *&camera, int c);
+    void releaseCamera (Camera *&camera);
+    void setActive (int c, bool value);
+    void setActive (const unicap_device_t &dev, bool value);
 
     void synchronizeFrames ();
 
@@ -81,8 +81,8 @@ signals:
     void rightCameraChanged ();
 
     // Signals from interface
-    void imagesChanged ();
-    void error (const QString &);
+    void imagesChanged (cv::Mat imageL, cv::Mat imageR);
+    void error (QString message);
 
 protected:
     QVector<unicap_device_t> entries;

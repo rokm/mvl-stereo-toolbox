@@ -37,15 +37,15 @@ class Camera : public QObject
     Q_OBJECT
 
 public:
-    Camera (unicap_handle_t, QObject * = 0);
+    Camera (unicap_handle_t h, QObject *parent = nullptr);
     virtual ~Camera ();
 
     // Config widget
-    QWidget *createConfigWidget (QWidget * = 0);
+    QWidget *createConfigWidget (QWidget *parent = nullptr);
 
     // Camera identification
     unicap_device_t getDevice () const;
-    bool isSameCamera (const unicap_device_t &) const;
+    bool isSameCamera (const unicap_device_t &otherDevice) const;
 
     // Hardware information
     QString getDeviceVendor () const;
@@ -55,18 +55,18 @@ public:
 
     // Format
     const QVector<unicap_format_t> &getSupportedFormats () const;
-    void setFormat (const unicap_format_t &);
+    void setFormat (const unicap_format_t &newFormat);
     const unicap_format_t &getFormat () const;
 
-    void setSize (unicap_rect_t &);
+    void setSize (unicap_rect_t &size);
 
     // Camera properties
     const QVector<unicap_property_t> &getSupportedProperties () const;
 
-    void updateProperty (unicap_property_t &);
+    void updateProperty (unicap_property_t &property);
 
-    void setPropertyValue (const QString &, double);
-    void setPropertyValue (const QString &, const QString &);
+    void setPropertyValue (const QString &name, double value);
+    void setPropertyValue (const QString &name, const QString & value);
 
     enum PropertyMode {
         PropertyModeManual,
@@ -74,7 +74,7 @@ public:
         PropertyModeOnePush,
     };
 
-    void setPropertyMode (const QString &, PropertyMode);
+    void setPropertyMode (const QString &name, PropertyMode mode);
 
     // Camera start/stop
     void startCapture ();
@@ -83,8 +83,8 @@ public:
     bool getCaptureState () const;
 
     // Frame
-    void captureFrame (unicap_data_buffer_t *);
-    void copyFrame (cv::Mat &);
+    void captureFrame (unicap_data_buffer_t *buffer);
+    void copyFrame (cv::Mat &frame);
 
 protected:
     void updateFormat();
@@ -94,7 +94,7 @@ signals:
     void captureFinished ();
     void frameReady ();
 
-    void error (const QString);
+    void error (QString message);
 
     void formatChanged ();
     void sizeChanged ();

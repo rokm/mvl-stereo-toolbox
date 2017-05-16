@@ -23,6 +23,8 @@ set(pipeline_SOURCES
     rectification.cpp
     reprojection.cpp
     utils.cpp
+    pipeline-async/element.cpp
+    pipeline-async/source_element.cpp
 )
 
 set(pipeline_HEADERS
@@ -36,9 +38,13 @@ set(pipeline_HEADERS
     reprojection.h
     stereo_method.h
     utils.h
+    pipeline-async/element.h
+    pipeline-async/source_element.h
 )
 
 include_directories(${OpenCV_INCLUDE_DIRS})
+
+include_directories(pipeline-async)
 
 # Define plugin path
 set(MVL_STEREO_PIPELINE_PLUGIN_DIR "${CMAKE_INSTALL_FULL_LIBDIR}/MVL/stereo-pipeline" CACHE PATH "Path to MVL Stereo Pipeline plugins")

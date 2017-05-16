@@ -43,15 +43,15 @@ class Camera : public QObject
     Q_OBJECT
 
 public:
-    Camera (cv::VideoCapture *, ocv_camera_id_t, QObject * = 0);
+    Camera (cv::VideoCapture *cap, ocv_camera_id_t cid, QObject *parent = nullptr);
     virtual ~Camera ();
 
     // Config widget
-    QWidget *createConfigWidget (QWidget * = 0);
+    QWidget *createConfigWidget (QWidget *parent = nullptr);
 
     // Camera identification
     const ocv_camera_id_t &getId () const;
-    bool isSameCamera (const ocv_camera_id_t &) const;
+    bool isSameCamera (const ocv_camera_id_t &otherId) const;
 
     // Camera start/stop
     void startCapture ();
@@ -60,11 +60,11 @@ public:
     bool getCaptureState () const;
 
     // Frame
-    void copyFrame (cv::Mat &);
+    void copyFrame (cv::Mat &frame);
 
     // Properties
-    void setProperty (int, double);
-    double getProperty (int);
+    void setProperty (int prop, double newValue);
+    double getProperty (int prop);
 
 protected:
     void captureFunction ();
@@ -74,7 +74,7 @@ signals:
     void captureFinished ();
     void frameReady ();
 
-    void error (const QString);
+    void error (QString message);
 
     void propertyChanged ();
 

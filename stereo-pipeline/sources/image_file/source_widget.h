@@ -39,6 +39,9 @@ public:
     SourceWidget (Source *, QWidget * = 0);
     virtual ~SourceWidget ();
 
+signals:
+    void requestImageLoad (QString filenameLeft, QString filenameRight);
+
 protected:
     QWidget *createImageFrame (bool);
 

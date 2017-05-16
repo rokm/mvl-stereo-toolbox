@@ -39,16 +39,28 @@
 
 #include "pipeline_p.h"
 
+#include "source_element.h"
+
 
 namespace MVL {
 namespace StereoToolbox {
 namespace Pipeline {
 
 
+
+
+
+
+
+
 PipelinePrivate::PipelinePrivate (Pipeline *parent)
     : q_ptr(parent)
 {
-    imagePairSource = NULL;
+    Q_Q(Pipeline);
+
+    qRegisterMetaType< cv::Mat >();
+
+    //imagePairSource = NULL;
     rectification = NULL;
     stereoMethod = NULL;
     visualization = NULL;
@@ -57,20 +69,35 @@ PipelinePrivate::PipelinePrivate (Pipeline *parent)
     useStereoMethodThread = false;
     stereoDroppedFramesCounter = 0;
 
-    imagePairSourceActive = true;
+    //imagePairSourceActive = true;
     rectificationActive = true;
     stereoMethodActive = true;
     visualizationActive = true;
     reprojectionActive = true;
 
     visualizationTime = 0;
+
+    // New element-wrapper-based API
+    source = new AsyncPipeline::SourceElement(q);
+    q->connect(source, &AsyncPipeline::SourceElement::error, [q] (const QString &message) {
+        emit q->error(Pipeline::ErrorImagePairSource, message);
+    });
+
+    q->connect(source, &AsyncPipeline::SourceElement::imagesChanged, [q, this] (cv::Mat left, cv::Mat right) {
+        // FIXME: bridge between old and new API
+        left.copyTo(inputImageL);
+        right.copyTo(inputImageR);
+        q->rectifyImages();
+
+        emit q->inputImagesChanged(inputImageL, inputImageR);
+    });
 }
 
 
 Pipeline::Pipeline (QObject *parent)
     : QObject(parent), d_ptr(new PipelinePrivate(this))
 {
-    connect(this, &Pipeline::inputImagesChanged, this, &Pipeline::rectifyImages);
+    //connect(this, &Pipeline::inputImagesChanged, this, &Pipeline::rectifyImages);
     connect(this, &Pipeline::rectifiedImagesChanged, this, &Pipeline::computeDisparity);
     connect(this, &Pipeline::disparityChanged, this, &Pipeline::reprojectPoints);
     connect(this, &Pipeline::pointCloudChanged, this, &Pipeline::processingCompleted);
@@ -148,6 +175,66 @@ int Pipeline::getGpuDevice () const
 // *********************************************************************
 // *                         Image pair source                         *
 // *********************************************************************
+// Source setting
+void Pipeline::setImagePairSource (QObject *source)
+{
+    Q_D(Pipeline);
+    d->source->setImagePairSource(source);
+}
+
+QObject *Pipeline::getImagePairSource ()
+{
+    Q_D(Pipeline);
+    return d->source->getImagePairSource();
+}
+
+
+// Source state
+void Pipeline::setImagePairSourceState (bool active)
+{
+    Q_D(Pipeline);
+    d->source->setState(active);
+}
+
+bool Pipeline::getImagePairSourceState () const
+{
+    Q_D(const Pipeline);
+    return d->source->getState();
+}
+
+
+// Image retrieval
+cv::Mat Pipeline::getLeftImage () const
+{
+    Q_D(const Pipeline);
+    return d->source->getLeftImage();
+}
+
+cv::Mat Pipeline::getRightImage () const
+{
+    Q_D(const Pipeline);
+    return d->source->getRightImage();
+}
+
+
+// Processing
+void Pipeline::beginProcessing ()
+{
+    Q_D(Pipeline);
+
+    // Make sure image source is marked as active
+    if (!d->source->getState()) {
+        emit processingCompleted();
+        return;
+    }
+
+    // Get images from source
+    d->source->getImages(d->inputImageL, d->inputImageR);
+    emit inputImagesChanged(d->inputImageL, d->inputImageR);
+}
+
+
+#if 0
 // Source setting
 void Pipeline::setImagePairSource (ImagePairSource *source)
 {
@@ -234,7 +321,7 @@ void Pipeline::beginProcessing ()
     Q_D(Pipeline);
 
     // Make sure image source is marked as active
-    if (!d->imagePairSourceActive) {
+    if (!d->source->getState()) {
         emit processingCompleted();
         return;
     }
@@ -243,6 +330,8 @@ void Pipeline::beginProcessing ()
     d->imagePairSource->getImages(d->inputImageL, d->inputImageR);
     emit inputImagesChanged();
 }
+#endif
+
 
 
 // *********************************************************************

@@ -304,7 +304,7 @@ void Source::synchronizeFrames ()
 
             leftFrameReady = false;
 
-            emit imagesChanged();
+            emit imagesChanged(imageLeft.clone(), imageRight.clone());
         }
     } else {
         // Dual camera mode: we need to synchronize left and right frame
@@ -325,7 +325,7 @@ void Source::synchronizeFrames ()
             leftFrameReady = false;
             rightFrameReady = false;
 
-            emit imagesChanged();
+            emit imagesChanged(imageLeft.clone(), imageRight.clone());
         }
     }
 }

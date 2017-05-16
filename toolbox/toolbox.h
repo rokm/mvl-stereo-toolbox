@@ -83,7 +83,7 @@ protected:
     Pipeline::Pipeline *pipeline;
 
     Pipeline::PluginManager *plugin_manager;
-    QList<Pipeline::ImagePairSource *> imagePairSources;
+    QList<QObject *> imagePairSources;
     QList<Pipeline::StereoMethod *> stereoMethods;
 };
 

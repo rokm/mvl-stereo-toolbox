@@ -38,7 +38,7 @@ class CameraWidget : public QWidget
     Q_OBJECT
 
 public:
-    CameraWidget (Camera *, QWidget * = 0);
+    CameraWidget (Camera *c, QWidget *parent = nullptr);
     virtual ~CameraWidget ();
 
 protected:
@@ -71,16 +71,16 @@ class SizeWidget : public QWidget
     Q_OBJECT
 
 public:
-    SizeWidget (QWidget * = 0);
+    SizeWidget (QWidget *parent = nullptr);
     virtual ~SizeWidget ();
 
-    void setSize (const unicap_rect_t &);
+    void setSize (const unicap_rect_t &size);
     unicap_rect_t getSize () const;
 
-    void setValidSizeRange (const unicap_rect_t &, const unicap_rect_t &, int, int);
+    void setValidSizeRange (const unicap_rect_t &min_size, const unicap_rect_t &max_size, int step_w, int step_h);
 
 signals:
-    void sizeChanged (unicap_rect_t);
+    void sizeChanged (unicap_rect_t size);
 
 protected:
     QSpinBox *spinBoxOffsetX;

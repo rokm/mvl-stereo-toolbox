@@ -36,14 +36,15 @@ class SourceWidget : public QWidget
     Q_OBJECT
 
 public:
-    SourceWidget (Source *, QWidget * = 0);
+    SourceWidget (Source *s, QWidget *parent = nullptr);
     virtual ~SourceWidget ();
 
 protected:
-    void videoFileReadyChanged (bool);
+    void updateVideoInfo (bool available);
+    void updateVideoPosition (int frame, int length);
 
-    void changePlaybackState (bool);
-    void videoPositionChanged (int, int);
+signals:
+    void videoFileLoadRequested (const QString &filename);
 
 protected:
     Source *source;

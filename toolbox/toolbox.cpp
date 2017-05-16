@@ -261,10 +261,11 @@ void Toolbox::displayError (int errorType, const QString &errorMessage)
 
     // Stop the image pair source, so that the user can resolve the
     // error
-    Pipeline::ImagePairSource *imagePairSource = pipeline->getImagePairSource();
+    /*Pipeline::ImagePairSource *imagePairSource = pipeline->getImagePairSource();
     if (imagePairSource) {
         imagePairSource->stopSource();
-    }
+    }*/
+    pipeline->setImagePairSourceState(false);
 }
 
 void Toolbox::clearError ()
@@ -298,7 +299,8 @@ void Toolbox::loadPlugins ()
                     break;
                 }
                 case Pipeline::PluginFactory::PluginImagePairSource: {
-                    imagePairSources.append(qobject_cast<Pipeline::ImagePairSource *>(object));
+                    imagePairSources.append(object);
+                    //imagePairSources.append(qobject_cast<Pipeline::ImagePairSource *>(object));
                     break;
                 }
                 default: {
