@@ -21,6 +21,10 @@ public:
     void setState (bool active);
     bool getState () const;
 
+    float getFramesPerSecond () const;
+    int getLastOperationTime () const;
+    int getNumberOfDroppedFrames () const;
+
 protected:
     void incrementUpdateCount ();
     void estimateFps ();
@@ -28,6 +32,8 @@ protected:
 signals:
     void error (const QString &message);
     void stateChanged (bool active);
+
+    void frameDropped ();
 
 protected:
     bool state;
@@ -38,6 +44,11 @@ protected:
     QTimer *fpsTimer;
 
     QThread *thread;
+
+    // Cached data (lock reused by children)
+    mutable QReadWriteLock lock;
+    int droppedCounter;
+    int lastOperationTime;
 };
 
 

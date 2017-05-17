@@ -79,8 +79,11 @@ public:
     int getRectificationTime () const;
 
     // Stereo method
-    void setStereoMethod (StereoMethod *method);
-    StereoMethod *getStereoMethod ();
+    void setStereoMethod (QObject *method);
+    QObject *getStereoMethod ();
+
+    void loadStereoMethodParameters (const QString &filename);
+    void saveStereoMethodParameters (const QString &filename);
 
     void setStereoMethodState (bool active);
     bool getStereoMethodState () const;
@@ -88,10 +91,6 @@ public:
     const cv::Mat &getDisparity () const;
     int getNumberOfDisparityLevels () const;
     int getDisparityComputationTime () const;
-
-    // Stereo method thread
-    void setUseStereoMethodThread (bool enable);
-    bool getUseStereoMethodThread () const;
 
     int getStereoDroppedFrames () const;
 
@@ -136,11 +135,8 @@ signals:
 protected slots:
     void beginProcessing ();
     void rectifyImages ();
-    void computeDisparity ();
     void computeDisparityVisualization ();
     void reprojectPoints ();
-
-    void computeDisparityInThread ();
 
     void updateReprojectionMatrix ();
 

@@ -44,7 +44,7 @@ class WindowStereoMethod : public QWidget
     Q_OBJECT
 
 public:
-    WindowStereoMethod (Pipeline::Pipeline *, QList<Pipeline::StereoMethod *> &, QWidget * = 0);
+    WindowStereoMethod (Pipeline::Pipeline *, QList<QObject *> &, QWidget * = 0);
     virtual ~WindowStereoMethod ();
 
 protected:
@@ -65,7 +65,7 @@ protected:
 protected:
     // Pipeline
     Pipeline::Pipeline *pipeline;
-    QList<Pipeline::StereoMethod *> methods;
+    QList<QObject *> methods;
     Pipeline::DisparityVisualization *visualization;
 
     // GUI

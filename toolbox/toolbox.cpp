@@ -51,7 +51,6 @@ Toolbox::Toolbox ()
 
     // Create pipeline
     pipeline = new Pipeline::Pipeline(this);
-    pipeline->setUseStereoMethodThread(true);
 
     // If available, initialize first GPU
     if (pipeline->getNumberOfGpuDevices()) {
@@ -282,7 +281,7 @@ void Toolbox::loadPlugins ()
 {
     foreach (QObject *plugin, plugin_manager->getAvailablePlugins()) {
         Pipeline::PluginFactory *factory = qobject_cast<Pipeline::PluginFactory *>(plugin);
-        QObject *object = NULL;
+        QObject *object = nullptr;
 
         // Create object
         try {
@@ -295,12 +294,11 @@ void Toolbox::loadPlugins ()
         if (object) {
             switch (factory->getPluginType()) {
                 case Pipeline::PluginFactory::PluginStereoMethod: {
-                    stereoMethods.append(qobject_cast<Pipeline::StereoMethod *>(object));
+                    stereoMethods.append(object);
                     break;
                 }
                 case Pipeline::PluginFactory::PluginImagePairSource: {
                     imagePairSources.append(object);
-                    //imagePairSources.append(qobject_cast<Pipeline::ImagePairSource *>(object));
                     break;
                 }
                 default: {

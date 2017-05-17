@@ -36,6 +36,7 @@ namespace Pipeline {
 
 namespace AsyncPipeline {
     class SourceElement;
+    class MethodElement;
 }
 
 
@@ -51,7 +52,7 @@ class PipelinePrivate
 protected:
     // Image pair source
     AsyncPipeline::SourceElement *source;
-    cv::Mat inputImageL, inputImageR;
+    cv::Mat inputImageL, inputImageR; // FIXME
 
     // Stereo rectification
     bool rectificationActive;
@@ -62,6 +63,13 @@ protected:
     cv::Mat rectifiedImageR;
     int rectificationTime;
 
+
+    // Stereo method
+    AsyncPipeline::MethodElement *stereoMethod;
+    cv::Mat disparity; // FIXME
+    int disparityLevels;
+
+#if 0
     // Stereo method
     bool stereoMethodActive;
     StereoMethod *stereoMethod;
@@ -74,6 +82,7 @@ protected:
     cv::Mat disparity;
     int disparityLevels;
     int disparityTime;
+#endif
 
     // Disparity visualization
     DisparityVisualization *visualization;

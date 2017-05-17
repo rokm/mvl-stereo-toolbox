@@ -34,7 +34,7 @@ namespace StereoToolbox {
 namespace GUI {
 
 
-WindowStereoMethod::WindowStereoMethod (Pipeline::Pipeline *p, QList<Pipeline::StereoMethod *> &m, QWidget *parent)
+WindowStereoMethod::WindowStereoMethod (Pipeline::Pipeline *p, QList<QObject *> &m, QWidget *parent)
     : QWidget(parent, Qt::Window), pipeline(p), methods(m), visualization(pipeline->getVisualization())
 {
     setWindowTitle("Stereo method");
@@ -136,7 +136,8 @@ WindowStereoMethod::WindowStereoMethod (Pipeline::Pipeline *p, QList<Pipeline::S
 
     // Create config tabs
     for (int i = 0; i < methods.size(); i++) {
-        tabWidget->addTab(methods[i]->createConfigWidget(this), methods[i]->getShortName());
+        Pipeline::StereoMethod *method = qobject_cast<Pipeline::StereoMethod * >(methods[i]);
+        tabWidget->addTab(method->createConfigWidget(this), method->getShortName());
     }
 
     // Method selection
@@ -290,7 +291,7 @@ void WindowStereoMethod::importParameters ()
     QString fileName = QFileDialog::getOpenFileName(this, "Load parameters from file", QString(), "OpenCV storage file (*.xml *.yml *.yaml)");
     if (!fileName.isNull()) {
         try {
-            pipeline->getStereoMethod()->loadParameters(fileName);
+            pipeline->loadStereoMethodParameters(fileName);
         } catch (QString &e) {
             QMessageBox::warning(this, "Error", "Failed to import parameters: " + e);
         }
@@ -302,7 +303,7 @@ void WindowStereoMethod::exportParameters ()
     QString fileName = QFileDialog::getSaveFileName(this, "Save parameters to file", QString(), "OpenCV storage file (*.xml *.yml *.yaml)");
     if (!fileName.isNull()) {
         try {
-            pipeline->getStereoMethod()->saveParameters(fileName);
+            pipeline->saveStereoMethodParameters(fileName);
         } catch (QString &e) {
             QMessageBox::warning(this, "Error", "Failed to export parameters: " + e);
         }

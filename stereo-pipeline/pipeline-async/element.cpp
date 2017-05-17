@@ -79,6 +79,18 @@ void Element::estimateFps ()
     }
 }
 
+int Element::getLastOperationTime () const
+{
+    QReadLocker locker(&lock);
+    return lastOperationTime;
+}
+
+int Element::getNumberOfDroppedFrames () const
+{
+    QReadLocker locker(&lock);
+    return droppedCounter;
+}
+
 
 } // AsyncPipeline
 } // Pipeline

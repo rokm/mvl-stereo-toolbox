@@ -40,6 +40,7 @@
 #include "pipeline_p.h"
 
 #include "source_element.h"
+#include "method_element.h"
 
 
 namespace MVL {
@@ -62,16 +63,16 @@ PipelinePrivate::PipelinePrivate (Pipeline *parent)
 
     //imagePairSource = NULL;
     rectification = NULL;
-    stereoMethod = NULL;
+    //stereoMethod = NULL;
     visualization = NULL;
     reprojection = NULL;
 
-    useStereoMethodThread = false;
-    stereoDroppedFramesCounter = 0;
+    //useStereoMethodThread = false;
+    //stereoDroppedFramesCounter = 0;
 
     //imagePairSourceActive = true;
     rectificationActive = true;
-    stereoMethodActive = true;
+    //stereoMethodActive = true;
     visualizationActive = true;
     reprojectionActive = true;
 
@@ -79,17 +80,35 @@ PipelinePrivate::PipelinePrivate (Pipeline *parent)
 
     // New element-wrapper-based API
     source = new AsyncPipeline::SourceElement(q);
-    q->connect(source, &AsyncPipeline::SourceElement::error, [q] (const QString &message) {
+    q->connect(source, &AsyncPipeline::SourceElement::error, q, [q] (QString message) {
         emit q->error(Pipeline::ErrorImagePairSource, message);
     });
 
-    q->connect(source, &AsyncPipeline::SourceElement::imagesChanged, [q, this] (cv::Mat left, cv::Mat right) {
-        // FIXME: bridge between old and new API
+    // FIXME: bridge between old and new API
+    q->connect(source, &AsyncPipeline::SourceElement::imagesChanged, q, [q, this] (cv::Mat left, cv::Mat right) {
         left.copyTo(inputImageL);
         right.copyTo(inputImageR);
         q->rectifyImages();
 
         emit q->inputImagesChanged(inputImageL, inputImageR);
+    });
+
+    stereoMethod = new AsyncPipeline::MethodElement(q);
+    q->connect(stereoMethod, &AsyncPipeline::MethodElement::error, q, [q] (QString message) {
+        emit q->error(Pipeline::ErrorStereoMethod, message);
+    });
+
+    q->connect(q, &Pipeline::rectifiedImagesChanged, stereoMethod, [q, this] () {
+        stereoMethod->computeDisparity(rectifiedImageL, rectifiedImageR);
+    });
+
+    // FIXME: bridge between old and new API
+    q->connect(stereoMethod, &AsyncPipeline::MethodElement::disparityChanged, q, [q, this] (cv::Mat disparity, int numDisparityLevels) {
+        disparity.copyTo(this->disparity);
+        this->disparityLevels = numDisparityLevels;
+
+        q->computeDisparityVisualization(); // :(
+        emit q->disparityChanged();
     });
 }
 
@@ -98,13 +117,13 @@ Pipeline::Pipeline (QObject *parent)
     : QObject(parent), d_ptr(new PipelinePrivate(this))
 {
     //connect(this, &Pipeline::inputImagesChanged, this, &Pipeline::rectifyImages);
-    connect(this, &Pipeline::rectifiedImagesChanged, this, &Pipeline::computeDisparity);
+    //connect(this, &Pipeline::rectifiedImagesChanged, this, &Pipeline::computeDisparity);
     connect(this, &Pipeline::disparityChanged, this, &Pipeline::reprojectPoints);
     connect(this, &Pipeline::pointCloudChanged, this, &Pipeline::processingCompleted);
 
     connect(this, &Pipeline::imagePairSourceStateChanged, this, &Pipeline::beginProcessing);
     connect(this, &Pipeline::rectificationStateChanged, this, &Pipeline::rectifyImages);
-    connect(this, &Pipeline::stereoMethodStateChanged, this, &Pipeline::computeDisparity);
+    //connect(this, &Pipeline::stereoMethodStateChanged, this, &Pipeline::computeDisparity);
     connect(this, &Pipeline::reprojectionStateChanged, this, &Pipeline::reprojectPoints);
 
     // Create rectification
@@ -128,9 +147,9 @@ Pipeline::~Pipeline ()
     setReprojectionState(false);
 
     // ... and wait for method thread to finish
-    if (d->stereoMethodWatcher.isRunning()) {
+    /*if (d->stereoMethodWatcher.isRunning()) {
         d->stereoMethodWatcher.waitForFinished();
-    }
+    }*/
 }
 
 
@@ -449,6 +468,77 @@ void Pipeline::rectifyImages ()
 // *********************************************************************
 // *                           Stereo method                           *
 // *********************************************************************
+void Pipeline::setStereoMethod (QObject *method)
+{
+    Q_D(Pipeline);
+    d->stereoMethod->setStereoMethod(method);
+}
+
+QObject *Pipeline::getStereoMethod ()
+{
+    Q_D(Pipeline);
+    return d->stereoMethod->getStereoMethod();
+}
+
+
+// Method state
+void Pipeline::setStereoMethodState (bool active)
+{
+    Q_D(Pipeline);
+    d->stereoMethod->setState(active);
+}
+
+bool Pipeline::getStereoMethodState () const
+{
+    Q_D(const Pipeline);
+    return d->stereoMethod->getState();
+}
+
+
+
+void Pipeline::loadStereoMethodParameters (const QString &filename)
+{
+    Q_D(Pipeline);
+    d->stereoMethod->loadParameters(filename);
+}
+
+void Pipeline::saveStereoMethodParameters (const QString &filename)
+{
+    Q_D(Pipeline);
+    d->stereoMethod->saveParameters(filename);
+}
+
+
+// Disparity retrieval
+const cv::Mat &Pipeline::getDisparity () const
+{
+    Q_D(const Pipeline);
+    return d->disparity;
+}
+
+
+// FIXME
+int Pipeline::getNumberOfDisparityLevels () const
+{
+    Q_D(const Pipeline);
+    return d->disparityLevels;
+}
+
+int Pipeline::getDisparityComputationTime () const
+{
+    Q_D(const Pipeline);
+    return d->stereoMethod->getLastOperationTime();
+}
+
+
+int Pipeline::getStereoDroppedFrames () const
+{
+    Q_D(const Pipeline);
+    return d->stereoMethod->getNumberOfDroppedFrames();
+}
+
+
+#if 0
 // Method setting
 void Pipeline::setStereoMethod (StereoMethod *method)
 {
@@ -622,6 +712,7 @@ int Pipeline::getStereoDroppedFrames () const
     Q_D(const Pipeline);
     return d->stereoDroppedFramesCounter;
 }
+#endif
 
 
 

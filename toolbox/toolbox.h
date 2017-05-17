@@ -84,7 +84,7 @@ protected:
 
     Pipeline::PluginManager *plugin_manager;
     QList<QObject *> imagePairSources;
-    QList<Pipeline::StereoMethod *> stereoMethods;
+    QList<QObject *> stereoMethods;
 };
 
 

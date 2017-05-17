@@ -24,6 +24,7 @@ set(pipeline_SOURCES
     reprojection.cpp
     utils.cpp
     pipeline-async/element.cpp
+    pipeline-async/method_element.cpp
     pipeline-async/source_element.cpp
 )
 
@@ -39,6 +40,7 @@ set(pipeline_HEADERS
     stereo_method.h
     utils.h
     pipeline-async/element.h
+    pipeline-async/method_element.h
     pipeline-async/source_element.h
 )
 
