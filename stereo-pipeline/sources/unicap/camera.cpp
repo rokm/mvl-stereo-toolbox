@@ -29,6 +29,7 @@ namespace SourceUnicap {
 
 static void callback_new_frame (unicap_event_t, unicap_handle_t, unicap_data_buffer_t *, void *);
 
+#define FOURCC(a,b,c,d) (unsigned int)((((unsigned int)a))+(((unsigned int)b)<<8)+(((unsigned int)c)<<16)+(((unsigned int)d)<<24))
 
 Camera::Camera (unicap_handle_t h, QObject *parent)
     : QObject(parent), handle(h)
@@ -40,14 +41,23 @@ Camera::Camera (unicap_handle_t h, QObject *parent)
     unicap_get_device(handle, &device);
 
     // Enumerate formats
+    int defaultFormat = 0;
     unicap_reenumerate_formats(handle, &num_formats);
     formats.resize(num_formats);
     for (int i = 0; i < num_formats; i++) {
         unicap_enumerate_formats(handle, NULL, &formats[i], i);
+
+        if (formats[i].fourcc == FOURCC('Y', '8', '0', '0') ||
+            formats[i].fourcc == FOURCC('B', 'G', 'R', '3')) {
+            defaultFormat = i;
+        }
     }
 
+    // Set default format; try finding BGR3 or Y (Mono), if neither
+    // exists, set the first format;
+
     // Set first available format
-    setFormat(formats[0]);
+    setFormat(formats[defaultFormat]);
 
     // Get all properties
     unicap_reenumerate_properties(handle, &num_properties);
