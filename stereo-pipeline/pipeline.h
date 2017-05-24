@@ -56,6 +56,7 @@ public:
     void setGpuDevice (int dev);
     int getGpuDevice () const;
 
+
     // Image pair source
     void setImagePairSource (QObject *source);
     QObject *getImagePairSource ();
@@ -63,20 +64,22 @@ public:
     void setImagePairSourceState (bool active);
     bool getImagePairSourceState () const;
 
-
     cv::Mat getLeftImage () const;
     cv::Mat getRightImage () const;
 
+
     // Rectification
-    void setRectification (Rectification *rectification);
     Rectification *getRectification ();
 
     void setRectificationState (bool active);
     bool getRectificationState () const;
 
-    const cv::Mat &getLeftRectifiedImage () const;
-    const cv::Mat &getRightRectifiedImage () const;
+    cv::Mat getLeftRectifiedImage () const;
+    cv::Mat getRightRectifiedImage () const;
+
     int getRectificationTime () const;
+    int getRectificationDroppedFrames () const;
+
 
     // Stereo method
     void setStereoMethod (QObject *method);
@@ -88,35 +91,42 @@ public:
     void setStereoMethodState (bool active);
     bool getStereoMethodState () const;
 
-    const cv::Mat &getDisparity () const;
-    int getNumberOfDisparityLevels () const;
-    int getDisparityComputationTime () const;
+    cv::Mat getDisparity () const;
+    void getDisparity (cv::Mat &disparity, int &numDisparityLevels) const;
 
-    int getStereoDroppedFrames () const;
+    int getStereoMethodTime () const;
+    int getStereoMethodDroppedFrames () const;
+
 
     // Disparity visualization
-    void setVisualization (DisparityVisualization *visualization);
     DisparityVisualization *getVisualization ();
 
     void setVisualizationState (bool active);
     bool getVisualizationState () const;
 
     int getVisualizationTime () const;
+    int getVisualizationDroppedFrames () const;
 
-    const cv::Mat &getDisparityVisualization () const;
+    cv::Mat getDisparityVisualization () const;
 
     // Reprojection
-    void setReprojection (Reprojection *reprojection);
     Reprojection *getReprojection ();
 
     void setReprojectionState (bool active);
     bool getReprojectionState () const;
 
     int getReprojectionTime () const;
+    int getReprojectionDroppedFrames () const;
 
-    void getPointCloud (cv::Mat &xyz, cv::Mat &rgb) const;
+    cv::Mat getPoints () const;
+
+#if 0
+    // FIXME
+
     const cv::Mat &getPointCloudXyz () const;
     const cv::Mat &getPointCloudRgb () const;
+#endif
+
 
     // Error types
     enum {
@@ -130,15 +140,10 @@ public:
 
 signals:
     void inputImagesChanged (cv::Mat imgL, cv::Mat imgR);
-
-// NOTE: we need the old signal/slot syntax here!
-protected slots:
-    void beginProcessing ();
-    void rectifyImages ();
-    void computeDisparityVisualization ();
-    void reprojectPoints ();
-
-    void updateReprojectionMatrix ();
+    void rectifiedImagesChanged (cv::Mat imgL, cv::Mat imgR);
+    void disparityChanged (cv::Mat disparity);
+    void pointsChanged (cv::Mat points);
+    void visualizationChanged (cv::Mat visualization);
 
 signals:
     void error (int domain, const QString &message);
@@ -150,14 +155,6 @@ signals:
     void stereoMethodStateChanged (bool active);
     void visualizationStateChanged (bool active);
     void reprojectionStateChanged (bool active);
-
-    //void inputImagesChanged ();
-    void rectifiedImagesChanged ();
-    void disparityChanged ();
-    void disparityVisualizationChanged ();
-    void pointCloudChanged ();
-
-    void disparityVisualizationMethodChanged (int method);
 
     friend PipelinePrivate;
 };

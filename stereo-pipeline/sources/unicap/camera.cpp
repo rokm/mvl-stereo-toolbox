@@ -200,7 +200,7 @@ void Camera::updateProperty (unicap_property_t &property)
 
     status = unicap_get_property(handle, &property);
     if (status != STATUS_SUCCESS) {
-        qWarning() << "Failed to update property!";
+        qWarning() << "Failed to retrieve property:" << property.identifier << "; status:" << status;
     }
 }
 
@@ -291,6 +291,8 @@ void Camera::startCapture ()
         if (status == STATUS_SUCCESS) {
             captureActive = true;
             emit captureStarted();
+        } else {
+            qWarning() << this << "Failed to start camera capture" << this;
         }
     } else {
         qWarning() << this << "Capture already running!";
@@ -304,6 +306,8 @@ void Camera::stopCapture ()
         if (status == STATUS_SUCCESS) {
             captureActive = false;
             emit captureFinished();
+        } else {
+            qWarning() << this << "Failed to stop camera capture" << this;
         }
     }
 }

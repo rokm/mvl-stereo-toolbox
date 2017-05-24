@@ -133,7 +133,7 @@ const cv::Mat &Reprojection::getReprojectionMatrix () const
 // *********************************************************************
 // *                           Reprojection                            *
 // *********************************************************************
-void Reprojection::reprojectStereoDisparity (const cv::Mat &disparity_, cv::Mat &points) const
+void Reprojection::reprojectDisparity (const cv::Mat &disparity, cv::Mat &points) const
 {
     Q_D(const Reprojection);
 
@@ -144,20 +144,20 @@ void Reprojection::reprojectStereoDisparity (const cv::Mat &disparity_, cv::Mat 
     }
 
     // Filter out negative disparities before reprojection
-    cv::Mat disparity = cv::max(disparity_, 0);
+    cv::Mat filteredDisparity = cv::max(disparity, 0);
 
     // Choose reprojection method
     switch (d->reprojectionMethod) {
         case MethodOpenCvCpu: {
             // Stock OpenCV method; does not handle ROI offset
-            cv::reprojectImageTo3D(disparity, points, d->Q, false, CV_32F);
+            cv::reprojectImageTo3D(filteredDisparity, points, d->Q, false, CV_32F);
             break;
         }
 #ifdef HAVE_OPENCV_CUDASTEREO
         case MethodOpenCvCuda: {
             // OpenCV CUDA method; does not handle ROI offset
             cv::cuda::GpuMat gpu_disparity, gpu_points;
-            gpu_disparity.upload(disparity);
+            gpu_disparity.upload(filteredDisparity);
             cv::cuda::reprojectImageTo3D(gpu_disparity, gpu_points, d->Q, 3);
             gpu_points.download(points);
             break;

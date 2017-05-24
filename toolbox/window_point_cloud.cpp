@@ -59,9 +59,9 @@ WindowPointCloud::WindowPointCloud (Pipeline::Pipeline *p, QWidget *parent)
     visualizationWidget = new Widgets::PointCloudVisualizationWidget(this);
     layout->addWidget(visualizationWidget);
 
-    connect(pipeline, &Pipeline::Pipeline::pointCloudChanged, this, [this] () {
-        cv::Mat points, image;
-        pipeline->getPointCloud(points, image);
+    connect(pipeline, &Pipeline::Pipeline::pointsChanged, this, [this] () {
+        cv::Mat points = pipeline->getPoints();
+        cv::Mat image = pipeline->getLeftRectifiedImage();
         visualizationWidget->setPointCloud(image, points);
     });
 }
@@ -74,12 +74,11 @@ WindowPointCloud::~WindowPointCloud ()
 void WindowPointCloud::savePointCloud ()
 {
     // Create a snapshot of current point cloud
-    cv::Mat tmpImage, tmpPoints;
-
-    pipeline->getPointCloud(tmpPoints, tmpImage);
+    cv::Mat points = pipeline->getPoints();
+    cv::Mat image = pipeline->getLeftRectifiedImage();
 
     // Make sure images are actually available
-    if (!tmpPoints.data || !tmpImage.data) {
+    if (points.empty() || image.empty()) {
         QMessageBox::information(this, "No data", "No data to export!");
         return;
     }
@@ -99,7 +98,7 @@ void WindowPointCloud::savePointCloud ()
         }
 
         try {
-            Utils::writePointCloudToPcdFile(tmpImage, tmpPoints, fileName, selectedFilter == fileFilters[0]);
+            Utils::writePointCloudToPcdFile(image, points, fileName, selectedFilter == fileFilters[0]);
         } catch (const QString &e) {
             QMessageBox::warning(this, "Error", "Failed to save point cloud: " + e);
         }

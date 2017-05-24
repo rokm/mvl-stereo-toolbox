@@ -64,7 +64,7 @@ public:
 
     void rectifyImagePair (const cv::Mat &img1, const cv::Mat &img2, cv::Mat &img1r, cv::Mat &img2r) const;
 
-    bool getState () const;
+    bool isCalibrationValid () const;
 
     // Individual calibration parameters
     const cv::Size &getImageSize () const;
@@ -96,7 +96,7 @@ protected:
     void initializeRectification ();
 
 signals:
-    void stateChanged (bool active);
+    void calibrationChanged (bool valid);
 
     void performRectificationChanged (bool enable);
 

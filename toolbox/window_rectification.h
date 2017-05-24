@@ -60,7 +60,7 @@ protected:
 
     void saveImages ();
 
-    void updateImage ();
+    void updateImage (const cv::Mat imageL, const cv::Mat imageR);
     void updateState ();
 
 protected:

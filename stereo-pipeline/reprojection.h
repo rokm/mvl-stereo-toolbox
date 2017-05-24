@@ -56,7 +56,7 @@ public:
     void setReprojectionMatrix (const cv::Mat &Q);
     const cv::Mat &getReprojectionMatrix () const;
 
-    void reprojectStereoDisparity (const cv::Mat &disparity_, cv::Mat &points) const;
+    void reprojectDisparity (const cv::Mat &disparity, cv::Mat &points) const;
 
 signals:
     void reprojectionMethodChanged (int method);

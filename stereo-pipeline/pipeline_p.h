@@ -36,7 +36,10 @@ namespace Pipeline {
 
 namespace AsyncPipeline {
     class SourceElement;
+    class RectificationElement;
     class MethodElement;
+    class ReprojectionElement;
+    class VisualizationElement;
 }
 
 
@@ -50,55 +53,11 @@ class PipelinePrivate
     PipelinePrivate (Pipeline *parent);
 
 protected:
-    // Image pair source
     AsyncPipeline::SourceElement *source;
-    cv::Mat inputImageL, inputImageR; // FIXME
-
-    // Stereo rectification
-    bool rectificationActive;
-    Rectification *rectification;
-
-    // Cached rectified input images
-    cv::Mat rectifiedImageL;
-    cv::Mat rectifiedImageR;
-    int rectificationTime;
-
-
-    // Stereo method
+    AsyncPipeline::RectificationElement *rectification;
     AsyncPipeline::MethodElement *stereoMethod;
-    cv::Mat disparity; // FIXME
-    int disparityLevels;
-
-#if 0
-    // Stereo method
-    bool stereoMethodActive;
-    StereoMethod *stereoMethod;
-
-    bool useStereoMethodThread;
-    QFutureWatcher<void> stereoMethodWatcher;
-    int stereoDroppedFramesCounter;
-
-    // Cached disparity image
-    cv::Mat disparity;
-    int disparityLevels;
-    int disparityTime;
-#endif
-
-    // Disparity visualization
-    DisparityVisualization *visualization;
-    bool visualizationActive;
-    int visualizationTime;
-
-    cv::Mat disparityVisualization;
-
-    // Reprojection
-    bool reprojectionActive;
-    Reprojection *reprojection;
-
-    // Cached point cloud
-    cv::Mat pointCloudRgb;
-    cv::Mat pointCloudXyz;
-    int reprojectionTime;
+    AsyncPipeline::ReprojectionElement *reprojection;
+    AsyncPipeline::VisualizationElement *visualization;
 };
 
 

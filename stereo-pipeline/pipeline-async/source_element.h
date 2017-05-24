@@ -33,7 +33,7 @@ public:
     void getImages (cv::Mat imageLeft, cv::Mat imageRight) const;
 
 signals:
-    void ejectSource ();
+    void eject ();
 
     void imagesChanged (cv::Mat left, cv::Mat right);
 

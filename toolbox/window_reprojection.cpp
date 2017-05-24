@@ -127,8 +127,8 @@ WindowReprojection::WindowReprojection (Pipeline::Pipeline *p, Pipeline::Reproje
     statusBar->addPermanentWidget(labelCoordinates);
 
     // Pipeline
-    connect(pipeline, &Pipeline::Pipeline::disparityVisualizationChanged, this, &WindowReprojection::updateDisplayBackground);
-    connect(pipeline, &Pipeline::Pipeline::pointCloudChanged, this, &WindowReprojection::updateDisplayValues);
+    connect(pipeline, &Pipeline::Pipeline::visualizationChanged, this, &WindowReprojection::updateDisplayBackground);
+    connect(pipeline, &Pipeline::Pipeline::pointsChanged, this, &WindowReprojection::updateDisplayValues);
 
     // Pipeline's error signalization
     connect(pipeline, &Pipeline::Pipeline::error, this, [this] (int errorType, const QString &errorMessage) {
@@ -166,13 +166,13 @@ void WindowReprojection::updateDisplayBackground ()
 
 void WindowReprojection::updateDisplayValues ()
 {
-    const cv::Mat &reprojectedPoints = pipeline->getPointCloudXyz();
+    cv::Mat points = pipeline->getPoints();
 
-    displayReprojectedImage->setPoints(reprojectedPoints);
+    displayReprojectedImage->setPoints(points);
 
     // If reprojected points are valid, display computation time
-    if (!reprojectedPoints.empty()) {
-        statusBar->showMessage(QString("Disparity image (%1x%2) reprojected in %3 milliseconds.").arg(reprojectedPoints.cols).arg(reprojectedPoints.rows).arg(pipeline->getReprojectionTime()));
+    if (!points.empty()) {
+        statusBar->showMessage(QString("Disparity image (%1x%2) reprojected in %3 milliseconds.").arg(points.cols).arg(points.rows).arg(pipeline->getReprojectionTime()));
     } else {
         statusBar->showMessage("Reprojection not available.");
     }
@@ -222,12 +222,10 @@ void WindowReprojection::saveReprojectionResult ()
 {
     // Make snapshot of image - because it can take a while to get
     // the filename...
-    cv::Mat tmpReprojection;
-
-    pipeline->getPointCloudXyz().copyTo(tmpReprojection);
+    cv::Mat points = pipeline->getPoints();
 
     // Make sure images are actually available
-    if (!tmpReprojection.data) {
+    if (points.empty()) {
         QMessageBox::information(this, "No data", "No data to export!");
         return;
     }
@@ -256,14 +254,14 @@ void WindowReprojection::saveReprojectionResult ()
             // Save reprojected points in OpenCV storage format
             try {
                 cv::FileStorage fs(fileName.toStdString(), cv::FileStorage::WRITE);
-                fs << "points" << tmpReprojection;
+                fs << "points" << points;
             } catch (const cv::Exception &e) {
                 QMessageBox::warning(this, "Error", "Failed to save matrix: " + QString::fromStdString(e.what()));
             }
         } else {
             // Save reprojected points in custom binary matrix format
             try {
-                Utils::writeMatrixToBinaryFile(tmpReprojection, fileName);
+                Utils::writeMatrixToBinaryFile(points, fileName);
             } catch (const QString &e) {
                 QMessageBox::warning(this, "Error", "Failed to save binary file:" + e);
             }

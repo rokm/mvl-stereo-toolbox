@@ -21,7 +21,7 @@ SourceElement::SourceElement (QObject *parent)
 
 SourceElement::~SourceElement ()
 {
-    emit ejectSource(); // Eject source
+    emit eject(); // Eject source
 }
 
 
@@ -37,7 +37,7 @@ void SourceElement::setImagePairSource (QObject *newSource)
     }
 
     // Eject old source
-    emit ejectSource();
+    emit eject();
 
     // Insert new source
     sourceObject = newSource;
@@ -67,8 +67,8 @@ void SourceElement::setImagePairSource (QObject *newSource)
     // or schedules it for deletion. Must be connected with blocking
     // queued connection, so we can push the object from the worker
     // thread back to the main one...
-    tmpConnection = connect(this, &SourceElement::ejectSource, sourceObject, [this] () {
-        qInfo() << "Ejecting source" << sourceObject << "from source element in thread" << QThread::currentThread();
+    tmpConnection = connect(this, &SourceElement::eject, sourceObject, [this] () {
+        qInfo() << "Ejecting" << sourceObject << "from element; worker thread" << QThread::currentThread();
 
         // Stop the capture
         sourceIface->stopSource();

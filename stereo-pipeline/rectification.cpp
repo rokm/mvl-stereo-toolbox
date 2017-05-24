@@ -57,7 +57,7 @@ Rectification::~Rectification ()
 // *********************************************************************
 // *                               State                               *
 // *********************************************************************
-bool Rectification::getState () const
+bool Rectification::isCalibrationValid () const
 {
     Q_D(const Rectification);
     return d->isValid;
@@ -174,7 +174,7 @@ void Rectification::clearStereoCalibration ()
     d->isValid = false;
     d->isVerticalStereo = false;
 
-    emit stateChanged(d->isValid);
+    emit calibrationChanged(d->isValid);
 }
 
 
@@ -189,7 +189,7 @@ void Rectification::initializeRectification ()
         cv::stereoRectify(d->M1, d->D1, d->M2, d->D2, d->imageSize, d->R, d->T, d->R1, d->R2, d->P1, d->P2, d->Q, d->zeroDisparity ? cv::CALIB_ZERO_DISPARITY : 0, d->alpha, d->imageSize, &d->validRoi1, &d->validRoi2);
     } catch (...) {
         d->isValid = false;
-        emit stateChanged(d->isValid);
+        emit calibrationChanged(d->isValid);
         return;
     }
 
@@ -200,7 +200,7 @@ void Rectification::initializeRectification ()
 
     // Change state
     d->isValid = true;
-    emit stateChanged(d->isValid);
+    emit calibrationChanged(d->isValid);
 }
 
 

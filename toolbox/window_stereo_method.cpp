@@ -147,7 +147,7 @@ WindowStereoMethod::WindowStereoMethod (Pipeline::Pipeline *p, QList<QObject *> 
     // Pipeline
     // Use disparityVisualizationImageChanged() instead of disparityImageChanged()
     // to capture changes due to visualization method switch
-    connect(pipeline, &Pipeline::Pipeline::disparityVisualizationChanged, this, &WindowStereoMethod::updateDisplayBackground);
+    connect(pipeline, &Pipeline::Pipeline::visualizationChanged, this, &WindowStereoMethod::updateDisplayBackground);
     connect(pipeline, &Pipeline::Pipeline::disparityChanged, this, &WindowStereoMethod::updateDisplayValues);
 
     // Pipeline's error signalization
@@ -185,16 +185,19 @@ void WindowStereoMethod::updateDisplayBackground ()
 
 void WindowStereoMethod::updateDisplayValues ()
 {
-    const cv::Mat &disparity = pipeline->getDisparity();
+    cv::Mat disparity;
+    int numDisparityLevels;
+
+    pipeline->getDisparity(disparity, numDisparityLevels);
 
     // Disparity image
     displayDisparityImage->setDisparity(disparity);
 
     // If image is valid, display computation time
     if (!disparity.empty()) {
-        statusBar->showMessage(QString("Disparity image (%1x%2, %3) computed in %4 milliseconds; dropped %5 frames.").arg(disparity.cols).arg(disparity.rows).arg(Utils::cvDepthToString(disparity.depth())).arg(pipeline->getDisparityComputationTime()).arg(pipeline->getStereoDroppedFrames()));
+        statusBar->showMessage(QString("Disparity (%1x%2, %3) computed in %4 milliseconds; dropped %5 frames.").arg(disparity.cols).arg(disparity.rows).arg(Utils::cvDepthToString(disparity.depth())).arg(pipeline->getStereoMethodTime()).arg(pipeline->getStereoMethodDroppedFrames()));
     } else {
-        statusBar->showMessage(QString("Disparity image not available."));
+        statusBar->showMessage(QString("Disparity not available."));
     }
 }
 
@@ -215,13 +218,12 @@ void WindowStereoMethod::saveImage ()
 {
     // Make snapshot of image - because it can take a while to get
     // the filename...
-    cv::Mat tmpDisparity;
-    cv::Mat tmpDisparityVisualization;
+    cv::Mat disparity, visualization;
 
-    pipeline->getDisparity().copyTo(tmpDisparity);
-    pipeline->getDisparityVisualization().copyTo(tmpDisparityVisualization);
+    disparity = pipeline->getDisparity();
+    visualization = pipeline->getDisparityVisualization();
 
-    if (!tmpDisparity.data) {
+    if (disparity.empty()) {
         QMessageBox::information(this, "No data", "No data to export!");
         return;
     }
@@ -253,26 +255,26 @@ void WindowStereoMethod::saveImage ()
             // Save raw disparity in OpenCV storage format
             try {
                 cv::FileStorage fs(fileName.toStdString(), cv::FileStorage::WRITE);
-                fs << "disparity" << tmpDisparity;
+                fs << "disparity" << disparity;
             } catch (const cv::Exception &e) {
                 QMessageBox::warning(this, "Error", "Failed to save matrix: " + QString::fromStdString(e.what()));
             }
         } else if (ext == "bin") {
             // Save raw disparity in custom binary matrix format
             try {
-                Utils::writeMatrixToBinaryFile(tmpDisparity, fileName);
+                Utils::writeMatrixToBinaryFile(disparity, fileName);
             } catch (const QString &e) {
                 QMessageBox::warning(this, "Error", "Failed to save binary file: " + e);
             }
         } else {
             // Save disparity visualization as image using cv::imwrite
-            if (!tmpDisparityVisualization.data) {
+            if (visualization.empty()) {
                 QMessageBox::information(this, "No data", "No data to export!");
                 return;
             }
 
             try {
-                cv::imwrite(fileName.toStdString(), tmpDisparityVisualization);
+                cv::imwrite(fileName.toStdString(), visualization);
             } catch (const cv::Exception &e) {
                 QMessageBox::warning(this, "Error", "Failed to save image: " + QString::fromStdString(e.what()));
             }

@@ -107,7 +107,9 @@ WindowRectification::WindowRectification (Pipeline::Pipeline *p, Pipeline::Recti
     comboBoxVisualizationMethod->addItem("Anaglyph", 1);
     comboBoxVisualizationMethod->setItemData(1, "Anaglyph", Qt::ToolTipRole);
 
-    connect(comboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &WindowRectification::updateImage);
+    connect(comboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, [this] () {
+        updateImage(pipeline->getLeftRectifiedImage(), pipeline->getRightRectifiedImage());
+    });
 
     // Save
     pushButton = new QPushButton("Save rectified pair / anaglyph");
@@ -140,7 +142,7 @@ WindowRectification::WindowRectification (Pipeline::Pipeline *p, Pipeline::Recti
     dialogSettings = new RectificationSettingsDialog(this);
 
     // Rectification
-    connect(rectification, &Pipeline::Rectification::stateChanged, this, &WindowRectification::updateState);
+    connect(rectification, &Pipeline::Rectification::calibrationChanged, this, &WindowRectification::updateState);
     updateState();
 
     // Calibration wizard
@@ -158,22 +160,22 @@ WindowRectification::~WindowRectification ()
 {
 }
 
-void WindowRectification::updateImage ()
+void WindowRectification::updateImage (const cv::Mat imageL, const cv::Mat imageR)
 {
     // Set image, based on selected visualization type
     int visualizationType = comboBoxVisualizationMethod->itemData(comboBoxVisualizationMethod->currentIndex()).toInt();
 
     if (visualizationType == VisualizationImagePair) {
         // Image pair
-        displayPair->setImagePair(pipeline->getLeftRectifiedImage(), pipeline->getRightRectifiedImage());
+        displayPair->setImagePair(imageL, imageR);
     } else if (visualizationType == VisualizationAnaglyph) {
         // Anaglyph
-        Utils::createAnaglyph(pipeline->getLeftRectifiedImage(), pipeline->getRightRectifiedImage(), anaglyphImage);
+        Utils::createAnaglyph(imageL, imageR, anaglyphImage);
         displayPair->setImage(anaglyphImage);
     }
 
     // Update status bar
-    if (rectification->getState()) {
+    if (rectification->isCalibrationValid()) {
         if (rectification->getPerformRectification()) {
             statusBar->showMessage(QString("Calibration set (estimated baseline: %1 mm); rectifying input images (%2 milliseconds).").arg(rectification->getStereoBaseline(), 0, 'f', 0).arg(pipeline->getRectificationTime()));
         } else {
@@ -186,7 +188,7 @@ void WindowRectification::updateImage ()
 
 void WindowRectification::updateState ()
 {
-    if (rectification->getState()) {
+    if (rectification->isCalibrationValid()) {
         pushButtonClear->setEnabled(true);
         pushButtonExport->setEnabled(true);
     } else {

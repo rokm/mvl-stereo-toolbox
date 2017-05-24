@@ -25,7 +25,10 @@ set(pipeline_SOURCES
     utils.cpp
     pipeline-async/element.cpp
     pipeline-async/method_element.cpp
+    pipeline-async/rectification_element.cpp
+    pipeline-async/reprojection_element.cpp
     pipeline-async/source_element.cpp
+    pipeline-async/visualization_element.cpp
 )
 
 set(pipeline_HEADERS
@@ -41,7 +44,10 @@ set(pipeline_HEADERS
     utils.h
     pipeline-async/element.h
     pipeline-async/method_element.h
+    pipeline-async/rectification_element.h
+    pipeline-async/reprojection_element.h
     pipeline-async/source_element.h
+    pipeline-async/visualization_element.h
 )
 
 include_directories(${OpenCV_INCLUDE_DIRS})
