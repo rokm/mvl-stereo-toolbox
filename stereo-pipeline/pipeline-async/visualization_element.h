@@ -29,6 +29,7 @@ public:
     void visualizeDisparity (const cv::Mat &disparity, int numDisparityLevels);
 
     cv::Mat getImage () const;
+    void getImage (cv::Mat &image) const;
 
 signals:
     void eject ();

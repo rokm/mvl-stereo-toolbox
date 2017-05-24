@@ -175,13 +175,18 @@ void MethodElement::computeDisparity (const cv::Mat &imageL, const cv::Mat &imag
     }
 }
 
+cv::Mat MethodElement::getDisparity () const
+{
+    QReadLocker locker(&lock);
+    return disparity.clone();
+}
+
 void MethodElement::getDisparity (cv::Mat &disparity, int &numDisparityLevels) const
 {
     QReadLocker locker(&lock);
     this->disparity.copyTo(disparity);
     numDisparityLevels = this->numDisparityLevels;
 }
-
 
 
 } // AsyncPipeline

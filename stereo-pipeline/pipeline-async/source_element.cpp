@@ -121,7 +121,7 @@ cv::Mat SourceElement::getLeftImage () const
 cv::Mat SourceElement::getRightImage () const
 {
     QReadLocker locker(&lock);
-    return imageL.clone();
+    return imageR.clone();
 }
 
 void SourceElement::getImages (cv::Mat imageLeft, cv::Mat imageRight) const

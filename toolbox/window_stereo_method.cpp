@@ -125,7 +125,13 @@ WindowStereoMethod::WindowStereoMethod (Pipeline::Pipeline *p, QList<QObject *> 
     displayDisparityImage->resize(400, 600); // Make sure scroll area has some size
     splitter->addWidget(displayDisparityImage);
 
-    connect(displayDisparityImage, &Widgets::DisparityDisplayWidget::disparityUnderMouseChanged, this, &WindowStereoMethod::displayDisparity);
+    connect(displayDisparityImage, &Widgets::DisparityDisplayWidget::disparityUnderMouseChanged, this, [this] (float disparity) {
+        if (std::isnan(disparity)) {
+            labelDisparity->setText("");
+        } else {
+            labelDisparity->setText(QString("Disp: %1").arg(disparity, 0, 'f', 2));
+        }
+    });
 
     // Status bar
     statusBar = new QStatusBar(this);
@@ -147,8 +153,21 @@ WindowStereoMethod::WindowStereoMethod (Pipeline::Pipeline *p, QList<QObject *> 
     // Pipeline
     // Use disparityVisualizationImageChanged() instead of disparityImageChanged()
     // to capture changes due to visualization method switch
-    connect(pipeline, &Pipeline::Pipeline::visualizationChanged, this, &WindowStereoMethod::updateDisplayBackground);
-    connect(pipeline, &Pipeline::Pipeline::disparityChanged, this, &WindowStereoMethod::updateDisplayValues);
+    connect(pipeline, &Pipeline::Pipeline::visualizationChanged, this, [this] (const cv::Mat image) {
+        displayDisparityImage->setImage(image);
+    });
+
+    connect(pipeline, &Pipeline::Pipeline::disparityChanged, this, [this] (const cv::Mat disparity) {
+        // Disparity image
+        displayDisparityImage->setDisparity(disparity);
+
+        // If image is valid, display computation time
+        if (!disparity.empty()) {
+            statusBar->showMessage(QString("Disparity (%1x%2, %3) computed in %4 milliseconds; dropped %5 frames.").arg(disparity.cols).arg(disparity.rows).arg(Utils::cvDepthToString(disparity.depth())).arg(pipeline->getStereoMethodTime()).arg(pipeline->getStereoMethodDroppedFrames()));
+        } else {
+            statusBar->showMessage(QString("Disparity not available."));
+        }
+    });
 
     // Pipeline's error signalization
     connect(pipeline, &Pipeline::Pipeline::error, this, [this] (int errorType, const QString &errorMessage) {
@@ -172,42 +191,6 @@ void WindowStereoMethod::setMethod (int i)
     }
 
     pipeline->setStereoMethod(methods[i]);
-}
-
-
-void WindowStereoMethod::updateDisplayBackground ()
-{
-    const cv::Mat &disparityVisualization = pipeline->getDisparityVisualization();
-
-    // Disparity image
-    displayDisparityImage->setImage(disparityVisualization);
-}
-
-void WindowStereoMethod::updateDisplayValues ()
-{
-    cv::Mat disparity;
-    int numDisparityLevels;
-
-    pipeline->getDisparity(disparity, numDisparityLevels);
-
-    // Disparity image
-    displayDisparityImage->setDisparity(disparity);
-
-    // If image is valid, display computation time
-    if (!disparity.empty()) {
-        statusBar->showMessage(QString("Disparity (%1x%2, %3) computed in %4 milliseconds; dropped %5 frames.").arg(disparity.cols).arg(disparity.rows).arg(Utils::cvDepthToString(disparity.depth())).arg(pipeline->getStereoMethodTime()).arg(pipeline->getStereoMethodDroppedFrames()));
-    } else {
-        statusBar->showMessage(QString("Disparity not available."));
-    }
-}
-
-void WindowStereoMethod::displayDisparity (float disparity)
-{
-    if (std::isnan(disparity)) {
-        labelDisparity->setText("");
-    } else {
-        labelDisparity->setText(QString("Disp: %1").arg(disparity, 0, 'f', 2));
-    }
 }
 
 

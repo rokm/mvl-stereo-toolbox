@@ -59,6 +59,9 @@ PipelinePrivate::PipelinePrivate (Pipeline *parent)
 
     qRegisterMetaType< cv::Mat >();
 
+    // Name the main thread, for easier debugging
+    QCoreApplication::instance()->thread()->setObjectName("MainThread");
+
     // New element-wrapper-based API
     source = new AsyncPipeline::SourceElement(q);
     rectification = new AsyncPipeline::RectificationElement(q);
@@ -190,6 +193,12 @@ bool Pipeline::getImagePairSourceState () const
 
 
 // Image retrieval
+void Pipeline::getImages (cv::Mat &imageLeft, cv::Mat &imageRight) const
+{
+    Q_D(const Pipeline);
+    return d->source->getImages(imageLeft, imageRight);
+}
+
 cv::Mat Pipeline::getLeftImage () const
 {
     Q_D(const Pipeline);
@@ -239,6 +248,12 @@ cv::Mat Pipeline::getRightRectifiedImage () const
 {
     Q_D(const Pipeline);
     return d->rectification->getRightImage();
+}
+
+void Pipeline::getRectifiedImages (cv::Mat &imageLeft, cv::Mat &imageRight) const
+{
+    Q_D(const Pipeline);
+    return d->rectification->getImages(imageLeft, imageRight);
 }
 
 // Timings
@@ -303,18 +318,21 @@ void Pipeline::saveStereoMethodParameters (const QString &filename)
 // Disparity retrieval
 cv::Mat Pipeline::getDisparity () const
 {
-    cv::Mat disparity;
+    Q_D(const Pipeline);
+    return d->stereoMethod->getDisparity();
+}
+
+void Pipeline::getDisparity (cv::Mat &disparity) const
+{
+    Q_D(const Pipeline);
     int numDisparityLevels;
-
-    getDisparity(disparity, numDisparityLevels);
-
-    return disparity;
+    d->stereoMethod->getDisparity(disparity, numDisparityLevels);
 }
 
 void Pipeline::getDisparity (cv::Mat &disparity, int &numDisparityLevels) const
 {
     Q_D(const Pipeline);
-    return d->stereoMethod->getDisparity(disparity, numDisparityLevels);
+    d->stereoMethod->getDisparity(disparity, numDisparityLevels);
 }
 
 
@@ -365,6 +383,11 @@ cv::Mat Pipeline::getDisparityVisualization () const
     return d->visualization->getImage();
 }
 
+void Pipeline::getDisparityVisualization (cv::Mat &image) const
+{
+    Q_D(const Pipeline);
+    d->visualization->getImage(image);
+}
 
 // Timings
 int Pipeline::getVisualizationTime () const
@@ -405,17 +428,16 @@ bool Pipeline::getReprojectionState () const
 }
 
 
-/*void Pipeline::getPointCloud (cv::Mat &xyz, cv::Mat &rgb) const
-{
-    Q_D(const Pipeline);
-    d->pointCloudXyz.copyTo(xyz);
-    d->pointCloudRgb.copyTo(rgb);
-}*/
-
 cv::Mat Pipeline::getPoints () const
 {
     Q_D(const Pipeline);
     return d->reprojection->getPoints();
+}
+
+void Pipeline::getPoints (cv::Mat &points) const
+{
+    Q_D(const Pipeline);
+    d->reprojection->getPoints(points);
 }
 
 

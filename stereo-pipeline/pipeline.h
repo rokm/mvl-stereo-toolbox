@@ -66,7 +66,7 @@ public:
 
     cv::Mat getLeftImage () const;
     cv::Mat getRightImage () const;
-
+    void getImages (cv::Mat &imageLeft, cv::Mat &imageRight) const;
 
     // Rectification
     Rectification *getRectification ();
@@ -76,6 +76,7 @@ public:
 
     cv::Mat getLeftRectifiedImage () const;
     cv::Mat getRightRectifiedImage () const;
+    void getRectifiedImages (cv::Mat &imageLeft, cv::Mat &imageRight) const;
 
     int getRectificationTime () const;
     int getRectificationDroppedFrames () const;
@@ -92,6 +93,7 @@ public:
     bool getStereoMethodState () const;
 
     cv::Mat getDisparity () const;
+    void getDisparity (cv::Mat &disparity) const;
     void getDisparity (cv::Mat &disparity, int &numDisparityLevels) const;
 
     int getStereoMethodTime () const;
@@ -108,6 +110,7 @@ public:
     int getVisualizationDroppedFrames () const;
 
     cv::Mat getDisparityVisualization () const;
+    void getDisparityVisualization (cv::Mat &image) const;
 
     // Reprojection
     Reprojection *getReprojection ();
@@ -119,14 +122,7 @@ public:
     int getReprojectionDroppedFrames () const;
 
     cv::Mat getPoints () const;
-
-#if 0
-    // FIXME
-
-    const cv::Mat &getPointCloudXyz () const;
-    const cv::Mat &getPointCloudRgb () const;
-#endif
-
+    void getPoints (cv::Mat &points) const;
 
     // Error types
     enum {

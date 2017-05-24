@@ -68,7 +68,25 @@ WindowReprojection::WindowReprojection (Pipeline::Pipeline *p, Pipeline::Reproje
     comboBox->addItem("Disparity");
     comboBox->addItem("Left");
     comboBox->addItem("Right");
-    connect(comboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &WindowReprojection::updateDisplayBackground);
+    connect(comboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, [this] (int index) {
+        switch (index) {
+            case 0: {
+                // Disparity visualization
+                displayReprojectedImage->setImage(pipeline->getDisparityVisualization());
+                break;
+            }
+            case 1: {
+                // Left
+                displayReprojectedImage->setImage(pipeline->getLeftRectifiedImage());
+                break;
+            }
+            case 2: {
+                // Right
+                displayReprojectedImage->setImage(pipeline->getRightRectifiedImage());
+                break;
+            }
+        }
+    });
     box->addWidget(comboBox);
     comboBoxImage = comboBox;
 
@@ -117,7 +135,13 @@ WindowReprojection::WindowReprojection (Pipeline::Pipeline *p, Pipeline::Reproje
     displayReprojectedImage->resize(400, 600); // Make sure scroll area has some size
     layout->addWidget(displayReprojectedImage);
 
-    connect(displayReprojectedImage, &Widgets::ReprojectionDisplayWidget::coordinatesUnderMouseChanged, this, &WindowReprojection::displayCoordinates);
+    connect(displayReprojectedImage, &Widgets::ReprojectionDisplayWidget::coordinatesUnderMouseChanged, this, [this] (const QVector3D coordinates) {
+        if (coordinates.isNull()) {
+            labelCoordinates->setText("");
+        } else {
+            labelCoordinates->setText(QString("XYZ: %1, %2, %3").arg(coordinates.x()/1000, 0, 'f', 2).arg(coordinates.y()/1000, 0, 'f', 2).arg(coordinates.z()/1000, 0, 'f', 2));
+        }
+    });
 
     // Status bar
     statusBar = new QStatusBar(this);
@@ -127,8 +151,32 @@ WindowReprojection::WindowReprojection (Pipeline::Pipeline *p, Pipeline::Reproje
     statusBar->addPermanentWidget(labelCoordinates);
 
     // Pipeline
-    connect(pipeline, &Pipeline::Pipeline::visualizationChanged, this, &WindowReprojection::updateDisplayBackground);
-    connect(pipeline, &Pipeline::Pipeline::pointsChanged, this, &WindowReprojection::updateDisplayValues);
+    connect(pipeline, &Pipeline::Pipeline::visualizationChanged, this, [this] (const cv::Mat image) {
+        if (comboBoxImage->currentIndex() == 0) {
+            // Display disparity visualization
+            displayReprojectedImage->setImage(image);
+        }
+    });
+
+    connect(pipeline, &Pipeline::Pipeline::rectifiedImagesChanged, this, [this] (const cv::Mat imageLeft, const cv::Mat imageRight) {
+        if (comboBoxImage->currentIndex() == 1) {
+            // Left image
+            displayReprojectedImage->setImage(imageLeft);
+        } else if (comboBoxImage->currentIndex() == 2) {
+            displayReprojectedImage->setImage(imageRight);
+        }
+    });
+
+    connect(pipeline, &Pipeline::Pipeline::pointsChanged, this, [this] (const cv::Mat points) {
+        displayReprojectedImage->setPoints(points);
+
+        // If reprojected points are valid, display computation time
+        if (!points.empty()) {
+            statusBar->showMessage(QString("Disparity image (%1x%2) reprojected in %3 milliseconds.").arg(points.cols).arg(points.rows).arg(pipeline->getReprojectionTime()));
+        } else {
+            statusBar->showMessage("Reprojection not available.");
+        }
+    });
 
     // Pipeline's error signalization
     connect(pipeline, &Pipeline::Pipeline::error, this, [this] (int errorType, const QString &errorMessage) {
@@ -140,52 +188,6 @@ WindowReprojection::WindowReprojection (Pipeline::Pipeline *p, Pipeline::Reproje
 
 WindowReprojection::~WindowReprojection ()
 {
-}
-
-
-void WindowReprojection::updateDisplayBackground ()
-{
-    switch (comboBoxImage->currentIndex()) {
-        case 0: {
-            // Disparity visualization
-            displayReprojectedImage->setImage(pipeline->getDisparityVisualization());
-            break;
-        }
-        case 1: {
-            // Left
-            displayReprojectedImage->setImage(pipeline->getLeftRectifiedImage());
-            break;
-        }
-        case 2: {
-            // Right
-            displayReprojectedImage->setImage(pipeline->getRightRectifiedImage());
-            break;
-        }
-    }
-}
-
-void WindowReprojection::updateDisplayValues ()
-{
-    cv::Mat points = pipeline->getPoints();
-
-    displayReprojectedImage->setPoints(points);
-
-    // If reprojected points are valid, display computation time
-    if (!points.empty()) {
-        statusBar->showMessage(QString("Disparity image (%1x%2) reprojected in %3 milliseconds.").arg(points.cols).arg(points.rows).arg(pipeline->getReprojectionTime()));
-    } else {
-        statusBar->showMessage("Reprojection not available.");
-    }
-}
-
-
-void WindowReprojection::displayCoordinates (const QVector3D coordinates)
-{
-    if (coordinates.isNull()) {
-        labelCoordinates->setText("");
-    } else {
-        labelCoordinates->setText(QString("XYZ: %1, %2, %3").arg(coordinates.x()/1000, 0, 'f', 2).arg(coordinates.y()/1000, 0, 'f', 2).arg(coordinates.z()/1000, 0, 'f', 2));
-    }
 }
 
 

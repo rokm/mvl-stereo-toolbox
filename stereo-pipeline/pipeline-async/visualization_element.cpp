@@ -89,6 +89,12 @@ cv::Mat VisualizationElement::getImage () const
     return image.clone();
 }
 
+void VisualizationElement::getImage (cv::Mat &image) const
+{
+    QReadLocker locker(&lock);
+    this->image.copyTo(image);
+}
+
 
 void VisualizationElement::visualizeDisparity (const cv::Mat &disparity, int numDisparityLevels)
 {

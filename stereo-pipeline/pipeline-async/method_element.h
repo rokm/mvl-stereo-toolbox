@@ -32,6 +32,7 @@ public:
 
     void computeDisparity (const cv::Mat &imageL, const cv::Mat &imageR);
 
+    cv::Mat getDisparity () const;
     void getDisparity (cv::Mat &disparity, int &numDisparityLevels) const;
 
 signals:

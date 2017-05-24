@@ -29,6 +29,7 @@ public:
     void reprojectDisparity (const cv::Mat &disparity, int numDisparityLevels);
 
     cv::Mat getPoints () const;
+    void getPoints (cv::Mat &points) const;
 
 signals:
     void eject ();

@@ -93,7 +93,7 @@ cv::Mat RectificationElement::getLeftImage () const
 cv::Mat RectificationElement::getRightImage () const
 {
     QReadLocker locker(&lock);
-    return imageL.clone();
+    return imageR.clone();
 }
 
 void RectificationElement::getImages (cv::Mat imageLeft, cv::Mat imageRight) const

@@ -280,13 +280,11 @@ void WindowRectification::saveImages ()
 {
     // Make snapshot of images - because it can take a while to get
     // the filename...
-    cv::Mat tmpImageLeft, tmpImageRight;
-
-    pipeline->getLeftRectifiedImage().copyTo(tmpImageLeft);
-    pipeline->getRightRectifiedImage().copyTo(tmpImageRight);
+    cv::Mat imageLeft, imageRight;
+    pipeline->getRectifiedImages(imageLeft, imageRight);
 
     // Make sure images are actually available
-    if (!tmpImageLeft.data || !tmpImageRight.data) {
+    if (imageLeft.empty() || imageRight.empty()) {
         QMessageBox::information(this, "No data", "No data to export!");
         return;
     }
@@ -321,19 +319,19 @@ void WindowRectification::saveImages ()
         QString fileNameRight = tmpFileName.absolutePath() + "/" + tmpFileName.baseName() + "R" + "." + ext;
 
         try {
-            cv::imwrite(fileNameLeft.toStdString(), tmpImageLeft);
-            cv::imwrite(fileNameRight.toStdString(), tmpImageRight);
+            cv::imwrite(fileNameLeft.toStdString(), imageLeft);
+            cv::imwrite(fileNameRight.toStdString(), imageRight);
         } catch (const cv::Exception &e) {
             QMessageBox::warning(this, "Error", "Failed to save rectified image pair: " + QString::fromStdString(e.what()));
         }
     } else if (visualizationType == VisualizationAnaglyph) {
         QString fileNameAnaglyph = tmpFileName.absolutePath() + "/" + tmpFileName.baseName() + "." + ext;
 
-        cv::Mat tmpAnaglyph;
-        Utils::createAnaglyph(tmpImageLeft, tmpImageRight, tmpAnaglyph);
+        cv::Mat anaglyph;
+        Utils::createAnaglyph(imageLeft, imageRight, anaglyph);
 
         try {
-            cv::imwrite(fileNameAnaglyph.toStdString(), tmpAnaglyph);
+            cv::imwrite(fileNameAnaglyph.toStdString(), anaglyph);
         } catch (const cv::Exception &e) {
             QMessageBox::warning(this, "Error", "Failed to save anaglyph: " + QString::fromStdString(e.what()));
         }

@@ -50,11 +50,6 @@ public:
 protected:
     void setMethod (int);
 
-    void updateDisplayBackground ();
-    void updateDisplayValues ();
-
-    void displayDisparity (float);
-
     void saveImage ();
 
     void importParameters ();

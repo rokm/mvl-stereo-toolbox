@@ -47,11 +47,6 @@ public:
     virtual ~WindowReprojection ();
 
 protected:
-    void updateDisplayBackground ();
-    void updateDisplayValues ();
-
-    void displayCoordinates (const QVector3D );
-
     void saveReprojectionResult ();
 
     void fillReprojectionMethods ();

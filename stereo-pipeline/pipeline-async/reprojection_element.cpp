@@ -89,6 +89,12 @@ cv::Mat ReprojectionElement::getPoints () const
     return points.clone();
 }
 
+void ReprojectionElement::getPoints (cv::Mat &points) const
+{
+    QReadLocker locker(&lock);
+    this->points.copyTo(points);
+}
+
 
 void ReprojectionElement::reprojectDisparity (const cv::Mat &disparity, int numDisparityLevels)
 {
