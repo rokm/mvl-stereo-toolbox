@@ -41,7 +41,7 @@ public:
     ReprojectionDisplayWidget (const QString & = QString(), QWidget * = 0);
     virtual ~ReprojectionDisplayWidget ();
 
-    void setPoints (const cv::Mat &reprojectedPoints);
+    void setPoints (const cv::Mat &points);
 
 protected:
     virtual void mouseMoveEvent (QMouseEvent *event);

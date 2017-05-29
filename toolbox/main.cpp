@@ -31,5 +31,11 @@ int main (int argc, char **argv)
     MVL::StereoToolbox::GUI::Toolbox toolbox;
     toolbox.show();
 
+    /*QTimer idleTimer;
+    app.connect(&idleTimer, &QTimer::timeout, &app, [] () {
+        qInfo() << QDateTime::currentDateTime() << "idle!";
+    });
+    idleTimer.start(0);*/
+
     return app.exec();
 }

@@ -42,8 +42,11 @@ protected:
     cv::Rect roiLeft;
     cv::Rect roiRight;
 
-    QImage imageLeft;
-    QImage imageRight;
+    cv::Mat imageLeft;
+    cv::Mat imageRight;
+
+    QPixmap pixmapLeft;
+    QPixmap pixmapRight;
 };
 
 

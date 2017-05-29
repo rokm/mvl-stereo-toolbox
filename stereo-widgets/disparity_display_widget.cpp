@@ -58,7 +58,7 @@ void DisparityDisplayWidget::setDisparity (const cv::Mat &disparity)
 {
     Q_D(DisparityDisplayWidget);
 
-    d->disparity = disparity;
+    disparity.copyTo(d->disparity);
     emit disparityUnderMouseChanged(getDisparityAtPixel(mapFromGlobal(QCursor::pos())));
 }
 
@@ -73,7 +73,7 @@ float DisparityDisplayWidget::getDisparityAtPixel (const QPoint &pos)
     }
 
     // Validate dimensions
-    if (d->image.width() != d->disparity.cols || d->image.height() != d->disparity.rows) {
+    if (d->image.cols != d->disparity.cols || d->image.rows != d->disparity.rows) {
         return std::numeric_limits<float>::quiet_NaN();
     }
 

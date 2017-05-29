@@ -37,7 +37,7 @@ protected:
     ReprojectionDisplayWidgetPrivate (ReprojectionDisplayWidget *parent);
 
 protected:
-    cv::Mat reprojectedPoints;
+    cv::Mat points;
 };
 
 

@@ -27,7 +27,7 @@ namespace Widgets {
 
 
 ImageDisplayWidgetPrivate::ImageDisplayWidgetPrivate (ImageDisplayWidget *parent)
-    : q_ptr(parent)
+    : q_ptr(parent), imageChanged(false)
 {
 }
 
@@ -56,8 +56,9 @@ void ImageDisplayWidget::setImage (const cv::Mat &image)
 {
     Q_D(ImageDisplayWidget);
 
-    // Convert cv::Mat to QImage
-    d->image = convertCvMatToQImage(image);
+    // Make a copy, and mark for the update
+    image.copyTo(d->image);
+    d->imageChanged = true;
 
     // Refresh
     update();
@@ -79,6 +80,11 @@ void ImageDisplayWidget::paintEvent (QPaintEvent *event)
 {
     Q_D(ImageDisplayWidget);
 
+    if (d->imageChanged) {
+        d->pixmap = d->image.empty() ? QPixmap() : QPixmap::fromImage(convertCvMatToQImage(d->image));
+        d->imageChanged = false;
+    }
+
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);
 
@@ -87,13 +93,13 @@ void ImageDisplayWidget::paintEvent (QPaintEvent *event)
     // Fill area
     painter.fillRect(area, QBrush(QColor(0, 0, 0, 32), Qt::DiagCrossPattern));
 
-    if (d->image.isNull()) {
+    if (d->pixmap.isNull()) {
         // Display text
         painter.drawText(area, Qt::AlignCenter, d->text);
     } else {
         // Display image
-        int w = d->image.width();
-        int h = d->image.height();
+        int w = d->pixmap.width();
+        int h = d->pixmap.height();
 
         double scale = qMin((double)width() / w, (double)height() / h);
 
@@ -101,7 +107,7 @@ void ImageDisplayWidget::paintEvent (QPaintEvent *event)
         h *= scale;
 
         painter.translate((width() - w)/2, (height() - h)/2);
-        painter.drawImage(QRect(0, 0, w, h), d->image);
+        painter.drawPixmap(QRect(0, 0, w, h), d->pixmap);
     }
 
     // Draw frame on top of it all

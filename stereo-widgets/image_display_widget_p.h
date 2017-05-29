@@ -37,7 +37,11 @@ protected:
 
 protected:
     QString text;
-    QImage image;
+
+    cv::Mat image;
+    bool imageChanged;
+
+    QPixmap pixmap;
 };
 
 

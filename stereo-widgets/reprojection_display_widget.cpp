@@ -51,11 +51,11 @@ void ReprojectionDisplayWidget::mouseMoveEvent (QMouseEvent *event)
     return ImageDisplayWidget::mouseMoveEvent(event);
 }
 
-void ReprojectionDisplayWidget::setPoints (const cv::Mat &reprojectedPoints)
+void ReprojectionDisplayWidget::setPoints (const cv::Mat &points)
 {
     Q_D(ReprojectionDisplayWidget);
 
-    d->reprojectedPoints = reprojectedPoints;
+    points.copyTo(d->points);
     emit coordinatesUnderMouseChanged(getCoordinatesAtPixel(mapFromGlobal(QCursor::pos())));
 }
 
@@ -65,19 +65,19 @@ QVector3D ReprojectionDisplayWidget::getCoordinatesAtPixel (const QPoint &pos)
     Q_D(ReprojectionDisplayWidget);
 
     // Make sure there is image displayed
-    if (d->image.isNull()) {
+    if (d->image.empty()) {
         return QVector3D();
     }
 
     // Validate dimensions
-    if (d->image.width() != d->reprojectedPoints.cols || d->image.height() != d->reprojectedPoints.rows) {
+    if (d->image.cols != d->points.cols || d->image.rows != d->points.rows) {
         return QVector3D();
     }
 
     // This part is same as in base class's display... it computes
     // display scaling and vertical/horizontal offsets
-    int w = d->image.width();
-    int h = d->image.height();
+    int w = d->points.cols;
+    int h = d->points.rows;
 
     double scale = qMin((double)width() / w, (double)height() / h);
 
@@ -90,8 +90,8 @@ QVector3D ReprojectionDisplayWidget::getCoordinatesAtPixel (const QPoint &pos)
     int x = round(xd / scale);
     int y = round(yd / scale);
 
-    if (x >= 0 && y >= 0 && x < d->reprojectedPoints.cols && y < d->reprojectedPoints.rows) {
-        const cv::Vec3f &entry = d->reprojectedPoints.at<cv::Vec3f>(y, x);
+    if (x >= 0 && y >= 0 && x < d->points.cols && y < d->points.rows) {
+        const cv::Vec3f &entry = d->points.at<cv::Vec3f>(y, x);
         return QVector3D(entry[0], entry[1], entry[2]);
     }
 

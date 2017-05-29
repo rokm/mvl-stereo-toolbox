@@ -151,14 +151,12 @@ WindowStereoMethod::WindowStereoMethod (Pipeline::Pipeline *p, QList<QObject *> 
     setMethod(tabWidget->currentIndex());
 
     // Pipeline
-    // Use disparityVisualizationImageChanged() instead of disparityImageChanged()
-    // to capture changes due to visualization method switch
     connect(pipeline, &Pipeline::Pipeline::visualizationChanged, this, [this] (const cv::Mat image) {
         displayDisparityImage->setImage(image);
     });
 
     connect(pipeline, &Pipeline::Pipeline::disparityChanged, this, [this] (const cv::Mat disparity) {
-        // Disparity image
+        // Disparity
         displayDisparityImage->setDisparity(disparity);
 
         // If image is valid, display computation time

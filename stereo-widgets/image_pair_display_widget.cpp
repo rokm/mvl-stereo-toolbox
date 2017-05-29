@@ -72,9 +72,10 @@ void ImagePairDisplayWidget::setImagePair (const cv::Mat &left, const cv::Mat &r
 
     d->displayPair = true;
 
-    // Convert cv::Mat to QImage
-    d->imageLeft = convertCvMatToQImage(left);
-    d->imageRight = convertCvMatToQImage(right);
+    // Make a copy, and mark for the update
+    left.copyTo(d->imageLeft);
+    right.copyTo(d->imageRight);
+    d->imageChanged = true;
 
     // Refresh
     update();
@@ -88,6 +89,12 @@ void ImagePairDisplayWidget::paintEvent (QPaintEvent *event)
         return ImageDisplayWidget::paintEvent(event);
     }
 
+    if (d->imageChanged) {
+        d->pixmapLeft = d->imageLeft.empty() ? QPixmap() : QPixmap::fromImage(convertCvMatToQImage(d->imageLeft));
+        d->pixmapRight = d->imageRight.empty() ? QPixmap() : QPixmap::fromImage(convertCvMatToQImage(d->imageRight));
+        d->imageChanged = false;
+    }
+
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);
 
@@ -96,13 +103,13 @@ void ImagePairDisplayWidget::paintEvent (QPaintEvent *event)
     // Fill area
     painter.fillRect(area, QBrush(QColor(0, 0, 0, 32), Qt::DiagCrossPattern));
 
-    if (d->imageLeft.isNull() || d->imageRight.isNull()) {
+    if (d->pixmapLeft.isNull() || d->pixmapRight.isNull()) {
         // Display text
         painter.drawText(area, Qt::AlignCenter, d->text);
     } else {
         // Display image
-        int w = d->imageLeft.width() + d->imageRight.width();
-        int h = qMax(d->imageLeft.height(), d->imageRight.height());
+        int w = d->pixmapLeft.width() + d->pixmapLeft.width();
+        int h = qMax(d->pixmapLeft.height(), d->pixmapRight.height());
 
         int iw, ih;
 
@@ -116,12 +123,12 @@ void ImagePairDisplayWidget::paintEvent (QPaintEvent *event)
         painter.translate((width() - w)/2, (height() - h)/2);
 
         // Left image
-        iw = d->imageLeft.width() * scale;
-        ih = d->imageLeft.height() * scale;
+        iw = d->pixmapLeft.width() * scale;
+        ih = d->pixmapLeft.height() * scale;
 
-        painter.drawImage(QRect(0, (h - ih)/2, iw, ih), d->imageLeft);
+        painter.drawPixmap(QRect(0, (h - ih)/2, iw, ih), d->pixmapLeft);
 
-        if ((d->roiLeft.width && d->roiLeft.height) && (d->roiLeft.width != d->imageLeft.width() || d->roiLeft.height != d->imageLeft.height())) {
+        if ((d->roiLeft.width && d->roiLeft.height) && (d->roiLeft.width != d->pixmapLeft.width() || d->roiLeft.height != d->pixmapLeft.height())) {
             painter.setPen(QPen(Qt::red, 2));
             painter.drawRect(d->roiLeft.x*scale, d->roiLeft.y*scale, d->roiLeft.width*scale, d->roiLeft.height*scale);
         }
@@ -130,12 +137,12 @@ void ImagePairDisplayWidget::paintEvent (QPaintEvent *event)
         painter.translate(iw, 0);
 
         // Right image
-        iw = d->imageRight.width() * scale;
-        ih = d->imageRight.height() * scale;
+        iw = d->pixmapRight.width() * scale;
+        ih = d->pixmapRight.height() * scale;
 
-        painter.drawImage(QRect(0, (h - ih)/2, iw, ih), d->imageRight);
+        painter.drawPixmap(QRect(0, (h - ih)/2, iw, ih), d->pixmapRight);
 
-        if ((d->roiRight.width && d->roiRight.height) && (d->roiRight.width != d->imageRight.width() || d->roiRight.height != d->imageRight.height())) {
+        if ((d->roiRight.width && d->roiRight.height) && (d->roiRight.width != d->pixmapRight.width() || d->roiRight.height != d->pixmapRight.height())) {
             painter.setPen(QPen(Qt::red, 2));
             painter.drawRect(d->roiRight.x*scale, d->roiRight.y*scale, d->roiRight.width*scale, d->roiRight.height*scale);
         }
@@ -144,7 +151,7 @@ void ImagePairDisplayWidget::paintEvent (QPaintEvent *event)
         painter.resetTransform();
         painter.translate((width() - w)/2, (height() - h)/2);
 
-        int maxHeight = qMax(d->imageLeft.height(), d->imageRight.height());
+        int maxHeight = qMax(d->pixmapLeft.height(), d->pixmapRight.height());
         int numColors = 4, c = 0; // Pen color counter
         for (int i = 0; i < maxHeight; i += 16) {
             painter.setPen(QPen(QColor(0, 255*(c+1)/numColors, 0, 255), 1.5));

@@ -59,10 +59,10 @@ WindowPointCloud::WindowPointCloud (Pipeline::Pipeline *p, QWidget *parent)
     visualizationWidget = new Widgets::PointCloudVisualizationWidget(this);
     layout->addWidget(visualizationWidget);
 
-    connect(pipeline, &Pipeline::Pipeline::pointsChanged, this, [this] (const cv::Mat points) {
+    /*connect(pipeline, &Pipeline::Pipeline::pointsChanged, this, [this] (const cv::Mat points) {
         cv::Mat image = pipeline->getLeftRectifiedImage(); // FIXME: set separately in two callbacks?
         visualizationWidget->setPointCloud(image, points);
-    });
+    });*/
 }
 
 WindowPointCloud::~WindowPointCloud ()
