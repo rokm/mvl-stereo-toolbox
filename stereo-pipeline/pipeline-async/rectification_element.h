@@ -41,6 +41,9 @@ signals:
 
     void imagesChanged (cv::Mat left, cv::Mat right);
 
+    void calibrationChanged (bool valid);
+    void performRectificationChanged (bool enabled);
+
 protected:
     // Rectification object
     Rectification *rectification;

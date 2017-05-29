@@ -115,6 +115,17 @@ PipelinePrivate::PipelinePrivate (Pipeline *parent)
 
     q->connect(visualization, &AsyncPipeline::VisualizationElement::imageChanged, q, &Pipeline::visualizationChanged);
     q->connect(visualization, &AsyncPipeline::VisualizationElement::frameDropped, q, &Pipeline::visualizationFrameDropped);
+
+    // Force re-computation of rectification if rectification object
+    // changes calibration or rectification setting
+    auto recomputeRectification = [this, q] () {
+        cv::Mat imageL, imageR;
+        q->getImages(imageL, imageR);
+        rectification->rectifyImages(imageL, imageR);
+    };
+
+    q->connect(rectification, &AsyncPipeline::RectificationElement::calibrationChanged, q, recomputeRectification);
+    q->connect(rectification, &AsyncPipeline::RectificationElement::performRectificationChanged, q, recomputeRectification);
 }
 
 

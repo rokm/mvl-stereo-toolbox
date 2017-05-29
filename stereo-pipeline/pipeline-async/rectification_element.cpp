@@ -70,6 +70,8 @@ RectificationElement::RectificationElement (QObject *parent)
         emit imagesChanged(imageL.clone(), imageR.clone());
     }, Qt::QueuedConnection);
 
+    connect(rectification, &Rectification::calibrationChanged, this, &RectificationElement::calibrationChanged, Qt::QueuedConnection);
+    connect(rectification, &Rectification::performRectificationChanged, this, &RectificationElement::performRectificationChanged, Qt::QueuedConnection);
 }
 
 RectificationElement::~RectificationElement ()
