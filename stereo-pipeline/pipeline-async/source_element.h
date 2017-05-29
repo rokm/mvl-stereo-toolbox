@@ -30,7 +30,7 @@ public:
     cv::Mat getLeftImage () const;
     cv::Mat getRightImage () const;
 
-    void getImages (cv::Mat imageLeft, cv::Mat imageRight) const;
+    void getImages (cv::Mat &imageLeft, cv::Mat &imageRight) const;
 
 signals:
     void eject ();

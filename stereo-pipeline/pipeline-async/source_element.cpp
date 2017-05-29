@@ -103,6 +103,12 @@ void SourceElement::setImagePairSource (QObject *newSource)
     }, Qt::BlockingQueuedConnection); // Connection must block!
     signalConnections.append(tmpConnection);
 
+    // Cache the images
+    connect(this, &SourceElement::imagesChanged, this, [this] (const cv::Mat imageL, const cv::Mat imageR) {
+        imageL.copyTo(this->imageL);
+        imageR.copyTo(this->imageR);
+    });
+
     qInfo() << "Moving source to thread:" << thread;
 }
 
@@ -124,7 +130,7 @@ cv::Mat SourceElement::getRightImage () const
     return imageR.clone();
 }
 
-void SourceElement::getImages (cv::Mat imageLeft, cv::Mat imageRight) const
+void SourceElement::getImages (cv::Mat &imageLeft, cv::Mat &imageRight) const
 {
     QReadLocker locker(&lock);
     imageL.copyTo(imageLeft);
