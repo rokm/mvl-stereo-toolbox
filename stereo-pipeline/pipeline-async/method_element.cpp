@@ -120,6 +120,7 @@ void MethodElement::setStereoMethod (QObject *newMethod)
         // Signal change
         emit disparityChanged(disparity.clone(), numDisparityLevels);
     }, Qt::QueuedConnection);
+    signalConnections.append(tmpConnection);
 }
 
 QObject *MethodElement::getStereoMethod ()
