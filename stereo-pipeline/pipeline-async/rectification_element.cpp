@@ -67,7 +67,7 @@ RectificationElement::RectificationElement (QObject *parent)
         lock.unlock();
 
         // Signal change
-        emit imagesChanged(imageLeft.clone(), imageRight.clone());
+        emit imagesChanged(imageL.clone(), imageR.clone());
     }, Qt::QueuedConnection);
 
 }
