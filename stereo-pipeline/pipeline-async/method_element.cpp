@@ -168,11 +168,7 @@ void MethodElement::computeDisparity (const cv::Mat &imageL, const cv::Mat &imag
         mutex.unlock();
     } else {
         // Drop the frame
-        lock.lockForWrite();
-        droppedCounter++;
-        lock.unlock();
-
-        emit frameDropped();
+        dropFrame();
     }
 }
 

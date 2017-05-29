@@ -115,11 +115,7 @@ void VisualizationElement::visualizeDisparity (const cv::Mat &disparity, int num
         mutex.unlock();
     } else {
         // Drop the frame
-        lock.lockForWrite();
-        droppedCounter++;
-        lock.unlock();
-
-        emit frameDropped();
+        dropFrame();
     }
 }
 

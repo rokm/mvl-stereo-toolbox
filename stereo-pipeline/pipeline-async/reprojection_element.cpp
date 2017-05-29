@@ -115,11 +115,7 @@ void ReprojectionElement::reprojectDisparity (const cv::Mat &disparity, int numD
         mutex.unlock();
     } else {
         // Drop the frame
-        lock.lockForWrite();
-        droppedCounter++;
-        lock.unlock();
-
-        emit frameDropped();
+        dropFrame();
     }
 }
 

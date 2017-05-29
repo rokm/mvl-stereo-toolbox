@@ -35,7 +35,8 @@ namespace GUI {
 
 
 WindowStereoMethod::WindowStereoMethod (Pipeline::Pipeline *p, QList<QObject *> &m, QWidget *parent)
-    : QWidget(parent, Qt::Window), pipeline(p), methods(m), visualization(pipeline->getVisualization())
+    : QWidget(parent, Qt::Window), pipeline(p), methods(m), visualization(pipeline->getVisualization()),
+      disparityInfo({ false, 0, 0, 0 }), numDroppedFrames(0)
 {
     setWindowTitle("Stereo method");
     resize(800, 600);
@@ -159,12 +160,19 @@ WindowStereoMethod::WindowStereoMethod (Pipeline::Pipeline *p, QList<QObject *> 
         // Disparity
         displayDisparityImage->setDisparity(disparity);
 
-        // If image is valid, display computation time
+        // If image is valid, update info for status bar
         if (!disparity.empty()) {
-            statusBar->showMessage(QString("Disparity (%1x%2, %3) computed in %4 milliseconds; dropped %5 frames.").arg(disparity.cols).arg(disparity.rows).arg(Utils::cvDepthToString(disparity.depth())).arg(pipeline->getStereoMethodTime()).arg(pipeline->getStereoMethodDroppedFrames()));
+            disparityInfo.valid = true;
+            disparityInfo.width = disparity.cols;
+            disparityInfo.height = disparity.rows;
+            disparityInfo.depth = disparity.depth();
         } else {
             statusBar->showMessage(QString("Disparity not available."));
         }
+        numDroppedFrames = 0; // Reset dropped frames counter
+
+        // Update status bar
+        updateStatusBar();
     });
 
     // Pipeline's error signalization
@@ -174,6 +182,12 @@ WindowStereoMethod::WindowStereoMethod (Pipeline::Pipeline *p, QList<QObject *> 
         } else if (errorType == Pipeline::Pipeline::ErrorVisualization) {
             QMessageBox::warning(this, "Visualization Error", errorMessage);
         }
+    });
+
+    // Stereo method dropped frames counter
+    connect(pipeline, &Pipeline::Pipeline::stereoMethodFrameDropped, this, [this] (int count) {
+        numDroppedFrames = count;
+        updateStatusBar();
     });
 }
 
@@ -190,6 +204,24 @@ void WindowStereoMethod::setMethod (int i)
 
     pipeline->setStereoMethod(methods[i]);
 }
+
+
+void WindowStereoMethod::updateStatusBar ()
+{
+    if (disparityInfo.valid) {
+        statusBar->showMessage(QString("Disparity: %1x%2, %3. FPS: %4, dropped %5 frames, operation time: %6 ms.")
+            .arg(disparityInfo.width)
+            .arg(disparityInfo.height)
+            .arg(Utils::cvDepthToString(disparityInfo.depth))
+            .arg(pipeline->getStereoMethodFramerate(), 0, 'f' , 2)
+            .arg(numDroppedFrames)
+            .arg(pipeline->getStereoMethodTime())
+        );
+    } else {
+        statusBar->showMessage(QString("Disparity not available."));
+    }
+}
+
 
 
 // *********************************************************************

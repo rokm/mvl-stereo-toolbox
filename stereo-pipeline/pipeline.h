@@ -80,6 +80,7 @@ public:
 
     int getRectificationTime () const;
     int getRectificationDroppedFrames () const;
+    float getRectificationFramerate () const;
 
 
     // Stereo method
@@ -98,7 +99,7 @@ public:
 
     int getStereoMethodTime () const;
     int getStereoMethodDroppedFrames () const;
-
+    float getStereoMethodFramerate () const;
 
     // Disparity visualization
     DisparityVisualization *getVisualization ();
@@ -106,11 +107,12 @@ public:
     void setVisualizationState (bool active);
     bool getVisualizationState () const;
 
-    int getVisualizationTime () const;
-    int getVisualizationDroppedFrames () const;
-
     cv::Mat getDisparityVisualization () const;
     void getDisparityVisualization (cv::Mat &image) const;
+
+    int getVisualizationTime () const;
+    int getVisualizationDroppedFrames () const;
+    float getVisualizationFramerate () const;
 
     // Reprojection
     Reprojection *getReprojection ();
@@ -118,11 +120,13 @@ public:
     void setReprojectionState (bool active);
     bool getReprojectionState () const;
 
-    int getReprojectionTime () const;
-    int getReprojectionDroppedFrames () const;
-
     cv::Mat getPoints () const;
     void getPoints (cv::Mat &points) const;
+
+    int getReprojectionTime () const;
+    int getReprojectionDroppedFrames () const;
+    float getReprojectionFramerate () const;
+
 
     // Error types
     enum {
@@ -135,11 +139,16 @@ public:
     };
 
 signals:
-    void inputImagesChanged (cv::Mat imgL, cv::Mat imgR);
-    void rectifiedImagesChanged (cv::Mat imgL, cv::Mat imgR);
-    void disparityChanged (cv::Mat disparity);
-    void pointsChanged (cv::Mat points);
-    void visualizationChanged (cv::Mat visualization);
+    void inputImagesChanged (const cv::Mat imgL, const cv::Mat imgR);
+    void rectifiedImagesChanged (const cv::Mat imgL, const cv::Mat imgR);
+    void disparityChanged (const cv::Mat disparity);
+    void pointsChanged (const cv::Mat points);
+    void visualizationChanged (const cv::Mat visualization);
+
+    void rectificationFrameDropped (int count);
+    void stereoMethodFrameDropped (int count);
+    void visualizationFrameDropped (int count);
+    void reprojectionFrameDropped (int count);
 
 signals:
     void error (int domain, const QString &message);

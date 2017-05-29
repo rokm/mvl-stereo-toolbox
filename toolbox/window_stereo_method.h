@@ -44,11 +44,11 @@ class WindowStereoMethod : public QWidget
     Q_OBJECT
 
 public:
-    WindowStereoMethod (Pipeline::Pipeline *, QList<QObject *> &, QWidget * = 0);
+    WindowStereoMethod (Pipeline::Pipeline *p, QList<QObject *> &m, QWidget *parent = nullptr);
     virtual ~WindowStereoMethod ();
 
 protected:
-    void setMethod (int);
+    void setMethod (int i);
 
     void saveImage ();
 
@@ -57,11 +57,22 @@ protected:
 
     void fillVisualizationMethods ();
 
+    void updateStatusBar ();
+
 protected:
     // Pipeline
     Pipeline::Pipeline *pipeline;
     QList<QObject *> methods;
     Pipeline::DisparityVisualization *visualization;
+
+    // Status bar info
+    struct {
+        bool valid;
+        int width;
+        int height;
+        int depth;
+    } disparityInfo;
+    int numDroppedFrames;
 
     // GUI
     QPushButton *pushButtonExportParameters;

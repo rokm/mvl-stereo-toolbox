@@ -27,13 +27,15 @@ public:
 
 protected:
     void incrementUpdateCount ();
+    void dropFrame ();
+
     void estimateFps ();
 
 signals:
     void error (const QString &message);
     void stateChanged (bool active);
 
-    void frameDropped ();
+    void frameDropped (int number);
 
 protected:
     bool state;

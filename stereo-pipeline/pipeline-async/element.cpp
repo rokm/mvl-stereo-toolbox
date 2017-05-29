@@ -55,6 +55,15 @@ bool Element::getState () const
 // *********************************************************************
 // *                    Update frequency statistics                    *
 // *********************************************************************
+void Element::dropFrame ()
+{
+    lock.lockForWrite();
+    droppedCounter++;
+    lock.unlock();
+
+    emit frameDropped(droppedCounter);
+}
+
 void Element::incrementUpdateCount ()
 {
     updateCounter++;
@@ -72,8 +81,6 @@ void Element::estimateFps ()
         // Reset
         updateCounter = 0;
         fpsTime.restart();
-
-        qInfo() << this << "fps:" << fps;
     } else {
         fps = 0.0f;
     }
@@ -89,6 +96,12 @@ int Element::getNumberOfDroppedFrames () const
 {
     QReadLocker locker(&lock);
     return droppedCounter;
+}
+
+float Element::getFramesPerSecond () const
+{
+    QReadLocker locker(&lock);
+    return fps;
 }
 
 

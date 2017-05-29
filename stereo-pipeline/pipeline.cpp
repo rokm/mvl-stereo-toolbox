@@ -103,13 +103,18 @@ PipelinePrivate::PipelinePrivate (Pipeline *parent)
 
     q->connect(rectification, &AsyncPipeline::RectificationElement::imagesChanged, q, &Pipeline::rectifiedImagesChanged);
     q->connect(rectification, &AsyncPipeline::RectificationElement::imagesChanged, stereoMethod, &AsyncPipeline::MethodElement::computeDisparity);
+    q->connect(rectification, &AsyncPipeline::RectificationElement::frameDropped, q, &Pipeline::rectificationFrameDropped);
 
     q->connect(stereoMethod, &AsyncPipeline::MethodElement::disparityChanged, q, &Pipeline::disparityChanged);
     q->connect(stereoMethod, &AsyncPipeline::MethodElement::disparityChanged, reprojection, &AsyncPipeline::ReprojectionElement::reprojectDisparity);
     q->connect(stereoMethod, &AsyncPipeline::MethodElement::disparityChanged, visualization, &AsyncPipeline::VisualizationElement::visualizeDisparity);
+    q->connect(stereoMethod, &AsyncPipeline::MethodElement::frameDropped, q, &Pipeline::stereoMethodFrameDropped);
 
     q->connect(reprojection, &AsyncPipeline::ReprojectionElement::pointsChanged, q, &Pipeline::pointsChanged);
+    q->connect(reprojection, &AsyncPipeline::ReprojectionElement::frameDropped, q, &Pipeline::reprojectionFrameDropped);
+
     q->connect(visualization, &AsyncPipeline::VisualizationElement::imageChanged, q, &Pipeline::visualizationChanged);
+    q->connect(visualization, &AsyncPipeline::VisualizationElement::frameDropped, q, &Pipeline::visualizationFrameDropped);
 }
 
 
@@ -270,6 +275,12 @@ int Pipeline::getRectificationDroppedFrames () const
     return d->rectification->getNumberOfDroppedFrames();
 }
 
+float Pipeline::getRectificationFramerate () const
+{
+    Q_D(const Pipeline);
+    return d->rectification->getFramesPerSecond();
+}
+
 
 // *********************************************************************
 // *                           Stereo method                           *
@@ -350,6 +361,13 @@ int Pipeline::getStereoMethodDroppedFrames () const
     return d->stereoMethod->getNumberOfDroppedFrames();
 }
 
+float Pipeline::getStereoMethodFramerate () const
+{
+    Q_D(const Pipeline);
+    return d->stereoMethod->getFramesPerSecond();
+}
+
+
 
 // *********************************************************************
 // *                      Disparity visualization                      *
@@ -403,6 +421,12 @@ int Pipeline::getVisualizationDroppedFrames () const
     return d->visualization->getNumberOfDroppedFrames();
 }
 
+float Pipeline::getVisualizationFramerate () const
+{
+    Q_D(const Pipeline);
+    return d->visualization->getFramesPerSecond();
+}
+
 
 // *********************************************************************
 // *                          3D Reprojection                          *
@@ -453,6 +477,12 @@ int Pipeline::getReprojectionDroppedFrames () const
 {
     Q_D(const Pipeline);
     return d->reprojection->getNumberOfDroppedFrames();
+}
+
+float Pipeline::getReprojectionFramerate () const
+{
+    Q_D(const Pipeline);
+    return d->reprojection->getFramesPerSecond();
 }
 
 

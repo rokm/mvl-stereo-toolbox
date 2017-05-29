@@ -34,7 +34,8 @@ namespace GUI {
 
 
 WindowRectification::WindowRectification (Pipeline::Pipeline *p, Pipeline::Rectification *r, QWidget *parent)
-    : QWidget(parent, Qt::Window), pipeline(p), rectification(r)
+    : QWidget(parent, Qt::Window), pipeline(p), rectification(r),
+      numDroppedFrames(0)
 {
     setWindowTitle("Rectification");
     resize(800, 600);
@@ -142,8 +143,8 @@ WindowRectification::WindowRectification (Pipeline::Pipeline *p, Pipeline::Recti
     dialogSettings = new RectificationSettingsDialog(this);
 
     // Rectification
-    connect(rectification, &Pipeline::Rectification::calibrationChanged, this, &WindowRectification::updateState);
-    updateState();
+    connect(rectification, &Pipeline::Rectification::calibrationChanged, this, &WindowRectification::updateButtonsState);
+    updateButtonsState();
 
     // Calibration wizard
     wizard = new CalibrationWizard(this);
@@ -154,10 +155,44 @@ WindowRectification::WindowRectification (Pipeline::Pipeline *p, Pipeline::Recti
             QMessageBox::warning(this, "Rectification Error", errorMessage);
         }
     });
+
+    // Rectification dropped frames counter
+    connect(pipeline, &Pipeline::Pipeline::rectificationFrameDropped, this, [this] (int count) {
+        numDroppedFrames = count;
+        updateStatusBar();
+    });
 }
 
 WindowRectification::~WindowRectification ()
 {
+}
+
+void WindowRectification::updateStatusBar ()
+{
+    // Update status bar
+    if (rectification->isCalibrationValid()) {
+        if (rectification->getPerformRectification()) {
+            statusBar->showMessage(QString("Calibration set (est. baseline: %1 mm) - rectifying images. FPS: %2, dropped %3 frames, operation time: %4 ms.")
+                .arg(rectification->getStereoBaseline(), 0, 'f', 0)
+                .arg(pipeline->getRectificationFramerate(), 0, 'f', 2)
+                .arg(numDroppedFrames)
+                .arg(pipeline->getRectificationTime())
+            );
+        } else {
+            statusBar->showMessage(QString("Calibration set (est. baseline: %1 mm) - passing through. FPS: %2, dropped %3 frames, operation time: %4 ms.")
+                .arg(rectification->getStereoBaseline(), 0, 'f', 0)
+                .arg(pipeline->getRectificationFramerate(), 0, 'f', 2)
+                .arg(numDroppedFrames)
+                .arg(pipeline->getRectificationTime())
+            );
+        }
+    } else {
+        statusBar->showMessage(QString("Calibration not set - passing through. FPS: %1, dropped %2 frames, operation time: %3 ms.")
+            .arg(pipeline->getRectificationFramerate(), 0, 'f', 2)
+            .arg(numDroppedFrames)
+            .arg(pipeline->getRectificationTime())
+        );
+    }
 }
 
 void WindowRectification::updateImage (const cv::Mat imageL, const cv::Mat imageR)
@@ -175,18 +210,11 @@ void WindowRectification::updateImage (const cv::Mat imageL, const cv::Mat image
     }
 
     // Update status bar
-    if (rectification->isCalibrationValid()) {
-        if (rectification->getPerformRectification()) {
-            statusBar->showMessage(QString("Calibration set (estimated baseline: %1 mm); rectifying input images (%2 milliseconds).").arg(rectification->getStereoBaseline(), 0, 'f', 0).arg(pipeline->getRectificationTime()));
-        } else {
-            statusBar->showMessage(QString("Calibration set (estimated baseline: %1 mm); passing input images through.").arg(rectification->getStereoBaseline(), 0, 'f', 0));
-        }
-    } else {
-        statusBar->showMessage("Calibration not set; passing input images through.");
-    }
+    numDroppedFrames = 0; // Reset dropped frames counter
+    updateStatusBar();
 }
 
-void WindowRectification::updateState ()
+void WindowRectification::updateButtonsState ()
 {
     if (rectification->isCalibrationValid()) {
         pushButtonClear->setEnabled(true);

@@ -61,12 +61,15 @@ protected:
     void saveImages ();
 
     void updateImage (const cv::Mat imageL, const cv::Mat imageR);
-    void updateState ();
+    void updateStatusBar ();
+    void updateButtonsState ();
 
 protected:
     // Pipeline
     Pipeline::Pipeline *pipeline;
     Pipeline::Rectification *rectification;
+
+    int numDroppedFrames;
 
     // GUI
     QPushButton *pushButtonWizard;

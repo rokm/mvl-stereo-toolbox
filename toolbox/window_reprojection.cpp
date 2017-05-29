@@ -33,7 +33,8 @@ namespace GUI {
 
 
 WindowReprojection::WindowReprojection (Pipeline::Pipeline *p, Pipeline::Reprojection *r, QWidget *parent)
-    : QWidget(parent, Qt::Window), pipeline(p), reprojection(r)
+    : QWidget(parent, Qt::Window), pipeline(p), reprojection(r),
+      pointsInfo({ false, 0, 0 }), numDroppedFrames(0)
 {
     setWindowTitle("Reprojection");
     resize(800, 600);
@@ -172,9 +173,11 @@ WindowReprojection::WindowReprojection (Pipeline::Pipeline *p, Pipeline::Reproje
 
         // If reprojected points are valid, display computation time
         if (!points.empty()) {
-            statusBar->showMessage(QString("Disparity image (%1x%2) reprojected in %3 milliseconds.").arg(points.cols).arg(points.rows).arg(pipeline->getReprojectionTime()));
+            pointsInfo.valid = true;
+            pointsInfo.width = points.cols;
+            pointsInfo.height = points.rows;
         } else {
-            statusBar->showMessage("Reprojection not available.");
+            pointsInfo.valid = false;
         }
     });
 
@@ -184,10 +187,32 @@ WindowReprojection::WindowReprojection (Pipeline::Pipeline *p, Pipeline::Reproje
             QMessageBox::warning(this, "Reprojection Error", errorMessage);
         }
     });
+
+    // Reprojection dropped frames counter
+    connect(pipeline, &Pipeline::Pipeline::reprojectionFrameDropped, this, [this] (int count) {
+        numDroppedFrames = count;
+        updateStatusBar();
+    });
 }
 
 WindowReprojection::~WindowReprojection ()
 {
+}
+
+
+void WindowReprojection::updateStatusBar ()
+{
+    if (pointsInfo.valid) {
+        statusBar->showMessage(QString("Points: %1x%2. FPS: %3, dropped %4 frames, operation time: %5 ms")
+            .arg(pointsInfo.width)
+            .arg(pointsInfo.height)
+            .arg(pipeline->getReprojectionFramerate(), 0, 'f' , 2)
+            .arg(numDroppedFrames)
+            .arg(pipeline->getReprojectionTime())
+        );
+    } else {
+        statusBar->showMessage("Reprojection not available.");
+    }
 }
 
 

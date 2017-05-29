@@ -51,10 +51,19 @@ protected:
 
     void fillReprojectionMethods ();
 
+    void updateStatusBar ();
+
 protected:
     // Pipeline
     Pipeline::Pipeline *pipeline;
     Pipeline::Reprojection *reprojection;
+
+    struct {
+        bool valid;
+        int width;
+        int height;
+    } pointsInfo;
+    int numDroppedFrames;
 
     // GUI
     QComboBox *comboBoxImage;
