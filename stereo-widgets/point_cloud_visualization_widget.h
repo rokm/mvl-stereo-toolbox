@@ -47,6 +47,8 @@ public:
     PointCloudVisualizationWidget (QWidget *parent = 0);
     virtual ~PointCloudVisualizationWidget ();
 
+    void setImage (const cv::Mat &image);
+    void setPoints (const cv::Mat &points);
     void setPointCloud (const cv::Mat &image, const cv::Mat &points);
 
 protected:

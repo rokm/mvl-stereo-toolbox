@@ -79,26 +79,36 @@ PointCloudVisualizationWidget::~PointCloudVisualizationWidget ()
 }
 
 
+
+void PointCloudVisualizationWidget::setImage (const cv::Mat &image)
+{
+    Q_D(PointCloudVisualizationWidget);
+
+    image.copyTo(d->image);
+    d->freshData = true;
+
+    update();
+}
+
+void PointCloudVisualizationWidget::setPoints (const cv::Mat &points)
+{
+    Q_D(PointCloudVisualizationWidget);
+
+    points.copyTo(d->points);
+    d->freshData = true;
+
+    update();
+}
+
+
 void PointCloudVisualizationWidget::setPointCloud (const cv::Mat &image, const cv::Mat &points)
 {
     Q_D(PointCloudVisualizationWidget);
 
-    // Sanity check: image and points matrix must be of same dimensions
-    if (image.rows*image.cols != points.rows*points.cols) {
-        return;
-    }
-
-    // Copy image and points...
     image.copyTo(d->image);
     points.copyTo(d->points);
-
-    // Number of points
-    d->numPoints = image.rows*image.cols;
-
-    // ... and toggle data upload flag
     d->freshData = true;
 
-    // Force redraw
     update();
 }
 
@@ -410,64 +420,84 @@ void PointCloudVisualizationWidgetPrivate::initializeTrackBall ()
 
 void PointCloudVisualizationWidgetPrivate::uploadPointCloud ()
 {
-    if (freshData) {
-        freshData = false;
-
-        // Bind
-        vboPoints.bind();
-
-        // Resize buffer if necessary
-        int bufferSize = numPoints * 6*sizeof(float);
-        if (vboPoints.size() != bufferSize) {
-            vboPoints.allocate(bufferSize);
-        }
-
-        // Map
-        float *bufferPtr = static_cast<float *>(vboPoints.map(QOpenGLBuffer::WriteOnly));
-
-        // Fill
-        if (image.channels() == 3) {
-            // Three-channel (BGR) image
-            for (int y = 0; y < image.rows; y++) {
-                const cv::Vec3b *imagePtr = image.ptr<cv::Vec3b>(y);
-                const cv::Vec3f *pointsPtr = points.ptr<cv::Vec3f>(y);
-
-                for (int x = 0; x < image.cols; x++) {
-                    const cv::Vec3b &bgr = imagePtr[x];
-                    const cv::Vec3f &xyz = pointsPtr[x];
-
-                    float *ptr = bufferPtr + (y*image.cols + x)*6;
-                    *ptr++ = xyz[0]/1000.0;
-                    *ptr++ = xyz[1]/1000.0;
-                    *ptr++ = xyz[2]/1000.0;
-                    *ptr++ = bgr[2]/255.0f;
-                    *ptr++ = bgr[1]/255.0f;
-                    *ptr++ = bgr[0]/255.0f;
-                }
-            }
-        } else {
-            // Single-channel (grayscale) image
-            for (int y = 0; y < image.rows; y++) {
-                const unsigned char *imagePtr = image.ptr<unsigned char>(y);
-                const cv::Vec3f *pointsPtr = points.ptr<cv::Vec3f>(y);
-
-                for (int x = 0; x < image.cols; x++) {
-                    const unsigned char &gray = imagePtr[x];
-                    const cv::Vec3f &xyz = pointsPtr[x];
-
-                    float *ptr = bufferPtr + (y*image.cols + x)*6;
-                    *ptr++ = xyz[0]/1000.0;
-                    *ptr++ = xyz[1]/1000.0;
-                    *ptr++ = xyz[2]/1000.0;
-                    *ptr++ = gray/255.0f;
-                    *ptr++ = gray/255.0f;
-                    *ptr++ = gray/255.0f;
-                }
-            }
-        }
-
-        vboPoints.unmap();
+    if (!freshData) {
+        return;
     }
+
+    qInfo() << QDateTime::currentDateTime() << this << "UPLOAD";
+
+
+    // Validate data
+    if (image.empty() || points.empty()) {
+        qWarning() << this << "image or points empty";
+        return;
+    }
+
+    if (image.rows != points.rows || image.cols != points.cols) {
+        qWarning() << this << "size mismatch";
+        return;
+    }
+
+    // Compute number of points
+    numPoints = points.rows*points.cols;
+
+    // Bind
+    vboPoints.bind();
+
+    // Resize buffer if necessary
+    int bufferSize = numPoints * 6*sizeof(float);
+    if (vboPoints.size() != bufferSize) {
+        vboPoints.allocate(bufferSize);
+    }
+
+    // Map
+    float *bufferPtr = static_cast<float *>(vboPoints.map(QOpenGLBuffer::WriteOnly));
+
+    // Fill
+    if (image.channels() == 3) {
+        // Three-channel (BGR) image
+        for (int y = 0; y < image.rows; y++) {
+            const cv::Vec3b *imagePtr = image.ptr<cv::Vec3b>(y);
+            const cv::Vec3f *pointsPtr = points.ptr<cv::Vec3f>(y);
+
+            for (int x = 0; x < image.cols; x++) {
+                const cv::Vec3b &bgr = imagePtr[x];
+                const cv::Vec3f &xyz = pointsPtr[x];
+
+                float *ptr = bufferPtr + (y*image.cols + x)*6;
+                *ptr++ = xyz[0]/1000.0;
+                *ptr++ = xyz[1]/1000.0;
+                *ptr++ = xyz[2]/1000.0;
+                *ptr++ = bgr[2]/255.0f;
+                *ptr++ = bgr[1]/255.0f;
+                *ptr++ = bgr[0]/255.0f;
+            }
+        }
+    } else {
+        // Single-channel (grayscale) image
+        for (int y = 0; y < image.rows; y++) {
+            const unsigned char *imagePtr = image.ptr<unsigned char>(y);
+            const cv::Vec3f *pointsPtr = points.ptr<cv::Vec3f>(y);
+
+            for (int x = 0; x < image.cols; x++) {
+                const unsigned char &gray = imagePtr[x];
+                const cv::Vec3f &xyz = pointsPtr[x];
+
+                float *ptr = bufferPtr + (y*image.cols + x)*6;
+                *ptr++ = xyz[0]/1000.0;
+                *ptr++ = xyz[1]/1000.0;
+                *ptr++ = xyz[2]/1000.0;
+                *ptr++ = gray/255.0f;
+                *ptr++ = gray/255.0f;
+                *ptr++ = gray/255.0f;
+            }
+        }
+    }
+
+    vboPoints.unmap();
+
+    // Mark as updated
+    freshData = false;
 }
 
 void PointCloudVisualizationWidgetPrivate::renderPointCloud (QOpenGLFunctions *glFunctions)
