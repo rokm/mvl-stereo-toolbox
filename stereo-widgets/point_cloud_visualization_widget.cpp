@@ -424,17 +424,13 @@ void PointCloudVisualizationWidgetPrivate::uploadPointCloud ()
         return;
     }
 
-    qInfo() << QDateTime::currentDateTime() << this << "UPLOAD";
-
-
     // Validate data
     if (image.empty() || points.empty()) {
-        qWarning() << this << "image or points empty";
         return;
     }
 
     if (image.rows != points.rows || image.cols != points.cols) {
-        qWarning() << this << "size mismatch";
+        freshData = false;
         return;
     }
 
@@ -451,7 +447,8 @@ void PointCloudVisualizationWidgetPrivate::uploadPointCloud ()
     }
 
     // Map
-    float *bufferPtr = static_cast<float *>(vboPoints.map(QOpenGLBuffer::WriteOnly));
+    float *ptr = static_cast<float *>(vboPoints.map(QOpenGLBuffer::WriteOnly));
+    numPoints = 0;
 
     // Fill
     if (image.channels() == 3) {
@@ -464,13 +461,16 @@ void PointCloudVisualizationWidgetPrivate::uploadPointCloud ()
                 const cv::Vec3b &bgr = imagePtr[x];
                 const cv::Vec3f &xyz = pointsPtr[x];
 
-                float *ptr = bufferPtr + (y*image.cols + x)*6;
-                *ptr++ = xyz[0]/1000.0;
-                *ptr++ = xyz[1]/1000.0;
-                *ptr++ = xyz[2]/1000.0;
-                *ptr++ = bgr[2]/255.0f;
-                *ptr++ = bgr[1]/255.0f;
-                *ptr++ = bgr[0]/255.0f;
+                if (std::isfinite(xyz[0]) && std::isfinite(xyz[1]) && std::isfinite(xyz[2])) {
+                    *ptr++ = xyz[0]/1000.0;
+                    *ptr++ = xyz[1]/1000.0;
+                    *ptr++ = xyz[2]/1000.0;
+                    *ptr++ = bgr[2]/255.0f;
+                    *ptr++ = bgr[1]/255.0f;
+                    *ptr++ = bgr[0]/255.0f;
+
+                    numPoints++;
+                }
             }
         }
     } else {
@@ -483,13 +483,16 @@ void PointCloudVisualizationWidgetPrivate::uploadPointCloud ()
                 const unsigned char &gray = imagePtr[x];
                 const cv::Vec3f &xyz = pointsPtr[x];
 
-                float *ptr = bufferPtr + (y*image.cols + x)*6;
-                *ptr++ = xyz[0]/1000.0;
-                *ptr++ = xyz[1]/1000.0;
-                *ptr++ = xyz[2]/1000.0;
-                *ptr++ = gray/255.0f;
-                *ptr++ = gray/255.0f;
-                *ptr++ = gray/255.0f;
+                if (std::isfinite(xyz[0]) && std::isfinite(xyz[1]) && std::isfinite(xyz[2])) {
+                    *ptr++ = xyz[0]/1000.0;
+                    *ptr++ = xyz[1]/1000.0;
+                    *ptr++ = xyz[2]/1000.0;
+                    *ptr++ = gray/255.0f;
+                    *ptr++ = gray/255.0f;
+                    *ptr++ = gray/255.0f;
+
+                    numPoints++;
+                }
             }
         }
     }
