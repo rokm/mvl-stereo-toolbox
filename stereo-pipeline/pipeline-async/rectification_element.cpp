@@ -38,7 +38,7 @@ RectificationElement::RectificationElement (QObject *parent)
     // Main worker function - executed in rectification object's context,
     // and hence in the worker thread
     connect(this, &RectificationElement::imageRectificationRequest, rectification, [this] (const cv::Mat imageLeft, const cv::Mat imageRight) {
-        QMutexLocker locker(&mutex);
+        QMutexLocker mutexLocker(&mutex);
 
         threadData.timer.start();
         try {
@@ -57,17 +57,17 @@ RectificationElement::RectificationElement (QObject *parent)
         threadData.processingTime = threadData.timer.elapsed();
 
         // Store results
-        lock.lockForWrite();
+        QWriteLocker locker(&lock);
 
         threadData.imageL.copyTo(imageL);
         threadData.imageR.copyTo(imageR);
         lastOperationTime = threadData.processingTime;
         droppedCounter = 0; // Reset dropped-frame counter
 
-        lock.unlock();
+        locker.unlock();
 
         // Signal change
-        emit imagesChanged(imageL.clone(), imageR.clone());
+        emit imagesChanged();
     }, Qt::QueuedConnection);
 
     connect(rectification, &Rectification::calibrationChanged, this, &RectificationElement::calibrationChanged, Qt::QueuedConnection);
@@ -98,7 +98,7 @@ cv::Mat RectificationElement::getRightImage () const
     return imageR.clone();
 }
 
-void RectificationElement::getImages (cv::Mat imageLeft, cv::Mat imageRight) const
+void RectificationElement::getImages (cv::Mat &imageLeft, cv::Mat &imageRight) const
 {
     QReadLocker locker(&lock);
     imageL.copyTo(imageLeft);

@@ -33,9 +33,9 @@ public:
 
 signals:
     void eject ();
-    void reprojectionRequest (cv::Mat disparity);
+    void reprojectionRequest (const cv::Mat disparity);
 
-    void pointsChanged (cv::Mat points);
+    void pointsChanged ();
 
 protected:
     // Reprojection object

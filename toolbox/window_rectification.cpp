@@ -108,9 +108,7 @@ WindowRectification::WindowRectification (Pipeline::Pipeline *p, Pipeline::Recti
     comboBoxVisualizationMethod->addItem("Anaglyph", 1);
     comboBoxVisualizationMethod->setItemData(1, "Anaglyph", Qt::ToolTipRole);
 
-    connect(comboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, [this] () {
-        updateImage(pipeline->getLeftRectifiedImage(), pipeline->getRightRectifiedImage());
-    });
+    connect(comboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &WindowRectification::updateImage);
 
     // Save
     pushButton = new QPushButton("Save rectified pair / anaglyph");
@@ -195,8 +193,11 @@ void WindowRectification::updateStatusBar ()
     }
 }
 
-void WindowRectification::updateImage (const cv::Mat imageL, const cv::Mat imageR)
+void WindowRectification::updateImage ()
 {
+    cv::Mat imageL, imageR;
+    pipeline->getRectifiedImages(imageL, imageR);
+
     // Set image, based on selected visualization type
     int visualizationType = comboBoxVisualizationMethod->itemData(comboBoxVisualizationMethod->currentIndex()).toInt();
 

@@ -140,10 +140,10 @@ public:
 
 signals:
     void inputImagesChanged ();
-    void rectifiedImagesChanged (const cv::Mat imgL, const cv::Mat imgR);
-    void disparityChanged (const cv::Mat disparity);
-    void pointsChanged (const cv::Mat points);
-    void visualizationChanged (const cv::Mat visualization);
+    void rectifiedImagesChanged ();
+    void disparityChanged ();
+    void pointsChanged ();
+    void visualizationChanged ();
 
     void rectificationFrameDropped (int count);
     void stereoMethodFrameDropped (int count);

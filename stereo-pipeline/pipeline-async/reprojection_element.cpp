@@ -38,7 +38,7 @@ ReprojectionElement::ReprojectionElement (QObject *parent)
     // Main worker function - executed in reprojection object's context,
     // and hence in the worker thread
     connect(this, &ReprojectionElement::reprojectionRequest, reprojection, [this] (const cv::Mat disparity) {
-        QMutexLocker locker(&mutex);
+        QMutexLocker mutexLocker(&mutex);
 
         threadData.timer.start();
         try {
@@ -57,16 +57,16 @@ ReprojectionElement::ReprojectionElement (QObject *parent)
         threadData.processingTime = threadData.timer.elapsed();
 
         // Store results
-        lock.lockForWrite();
+        QWriteLocker locker(&lock);
 
         threadData.points.copyTo(points);
         lastOperationTime = threadData.processingTime;
         droppedCounter = 0; // Reset dropped-frame counter
 
-        lock.unlock();
+        locker.unlock();
 
         // Signal change
-        emit pointsChanged(points.clone());
+        emit pointsChanged();
     }, Qt::QueuedConnection);
 
 }

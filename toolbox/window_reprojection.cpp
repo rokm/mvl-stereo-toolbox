@@ -152,23 +152,28 @@ WindowReprojection::WindowReprojection (Pipeline::Pipeline *p, Pipeline::Reproje
     statusBar->addPermanentWidget(labelCoordinates);
 
     // Pipeline
-    connect(pipeline, &Pipeline::Pipeline::visualizationChanged, this, [this] (const cv::Mat image) {
+    connect(pipeline, &Pipeline::Pipeline::visualizationChanged, this, [this] () {
         if (comboBoxImage->currentIndex() == 0) {
             // Display disparity visualization
+            cv::Mat image = pipeline->getDisparityVisualization();
             displayReprojectedImage->setImage(image);
         }
     });
 
-    connect(pipeline, &Pipeline::Pipeline::rectifiedImagesChanged, this, [this] (const cv::Mat imageLeft, const cv::Mat imageRight) {
+    connect(pipeline, &Pipeline::Pipeline::rectifiedImagesChanged, this, [this] () {
         if (comboBoxImage->currentIndex() == 1) {
             // Left image
-            displayReprojectedImage->setImage(imageLeft);
+            cv::Mat image = pipeline->getLeftRectifiedImage();
+            displayReprojectedImage->setImage(image);
         } else if (comboBoxImage->currentIndex() == 2) {
-            displayReprojectedImage->setImage(imageRight);
+            cv::Mat image = pipeline->getRightRectifiedImage();
+            displayReprojectedImage->setImage(image);
         }
     });
 
-    connect(pipeline, &Pipeline::Pipeline::pointsChanged, this, [this] (const cv::Mat points) {
+    connect(pipeline, &Pipeline::Pipeline::pointsChanged, this, [this] () {
+        cv::Mat points = pipeline->getPoints();
+
         displayReprojectedImage->setPoints(points);
 
         // If reprojected points are valid, display computation time

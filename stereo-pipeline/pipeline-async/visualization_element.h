@@ -33,9 +33,9 @@ public:
 
 signals:
     void eject ();
-    void disparityVisualizationRequest (cv::Mat disparity, int numDisparityLevels);
+    void disparityVisualizationRequest (const cv::Mat disparity, int numDisparityLevels);
 
-    void imageChanged (cv::Mat image);
+    void imageChanged ();
 
 protected:
     // Visualization object

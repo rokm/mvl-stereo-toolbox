@@ -31,15 +31,15 @@ public:
     cv::Mat getLeftImage () const;
     cv::Mat getRightImage () const;
 
-    void getImages (cv::Mat imageLeft, cv::Mat imageRight) const;
+    void getImages (cv::Mat &imageLeft, cv::Mat &imageRight) const;
 
     cv::Mat getReprojectionMatrix () const;
 
 signals:
     void eject ();
-    void imageRectificationRequest (cv::Mat imageL, cv::Mat imageR);
+    void imageRectificationRequest (const cv::Mat imageL, const cv::Mat imageR);
 
-    void imagesChanged (cv::Mat left, cv::Mat right);
+    void imagesChanged ();
 
     void calibrationChanged (bool valid);
     void performRectificationChanged (bool enabled);

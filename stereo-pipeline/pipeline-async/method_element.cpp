@@ -79,9 +79,12 @@ void MethodElement::setStereoMethod (QObject *newMethod)
         methodIface = nullptr;
 
         // Clear cached image
+        QWriteLocker locker(&lock);
         disparity = cv::Mat();
+        numDisparityLevels = 0;
+        locker.unlock();
 
-        emit disparityChanged(cv::Mat(), 0);
+        emit disparityChanged();
     }, Qt::BlockingQueuedConnection); // Connection must block!
     signalConnections.append(tmpConnection);
 
@@ -89,7 +92,7 @@ void MethodElement::setStereoMethod (QObject *newMethod)
     // Main worker function - executed in method object's context, and
     // hence in the worker thread
     tmpConnection = connect(this, &MethodElement::disparityComputationRequest, methodObject, [this] (const cv::Mat imageL, const cv::Mat imageR) {
-        QMutexLocker locker(&mutex);
+        QMutexLocker mutexLocker(&mutex);
 
         threadData.timer.start();
         try {
@@ -108,17 +111,17 @@ void MethodElement::setStereoMethod (QObject *newMethod)
         threadData.processingTime = threadData.timer.elapsed();
 
         // Store results
-        lock.lockForWrite();
+        QWriteLocker locker(&lock);
 
         threadData.disparity.copyTo(disparity);
         numDisparityLevels = threadData.numDisparityLevels;
         lastOperationTime = threadData.processingTime;
         droppedCounter = 0; // Reset dropped-frame counter
 
-        lock.unlock();
+        locker.unlock();
 
         // Signal change
-        emit disparityChanged(disparity.clone(), numDisparityLevels);
+        emit disparityChanged();
     }, Qt::QueuedConnection);
     signalConnections.append(tmpConnection);
 }

@@ -62,12 +62,13 @@ WindowPointCloud::WindowPointCloud (Pipeline::Pipeline *p, QWidget *parent)
     // In case of a continuous video stream, this assumes that the
     // framerate is high enough that receiving a newer image before
     // the point cloud is computed does not cause noticeable artifacts...
-    connect(pipeline, &Pipeline::Pipeline::rectifiedImagesChanged, this, [this] (const cv::Mat imageLeft, const cv::Mat imageRight) {
-        Q_UNUSED(imageRight);
-        visualizationWidget->setImage(imageLeft);
+    connect(pipeline, &Pipeline::Pipeline::rectifiedImagesChanged, this, [this] () {
+        cv::Mat image = pipeline->getLeftRectifiedImage();
+        visualizationWidget->setImage(image);
     });
 
-    connect(pipeline, &Pipeline::Pipeline::pointsChanged, this, [this] (const cv::Mat points) {
+    connect(pipeline, &Pipeline::Pipeline::pointsChanged, this, [this] () {
+        cv::Mat points = pipeline->getPoints();
         visualizationWidget->setPoints(points);
     });
 }

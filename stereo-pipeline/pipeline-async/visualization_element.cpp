@@ -38,7 +38,7 @@ VisualizationElement::VisualizationElement (QObject *parent)
     // Main worker function - executed in visualization object's context,
     // and hence in the worker thread
     connect(this, &VisualizationElement::disparityVisualizationRequest, visualization, [this] (const cv::Mat disparity, int numDisparityLevels) {
-        QMutexLocker locker(&mutex);
+        QMutexLocker mutexLocker(&mutex);
 
         threadData.timer.start();
         try {
@@ -57,16 +57,16 @@ VisualizationElement::VisualizationElement (QObject *parent)
         threadData.processingTime = threadData.timer.elapsed();
 
         // Store results
-        lock.lockForWrite();
+        QWriteLocker locker(&lock);
 
         threadData.image.copyTo(image);
         lastOperationTime = threadData.processingTime;
         droppedCounter = 0; // Reset dropped-frame counter
 
-        lock.unlock();
+        locker.unlock();
 
         // Signal change
-        emit imageChanged(image.clone());
+        emit imageChanged();
     }, Qt::QueuedConnection);
 
 }

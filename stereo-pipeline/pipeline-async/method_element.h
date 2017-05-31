@@ -38,8 +38,8 @@ public:
 signals:
     void eject ();
 
-    void disparityComputationRequest (cv::Mat imageL, cv::Mat imageR);
-    void disparityChanged (cv::Mat disparity, int numDisparityLevels);
+    void disparityComputationRequest (const cv::Mat imageL, const cv::Mat imageR);
+    void disparityChanged ();
 
 protected:
     // Stereo method object

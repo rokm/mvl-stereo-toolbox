@@ -152,11 +152,14 @@ WindowStereoMethod::WindowStereoMethod (Pipeline::Pipeline *p, QList<QObject *> 
     setMethod(tabWidget->currentIndex());
 
     // Pipeline
-    connect(pipeline, &Pipeline::Pipeline::visualizationChanged, this, [this] (const cv::Mat image) {
+    connect(pipeline, &Pipeline::Pipeline::visualizationChanged, this, [this] () {
+        cv::Mat image = pipeline->getDisparityVisualization();
         displayDisparityImage->setImage(image);
     });
 
-    connect(pipeline, &Pipeline::Pipeline::disparityChanged, this, [this] (const cv::Mat disparity) {
+    connect(pipeline, &Pipeline::Pipeline::disparityChanged, this, [this] () {
+        cv::Mat disparity = pipeline->getDisparity();
+
         // Disparity
         displayDisparityImage->setDisparity(disparity);
 
