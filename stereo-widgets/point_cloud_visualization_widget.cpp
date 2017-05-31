@@ -21,6 +21,15 @@
 #include "point_cloud_visualization_widget_p.h"
 
 
+#ifndef GL_MULTISAMPLE
+#define GL_MULTISAMPLE  0x809D
+#endif
+
+#ifndef GL_LINE_STRIP_ADJACENCY
+#define GL_LINE_STRIP_ADJACENCY 0x000B
+#endif
+
+
 namespace MVL {
 namespace StereoToolbox {
 namespace Widgets {
