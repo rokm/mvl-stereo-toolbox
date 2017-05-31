@@ -47,10 +47,10 @@ QString Source::getShortName () const
     return "VIDEO";
 }
 
-void Source::getImages (cv::Mat &left, cv::Mat &right)
+void Source::getImages (cv::Mat &left, cv::Mat &right) const
 {
     // Copy images under lock
-    QReadLocker lock(&imagesLock);
+    QReadLocker locker(&imagesLock);
     imageLeft.copyTo(left);
     imageRight.copyTo(right);
 }
@@ -78,9 +78,12 @@ void Source::openVideoFile (const QString &filename)
     video.release();
 
     // Clear the frames
+    QWriteLocker locker(&imagesLock);
     imageLeft = cv::Mat();
     imageRight = cv::Mat();
-    emit imagesChanged(cv::Mat(), cv::Mat());
+    locker.unlock();
+
+    emit imagesChanged();
 
     // If filename is empty, do nothing
     if (filename.isEmpty()) {
@@ -180,14 +183,14 @@ void Source::playbackFunction ()
     emit videoPositionChanged(video.get(cv::CAP_PROP_POS_FRAMES), video.get(cv::CAP_PROP_FRAME_COUNT));
 
     // Update images
-    imagesLock.lockForWrite();
+    QWriteLocker locker(&imagesLock);
 
     frame(cv::Rect(0, 0, frame.cols/2, frame.rows)).copyTo(imageLeft);
     frame(cv::Rect(frame.cols/2, 0, frame.cols/2, frame.rows)).copyTo(imageRight);
 
-    imagesLock.unlock();
+    locker.unlock();
 
-    emit imagesChanged(imageLeft.clone(), imageRight.clone());
+    emit imagesChanged();
 }
 
 

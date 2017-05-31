@@ -32,10 +32,13 @@ public:
 
     void getImages (cv::Mat &imageLeft, cv::Mat &imageRight) const;
 
+protected slots:
+    void handleImagesChange (); // Must be slot due to old-syntax!
+
 signals:
     void eject ();
 
-    void imagesChanged (cv::Mat left, cv::Mat right);
+    void imagesChanged ();
 
 protected:
     // Image pair source object

@@ -99,7 +99,11 @@ PipelinePrivate::PipelinePrivate (Pipeline *parent)
 
     // Setup processing chain
     q->connect(source, &AsyncPipeline::SourceElement::imagesChanged, q, &Pipeline::inputImagesChanged);
-    q->connect(source, &AsyncPipeline::SourceElement::imagesChanged, rectification, &AsyncPipeline::RectificationElement::rectifyImages);
+    q->connect(source, &AsyncPipeline::SourceElement::imagesChanged, rectification, [this] () {
+        cv::Mat imageL, imageR;
+        source->getImages(imageL, imageR);
+        rectification->rectifyImages(imageL, imageR);
+    });
 
     q->connect(rectification, &AsyncPipeline::RectificationElement::imagesChanged, q, &Pipeline::rectifiedImagesChanged);
     q->connect(rectification, &AsyncPipeline::RectificationElement::imagesChanged, stereoMethod, &AsyncPipeline::MethodElement::computeDisparity);

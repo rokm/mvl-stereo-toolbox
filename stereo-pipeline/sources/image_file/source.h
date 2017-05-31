@@ -39,13 +39,13 @@ class Source : public QObject, public ImagePairSource
     Q_INTERFACES(MVL::StereoToolbox::Pipeline::ImagePairSource)
 
 public:
-    Source (QObject * = 0);
+    Source (QObject *parent = 0);
     virtual ~Source ();
 
     virtual QString getShortName () const;
-    virtual void getImages (cv::Mat &, cv::Mat &);
+    virtual void getImages (cv::Mat &left, cv::Mat &right) const;
     virtual void stopSource ();
-    virtual QWidget *createConfigWidget (QWidget * = 0);
+    virtual QWidget *createConfigWidget (QWidget *parent = 0);
 
     ImageFile *getLeftImageFile ();
     ImageFile *getRightImageFile ();
@@ -67,7 +67,7 @@ signals:
     void refreshPeriodChanged (int);
 
     // Signals from interface
-    void imagesChanged (cv::Mat imageLeft, cv::Mat imageRight);
+    void imagesChanged ();
     void error (QString message);
 
 protected:
@@ -80,7 +80,7 @@ protected:
     bool leftImageReady, rightImageReady;
 
     // Images
-    QReadWriteLock imagesLock;
+    mutable QReadWriteLock imagesLock;
 
     cv::Mat imageLeft;
     cv::Mat imageRight;

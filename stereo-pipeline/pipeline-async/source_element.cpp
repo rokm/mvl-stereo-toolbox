@@ -48,7 +48,7 @@ void SourceElement::setImagePairSource (QObject *newSource)
 
     sourceObject->moveToThread(thread);
 
-    tmpConnection = connect(sourceObject, SIGNAL(imagesChanged(cv::Mat, cv::Mat)), this, SIGNAL(imagesChanged(cv::Mat, cv::Mat)), Qt::QueuedConnection); // Must use old syntax because signal is defined in interface!
+    tmpConnection = connect(sourceObject, SIGNAL(imagesChanged()), this, SLOT(handleImagesChange()), Qt::QueuedConnection); // Must use old syntax because signal is defined in interface!
     signalConnections.append(tmpConnection);
 
     tmpConnection = connect(sourceObject, SIGNAL(error(QString)), this, SIGNAL(error(QString)), Qt::QueuedConnection); // Must use old syntax because signal is defined in interface!
@@ -96,18 +96,16 @@ void SourceElement::setImagePairSource (QObject *newSource)
         sourceIface = nullptr;
 
         // Clear cached image
+        QWriteLocker locker(&lock);
+
         imageL = cv::Mat();
         imageR = cv::Mat();
 
-        emit imagesChanged(cv::Mat(), cv::Mat());
+        locker.unlock();
+
+        emit imagesChanged();
     }, Qt::BlockingQueuedConnection); // Connection must block!
     signalConnections.append(tmpConnection);
-
-    // Cache the images
-    connect(this, &SourceElement::imagesChanged, this, [this] (const cv::Mat imageL, const cv::Mat imageR) {
-        imageL.copyTo(this->imageL);
-        imageR.copyTo(this->imageR);
-    });
 
     qInfo() << "Moving source to thread:" << thread;
 }
@@ -135,6 +133,15 @@ void SourceElement::getImages (cv::Mat &imageLeft, cv::Mat &imageRight) const
     QReadLocker locker(&lock);
     imageL.copyTo(imageLeft);
     imageR.copyTo(imageRight);
+}
+
+void SourceElement::handleImagesChange ()
+{
+    QWriteLocker locker(&lock);
+    sourceIface->getImages(imageL, imageR);
+    locker.unlock();
+
+    emit imagesChanged();
 }
 
 

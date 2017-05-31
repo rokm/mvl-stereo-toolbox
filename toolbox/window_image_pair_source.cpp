@@ -113,7 +113,10 @@ WindowImagePairSource::WindowImagePairSource (Pipeline::Pipeline *p, QList<QObje
     setSource(tabWidget->currentIndex());
 
     // Pipeline
-    connect(pipeline, &Pipeline::Pipeline::inputImagesChanged, this, [this] (cv::Mat imageLeft, cv::Mat imageRight) {
+    connect(pipeline, &Pipeline::Pipeline::inputImagesChanged, this, [this] () {
+        cv::Mat imageLeft, imageRight;
+        pipeline->getImages(imageLeft, imageRight);
+
         displayImageLeft->setImage(imageLeft);
         displayImageRight->setImage(imageRight);
     });

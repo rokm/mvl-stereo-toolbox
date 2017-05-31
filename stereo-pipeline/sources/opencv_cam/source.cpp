@@ -93,10 +93,10 @@ QString Source::getShortName () const
     return "OpenCV CAM";
 }
 
-void Source::getImages (cv::Mat &left, cv::Mat &right)
+void Source::getImages (cv::Mat &left, cv::Mat &right) const
 {
     // Copy images under lock
-    QReadLocker lock(&imagesLock);
+    QReadLocker locker(&imagesLock);
     imageLeft.copyTo(left);
     imageRight.copyTo(right);
 }
@@ -322,12 +322,16 @@ void Source::synchronizeFrames ()
         if (leftFrameReady) {
             leftCamera->copyFrame(imageCombined);
 
+            QWriteLocker locker(&imagesLock);
+
             imageCombined(cv::Rect(0, 0, imageCombined.cols/2, imageCombined.rows)).copyTo(imageLeft);
             imageCombined(cv::Rect(imageCombined.cols/2, 0, imageCombined.cols/2, imageCombined.rows)).copyTo(imageRight);
 
+            locker.unlock();
+
             leftFrameReady = false;
 
-            emit imagesChanged(imageLeft.clone(), imageRight.clone());
+            emit imagesChanged();
         }
     } else {
         // Dual camera mode: we need to synchronize left and right frame
@@ -335,6 +339,8 @@ void Source::synchronizeFrames ()
         bool requireRight = (rightCamera && rightCamera->getCaptureState());
 
         if ((!requireLeft || leftFrameReady) && (!requireRight || rightFrameReady)) {
+            QWriteLocker locker(&imagesLock);
+
             if (requireLeft) {
                 leftCamera->copyFrame(imageLeft);
             } else {
@@ -345,10 +351,13 @@ void Source::synchronizeFrames ()
             } else {
                 imageRight = cv::Mat();
             }
+
+            locker.unlock();
+
             leftFrameReady = false;
             rightFrameReady = false;
 
-            emit imagesChanged(imageLeft.clone(), imageRight.clone());
+            emit imagesChanged();
         }
     }
 }

@@ -40,7 +40,7 @@ public:
     virtual ~Source ();
 
     virtual QString getShortName () const;
-    virtual void getImages (cv::Mat &left, cv::Mat &right);
+    virtual void getImages (cv::Mat &left, cv::Mat &right) const;
     virtual void stopSource ();
     virtual QWidget *createConfigWidget (QWidget * = nullptr);
 
@@ -78,7 +78,7 @@ signals:
     void rightCameraChanged ();
 
     // Signals from interface
-    void imagesChanged (cv::Mat imageL, cv::Mat imageR);
+    void imagesChanged ();
     void error (QString message);
 
 protected:
@@ -92,7 +92,7 @@ protected:
     bool leftFrameReady, rightFrameReady;
 
     // Images
-    QReadWriteLock imagesLock;
+    mutable QReadWriteLock imagesLock;
 
     cv::Mat imageLeft;
     cv::Mat imageRight;

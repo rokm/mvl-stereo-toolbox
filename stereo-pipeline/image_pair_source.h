@@ -34,7 +34,7 @@ class ImagePairSource
 public:
     virtual QString getShortName () const = 0;
 
-    virtual void getImages (cv::Mat &left, cv::Mat &right) = 0;
+    virtual void getImages (cv::Mat &left, cv::Mat &right) const = 0;
     virtual void stopSource () = 0;
 
     // Config widget
@@ -42,7 +42,7 @@ public:
 
     // These are actually signals, but they are not allowed in non-QObject classes
 public:
-    virtual void imagesChanged (cv::Mat imageL, cv::Mat imageR) = 0;
+    virtual void imagesChanged () = 0;
     virtual void error (QString message) = 0;
 };
 

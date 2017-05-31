@@ -57,10 +57,10 @@ QString Source::getShortName () const
     return "IMAGE";
 }
 
-void Source::getImages (cv::Mat &left, cv::Mat &right)
+void Source::getImages (cv::Mat &left, cv::Mat &right) const
 {
     // Copy images under lock
-    QReadLocker lock(&imagesLock);
+    QReadLocker locker(&imagesLock);
     imageLeft.copyTo(left);
     imageRight.copyTo(right);
 }
@@ -175,6 +175,8 @@ void Source::synchronizeFrames ()
     bool requireRight = !rightImageFile->getImageFilename().isEmpty();
 
     if (((!requireLeft || leftImageReady) && (!requireRight || rightImageReady))) {
+        QWriteLocker locker(&imagesLock);
+
         if (requireLeft) {
             leftImageFile->copyFrame(imageLeft);
         } else {
@@ -186,6 +188,8 @@ void Source::synchronizeFrames ()
             imageRight = cv::Mat();
         }
 
+        locker.unlock();
+
         // Reset only if both left and right image are valid (otherwise
         // setting left/right image individually will not work)
         if (requireLeft && requireRight) {
@@ -193,7 +197,7 @@ void Source::synchronizeFrames ()
             rightImageReady = false;
         }
 
-        emit imagesChanged(imageLeft.clone(), imageRight.clone());
+        emit imagesChanged();
     }
 }
 

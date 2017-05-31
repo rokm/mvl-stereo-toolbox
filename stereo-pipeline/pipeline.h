@@ -139,7 +139,7 @@ public:
     };
 
 signals:
-    void inputImagesChanged (const cv::Mat imgL, const cv::Mat imgR);
+    void inputImagesChanged ();
     void rectifiedImagesChanged (const cv::Mat imgL, const cv::Mat imgR);
     void disparityChanged (const cv::Mat disparity);
     void pointsChanged (const cv::Mat points);
