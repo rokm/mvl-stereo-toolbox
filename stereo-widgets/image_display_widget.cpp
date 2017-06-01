@@ -20,6 +20,8 @@
 #include "image_display_widget.h"
 #include "image_display_widget_p.h"
 
+#include <opencv2/imgproc.hpp>
+
 
 namespace MVL {
 namespace StereoToolbox {
@@ -27,7 +29,7 @@ namespace Widgets {
 
 
 ImageDisplayWidgetPrivate::ImageDisplayWidgetPrivate (ImageDisplayWidget *parent)
-    : q_ptr(parent), imageChanged(false)
+    : q_ptr(parent)
 {
 }
 
@@ -57,9 +59,12 @@ void ImageDisplayWidget::setImage (const cv::Mat &image)
     Q_D(ImageDisplayWidget);
 
     // Make a copy, and mark for the update
-    image.copyTo(d->image);
-    d->imageChanged = true;
-
+    if (image.channels() == 1) {
+        cv::cvtColor(image, d->image, cv::COLOR_GRAY2RGB);
+    } else {
+        cv::cvtColor(image, d->image, cv::COLOR_BGR2RGB);
+    }
+    
     // Refresh
     update();
 }
@@ -80,11 +85,6 @@ void ImageDisplayWidget::paintEvent (QPaintEvent *event)
 {
     Q_D(ImageDisplayWidget);
 
-    if (d->imageChanged) {
-        d->pixmap = d->image.empty() ? QPixmap() : QPixmap::fromImage(convertCvMatToQImage(d->image));
-        d->imageChanged = false;
-    }
-
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);
 
@@ -93,13 +93,13 @@ void ImageDisplayWidget::paintEvent (QPaintEvent *event)
     // Fill area
     painter.fillRect(area, QBrush(QColor(0, 0, 0, 32), Qt::DiagCrossPattern));
 
-    if (d->pixmap.isNull()) {
+    if (d->image.empty()) {
         // Display text
         painter.drawText(area, Qt::AlignCenter, d->text);
     } else {
         // Display image
-        int w = d->pixmap.width();
-        int h = d->pixmap.height();
+        int w = d->image.cols;
+        int h = d->image.rows;
 
         double scale = qMin((double)width() / w, (double)height() / h);
 
@@ -107,7 +107,8 @@ void ImageDisplayWidget::paintEvent (QPaintEvent *event)
         h *= scale;
 
         painter.translate((width() - w)/2, (height() - h)/2);
-        painter.drawPixmap(QRect(0, 0, w, h), d->pixmap);
+        
+        painter.drawImage(QRect(0, 0, w, h), QImage(d->image.data, d->image.cols, d->image.rows, d->image.step, QImage::Format_RGB888));
     }
 
     // Draw frame on top of it all

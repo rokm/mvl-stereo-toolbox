@@ -21,6 +21,9 @@
 #define MVL_STEREO_TOOLBOX__WIDGETS__IMAGE_DISPLAY_WIDGET_P_H
 
 
+#include <opencv2/core.hpp>
+
+
 namespace MVL {
 namespace StereoToolbox {
 namespace Widgets {
@@ -39,9 +42,6 @@ protected:
     QString text;
 
     cv::Mat image;
-    bool imageChanged;
-
-    QPixmap pixmap;
 };
 
 

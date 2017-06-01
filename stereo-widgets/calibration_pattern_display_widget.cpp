@@ -60,15 +60,6 @@ void CalibrationPatternDisplayWidget::paintEvent (QPaintEvent *event)
 {
     Q_D(CalibrationPatternDisplayWidget);
 
-    if (d->imageChanged) {
-        if (d->image.empty()) {
-            d->pixmap = QPixmap(); // Clear
-        } else {
-            d->pixmap = QPixmap::fromImage(convertCvMatToQImage(d->image));
-        }
-        d->imageChanged = false;
-    }
-
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);
 
@@ -77,13 +68,13 @@ void CalibrationPatternDisplayWidget::paintEvent (QPaintEvent *event)
     // Fill area
     painter.fillRect(area, QBrush(QColor(0, 0, 0, 32), Qt::DiagCrossPattern));
 
-    if (d->pixmap.isNull()) {
+    if (d->image.empty()) {
         // Display text
         painter.drawText(area, Qt::AlignCenter, d->text);
     } else {
         // Display image
-        int w = d->pixmap.width();
-        int h = d->pixmap.height();
+        int w = d->image.cols;
+        int h = d->image.rows;
 
         double scale = qMin((double)width() / w, (double)height() / h);
 
@@ -92,7 +83,7 @@ void CalibrationPatternDisplayWidget::paintEvent (QPaintEvent *event)
 
         painter.translate((width() - w)/2, (height() - h)/2);
 
-        painter.drawPixmap(QRect(0, 0, w, h), d->pixmap);
+        painter.drawImage(QRect(0, 0, w, h), QImage(d->image.data, d->image.cols, d->image.rows, d->image.step, QImage::Format_RGB888));
 
         // Display pattern
         painter.scale(scale, scale);

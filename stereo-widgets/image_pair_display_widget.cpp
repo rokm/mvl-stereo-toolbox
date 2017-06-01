@@ -20,6 +20,8 @@
 #include "image_pair_display_widget.h"
 #include "image_pair_display_widget_p.h"
 
+#include <opencv2/imgproc.hpp>
+
 
 namespace MVL {
 namespace StereoToolbox {
@@ -73,9 +75,21 @@ void ImagePairDisplayWidget::setImagePair (const cv::Mat &left, const cv::Mat &r
     d->displayPair = true;
 
     // Make a copy, and mark for the update
-    left.copyTo(d->imageLeft);
-    right.copyTo(d->imageRight);
-    d->imageChanged = true;
+    if (left.empty()) {
+        d->imageLeft = cv::Mat();
+    } else if (left.channels() == 1) {
+        cv::cvtColor(left, d->imageLeft, cv::COLOR_GRAY2RGB);
+    } else {
+        cv::cvtColor(left, d->imageLeft, cv::COLOR_BGR2RGB);
+    }
+    
+    if (right.empty()) {
+        d->imageRight = cv::Mat();
+    } else if (right.channels() == 1) {
+        cv::cvtColor(right, d->imageRight, cv::COLOR_GRAY2RGB);
+    } else {
+        cv::cvtColor(right, d->imageRight, cv::COLOR_BGR2RGB);
+    }
 
     // Refresh
     update();
@@ -89,12 +103,6 @@ void ImagePairDisplayWidget::paintEvent (QPaintEvent *event)
         return ImageDisplayWidget::paintEvent(event);
     }
 
-    if (d->imageChanged) {
-        d->pixmapLeft = d->imageLeft.empty() ? QPixmap() : QPixmap::fromImage(convertCvMatToQImage(d->imageLeft));
-        d->pixmapRight = d->imageRight.empty() ? QPixmap() : QPixmap::fromImage(convertCvMatToQImage(d->imageRight));
-        d->imageChanged = false;
-    }
-
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);
 
@@ -103,13 +111,13 @@ void ImagePairDisplayWidget::paintEvent (QPaintEvent *event)
     // Fill area
     painter.fillRect(area, QBrush(QColor(0, 0, 0, 32), Qt::DiagCrossPattern));
 
-    if (d->pixmapLeft.isNull() || d->pixmapRight.isNull()) {
+    if (d->imageLeft.empty() || d->imageRight.empty()) {
         // Display text
         painter.drawText(area, Qt::AlignCenter, d->text);
     } else {
         // Display image
-        int w = d->pixmapLeft.width() + d->pixmapLeft.width();
-        int h = qMax(d->pixmapLeft.height(), d->pixmapRight.height());
+        int w = d->imageLeft.cols + d->imageRight.cols;
+        int h = qMax(d->imageLeft.rows, d->imageRight.rows);
 
         int iw, ih;
 
@@ -123,12 +131,12 @@ void ImagePairDisplayWidget::paintEvent (QPaintEvent *event)
         painter.translate((width() - w)/2, (height() - h)/2);
 
         // Left image
-        iw = d->pixmapLeft.width() * scale;
-        ih = d->pixmapLeft.height() * scale;
+        iw = d->imageLeft.cols * scale;
+        ih = d->imageLeft.rows * scale;
 
-        painter.drawPixmap(QRect(0, (h - ih)/2, iw, ih), d->pixmapLeft);
+        painter.drawImage(QRect(0, (h - ih)/2, iw, ih), QImage(d->imageLeft.data, d->imageLeft.cols, d->imageLeft.rows, d->imageLeft.step, QImage::Format_RGB888));
 
-        if ((d->roiLeft.width && d->roiLeft.height) && (d->roiLeft.width != d->pixmapLeft.width() || d->roiLeft.height != d->pixmapLeft.height())) {
+        if ((d->roiLeft.width && d->roiLeft.height) && (d->roiLeft.width != d->imageLeft.cols || d->roiLeft.height != d->imageLeft.rows)) {
             painter.setPen(QPen(Qt::red, 2));
             painter.drawRect(d->roiLeft.x*scale, d->roiLeft.y*scale, d->roiLeft.width*scale, d->roiLeft.height*scale);
         }
@@ -137,12 +145,12 @@ void ImagePairDisplayWidget::paintEvent (QPaintEvent *event)
         painter.translate(iw, 0);
 
         // Right image
-        iw = d->pixmapRight.width() * scale;
-        ih = d->pixmapRight.height() * scale;
+        iw = d->imageRight.cols * scale;
+        ih = d->imageRight.rows * scale;
 
-        painter.drawPixmap(QRect(0, (h - ih)/2, iw, ih), d->pixmapRight);
+        painter.drawImage(QRect(0, (h - ih)/2, iw, ih), QImage(d->imageRight.data, d->imageRight.cols, d->imageRight.rows, d->imageRight.step, QImage::Format_RGB888));
 
-        if ((d->roiRight.width && d->roiRight.height) && (d->roiRight.width != d->pixmapRight.width() || d->roiRight.height != d->pixmapRight.height())) {
+        if ((d->roiRight.width && d->roiRight.height) && (d->roiRight.width != d->imageRight.cols || d->roiRight.height != d->imageRight.rows)) {
             painter.setPen(QPen(Qt::red, 2));
             painter.drawRect(d->roiRight.x*scale, d->roiRight.y*scale, d->roiRight.width*scale, d->roiRight.height*scale);
         }
@@ -151,7 +159,7 @@ void ImagePairDisplayWidget::paintEvent (QPaintEvent *event)
         painter.resetTransform();
         painter.translate((width() - w)/2, (height() - h)/2);
 
-        int maxHeight = qMax(d->pixmapLeft.height(), d->pixmapRight.height());
+        int maxHeight = qMax(d->imageLeft.rows, d->imageRight.rows);
         int numColors = 4, c = 0; // Pen color counter
         for (int i = 0; i < maxHeight; i += 16) {
             painter.setPen(QPen(QColor(0, 255*(c+1)/numColors, 0, 255), 1.5));
