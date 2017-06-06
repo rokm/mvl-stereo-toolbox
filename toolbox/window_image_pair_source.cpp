@@ -48,28 +48,48 @@ WindowImagePairSource::WindowImagePairSource (Pipeline::Pipeline *p, QList<QObje
     QHBoxLayout *buttonsLayout = new QHBoxLayout();
     buttonsLayout->setContentsMargins(0, 0, 0, 0);
     QPushButton *pushButton;
+    QLabel *label;
+    QDoubleSpinBox *spinBox;
 
     layout->addLayout(buttonsLayout);
 
-    buttonsLayout->addStretch();
+    buttonsLayout->addStretch(2);
 
     pushButton = new QPushButton("Save images", this);
     pushButton->setToolTip("Save image pair by asking for filename each time.");
     connect(pushButton, &QPushButton::clicked, this, &WindowImagePairSource::saveImages);
-    buttonsLayout->addWidget(pushButton);
+    buttonsLayout->addWidget(pushButton, 1);
 
     pushButton = new QPushButton("Snap images", this);
     pushButton->setToolTip("Save image pair by asking for filename only once and then appending counter number for each new snapshot.");
     pushButton->setShortcut(QKeySequence(Qt::Key_F5));
     connect(pushButton, &QPushButton::clicked, this, &WindowImagePairSource::snapshotImages);
-    buttonsLayout->addWidget(pushButton);
+    buttonsLayout->addWidget(pushButton, 1);
 
     pushButton = new QPushButton("Snapshot filename", this);
     pushButton->setToolTip("Set filename for image snapshot saving.");
     connect(pushButton, &QPushButton::clicked, this, &WindowImagePairSource::selectSnapshotFilename);
-    buttonsLayout->addWidget(pushButton);
+    buttonsLayout->addWidget(pushButton, 1);
 
-    buttonsLayout->addStretch();
+    buttonsLayout->addStretch(1);
+
+    QHBoxLayout *hbox = new QHBoxLayout();
+    label = new QLabel("Max FPS: ", this);
+    hbox->addWidget(label);
+
+    spinBox = new QDoubleSpinBox(this);
+    spinBox->setDecimals(2);
+    spinBox->setRange(0, 120);
+    spinBox->setValue(0);
+    spinBox->setToolTip("Enforce maximum framerate limit (0 = disabled)");
+    hbox->addWidget(spinBox);
+
+    connect(spinBox, static_cast<void(QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), pipeline, &Pipeline::Pipeline::setImageCaptureFramerateLimit);
+    connect(pipeline, &Pipeline::Pipeline::imageCaptureFramerateLimitChanged, spinBox, &QDoubleSpinBox::setValue);
+
+    buttonsLayout->addLayout(hbox, 1);
+
+    //buttonsLayout->addStretch();
 
     // Splitter - image pair and sources selection
     QSplitter *splitter = new QSplitter(Qt::Vertical, this);
@@ -103,7 +123,6 @@ WindowImagePairSource::WindowImagePairSource (Pipeline::Pipeline *p, QList<QObje
     statusBar = new QStatusBar(this);
     layout->addWidget(statusBar);
 
-
     // Create config tabs
     for (int i = 0; i < sources.size(); i++) {
         Pipeline::ImagePairSource *source = qobject_cast<Pipeline::ImagePairSource * >(sources[i]);
@@ -136,6 +155,8 @@ WindowImagePairSource::WindowImagePairSource (Pipeline::Pipeline *p, QList<QObje
         } else {
             rightInfo.valid = false;
         }
+
+        numDroppedFrames = 0; // Reset dropped frames counter
 
         // Update images
         displayImageLeft->setImage(imageLeft);

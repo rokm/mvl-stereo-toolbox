@@ -13,7 +13,8 @@ SourceElement::SourceElement (QObject *parent)
     : Element("ImagePairSource", parent),
       sourceObject(nullptr),
       sourceParent(nullptr),
-      sourceIface(nullptr)
+      sourceIface(nullptr),
+      framerateLimit(0.0)
 {
     // Update time and FPS statistics (local loop)
     connect(this, &SourceElement::imagesChanged, this, &SourceElement::incrementUpdateCount);
@@ -137,11 +138,40 @@ void SourceElement::getImages (cv::Mat &imageLeft, cv::Mat &imageRight) const
 
 void SourceElement::handleImagesChange ()
 {
+    // Enforce framerate limit, if set
+    if (framerateLimit != 0.0) {
+        if (timeLastUpdate.elapsed() < 1000/framerateLimit) {
+            // Drop frame by not updating the images
+            dropFrame();
+            return;
+        } else {
+            // We will update below; so reset the timer
+            timeLastUpdate.restart();
+            droppedCounter = 0; // Reset dropped-frame counter
+        }
+    }
+
+    // Update images
     QWriteLocker locker(&lock);
     sourceIface->getImages(imageL, imageR);
     locker.unlock();
 
     emit imagesChanged();
+}
+
+
+void SourceElement::setFramerateLimit (double limit)
+{
+    if (framerateLimit != limit) {
+        framerateLimit = limit;
+        timeLastUpdate.restart(); // Restart the limiter timer
+        emit framerateLimitChanged(framerateLimit);
+    }
+}
+
+double SourceElement::getFramerateLimit () const
+{
+    return framerateLimit;
 }
 
 

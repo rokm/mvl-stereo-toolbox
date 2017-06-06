@@ -72,6 +72,9 @@ public:
     int getImageCaptureDroppedFrames () const;
     float getImageCaptureFramerate () const;
 
+    void setImageCaptureFramerateLimit (double limit);
+    double getImageCaptureFramerateLimit () const;
+
     // Rectification
     Rectification *getRectification ();
 
@@ -148,6 +151,8 @@ signals:
     void disparityChanged ();
     void pointsChanged ();
     void visualizationChanged ();
+
+    void imageCaptureFramerateLimitChanged (double limit);
 
     void imageCaptureFrameDropped (int count);
     void rectificationFrameDropped (int count);

@@ -32,6 +32,9 @@ public:
 
     void getImages (cv::Mat &imageLeft, cv::Mat &imageRight) const;
 
+    void setFramerateLimit (double limit);
+    double getFramerateLimit () const;
+
 protected slots:
     void handleImagesChange (); // Must be slot due to old-syntax!
 
@@ -40,6 +43,8 @@ signals:
 
     void imagesChanged ();
 
+    void framerateLimitChanged (double limit);
+
 protected:
     // Image pair source object
     QObject *sourceObject;
@@ -47,6 +52,9 @@ protected:
     ImagePairSource *sourceIface;
 
     QList<QMetaObject::Connection> signalConnections;
+
+    QTime timeLastUpdate;
+    double framerateLimit;
 
     // Cached input images
     mutable QReadWriteLock lock;

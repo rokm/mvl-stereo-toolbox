@@ -98,14 +98,15 @@ PipelinePrivate::PipelinePrivate (Pipeline *parent)
     });
 
     // Setup processing chain
+    q->connect(source, &AsyncPipeline::SourceElement::framerateLimitChanged, q, &Pipeline::imageCaptureFramerateLimitChanged);
     q->connect(source, &AsyncPipeline::SourceElement::imagesChanged, q, &Pipeline::inputImagesChanged);
     q->connect(source, &AsyncPipeline::SourceElement::imagesChanged, rectification, [this] () {
         cv::Mat imageL, imageR;
         source->getImages(imageL, imageR);
         rectification->rectifyImages(imageL, imageR);
     });
-    q->connect(rectification, &AsyncPipeline::SourceElement::frameDropped, q, &Pipeline::imageCaptureFrameDropped);
-    q->connect(rectification, &AsyncPipeline::SourceElement::frameRateReport, q, &Pipeline::imageCaptureFramerateUpdated);
+    q->connect(source, &AsyncPipeline::SourceElement::frameDropped, q, &Pipeline::imageCaptureFrameDropped);
+    q->connect(source, &AsyncPipeline::SourceElement::frameRateReport, q, &Pipeline::imageCaptureFramerateUpdated);
 
     q->connect(rectification, &AsyncPipeline::RectificationElement::imagesChanged, q, &Pipeline::rectifiedImagesChanged);
     q->connect(rectification, &AsyncPipeline::RectificationElement::imagesChanged, stereoMethod, [this] () {
@@ -249,6 +250,20 @@ cv::Mat Pipeline::getRightImage () const
 {
     Q_D(const Pipeline);
     return d->source->getRightImage();
+}
+
+
+// Framerate limit
+void Pipeline::setImageCaptureFramerateLimit (double limit)
+{
+    Q_D(Pipeline);
+    return d->source->setFramerateLimit(limit);
+}
+
+double Pipeline::getImageCaptureFramerateLimit () const
+{
+    Q_D(const Pipeline);
+    return d->source->getFramerateLimit();
 }
 
 
