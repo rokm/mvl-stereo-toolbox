@@ -68,6 +68,10 @@ public:
     cv::Mat getRightImage () const;
     void getImages (cv::Mat &imageLeft, cv::Mat &imageRight) const;
 
+    int getImageCaptureTime () const;
+    int getImageCaptureDroppedFrames () const;
+    float getImageCaptureFramerate () const;
+
     // Rectification
     Rectification *getRectification ();
 
@@ -145,10 +149,17 @@ signals:
     void pointsChanged ();
     void visualizationChanged ();
 
+    void imageCaptureFrameDropped (int count);
     void rectificationFrameDropped (int count);
     void stereoMethodFrameDropped (int count);
     void visualizationFrameDropped (int count);
     void reprojectionFrameDropped (int count);
+
+    void imageCaptureFramerateUpdated (float fps);
+    void rectificationFramerateUpdated (float fps);
+    void stereoMethodFramerateUpdated (float fps);
+    void visualizationFramerateUpdated (float fps);
+    void reprojectionFramerateUpdated (float fps);
 
 signals:
     void error (int domain, const QString &message);

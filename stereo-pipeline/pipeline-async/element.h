@@ -36,6 +36,7 @@ signals:
     void stateChanged (bool active);
 
     void frameDropped (int number);
+    void frameRateReport (float fps);
 
 protected:
     bool state;

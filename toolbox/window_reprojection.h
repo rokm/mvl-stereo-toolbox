@@ -64,6 +64,7 @@ protected:
         int height;
     } pointsInfo;
     int numDroppedFrames;
+    float estimatedFps;
 
     // GUI
     QComboBox *comboBoxImage;

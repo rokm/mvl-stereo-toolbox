@@ -8,7 +8,8 @@ namespace AsyncPipeline {
 
 
 Element::Element (const QString &name, QObject *parent)
-    : QObject(parent), state(true), updateCounter(0), fps(0.0f)
+    : QObject(parent), state(true), updateCounter(0), fps(0.0f),
+      droppedCounter(0), lastOperationTime(0)
 {
     thread = new QThread(this);
     thread->setObjectName(name + "Thread");
@@ -40,6 +41,8 @@ void Element::setState (bool active)
         updateCounter = 0;
         fps = 0.0f;
         fpsTime.restart();
+
+        emit frameRateReport(fps);
 
         // Emit state change
         emit stateChanged(state);
@@ -81,6 +84,9 @@ void Element::estimateFps ()
         // Reset
         updateCounter = 0;
         fpsTime.restart();
+
+        // Emit report
+        emit frameRateReport(fps);
     } else {
         fps = 0.0f;
     }

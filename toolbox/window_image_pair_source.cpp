@@ -21,6 +21,7 @@
 
 #include <stereo-pipeline/pipeline.h>
 #include <stereo-pipeline/image_pair_source.h>
+#include <stereo-pipeline/utils.h>
 #include <stereo-widgets/image_display_widget.h>
 
 #include <opencv2/core.hpp>
@@ -33,7 +34,8 @@ namespace GUI {
 
 
 WindowImagePairSource::WindowImagePairSource (Pipeline::Pipeline *p, QList<QObject *> &s, QWidget *parent)
-    : QWidget(parent, Qt::Window), pipeline(p), sources(s)
+    : QWidget(parent, Qt::Window), pipeline(p), sources(s),
+      numDroppedFrames(0), estimatedFps(0.0f)
 {
     setWindowTitle("Image source");
     resize(800, 600);
@@ -117,6 +119,25 @@ WindowImagePairSource::WindowImagePairSource (Pipeline::Pipeline *p, QList<QObje
         cv::Mat imageLeft, imageRight;
         pipeline->getImages(imageLeft, imageRight);
 
+        // Store image info for status bar
+        if (!imageLeft.empty()) {
+            leftInfo.valid = true;
+            leftInfo.width = imageLeft.cols;
+            leftInfo.height = imageLeft.rows;
+            leftInfo.depth = imageLeft.depth();
+        } else {
+            leftInfo.valid = false;
+        }
+        if (!imageRight.empty()) {
+            rightInfo.valid = true;
+            rightInfo.width = imageRight.cols;
+            rightInfo.height = imageRight.rows;
+            rightInfo.depth = imageRight.depth();
+        } else {
+            rightInfo.valid = false;
+        }
+
+        // Update images
         displayImageLeft->setImage(imageLeft);
         displayImageRight->setImage(imageRight);
     });
@@ -126,6 +147,16 @@ WindowImagePairSource::WindowImagePairSource (Pipeline::Pipeline *p, QList<QObje
         if (errorType == Pipeline::Pipeline::ErrorImagePairSource) {
             QMessageBox::warning(this, "Image Pair Source Error", errorMessage);
         }
+    });
+
+    // Image pair source dropped frames counter
+    connect(pipeline, &Pipeline::Pipeline::imageCaptureFrameDropped, this, [this] (int count) {
+        numDroppedFrames = count;
+        updateStatusBar();
+    });
+    connect(pipeline, &Pipeline::Pipeline::imageCaptureFramerateUpdated, this, [this] (float fps) {
+        estimatedFps = fps;
+        updateStatusBar();
     });
 }
 
@@ -141,6 +172,20 @@ void WindowImagePairSource::setSource (int i)
     }
 
     pipeline->setImagePairSource(sources[i]);
+}
+
+
+void WindowImagePairSource::updateStatusBar ()
+{
+    statusBar->showMessage(QString("Image: %1x%2 %3, %4x%5 %6. FPS: %7, dropped %8 frames")
+            .arg(leftInfo.width)
+            .arg(leftInfo.height)
+            .arg(Utils::cvDepthToString(leftInfo.depth))
+            .arg(rightInfo.width)
+            .arg(rightInfo.height)
+            .arg(Utils::cvDepthToString(rightInfo.depth))
+            .arg(estimatedFps, 0, 'f' , 2)
+            .arg(numDroppedFrames));
 }
 
 

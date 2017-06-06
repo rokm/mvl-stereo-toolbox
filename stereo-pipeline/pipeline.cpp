@@ -104,6 +104,8 @@ PipelinePrivate::PipelinePrivate (Pipeline *parent)
         source->getImages(imageL, imageR);
         rectification->rectifyImages(imageL, imageR);
     });
+    q->connect(rectification, &AsyncPipeline::SourceElement::frameDropped, q, &Pipeline::imageCaptureFrameDropped);
+    q->connect(rectification, &AsyncPipeline::SourceElement::frameRateReport, q, &Pipeline::imageCaptureFramerateUpdated);
 
     q->connect(rectification, &AsyncPipeline::RectificationElement::imagesChanged, q, &Pipeline::rectifiedImagesChanged);
     q->connect(rectification, &AsyncPipeline::RectificationElement::imagesChanged, stereoMethod, [this] () {
@@ -112,6 +114,7 @@ PipelinePrivate::PipelinePrivate (Pipeline *parent)
         stereoMethod->computeDisparity(imageL, imageR);
     });
     q->connect(rectification, &AsyncPipeline::RectificationElement::frameDropped, q, &Pipeline::rectificationFrameDropped);
+    q->connect(rectification, &AsyncPipeline::RectificationElement::frameRateReport, q, &Pipeline::rectificationFramerateUpdated);
 
     q->connect(stereoMethod, &AsyncPipeline::MethodElement::disparityChanged, q, &Pipeline::disparityChanged);
     q->connect(stereoMethod, &AsyncPipeline::MethodElement::disparityChanged, reprojection, [this] () {
@@ -127,12 +130,15 @@ PipelinePrivate::PipelinePrivate (Pipeline *parent)
         visualization->visualizeDisparity(disparity, numLevels);
     });
     q->connect(stereoMethod, &AsyncPipeline::MethodElement::frameDropped, q, &Pipeline::stereoMethodFrameDropped);
+    q->connect(rectification, &AsyncPipeline::MethodElement::frameRateReport, q, &Pipeline::stereoMethodFramerateUpdated);
 
     q->connect(reprojection, &AsyncPipeline::ReprojectionElement::pointsChanged, q, &Pipeline::pointsChanged);
     q->connect(reprojection, &AsyncPipeline::ReprojectionElement::frameDropped, q, &Pipeline::reprojectionFrameDropped);
+    q->connect(rectification, &AsyncPipeline::ReprojectionElement::frameRateReport, q, &Pipeline::reprojectionFramerateUpdated);
 
     q->connect(visualization, &AsyncPipeline::VisualizationElement::imageChanged, q, &Pipeline::visualizationChanged);
     q->connect(visualization, &AsyncPipeline::VisualizationElement::frameDropped, q, &Pipeline::visualizationFrameDropped);
+    q->connect(visualization, &AsyncPipeline::ReprojectionElement::frameRateReport, q, &Pipeline::visualizationFramerateUpdated);
 
     // Force re-computation of rectification if rectification object
     // changes calibration or rectification setting

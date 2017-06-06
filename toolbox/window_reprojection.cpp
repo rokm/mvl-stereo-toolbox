@@ -34,7 +34,7 @@ namespace GUI {
 
 WindowReprojection::WindowReprojection (Pipeline::Pipeline *p, Pipeline::Reprojection *r, QWidget *parent)
     : QWidget(parent, Qt::Window), pipeline(p), reprojection(r),
-      pointsInfo({ false, 0, 0 }), numDroppedFrames(0)
+      pointsInfo({ false, 0, 0 }), numDroppedFrames(0), estimatedFps(0.0f)
 {
     setWindowTitle("Reprojection");
     resize(800, 600);
@@ -198,6 +198,10 @@ WindowReprojection::WindowReprojection (Pipeline::Pipeline *p, Pipeline::Reproje
         numDroppedFrames = count;
         updateStatusBar();
     });
+    connect(pipeline, &Pipeline::Pipeline::reprojectionFramerateUpdated, this, [this] (float fps) {
+        estimatedFps = fps;
+        updateStatusBar();
+    });
 }
 
 WindowReprojection::~WindowReprojection ()
@@ -211,7 +215,7 @@ void WindowReprojection::updateStatusBar ()
         statusBar->showMessage(QString("Points: %1x%2. FPS: %3, dropped %4 frames, operation time: %5 ms")
             .arg(pointsInfo.width)
             .arg(pointsInfo.height)
-            .arg(pipeline->getReprojectionFramerate(), 0, 'f' , 2)
+            .arg(estimatedFps, 0, 'f' , 2)
             .arg(numDroppedFrames)
             .arg(pipeline->getReprojectionTime())
         );

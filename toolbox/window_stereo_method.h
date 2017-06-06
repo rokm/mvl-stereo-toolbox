@@ -73,6 +73,7 @@ protected:
         int depth;
     } disparityInfo;
     int numDroppedFrames;
+    float estimatedFps;
 
     // GUI
     QPushButton *pushButtonExportParameters;

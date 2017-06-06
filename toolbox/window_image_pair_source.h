@@ -54,10 +54,21 @@ protected:
 
     void selectSnapshotFilename ();
 
+    void updateStatusBar ();
+
 protected:
     // Pipeline
     Pipeline::Pipeline *pipeline;
     QList<QObject *> sources;
+
+    struct {
+        bool valid;
+        int width;
+        int height;
+        int depth;
+    } leftInfo, rightInfo;
+    int numDroppedFrames;
+    float estimatedFps;
 
     QString snapshotBaseName;
 

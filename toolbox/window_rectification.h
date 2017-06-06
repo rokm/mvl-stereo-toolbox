@@ -70,6 +70,7 @@ protected:
     Pipeline::Rectification *rectification;
 
     int numDroppedFrames;
+    float estimatedFps;
 
     // GUI
     QPushButton *pushButtonWizard;

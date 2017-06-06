@@ -36,7 +36,7 @@ namespace GUI {
 
 WindowStereoMethod::WindowStereoMethod (Pipeline::Pipeline *p, QList<QObject *> &m, QWidget *parent)
     : QWidget(parent, Qt::Window), pipeline(p), methods(m), visualization(pipeline->getVisualization()),
-      disparityInfo({ false, 0, 0, 0 }), numDroppedFrames(0)
+      disparityInfo({ false, 0, 0, 0 }), numDroppedFrames(0), estimatedFps(0.0f)
 {
     setWindowTitle("Stereo method");
     resize(800, 600);
@@ -192,6 +192,10 @@ WindowStereoMethod::WindowStereoMethod (Pipeline::Pipeline *p, QList<QObject *> 
         numDroppedFrames = count;
         updateStatusBar();
     });
+    connect(pipeline, &Pipeline::Pipeline::stereoMethodFramerateUpdated, this, [this] (float fps) {
+        estimatedFps = fps;
+        updateStatusBar();
+    });
 }
 
 WindowStereoMethod::~WindowStereoMethod ()
@@ -216,7 +220,7 @@ void WindowStereoMethod::updateStatusBar ()
             .arg(disparityInfo.width)
             .arg(disparityInfo.height)
             .arg(Utils::cvDepthToString(disparityInfo.depth))
-            .arg(pipeline->getStereoMethodFramerate(), 0, 'f' , 2)
+            .arg(estimatedFps, 0, 'f' , 2)
             .arg(numDroppedFrames)
             .arg(pipeline->getStereoMethodTime())
         );
