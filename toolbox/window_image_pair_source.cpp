@@ -48,12 +48,10 @@ WindowImagePairSource::WindowImagePairSource (Pipeline::Pipeline *p, QList<QObje
     QHBoxLayout *buttonsLayout = new QHBoxLayout();
     buttonsLayout->setContentsMargins(0, 0, 0, 0);
     QPushButton *pushButton;
-    QLabel *label;
-    QDoubleSpinBox *spinBox;
 
     layout->addLayout(buttonsLayout);
 
-    buttonsLayout->addStretch(2);
+    buttonsLayout->addStretch();
 
     pushButton = new QPushButton("Save images", this);
     pushButton->setToolTip("Save image pair by asking for filename each time.");
@@ -71,25 +69,7 @@ WindowImagePairSource::WindowImagePairSource (Pipeline::Pipeline *p, QList<QObje
     connect(pushButton, &QPushButton::clicked, this, &WindowImagePairSource::selectSnapshotFilename);
     buttonsLayout->addWidget(pushButton, 1);
 
-    buttonsLayout->addStretch(1);
-
-    QHBoxLayout *hbox = new QHBoxLayout();
-    label = new QLabel("Max FPS: ", this);
-    hbox->addWidget(label);
-
-    spinBox = new QDoubleSpinBox(this);
-    spinBox->setDecimals(2);
-    spinBox->setRange(0, 120);
-    spinBox->setValue(0);
-    spinBox->setToolTip("Enforce maximum framerate limit (0 = disabled)");
-    hbox->addWidget(spinBox);
-
-    connect(spinBox, static_cast<void(QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), pipeline, &Pipeline::Pipeline::setImageCaptureFramerateLimit);
-    connect(pipeline, &Pipeline::Pipeline::imageCaptureFramerateLimitChanged, spinBox, &QDoubleSpinBox::setValue);
-
-    buttonsLayout->addLayout(hbox, 1);
-
-    //buttonsLayout->addStretch();
+    buttonsLayout->addStretch();
 
     // Splitter - image pair and sources selection
     QSplitter *splitter = new QSplitter(Qt::Vertical, this);
@@ -122,6 +102,37 @@ WindowImagePairSource::WindowImagePairSource (Pipeline::Pipeline *p, QList<QObje
     // Status bar
     statusBar = new QStatusBar(this);
     layout->addWidget(statusBar);
+
+    statusBar->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(statusBar, &QStatusBar::customContextMenuRequested, this, [this] () {
+        // Pop up a frame-limiter dialog
+        QDialog dialog(this);
+        dialog.setWindowTitle("Frame limiter");
+
+        QVBoxLayout layout(&dialog);
+        QHBoxLayout hbox;
+
+        QLabel label("Max FPS: ");
+        hbox.addWidget(&label);
+
+        QDoubleSpinBox spinBox;
+        spinBox.setDecimals(2);
+        spinBox.setRange(0, 120);
+        spinBox.setValue(pipeline->getImageCaptureFramerateLimit());
+        spinBox.setToolTip("Enforce maximum framerate limit (0 = disabled)");
+        hbox.addWidget(&spinBox);
+
+        layout.addLayout(&hbox);
+
+        QDialogButtonBox buttons(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+        connect(&buttons, &QDialogButtonBox::accepted, &dialog, &QDialog::accept);
+        connect(&buttons, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
+        layout.addWidget(&buttons);
+
+        if (dialog.exec() == QDialog::Accepted) {
+            pipeline->setImageCaptureFramerateLimit(spinBox.value());
+        }
+    });
 
     // Create config tabs
     for (int i = 0; i < sources.size(); i++) {
