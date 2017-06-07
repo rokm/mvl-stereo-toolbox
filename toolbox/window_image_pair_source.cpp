@@ -35,6 +35,8 @@ namespace GUI {
 
 WindowImagePairSource::WindowImagePairSource (Pipeline::Pipeline *p, QList<QObject *> &s, QWidget *parent)
     : QWidget(parent, Qt::Window), pipeline(p), sources(s),
+      leftInfo({ false, 0, 0, 0 }),
+      rightInfo({ false, 0, 0, 0 }),
       numDroppedFrames(0), estimatedFps(0.0f)
 {
     setWindowTitle("Image source");
