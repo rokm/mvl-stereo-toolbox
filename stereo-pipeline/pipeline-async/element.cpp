@@ -21,6 +21,11 @@ Element::Element (const QString &name, QObject *parent)
     fpsTimer->start();
 
     fpsTime.restart();
+
+    // Shut the element down on error
+    connect(this, &Element::error, this, [this] () {
+        setState(false);
+    });
 }
 
 Element::~Element ()

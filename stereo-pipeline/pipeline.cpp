@@ -75,27 +75,29 @@ PipelinePrivate::PipelinePrivate (Pipeline *parent)
         reprojection->getReprojection()->setReprojectionMatrix(rectification->getRectification()->getReprojectionMatrix());
     });
 
-    // Propagate errors; also, turn off the offending element
+    // Propagate errors
     q->connect(source, &AsyncPipeline::SourceElement::error, q, [this, q] (const QString message) {
-        source->setState(false);
         emit q->error(Pipeline::ErrorImagePairSource, message);
     });
-    q->connect(rectification, &AsyncPipeline::MethodElement::error, q, [this, q] (const QString message) {
-        rectification->setState(false);
+    q->connect(rectification, &AsyncPipeline::RectificationElement::error, q, [this, q] (const QString message) {
         emit q->error(Pipeline::ErrorRectification, message);
     });
     q->connect(stereoMethod, &AsyncPipeline::MethodElement::error, q, [this, q] (const QString message) {
-        stereoMethod->setState(false);
         emit q->error(Pipeline::ErrorStereoMethod, message);
     });
     q->connect(reprojection, &AsyncPipeline::ReprojectionElement::error, q, [this, q] (const QString message) {
-        reprojection->setState(false);
         emit q->error(Pipeline::ErrorReprojection, message);
     });
     q->connect(visualization, &AsyncPipeline::VisualizationElement::error, q, [this, q] (const QString message) {
-        visualization->setState(false);
         emit q->error(Pipeline::ErrorVisualization, message);
     });
+
+    // Propagate state changes
+    q->connect(source, &AsyncPipeline::SourceElement::stateChanged, q, &Pipeline::imagePairSourceStateChanged);
+    q->connect(rectification, &AsyncPipeline::RectificationElement::stateChanged, q, &Pipeline::rectificationStateChanged);
+    q->connect(stereoMethod, &AsyncPipeline::MethodElement::stateChanged, q, &Pipeline::stereoMethodStateChanged);
+    q->connect(reprojection, &AsyncPipeline::ReprojectionElement::stateChanged, q, &Pipeline::reprojectionStateChanged);
+    q->connect(visualization, &AsyncPipeline::VisualizationElement::stateChanged, q, &Pipeline::visualizationStateChanged);
 
     // Setup processing chain
     q->connect(source, &AsyncPipeline::SourceElement::framerateLimitChanged, q, &Pipeline::imageCaptureFramerateLimitChanged);

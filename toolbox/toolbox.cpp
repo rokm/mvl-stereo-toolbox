@@ -236,12 +236,14 @@ void Toolbox::showWindowOnTop (QWidget *window)
 // *********************************************************************
 void Toolbox::setActiveButtonState (QPushButton *button, bool active)
 {
+    button->blockSignals(true);
     button->setChecked(active);
     if (active) {
         button->setText("Active");
     } else {
         button->setText("Inactive");
     }
+    button->blockSignals(false);
 }
 
 
