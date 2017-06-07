@@ -211,7 +211,20 @@ void WindowImagePairSource::setSource (int i)
 
 void WindowImagePairSource::updateStatusBar ()
 {
-    statusBar->showMessage(QString("Image: %1x%2 %3, %4x%5 %6. FPS: %7, dropped %8 frames")
+    float fpsLimit = pipeline->getImageCaptureFramerateLimit();
+    if (fpsLimit != 0.0f) {
+        statusBar->showMessage(QString("Image: %1x%2 %3, %4x%5 %6. FPS: %7 (limit: %8), dropped %9 frames")
+            .arg(leftInfo.width)
+            .arg(leftInfo.height)
+            .arg(Utils::cvDepthToString(leftInfo.depth))
+            .arg(rightInfo.width)
+            .arg(rightInfo.height)
+            .arg(Utils::cvDepthToString(rightInfo.depth))
+            .arg(estimatedFps, 0, 'f' , 2)
+            .arg(fpsLimit, 0, 'f' , 2)
+            .arg(numDroppedFrames));
+    } else {
+        statusBar->showMessage(QString("Image: %1x%2 %3, %4x%5 %6. FPS: %7, dropped %8 frames")
             .arg(leftInfo.width)
             .arg(leftInfo.height)
             .arg(Utils::cvDepthToString(leftInfo.depth))
@@ -220,6 +233,8 @@ void WindowImagePairSource::updateStatusBar ()
             .arg(Utils::cvDepthToString(rightInfo.depth))
             .arg(estimatedFps, 0, 'f' , 2)
             .arg(numDroppedFrames));
+    }
+
 }
 
 
