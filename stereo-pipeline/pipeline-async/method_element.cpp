@@ -125,6 +125,12 @@ void MethodElement::setStereoMethod (QObject *newMethod)
     }, Qt::QueuedConnection);
     signalConnections.append(tmpConnection);
 
+
+    // Signal the change of method's parameters
+    // NOTE: we need to use the old syntax because signal is defined in interface!
+    tmpConnection = connect(methodObject, SIGNAL(parameterChanged()), this, SIGNAL(parameterChanged()), Qt::QueuedConnection);
+    signalConnections.append(tmpConnection);
+
     emit methodChanged();
 }
 

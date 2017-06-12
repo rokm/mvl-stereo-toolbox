@@ -129,6 +129,7 @@ PipelinePrivate::PipelinePrivate (Pipeline *parent)
     q->connect(rectification, &AsyncPipeline::RectificationElement::calibrationChanged, q, &Pipeline::rectifyImages);
     q->connect(rectification, &AsyncPipeline::RectificationElement::performRectificationChanged, q, &Pipeline::rectifyImages);
     q->connect(stereoMethod, &AsyncPipeline::MethodElement::methodChanged, q, &Pipeline::computeDisparity);
+    q->connect(stereoMethod, &AsyncPipeline::MethodElement::parameterChanged, q, &Pipeline::computeDisparity);
     q->connect(visualization, &AsyncPipeline::VisualizationElement::visualizationMethodChanged, q, &Pipeline::visualizeDisparity);
 }
 

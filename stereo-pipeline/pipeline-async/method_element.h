@@ -38,6 +38,7 @@ public:
 signals:
     void eject ();
     void methodChanged ();
+    void parameterChanged ();
 
     void disparityComputationRequest (const cv::Mat imageL, const cv::Mat imageR);
     void disparityChanged ();
