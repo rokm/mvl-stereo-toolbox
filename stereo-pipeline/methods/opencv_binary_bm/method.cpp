@@ -59,9 +59,19 @@ QWidget *Method::createConfigWidget (QWidget *parent)
 // *********************************************************************
 void Method::resetParameters ()
 {
-    // Reset by creating a new instance
     QMutexLocker locker(&mutex);
+
+    // Reset by creating a new instance
     bm = cv::stereo::StereoBinaryBM::create(64, 5);
+
+    // This method performs additional scaling of disparities, supposedly
+    // for better visualization. However, this
+    // a) makes it useless for measurement
+    // b) reduces the dynamic range, because at the moment, it
+    //    internally operates with 8-bit unsigned character type
+    // So, always make sure that scaling is disabled!
+    bm->setScalleFactor(1);
+
     locker.unlock();
 
     emit parameterChanged();
@@ -87,7 +97,8 @@ void Method::computeDisparity (const cv::Mat &img1, const cv::Mat &img2, cv::Mat
     }
 
     // Compute disparity image
-    tmpDisparity.create(img1.rows, img1.cols, CV_16SC1);
+    // NOTE: at the moment, this method works only with CV_8UC1
+    tmpDisparity.create(img1.rows, img1.cols, CV_8UC1);
 
     QMutexLocker locker(&mutex);
     bm->compute(tmpImg1, tmpImg2, tmpDisparity);
@@ -148,7 +159,6 @@ void Method::loadParameters (const QString &filename)
     bm->setTextureThreshold((int)storage["textureThreshold"]);
     bm->setUniquenessRatio((int)storage["uniquenessRatio"]);
     bm->setSmallerBlockSize((int)storage["blockSize"]);
-    bm->setScalleFactor((int)storage["scaleFactor"]);
     bm->setSpekleRemovalTechnique((int)storage["speckleRemovalTechnique"]);
     bm->setUsePrefilter((int)storage["usePreFilter"]);
     bm->setBinaryKernelType((int)storage["binaryKernelType"]);
@@ -186,7 +196,6 @@ void Method::saveParameters (const QString &filename) const
     storage << "textureThreshold" << bm->getTextureThreshold();
     storage << "uniquenessRatio" << bm->getUniquenessRatio();
     storage << "blockSize" << bm->getSmallerBlockSize();
-    storage << "scaleFactor" << bm->getScalleFactor();
     storage << "speckleRemovalTechnique" << bm->getSpekleRemovalTechnique();
     storage << "usePreFilter" << bm->getUsePrefilter();
     storage << "binaryKernelType" << bm->getBinaryKernelType();
@@ -359,18 +368,6 @@ void Method::setSmallerBlockSize (int value)
 
 }
 
-// Scale factor
-int Method::getScaleFactor () const
-{
-    return bm->getScalleFactor();
-}
-
-
-void Method::setScaleFactor (int value)
-{
-    setParameter(&cv::stereo::StereoBinaryBM::setScalleFactor, value);
-
-}
 
 // Speckle removal technique
 int Method::getSpeckleRemovalTechnique () const

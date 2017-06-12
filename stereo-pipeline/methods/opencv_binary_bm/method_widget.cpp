@@ -279,20 +279,6 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
     layout->addRow(line);
 
 
-    // Scale factor
-    tooltip = "";
-
-    label = new QLabel("Scale factor", this);
-    label->setToolTip(tooltip);
-
-    spinBox = new QSpinBox(this);
-    spinBox->setKeyboardTracking(false);
-    spinBox->setRange(0, 255);
-    connect(spinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), method, &Method::setScaleFactor);
-    spinBoxScaleFactor = spinBox;
-
-    layout->addRow(label, spinBox);
-
     // Smaller block size
     tooltip = "";
 
@@ -371,41 +357,6 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
 
     layout->addRow(label, spinBox);
 
-/*
-
-    int getSmallerBlockSize () const;
-    void setSmallerBlockSize (int value);
-
-    int getScaleFactor () const;
-    void setScaleFactor (int value);
-
-    int getSpeckleRemovalTechnique () const;
-    void setSpeckleRemovalTechnique (int value);
-
-    int getBinaryKernelType () const;
-    void setBinaryKernelType (int value);
-
-    int getAggregationWindowSize () const;
-    void setAggregationWindowSize (int value);*/
-
-
-    //
-
-    //
-        /*bm->setPreFilterType((int)storage["preFilterType"]);
-    bm->setPreFilterSize((int)storage["preFilterSize"]);
-    bm->setPreFilterCap((int)storage["preFilterCap"]);
-    bm->setTextureThreshold((int)storage["textureThreshold"]);
-    bm->setUniquenessRatio((int)storage["uniquenessRatio"]);
-    bm->setSmallerBlockSize((int)storage["blockSize"]);
-    bm->setScalleFactor((int)storage["scaleFactor"]);
-    bm->setSpekleRemovalTechnique((int)storage["speckleRemovalTechnique"]);
-    bm->setUsePrefilter((int)storage["usePrefilter"]);
-    bm->setBinaryKernelType((int)storage["binaryKernelType"]);
-    bm->setAgregationWindowSize((int)storage["aggregationWindowSize"]);*/
-
-
-
     // Update parameters
     updateParameters();
 }
@@ -478,11 +429,6 @@ void MethodWidget::updateParameters ()
     spinBoxUniquenessRatio->setValue(method->getUniquenessRatio());
     spinBoxUniquenessRatio->blockSignals(false);
 
-
-    // Scale factor
-    spinBoxScaleFactor->blockSignals(true);
-    spinBoxScaleFactor->setValue(method->getScaleFactor());
-    spinBoxScaleFactor->blockSignals(false);
 
     // Smaller block size
     spinBoxSmallerBlockSize->blockSignals(true);

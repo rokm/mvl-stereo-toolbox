@@ -60,7 +60,6 @@ protected:
     QSpinBox *spinBoxTextureThreshold;
     QSpinBox *spinBoxUniquenessRatio;
 
-    QSpinBox *spinBoxScaleFactor;
     QSpinBox *spinBoxSmallerBlockSize;
     QComboBox *comboBoxSpeckleRemovalTechnique;
     QComboBox *comboBoxBinaryKernelType;

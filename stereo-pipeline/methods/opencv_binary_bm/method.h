@@ -102,9 +102,6 @@ public:
     int getSmallerBlockSize () const;
     void setSmallerBlockSize (int value);
 
-    int getScaleFactor () const;
-    void setScaleFactor (int value);
-
     int getSpeckleRemovalTechnique () const;
     void setSpeckleRemovalTechnique (int value);
 
@@ -113,54 +110,6 @@ public:
 
     int getAggregationWindowSize () const;
     void setAggregationWindowSize (int value);
-
-
-
-#if 0
-    // Parameters
-    enum {
-        OpenCV,
-        StereoMatch,
-    } PresetType;
-
-    void usePreset (int type);
-
-    void setPreFilterType (int);
-    int getPreFilterType () const;
-
-    void setPreFilterSize (int);
-    int getPreFilterSize () const;
-
-    void setPreFilterCap (int);
-    int getPreFilterCap () const;
-
-
-    void setSADWindowSize (int);
-    int getSADWindowSize () const;
-
-    void setMinDisparity (int);
-    int getMinDisparity () const;
-
-    void setNumDisparities (int);
-    int getNumDisparities () const;
-
-
-    void setTextureThreshold (int);
-    int getTextureThreshold () const;
-
-    void setUniquenessRatio (int);
-    int getUniquenessRatio () const;
-
-    void setSpeckleWindowSize (int);
-    int getSpeckleWindowSize () const;
-
-    void setSpeckleRange (int);
-    int getSpeckleRange () const;
-
-
-    void setDisp12MaxDiff (int);
-    int getDisp12MaxDiff () const;
-#endif
 
 
 signals:
