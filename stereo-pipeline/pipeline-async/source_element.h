@@ -40,6 +40,7 @@ protected slots:
 
 signals:
     void eject ();
+    void sourceChanged ();
 
     void imagesChanged ();
 

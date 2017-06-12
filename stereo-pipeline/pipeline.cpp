@@ -143,6 +143,13 @@ PipelinePrivate::PipelinePrivate (Pipeline *parent)
     q->connect(visualization, &AsyncPipeline::VisualizationElement::frameDropped, q, &Pipeline::visualizationFrameDropped);
     q->connect(visualization, &AsyncPipeline::ReprojectionElement::frameRateReport, q, &Pipeline::visualizationFramerateUpdated);
 
+    // Re-compute disparity if stereo method changes
+    q->connect(stereoMethod, &AsyncPipeline::MethodElement::methodChanged, stereoMethod, [this] () {
+        cv::Mat imageL, imageR;
+        rectification->getImages(imageL, imageR);
+        stereoMethod->computeDisparity(imageL, imageR);
+    });
+
     // Force re-computation of rectification if rectification object
     // changes calibration or rectification setting
     auto recomputeRectification = [this, q] () {

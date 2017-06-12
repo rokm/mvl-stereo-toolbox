@@ -115,6 +115,7 @@ void SourceElement::setImagePairSource (QObject *newSource)
     sourceIface->getImages(imageL, imageR);
     locker.unlock();
 
+    emit sourceChanged();
     emit imagesChanged();
 }
 

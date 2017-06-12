@@ -124,6 +124,8 @@ void MethodElement::setStereoMethod (QObject *newMethod)
         emit disparityChanged();
     }, Qt::QueuedConnection);
     signalConnections.append(tmpConnection);
+
+    emit methodChanged();
 }
 
 QObject *MethodElement::getStereoMethod ()
