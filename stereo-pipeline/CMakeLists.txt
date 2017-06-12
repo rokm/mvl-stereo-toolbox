@@ -145,3 +145,8 @@ if(OPENCV_CUDASTEREO_FOUND)
     add_subdirectory(methods/opencv_cuda_bp)
     add_subdirectory(methods/opencv_cuda_csbp)
 endif()
+
+# OpenCV binary-descriptor-based stereo methods: build if corresponding module is available
+if(OPENCV_STEREO_FOUND)
+    add_subdirectory(methods/opencv_binary_bm)
+endif()
