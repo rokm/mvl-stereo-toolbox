@@ -102,36 +102,18 @@ PipelinePrivate::PipelinePrivate (Pipeline *parent)
     // Setup processing chain
     q->connect(source, &AsyncPipeline::SourceElement::framerateLimitChanged, q, &Pipeline::imageCaptureFramerateLimitChanged);
     q->connect(source, &AsyncPipeline::SourceElement::imagesChanged, q, &Pipeline::inputImagesChanged);
-    q->connect(source, &AsyncPipeline::SourceElement::imagesChanged, rectification, [this] () {
-        cv::Mat imageL, imageR;
-        source->getImages(imageL, imageR);
-        rectification->rectifyImages(imageL, imageR);
-    });
+    q->connect(source, &AsyncPipeline::SourceElement::imagesChanged, q, &Pipeline::rectifyImages);
     q->connect(source, &AsyncPipeline::SourceElement::frameDropped, q, &Pipeline::imageCaptureFrameDropped);
     q->connect(source, &AsyncPipeline::SourceElement::frameRateReport, q, &Pipeline::imageCaptureFramerateUpdated);
 
     q->connect(rectification, &AsyncPipeline::RectificationElement::imagesChanged, q, &Pipeline::rectifiedImagesChanged);
-    q->connect(rectification, &AsyncPipeline::RectificationElement::imagesChanged, stereoMethod, [this] () {
-        cv::Mat imageL, imageR;
-        rectification->getImages(imageL, imageR);
-        stereoMethod->computeDisparity(imageL, imageR);
-    });
+    q->connect(rectification, &AsyncPipeline::RectificationElement::imagesChanged, q, &Pipeline::computeDisparity);
     q->connect(rectification, &AsyncPipeline::RectificationElement::frameDropped, q, &Pipeline::rectificationFrameDropped);
     q->connect(rectification, &AsyncPipeline::RectificationElement::frameRateReport, q, &Pipeline::rectificationFramerateUpdated);
 
     q->connect(stereoMethod, &AsyncPipeline::MethodElement::disparityChanged, q, &Pipeline::disparityChanged);
-    q->connect(stereoMethod, &AsyncPipeline::MethodElement::disparityChanged, reprojection, [this] () {
-        cv::Mat disparity;
-        int numLevels;
-        stereoMethod->getDisparity(disparity, numLevels);
-        reprojection->reprojectDisparity(disparity, numLevels);
-    });
-    q->connect(stereoMethod, &AsyncPipeline::MethodElement::disparityChanged, visualization, [this] () {
-        cv::Mat disparity;
-        int numLevels;
-        stereoMethod->getDisparity(disparity, numLevels);
-        visualization->visualizeDisparity(disparity, numLevels);
-    });
+    q->connect(stereoMethod, &AsyncPipeline::MethodElement::disparityChanged, q, &Pipeline::reprojectPoints);
+    q->connect(stereoMethod, &AsyncPipeline::MethodElement::disparityChanged, q, &Pipeline::visualizeDisparity);
     q->connect(stereoMethod, &AsyncPipeline::MethodElement::frameDropped, q, &Pipeline::stereoMethodFrameDropped);
     q->connect(rectification, &AsyncPipeline::MethodElement::frameRateReport, q, &Pipeline::stereoMethodFramerateUpdated);
 
@@ -143,23 +125,11 @@ PipelinePrivate::PipelinePrivate (Pipeline *parent)
     q->connect(visualization, &AsyncPipeline::VisualizationElement::frameDropped, q, &Pipeline::visualizationFrameDropped);
     q->connect(visualization, &AsyncPipeline::ReprojectionElement::frameRateReport, q, &Pipeline::visualizationFramerateUpdated);
 
-    // Re-compute disparity if stereo method changes
-    q->connect(stereoMethod, &AsyncPipeline::MethodElement::methodChanged, stereoMethod, [this] () {
-        cv::Mat imageL, imageR;
-        rectification->getImages(imageL, imageR);
-        stereoMethod->computeDisparity(imageL, imageR);
-    });
-
-    // Force re-computation of rectification if rectification object
-    // changes calibration or rectification setting
-    auto recomputeRectification = [this, q] () {
-        cv::Mat imageL, imageR;
-        q->getImages(imageL, imageR);
-        rectification->rectifyImages(imageL, imageR);
-    };
-
-    q->connect(rectification, &AsyncPipeline::RectificationElement::calibrationChanged, q, recomputeRectification);
-    q->connect(rectification, &AsyncPipeline::RectificationElement::performRectificationChanged, q, recomputeRectification);
+    // Re-computation of individual steps upon relevant changes in components
+    q->connect(rectification, &AsyncPipeline::RectificationElement::calibrationChanged, q, &Pipeline::rectifyImages);
+    q->connect(rectification, &AsyncPipeline::RectificationElement::performRectificationChanged, q, &Pipeline::rectifyImages);
+    q->connect(stereoMethod, &AsyncPipeline::MethodElement::methodChanged, q, &Pipeline::computeDisparity);
+    q->connect(visualization, &AsyncPipeline::VisualizationElement::visualizationMethodChanged, q, &Pipeline::visualizeDisparity);
 }
 
 
@@ -170,6 +140,48 @@ Pipeline::Pipeline (QObject *parent)
 
 Pipeline::~Pipeline ()
 {
+}
+
+
+// *********************************************************************
+// *                         Processing steps                          *
+// *********************************************************************
+void Pipeline::rectifyImages ()
+{
+    Q_D(Pipeline);
+
+    cv::Mat imageL, imageR;
+    d->source->getImages(imageL, imageR);
+    d->rectification->rectifyImages(imageL, imageR);
+}
+
+void Pipeline::computeDisparity ()
+{
+    Q_D(Pipeline);
+
+    cv::Mat imageL, imageR;
+    d->rectification->getImages(imageL, imageR);
+    d->stereoMethod->computeDisparity(imageL, imageR);
+}
+
+void Pipeline::reprojectPoints ()
+{
+    Q_D(Pipeline);
+
+    cv::Mat disparity;
+    int numLevels;
+    d->stereoMethod->getDisparity(disparity, numLevels);
+    d->reprojection->reprojectDisparity(disparity, numLevels);
+}
+
+void Pipeline::visualizeDisparity ()
+{
+    Q_D(Pipeline);
+
+    cv::Mat disparity;
+    int numLevels;
+    d->stereoMethod->getDisparity(disparity, numLevels);
+    d->visualization->visualizeDisparity(disparity, numLevels);
 }
 
 

@@ -13,6 +13,9 @@ VisualizationElement::VisualizationElement (QObject *parent)
     : Element("Visualization", parent),
       visualization(new DisparityVisualization())
 {
+    // Propagate the method change signal
+    connect(visualization, &DisparityVisualization::visualizationMethodChanged, this, &VisualizationElement::visualizationMethodChanged);
+
     // Update time and FPS statistics (local loop)
     connect(this, &VisualizationElement::imageChanged, this, &VisualizationElement::incrementUpdateCount);
 
@@ -68,7 +71,6 @@ VisualizationElement::VisualizationElement (QObject *parent)
         // Signal change
         emit imageChanged();
     }, Qt::QueuedConnection);
-
 }
 
 VisualizationElement::~VisualizationElement ()

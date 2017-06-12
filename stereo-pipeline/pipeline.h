@@ -145,6 +145,13 @@ public:
         ErrorReprojection,
     };
 
+protected:
+    // Processing steps
+    void rectifyImages ();
+    void computeDisparity ();
+    void reprojectPoints ();
+    void visualizeDisparity ();
+
 signals:
     void inputImagesChanged ();
     void rectifiedImagesChanged ();
