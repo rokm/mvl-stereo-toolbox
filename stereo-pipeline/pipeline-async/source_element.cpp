@@ -109,6 +109,13 @@ void SourceElement::setImagePairSource (QObject *newSource)
     signalConnections.append(tmpConnection);
 
     qInfo() << "Moving source to thread:" << thread;
+
+    // Update images from the new source
+    QWriteLocker locker(&lock);
+    sourceIface->getImages(imageL, imageR);
+    locker.unlock();
+
+    emit imagesChanged();
 }
 
 QObject *SourceElement::getImagePairSource ()
