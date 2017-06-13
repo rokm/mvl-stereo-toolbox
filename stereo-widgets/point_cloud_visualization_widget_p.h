@@ -21,6 +21,10 @@
 #define MVL_STEREO_TOOLBOX__WIDGETS__POINT_CLOUD_VISUALIZATION_WIDGET_P_H
 
 
+// QOpenGLWidget is available from Qt 5.4 on...
+#if QT_VERSION >= QT_VERSION_CHECK(5, 4, 0)
+
+
 namespace MVL {
 namespace StereoToolbox {
 namespace Widgets {
@@ -154,6 +158,9 @@ protected:
 } // Widgets
 } // StereoToolbox
 } // MVL
+
+
+#endif // QT_VERSION >= QT_VERSION_CHECK(5, 4, 0)
 
 
 #endif

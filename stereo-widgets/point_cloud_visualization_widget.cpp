@@ -21,6 +21,10 @@
 #include "point_cloud_visualization_widget_p.h"
 
 
+// QOpenGLWidget is available from Qt 5.4 on...
+#if QT_VERSION >= QT_VERSION_CHECK(5, 4, 0)
+
+
 #ifndef GL_MULTISAMPLE
 #define GL_MULTISAMPLE  0x809D
 #endif
@@ -957,3 +961,6 @@ void ShaderProgramVolumetricLine::setColor (const QColor &color)
 } // Widgets
 } // StereoToolbox
 } // MVL
+
+
+#endif // QT_VERSION >= QT_VERSION_CHECK(5, 4, 0)
