@@ -979,7 +979,11 @@ void CalibrationWizardPageDetection::processImage ()
 
     // Auto process
     if (autoProcess) {
+#if QT_VERSION >= QT_VERSION_CHECK(5, 4, 0)
         QTimer::singleShot(500, this, &CalibrationWizardPageDetection::doAutomaticProcessing);
+#else
+        QTimer::singleShot(500, this, SLOT(doAutomaticProcessing()));
+#endif
     }
 }
 
