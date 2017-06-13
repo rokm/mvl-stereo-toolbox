@@ -89,15 +89,6 @@ public:
     void setImage (const cv::Mat &image);
     void setPoints (const cv::Mat &points);
     void setPointCloud (const cv::Mat &image, const cv::Mat &points);
-
-protected:
-    virtual void mousePressEvent (QMouseEvent *event);
-    virtual void mouseReleaseEvent (QMouseEvent *event);
-    virtual void mouseMoveEvent (QMouseEvent *event);
-
-    virtual void keyPressEvent (QKeyEvent *event);
-
-    virtual void wheelEvent (QWheelEvent *event);
 };
 
 
