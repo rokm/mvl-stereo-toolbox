@@ -21,14 +21,13 @@
 #define MVL_STEREO_TOOLBOX__WIDGETS__POINT_CLOUD_VISUALIZATION_WIDGET_P_H
 
 
-// QOpenGLWidget is available from Qt 5.4 on...
-#if QT_VERSION >= QT_VERSION_CHECK(5, 4, 0)
-
-
 namespace MVL {
 namespace StereoToolbox {
 namespace Widgets {
 
+
+// QOpenGLWidget is available from Qt 5.4 on...
+#if QT_VERSION >= QT_VERSION_CHECK(5, 4, 0)
 
 class ShaderProgramBasicElement : public QOpenGLShaderProgram
 {
@@ -154,13 +153,27 @@ protected:
     int numCircleVertices;
 };
 
+#else
+
+class PointCloudVisualizationWidgetPrivate : public QObject
+{
+    Q_OBJECT
+    Q_DISABLE_COPY(PointCloudVisualizationWidgetPrivate)
+    Q_DECLARE_PUBLIC(PointCloudVisualizationWidget)
+
+protected:
+    PointCloudVisualizationWidgetPrivate (PointCloudVisualizationWidget *parent);
+    PointCloudVisualizationWidget * const q_ptr;
+};
+
+
+#endif // QT_VERSION >= QT_VERSION_CHECK(5, 4, 0)
+
+
 
 } // Widgets
 } // StereoToolbox
 } // MVL
-
-
-#endif // QT_VERSION >= QT_VERSION_CHECK(5, 4, 0)
 
 
 #endif

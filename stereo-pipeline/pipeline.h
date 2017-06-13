@@ -183,8 +183,6 @@ signals:
     void stereoMethodStateChanged (bool active);
     void visualizationStateChanged (bool active);
     void reprojectionStateChanged (bool active);
-
-    friend PipelinePrivate;
 };
 
 

@@ -21,10 +21,6 @@
 #include "point_cloud_visualization_widget_p.h"
 
 
-// QOpenGLWidget is available from Qt 5.4 on...
-#if QT_VERSION >= QT_VERSION_CHECK(5, 4, 0)
-
-
 #ifndef GL_MULTISAMPLE
 #define GL_MULTISAMPLE  0x809D
 #endif
@@ -37,6 +33,10 @@
 namespace MVL {
 namespace StereoToolbox {
 namespace Widgets {
+
+
+// QOpenGLWidget is available from Qt 5.4 on...
+#if QT_VERSION >= QT_VERSION_CHECK(5, 4, 0)
 
 
 PointCloudVisualizationWidgetPrivate::PointCloudVisualizationWidgetPrivate (PointCloudVisualizationWidget *parent)
@@ -958,9 +958,65 @@ void ShaderProgramVolumetricLine::setColor (const QColor &color)
 }
 
 
-} // Widgets
-} // StereoToolbox
-} // MVL
+#else
+
+
+// *********************************************************************
+// *                       Fallback for Qt < 5.4                       *
+// *********************************************************************
+// The QOpenGLWidget that we use for point-cloud visualization was
+// introduced in Qt 5.4. For earlier versions, we provide a no-op
+// version of the widget, which is essentially a QLabel informing
+// the user that "Widget is not available!".
+
+PointCloudVisualizationWidgetPrivate::PointCloudVisualizationWidgetPrivate (PointCloudVisualizationWidget *parent)
+    : q_ptr(parent)
+{
+}
+
+
+PointCloudVisualizationWidget::PointCloudVisualizationWidget (QWidget *parent)
+    : PointCloudVisualizationWidget(new PointCloudVisualizationWidgetPrivate(this), parent)
+{
+    // Hooray for C++11 constructor delegation
+}
+
+PointCloudVisualizationWidget::PointCloudVisualizationWidget (PointCloudVisualizationWidgetPrivate *d, QWidget *parent)
+    : QLabel(parent), d_ptr(d)
+{
+    setText("Widget not available!");
+}
+
+PointCloudVisualizationWidget::~PointCloudVisualizationWidget ()
+{
+}
+
+
+
+void PointCloudVisualizationWidget::setImage (const cv::Mat &image)
+{
+    // No-op
+    Q_UNUSED(image);
+}
+
+void PointCloudVisualizationWidget::setPoints (const cv::Mat &points)
+{
+    // No-op
+    Q_UNUSED(points);
+}
+
+
+void PointCloudVisualizationWidget::setPointCloud (const cv::Mat &image, const cv::Mat &points)
+{
+    // No-op
+    Q_UNUSED(image);
+    Q_UNUSED(points);
+}
 
 
 #endif // QT_VERSION >= QT_VERSION_CHECK(5, 4, 0)
+
+
+} // Widgets
+} // StereoToolbox
+} // MVL
