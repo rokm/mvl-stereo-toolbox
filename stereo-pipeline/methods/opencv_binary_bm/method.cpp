@@ -45,7 +45,7 @@ Method::~Method ()
 // *********************************************************************
 QString Method::getShortName () const
 {
-    return "Binary BM";
+    return "Binary_BM";
 }
 
 QWidget *Method::createConfigWidget (QWidget *parent)
@@ -158,7 +158,7 @@ void Method::loadParameters (const QString &filename)
     bm->setPreFilterCap((int)storage["preFilterCap"]);
     bm->setTextureThreshold((int)storage["textureThreshold"]);
     bm->setUniquenessRatio((int)storage["uniquenessRatio"]);
-    bm->setSmallerBlockSize((int)storage["blockSize"]);
+    bm->setSmallerBlockSize((int)storage["smallerBlockSize"]);
     bm->setSpekleRemovalTechnique((int)storage["speckleRemovalTechnique"]);
     bm->setUsePrefilter((int)storage["usePreFilter"]);
     bm->setBinaryKernelType((int)storage["binaryKernelType"]);
@@ -195,7 +195,7 @@ void Method::saveParameters (const QString &filename) const
     storage << "preFilterCap" << bm->getPreFilterCap();
     storage << "textureThreshold" << bm->getTextureThreshold();
     storage << "uniquenessRatio" << bm->getUniquenessRatio();
-    storage << "blockSize" << bm->getSmallerBlockSize();
+    storage << "smallerBlockSize" << bm->getSmallerBlockSize();
     storage << "speckleRemovalTechnique" << bm->getSpekleRemovalTechnique();
     storage << "usePreFilter" << bm->getUsePrefilter();
     storage << "binaryKernelType" << bm->getBinaryKernelType();

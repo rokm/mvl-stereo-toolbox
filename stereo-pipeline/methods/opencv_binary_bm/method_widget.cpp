@@ -135,7 +135,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
 
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
-    spinBox->setRange(0, 200);
+    spinBox->setRange(0, 1000);
     connect(spinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), method, &Method::setSpeckleWindowSize);
     spinBoxSpeckleWindowSize = spinBox;
 
@@ -149,7 +149,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
 
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
-    spinBox->setRange(0, 100);
+    spinBox->setRange(0, 1000);
     connect(spinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), method, &Method::setSpeckleRange);
     spinBoxSpeckleRange = spinBox;
 
