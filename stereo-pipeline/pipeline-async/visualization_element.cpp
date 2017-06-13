@@ -26,7 +26,7 @@ VisualizationElement::VisualizationElement (QObject *parent)
     // the visualization object to the main thread, and schedules it
     // for deletion. Must be connected with blocking queued connection!
     connect(this, &VisualizationElement::eject, visualization, [this] () {
-        qInfo() << "Ejecting" << visualization << "from element in thread" << QThread::currentThread();
+        //qInfo() << "Ejecting" << visualization << "from element in thread" << QThread::currentThread();
 
         // Push to main thread
         visualization->moveToThread(QCoreApplication::instance()->thread());

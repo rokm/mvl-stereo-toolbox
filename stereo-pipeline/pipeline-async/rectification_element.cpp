@@ -23,7 +23,7 @@ RectificationElement::RectificationElement (QObject *parent)
     // the rectification object to the main thread, and schedules it
     // for deletion. Must be connected with blocking queued connection!
     connect(this, &RectificationElement::eject, rectification, [this] () {
-        qInfo() << "Ejecting" << rectification << "from element in thread" << QThread::currentThread();
+        //qInfo() << "Ejecting" << rectification << "from element in thread" << QThread::currentThread();
 
         // Push to main thread
         rectification->moveToThread(QCoreApplication::instance()->thread());

@@ -69,7 +69,7 @@ void SourceElement::setImagePairSource (QObject *newSource)
     // queued connection, so we can push the object from the worker
     // thread back to the main one...
     tmpConnection = connect(this, &SourceElement::eject, sourceObject, [this] () {
-        qInfo() << "Ejecting" << sourceObject << "from element; worker thread" << QThread::currentThread();
+        //qInfo() << "Ejecting" << sourceObject << "from element; worker thread" << QThread::currentThread();
 
         // Stop the capture
         sourceIface->stopSource();

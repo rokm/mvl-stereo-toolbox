@@ -54,7 +54,7 @@ void MethodElement::setStereoMethod (QObject *newMethod)
     // queued connection, so we can push the object from the worker
     // thread back to the main one...
     tmpConnection = connect(this, &MethodElement::eject, methodObject, [this] () {
-        qInfo() << "Ejecting" << methodObject << "from element; worker thread" << QThread::currentThread();
+        //qInfo() << "Ejecting" << methodObject << "from element; worker thread" << QThread::currentThread();
 
         // Push back to main thread
         methodObject->moveToThread(QCoreApplication::instance()->thread());

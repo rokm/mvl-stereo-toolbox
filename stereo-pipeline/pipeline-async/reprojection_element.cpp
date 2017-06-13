@@ -23,7 +23,7 @@ ReprojectionElement::ReprojectionElement (QObject *parent)
     // the reprojection object to the main thread, and schedules it
     // for deletion. Must be connected with blocking queued connection!
     connect(this, &ReprojectionElement::eject, reprojection, [this] () {
-        qInfo() << "Ejecting" << reprojection << "from element in thread" << QThread::currentThread();
+        //qInfo() << "Ejecting" << reprojection << "from element in thread" << QThread::currentThread();
 
         // Push to main thread
         reprojection->moveToThread(QCoreApplication::instance()->thread());
