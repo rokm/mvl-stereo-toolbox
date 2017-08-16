@@ -2187,6 +2187,7 @@ void CalibrationWizardPageResult::exportCalibration ()
         // Store
         cv::FileStorage storage(fileName.toStdString(), cv::FileStorage::WRITE);
         if (storage.isOpened()) {
+            storage << "DataType" << "CameraCalibration";
             storage << "imageSize" << imageSize;
             storage << "cameraMatrix" << cameraMatrix;
             storage << "distCoeffs" << distCoeffs;
