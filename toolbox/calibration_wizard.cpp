@@ -47,8 +47,6 @@ CalibrationWizard::CalibrationWizard (QWidget *parent)
 
     setOption(QWizard::NoBackButtonOnStartPage, true);
 
-    setPixmap(QWizard::LogoPixmap, QPixmap(":/images/calibration.png"));
-
     // Register metatypes for OpenCV types that are passed between pages
     qRegisterMetaType< std::vector<std::vector<cv::Point2f> > >();
     qRegisterMetaType< std::vector<std::vector<cv::Point3f> > >();
