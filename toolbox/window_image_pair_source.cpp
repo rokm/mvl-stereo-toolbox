@@ -249,7 +249,7 @@ void WindowImagePairSource::saveImages ()
     pipeline->getImages(imageLeft, imageRight);
 
     // Make sure images are actually available
-    if (imageLeft.empty() || imageRight.empty()) {
+    if (imageLeft.empty() && imageRight.empty()) {
         QMessageBox::information(this, "No data", "No data to export!");
         return;
     }
@@ -275,8 +275,12 @@ void WindowImagePairSource::saveImages ()
     QString fileNameRight = QString("%1R.%2").arg(base).arg(ext);
 
     try {
-        cv::imwrite(dir.absoluteFilePath(fileNameLeft).toStdString(), imageLeft);
-        cv::imwrite(dir.absoluteFilePath(fileNameRight).toStdString(), imageRight);
+        if (!imageLeft.empty()) {
+            cv::imwrite(dir.absoluteFilePath(fileNameLeft).toStdString(), imageLeft);
+        }
+        if (!imageRight.empty()) {
+            cv::imwrite(dir.absoluteFilePath(fileNameRight).toStdString(), imageRight);
+        }
     } catch (const cv::Exception &e) {
         QMessageBox::warning(this, "Error", "Failed to save image pair: " + QString::fromStdString(e.what()));
     }
@@ -290,7 +294,7 @@ void WindowImagePairSource::snapshotImages ()
     pipeline->getImages(imageLeft, imageRight);
 
     // Make sure images are actually available
-    if (imageLeft.empty() || imageRight.empty()) {
+    if (imageLeft.empty() && imageRight.empty()) {
         QMessageBox::information(this, "No data", "No data to export!");
         return;
     }
@@ -319,13 +323,17 @@ void WindowImagePairSource::snapshotImages ()
         fileNameLeft = QString("%1-%2L.%3").arg(base).arg(c).arg(ext);
         fileNameRight = QString("%1-%2R.%3").arg(base).arg(c).arg(ext);
 
-        if (dir.exists(fileNameLeft) || dir.exists(fileNameRight)) {
+        if ((!imageLeft.empty() && dir.exists(fileNameLeft)) || (!imageRight.empty() && dir.exists(fileNameRight))) {
             continue;
         }
 
         try {
-            cv::imwrite(dir.absoluteFilePath(fileNameLeft).toStdString(), imageLeft);
-            cv::imwrite(dir.absoluteFilePath(fileNameRight).toStdString(), imageRight);
+            if (!imageLeft.empty()) {
+                cv::imwrite(dir.absoluteFilePath(fileNameLeft).toStdString(), imageLeft);
+            }
+            if (!imageRight.empty()) {
+                cv::imwrite(dir.absoluteFilePath(fileNameRight).toStdString(), imageRight);
+            }
         } catch (const cv::Exception &e) {
             QMessageBox::warning(this, "Error", "Failed to save image pair: " + QString::fromStdString(e.what()));
             snapshotBaseName = QString(); // Clear the image basename
