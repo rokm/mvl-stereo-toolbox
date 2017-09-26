@@ -142,10 +142,18 @@ WindowStereoMethod::WindowStereoMethod (Pipeline::Pipeline *p, QList<QObject *> 
     statusBar->addPermanentWidget(labelDisparity);
 
     // Create config tabs
+    int defaultMethodIdx = 0;
     for (int i = 0; i < methods.size(); i++) {
         Pipeline::StereoMethod *method = qobject_cast<Pipeline::StereoMethod * >(methods[i]);
         tabWidget->addTab(method->createConfigWidget(this), method->getShortName());
+
+        // Set BM as default method
+        if (method->getShortName() == "BM") {
+            defaultMethodIdx = i;
+        }
     }
+    tabWidget->setCurrentIndex(defaultMethodIdx);
+
 
     // Method selection
     connect(tabWidget, &QTabWidget::currentChanged, this, &WindowStereoMethod::setMethod);
