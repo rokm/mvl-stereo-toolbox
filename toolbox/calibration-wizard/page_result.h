@@ -22,6 +22,7 @@
 
 
 #include <QtWidgets>
+#include <opencv2/core.hpp>
 
 
 namespace MVL {
@@ -55,6 +56,8 @@ public:
 protected:
     void exportCalibration ();
 
+    void displayTestImage (const QString &filename);
+
 protected:
     QString fieldPrefix;
 
@@ -62,6 +65,10 @@ protected:
     Widgets::ImageDisplayWidget *widgetImage;
 
     QMetaObject::Connection customButtonConnection;
+
+    QString customTestImage;
+    cv::Mat cameraMatrix;
+    cv::Mat distCoeffs;
 };
 
 
@@ -113,6 +120,8 @@ public:
 protected:
     void exportCalibration ();
 
+    void displayTestImagePair (const QString &filenameLeft, const QString &filenameRight);
+
 protected:
     QString fieldPrefix;
 
@@ -122,6 +131,12 @@ protected:
     CameraParametersWidget *widgetRightCameraParameters;
 
     Widgets::ImagePairDisplayWidget *widgetImage;
+
+    QString customTestImageLeft;
+    QString customTestImageRight;
+
+    cv::Rect validRoi1, validRoi2;
+    cv::Mat map11, map12, map21, map22;
 };
 
 

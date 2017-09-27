@@ -36,6 +36,79 @@ namespace GUI {
 namespace CalibrationWizard {
 
 
+// *********************************************************************
+// *                  Clickable image display widgets                  *
+// *********************************************************************
+// Image display widget
+class ClickableImageDisplayWidget : public Widgets::ImageDisplayWidget
+{
+    Q_OBJECT
+
+public:
+    ClickableImageDisplayWidget (const QString &text = QString(), QWidget *parent = Q_NULLPTR);
+    virtual ~ClickableImageDisplayWidget ();
+
+protected:
+    virtual void mouseDoubleClickEvent (QMouseEvent *event) override;
+
+signals:
+    void doubleClicked ();
+};
+
+
+ClickableImageDisplayWidget::ClickableImageDisplayWidget (const QString &text, QWidget *parent)
+    : Widgets::ImageDisplayWidget(text, parent)
+{
+}
+
+ClickableImageDisplayWidget::~ClickableImageDisplayWidget ()
+{
+}
+
+void ClickableImageDisplayWidget::mouseDoubleClickEvent (QMouseEvent *event)
+{
+    if (event->button() == Qt::LeftButton) {
+        emit doubleClicked ();
+    }
+}
+
+
+// Image pair display widget
+class ClickableImagePairDisplayWidget : public Widgets::ImagePairDisplayWidget
+{
+    Q_OBJECT
+
+public:
+    ClickableImagePairDisplayWidget (const QString &text = QString(), QWidget *parent = Q_NULLPTR);
+    virtual ~ClickableImagePairDisplayWidget ();
+
+protected:
+    virtual void mouseDoubleClickEvent (QMouseEvent *event) override;
+
+signals:
+    void doubleClicked ();
+};
+
+ClickableImagePairDisplayWidget::ClickableImagePairDisplayWidget (const QString &text, QWidget *parent)
+    : Widgets::ImagePairDisplayWidget(text, parent)
+{
+}
+
+ClickableImagePairDisplayWidget::~ClickableImagePairDisplayWidget ()
+{
+}
+
+void ClickableImagePairDisplayWidget::mouseDoubleClickEvent (QMouseEvent *event)
+{
+    if (event->button() == Qt::LeftButton) {
+        emit doubleClicked ();
+    }
+}
+
+
+// Because we are keeping the above two classes confined to this source file...
+#include "page_result.moc"
+
 
 // *********************************************************************
 // *                        Result page: common                        *
@@ -53,7 +126,7 @@ PageResult::PageResult (const QString &fieldPrefixString, QWidget *parent)
     layout->setSpacing(10);
 
     // Label
-    label = new QLabel("Congratulations! Camera's intrinsic parameters have been calibrated. One of calibration images has been undistorted and is shown below for visual validation of calibration result.");
+    label = new QLabel("Congratulations! Camera's intrinsic parameters have been calibrated. One of calibration images has been undistorted and is shown below for visual validation of calibration result. To load a custom test image, double-click on the image widget.");
     label->setAlignment(Qt::AlignVCenter | Qt::AlignJustify);
     label->setWordWrap(true);
 
@@ -70,35 +143,71 @@ PageResult::PageResult (const QString &fieldPrefixString, QWidget *parent)
     splitter->addWidget(widgetCameraParameters);
 
     // Undistorted image
-    widgetImage = new Widgets::ImageDisplayWidget("Undistorted image", this);
+    ClickableImageDisplayWidget *widgetImage = new ClickableImageDisplayWidget("Undistorted image", this);
+    this->widgetImage = widgetImage; // Store pointer to Widgets::ImageDisplayWidget
     widgetImage->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     widgetImage->resize(400, 600);
     splitter->addWidget(widgetImage);
+
+    // Image selection
+    connect(widgetImage, &ClickableImageDisplayWidget::doubleClicked, this, [this] () {
+        // Select image
+        QString filename = QFileDialog::getOpenFileName(this, "Select test image", QString(), "Images (*.jpg *.png *.bmp *.tif *.ppm *.pgm)");
+        if (filename.isEmpty()) {
+            return;
+        }
+
+        // Display
+        displayTestImage(filename);
+
+        // Store
+        customTestImage = filename;
+    });
 }
 
 PageResult::~PageResult ()
 {
 }
 
-void PageResult::initializePage ()
+void PageResult::displayTestImage (const QString &filename)
 {
-    // Get camera calibration
-    cv::Mat M = field(fieldPrefix + "CameraMatrix").value<cv::Mat>();
-    cv::Mat D = field(fieldPrefix + "DistCoeffs").value<cv::Mat>();
+    // Load
+    cv::Mat image = cv::imread(filename.toStdString(), -1);
 
-    // Display parameters
-    widgetCameraParameters->setCameraMatrix(M, D);
+    // No-op if loading failed
+    if (image.empty()) {
+        qWarning() << this << ": failed to load test image:" << filename;
+        return;
+    }
 
-    // Load and undistort first image
-    QStringList images = field(fieldPrefix + "Images").toStringList();
-
-    cv::Mat image = cv::imread(images[0].toStdString(), -1);
+    // Undistort
     cv::Mat undistortedImage;
-
-    cv::undistort(image, undistortedImage, M, D);
+    cv::undistort(image, undistortedImage, cameraMatrix, distCoeffs);
 
     // Display undistorted image
     widgetImage->setImage(undistortedImage);
+}
+
+void PageResult::initializePage ()
+{
+    // Get camera calibration
+    cameraMatrix = field(fieldPrefix + "CameraMatrix").value<cv::Mat>();
+    distCoeffs = field(fieldPrefix + "DistCoeffs").value<cv::Mat>();
+
+    // Display parameters
+    widgetCameraParameters->setCameraMatrix(cameraMatrix, distCoeffs);
+
+    // Load and undistort test image
+    if (customTestImage.isEmpty()) {
+        // First calibration image (if available)
+        QStringList images = field(fieldPrefix + "Images").toStringList();
+        if (images.size()) {
+            displayTestImage(images[0]);
+        }
+    } else {
+        // Custom test image
+        displayTestImage(customTestImage);
+    }
 }
 
 void PageResult::setVisible (bool visible)
@@ -204,7 +313,7 @@ PageStereoResult::PageStereoResult (QWidget *parent)
     layout->setSpacing(10);
 
     // Label
-    label = new QLabel("Congratulations! Stereo parameters have been calibrated. One of calibration image pairs has been rectified and is shown below for visual validation of calibration result.");
+    label = new QLabel("Congratulations! Stereo parameters have been calibrated. One of calibration image pairs has been rectified and is shown below for visual validation of calibration result. To load a custom test image pair, double-click on the image widget.");
     label->setAlignment(Qt::AlignVCenter | Qt::AlignJustify);
     label->setWordWrap(true);
 
@@ -216,10 +325,31 @@ PageStereoResult::PageStereoResult (QWidget *parent)
     layout->addWidget(splitter);
 
     // Undistorted image
-    widgetImage = new Widgets::ImagePairDisplayWidget("Rectified image pair", this);
+    ClickableImagePairDisplayWidget *widgetImage = new ClickableImagePairDisplayWidget("Rectified image pair", this);
+    this->widgetImage = widgetImage;
     widgetImage->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     widgetImage->resize(400, 600);
     splitter->addWidget(widgetImage);
+
+    connect(widgetImage, &ClickableImagePairDisplayWidget::doubleClicked, this, [this] () {
+        // Select image pair
+        QStringList filenames = QFileDialog::getOpenFileNames(this, "Select test image pair", QString(), "Images (*.jpg *.png *.bmp *.tif *.ppm *.pgm)");
+        if (filenames.isEmpty()) {
+            return;
+        }
+
+        if (filenames.size() != 2) {
+            QMessageBox::warning(this, "Error", QString("Exactly two images need to be selected!"));
+            return;
+        }
+
+        // Display
+        displayTestImagePair(filenames[0], filenames[1]);
+
+        // Store
+        customTestImageLeft = filenames[0];
+        customTestImageRight = filenames[1];
+    });
 
     // Scroll area; camera parameters
     QScrollArea *scrollArea = new QScrollArea(this);
@@ -253,6 +383,33 @@ PageStereoResult::~PageStereoResult ()
 {
 }
 
+void PageStereoResult::displayTestImagePair (const QString &filenameLeft, const QString &filenameRight)
+{
+    // Load and rectify a pair
+    cv::Mat image1 = cv::imread(filenameLeft.toStdString(), -1);
+    cv::Mat image2 = cv::imread(filenameRight.toStdString(), -1);
+
+    if (image1.empty()) {
+        qWarning() << this << ": failed to load test image:" << filenameLeft;
+        return;
+    }
+
+    if (image2.empty()) {
+        qWarning() << this << ": failed to load test image:" << filenameRight;
+        return;
+    }
+
+    // Two simple remaps using look-up tables
+    cv::Mat rectifiedImage1, rectifiedImage2;
+
+    cv::remap(image1, rectifiedImage1, map11, map12, cv::INTER_LINEAR);
+    cv::remap(image2, rectifiedImage2, map21, map22, cv::INTER_LINEAR);
+
+    // Display undistorted image
+    widgetImage->setImagePair(rectifiedImage1, rectifiedImage2);
+    widgetImage->setImagePairROI(validRoi1, validRoi2);
+}
+
 void PageStereoResult::initializePage ()
 {
     // Get stereo calibration
@@ -272,29 +429,22 @@ void PageStereoResult::initializePage ()
     cv::Mat R1, R2;
     cv::Mat P1, P2;
     cv::Mat Q;
-    cv::Rect validRoi1, validRoi2;
-    cv::Mat map11, map12, map21, map22;
 
     cv::stereoRectify(M1, D1, M2, D2, imageSize, R, T, R1, R2, P1, P2, Q, cv::CALIB_ZERO_DISPARITY, 0, imageSize, &validRoi1, &validRoi2);
 
     cv::initUndistortRectifyMap(M1, D1, R1, P1, imageSize, CV_16SC2, map11, map12);
     cv::initUndistortRectifyMap(M2, D2, R2, P2, imageSize, CV_16SC2, map21, map22);
 
-    // Load and rectify a pair
-    QStringList images = field(fieldPrefix + "Images").toStringList();
-
-    cv::Mat image1 = cv::imread(images[0].toStdString(), -1);
-    cv::Mat image2 = cv::imread(images[1].toStdString(), -1);
-
-    // Two simple remaps using look-up tables
-    cv::Mat rectifiedImage1, rectifiedImage2;
-
-    cv::remap(image1, rectifiedImage1, map11, map12, cv::INTER_LINEAR);
-    cv::remap(image2, rectifiedImage2, map21, map22, cv::INTER_LINEAR);
-
-    // Display undistorted image
-    widgetImage->setImagePair(rectifiedImage1, rectifiedImage2);
-    widgetImage->setImagePairROI(validRoi1, validRoi2);
+    // Display test image pair
+    if (customTestImageLeft.isEmpty() || customTestImageRight.isEmpty()) {
+        QStringList images = field(fieldPrefix + "Images").toStringList();
+        if (images.size() >= 2) {
+            displayTestImagePair(images[0], images[1]);
+        }
+    } else {
+        // Custom test images
+        displayTestImagePair(customTestImageLeft, customTestImageRight);
+    }
 }
 
 void PageStereoResult::setVisible (bool visible)
