@@ -15,7 +15,14 @@ find_package(Qt5Concurrent REQUIRED)
 include_directories(${OpenCV_INCLUDE_DIRS})
 
 set(toolbox_SOURCES
-    calibration_wizard.cpp
+    calibration-wizard/calibration_flags_widget.cpp
+    calibration-wizard/camera_parameters_widget.cpp
+    calibration-wizard/page_calibration.cpp
+    calibration-wizard/page_detection.cpp
+    calibration-wizard/page_images.cpp
+    calibration-wizard/page_introduction.cpp
+    calibration-wizard/page_result.cpp
+    calibration-wizard/wizard.cpp
     main.cpp
     toolbox.cpp
     window_image_pair_source.cpp
@@ -26,7 +33,14 @@ set(toolbox_SOURCES
 )
 
 set(toolbox_HEADERS
-    calibration_wizard.h
+    calibration-wizard/calibration_flags_widget.h
+    calibration-wizard/camera_parameters_widget.h
+    calibration-wizard/page_calibration.h
+    calibration-wizard/page_detection.h
+    calibration-wizard/page_images.h
+    calibration-wizard/page_introduction.h
+    calibration-wizard/page_result.h
+    calibration-wizard/wizard.h
     toolbox.h
     window_image_pair_source.h
     window_point_cloud.h

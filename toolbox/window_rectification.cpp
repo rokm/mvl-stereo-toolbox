@@ -18,7 +18,7 @@
  */
 
 #include "window_rectification.h"
-#include "calibration_wizard.h"
+#include "calibration-wizard/wizard.h"
 
 #include <stereo-pipeline/pipeline.h>
 #include <stereo-pipeline/rectification.h>
@@ -145,7 +145,7 @@ WindowRectification::WindowRectification (Pipeline::Pipeline *p, Pipeline::Recti
     updateButtonsState();
 
     // Calibration wizard
-    wizard = new CalibrationWizard(this);
+    wizard = new CalibrationWizard::Wizard(this);
 
     // Pipeline's error signalization
     connect(pipeline, &Pipeline::Pipeline::error, this, [this] (int errorType, const QString &errorMessage) {

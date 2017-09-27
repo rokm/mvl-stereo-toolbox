@@ -37,10 +37,15 @@ namespace Widgets {
 class ImagePairDisplayWidget;
 } // Widgets
 
+
 namespace GUI {
 
 
-class CalibrationWizard;
+namespace CalibrationWizard {
+class Wizard;
+} // CalibrationWizard
+
+
 class RectificationSettingsDialog;
 
 class WindowRectification : public QWidget
@@ -91,13 +96,13 @@ protected:
     RectificationSettingsDialog *dialogSettings;
 
     // Wizard
-    CalibrationWizard *wizard;
+    CalibrationWizard::Wizard *wizard;
 
     // Cached calibration file filename
     QString lastCalibrationFilename;
 
     // Visualization type
-    enum {
+    enum VisualizationType {
         VisualizationImagePair = 0,
         VisualizationAnaglyph = 1,
     };
