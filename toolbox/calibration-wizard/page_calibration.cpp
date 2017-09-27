@@ -503,10 +503,10 @@ bool PageStereoCalibration::calibrationFunction ()
 
         // Compute error
         for (int j = 0; j < npt; j++) {
-            double errij = fabs(imagePoints1[i][j].x*lines2[j][0] +
-                                imagePoints1[i][j].y*lines2[j][1] + lines2[j][2]) +
-                           fabs(imagePoints2[i][j].x*lines1[j][0] +
-                                imagePoints2[i][j].y*lines1[j][1] + lines1[j][2]);
+            double errij = std::abs(imagePoints1[i][j].x*lines2[j][0] +
+                                    imagePoints1[i][j].y*lines2[j][1] + lines2[j][2]) +
+                           std::abs(imagePoints2[i][j].x*lines1[j][0] +
+                                    imagePoints2[i][j].y*lines1[j][1] + lines1[j][2]);
             averageReprojectionError += errij;
         }
 
