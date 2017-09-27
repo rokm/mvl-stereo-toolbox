@@ -105,6 +105,22 @@ protected:
 
 
 // *********************************************************************
+// *               Pattern detection page: single camera               *
+// *********************************************************************
+//
+class PageSingleCameraDetection : public PageDetection
+{
+    Q_OBJECT
+
+public:
+    PageSingleCameraDetection (QWidget *parent = Q_NULLPTR);
+    virtual ~PageSingleCameraDetection ();
+
+    virtual int nextId () const override;
+};
+
+
+// *********************************************************************
 // *                Pattern detection page: left camera                *
 // *********************************************************************
 //

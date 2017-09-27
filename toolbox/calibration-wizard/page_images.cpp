@@ -291,6 +291,37 @@ void PageImages::setPatternType (int type)
 
 
 // *********************************************************************
+// *                 Image selection page: single camera               *
+// *********************************************************************
+PageSingleCameraImages::PageSingleCameraImages (QWidget *parent)
+    : PageImages("SingleCamera", parent)
+{
+    setTitle("Single camera calibration");
+}
+
+PageSingleCameraImages::~PageSingleCameraImages ()
+{
+}
+
+int PageSingleCameraImages::nextId () const
+{
+    return Wizard::PageId::SingleCameraDetectionId;
+}
+
+bool PageSingleCameraImages::isComplete () const
+{
+    QStringList filenames = getImages();
+
+    // Must be at least six images
+    if (filenames.size() < 6) {
+        return false;
+    }
+
+    return true;
+}
+
+
+// *********************************************************************
 // *                  Image selection page: left camera                *
 // *********************************************************************
 PageLeftCameraImages::PageLeftCameraImages (QWidget *parent)

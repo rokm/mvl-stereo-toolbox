@@ -238,9 +238,10 @@ void WindowRectification::runCalibrationWizard ()
 {
     // Run calibration wizard
     wizard->restart();
-    if (wizard->exec() == QDialog::Accepted) {
-        QString fieldPrefix = "Stereo";
+    if (wizard->exec() == QDialog::Accepted &&
+        wizard->field("CalibrationType").value<QString>() != "SingleCameraCalibration") {
         // Get parameters and set them to rectification object
+        QString fieldPrefix = "Stereo";
         rectification->setStereoCalibration(
             wizard->field(fieldPrefix + "CameraMatrix1").value<cv::Mat>(),
             wizard->field(fieldPrefix + "DistCoeffs1").value<cv::Mat>(),

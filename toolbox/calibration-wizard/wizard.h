@@ -64,6 +64,10 @@ public:
         StereoDetectionId,
         StereoCalibrationId,
         StereoResultId,
+        SingleCameraImagesId,
+        SingleCameraDetectionId,
+        SingleCameraCalibrationId,
+        SingleCameraResultId,
     };
 };
 

@@ -33,15 +33,20 @@ class PageIntroduction : public QWizardPage
 {
     Q_OBJECT
 
+    Q_PROPERTY(QString calibrationType READ getCalibrationType);
+
 public:
     PageIntroduction (QWidget *parent = Q_NULLPTR);
     virtual ~PageIntroduction ();
 
     virtual int nextId () const override;
 
+    QString getCalibrationType () const;
+
 protected:
     QRadioButton *radioButtonJointCalibration;
     QRadioButton *radioButtonDecoupledCalibration;
+    QRadioButton *radioButtonSingleCalibration;
 };
 
 

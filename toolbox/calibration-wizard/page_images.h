@@ -78,6 +78,22 @@ protected:
 
 
 // *********************************************************************
+// *                 Image selection page: single camera               *
+// *********************************************************************
+class PageSingleCameraImages : public PageImages
+{
+    Q_OBJECT
+
+public:
+    PageSingleCameraImages (QWidget *parent = Q_NULLPTR);
+    virtual ~PageSingleCameraImages ();
+
+    virtual int nextId () const override;
+    virtual bool isComplete () const override;
+};
+
+
+// *********************************************************************
 // *                  Image selection page: left camera                *
 // *********************************************************************
 class PageLeftCameraImages : public PageImages

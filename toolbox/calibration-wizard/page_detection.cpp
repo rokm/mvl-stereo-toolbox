@@ -385,6 +385,25 @@ void PageDetection::processImage ()
 
 
 // *********************************************************************
+// *               Pattern detection page: single camera               *
+// *********************************************************************
+PageSingleCameraDetection::PageSingleCameraDetection (QWidget *parent)
+    : PageDetection("SingleCamera", false, parent)
+{
+    setTitle("Single camera calibration");
+}
+
+PageSingleCameraDetection::~PageSingleCameraDetection ()
+{
+}
+
+int PageSingleCameraDetection::nextId () const
+{
+    return Wizard::PageId::SingleCameraCalibrationId;
+}
+
+
+// *********************************************************************
 // *                Pattern detection page: left camera                *
 // *********************************************************************
 PageLeftCameraDetection::PageLeftCameraDetection (QWidget *parent)

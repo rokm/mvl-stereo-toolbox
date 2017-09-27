@@ -198,6 +198,25 @@ bool PageCalibration::calibrationFunction ()
 
 
 // *********************************************************************
+// *                   Calibration page: single camera                 *
+// *********************************************************************
+PageSingleCameraCalibration::PageSingleCameraCalibration (QWidget *parent)
+    : PageCalibration("SingleCamera", parent)
+{
+    setTitle("Single camera calibration");
+}
+
+PageSingleCameraCalibration::~PageSingleCameraCalibration ()
+{
+}
+
+int PageSingleCameraCalibration::nextId () const
+{
+    return Wizard::PageId::SingleCameraResultId;
+}
+
+
+// *********************************************************************
 // *                    Calibration page: left camera                  *
 // *********************************************************************
 PageLeftCameraCalibration::PageLeftCameraCalibration (QWidget *parent)

@@ -259,6 +259,20 @@ void PageResult::exportCalibration ()
 
 
 // *********************************************************************
+// *                    Result page: single camera                     *
+// *********************************************************************
+PageSingleCameraResult::PageSingleCameraResult (QWidget *parent)
+    : PageResult("SingleCamera", parent)
+{
+    setTitle("Single camera calibration");
+}
+
+PageSingleCameraResult::~PageSingleCameraResult ()
+{
+}
+
+
+// *********************************************************************
 // *                     Result page: left camera                      *
 // *********************************************************************
 PageLeftCameraResult::PageLeftCameraResult (QWidget *parent)

@@ -59,7 +59,8 @@ PageIntroduction::PageIntroduction (QWidget *parent)
                        "(camera matrix and distortion coefficients) and stereo parameters will be estimated. In <i>decoupled "
                        "calibration</i>, you will be first asked for one sequence of calibration images for each camera, and their "
                        "intrinsic parameters will be estimated separately. Then, you will be asked for a sequence of image pairs "
-                       "from which stereo parameters will be estimated.");
+                       "from which stereo parameters will be estimated. Lastly, you can chose to calibrate a <i>single camera</i>"
+                       "and export its intrinsic parameters for later use in decoupled calibration or another application.");
     label->setAlignment(Qt::AlignVCenter | Qt::AlignJustify);
     label->setWordWrap(true);
 
@@ -73,21 +74,45 @@ PageIntroduction::PageIntroduction (QWidget *parent)
     radioButtonDecoupledCalibration->setToolTip("Separately estimate intrinsic parameters and stereo parameters.");
     layout->addWidget(radioButtonDecoupledCalibration);
 
+    radioButtonSingleCalibration = new QRadioButton("&Single-camera calibration");
+    radioButtonSingleCalibration->setToolTip("Calibrate intrinsic parameters of a single camera.");
+    layout->addWidget(radioButtonSingleCalibration);
+
     registerField("JointCalibration", radioButtonJointCalibration);
 
     radioButtonJointCalibration->setChecked(true);
+
+    // Fields
+    registerField("CalibrationType", this, "calibrationType");
 }
 
 PageIntroduction::~PageIntroduction ()
 {
 }
 
-int PageIntroduction::nextId () const
+
+QString PageIntroduction::getCalibrationType () const
 {
     if (radioButtonJointCalibration->isChecked()) {
-        return Wizard::PageId::StereoImagesId;
+        return "JointCalibration";
+    } else if (radioButtonDecoupledCalibration->isChecked()) {
+        return "DecoupledCalibration";
     } else {
+        return "SingleCameraCalibration";
+    }
+}
+
+
+int PageIntroduction::nextId () const
+{
+    QString type = getCalibrationType();
+
+    if (type == "JointCalibration") {
+        return Wizard::PageId::StereoImagesId;
+    } else if (type == "DecoupledCalibration") {
         return Wizard::PageId::LeftCameraImagesId;
+    } else {
+        return Wizard::PageId::SingleCameraImagesId;
     }
 }
 

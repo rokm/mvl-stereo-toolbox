@@ -73,6 +73,20 @@ protected:
 
 
 // *********************************************************************
+// *                    Result page: single camera                     *
+// *********************************************************************
+class PageSingleCameraResult : public PageResult
+{
+    Q_OBJECT
+
+public:
+    PageSingleCameraResult (QWidget *parent = Q_NULLPTR);
+    virtual ~PageSingleCameraResult ();
+};
+
+
+
+// *********************************************************************
 // *                     Result page: left camera                      *
 // *********************************************************************
 class PageLeftCameraResult : public PageResult

@@ -65,6 +65,11 @@ Wizard::Wizard (QWidget *parent)
     setPage(PageId::RightCameraCalibrationId, new PageRightCameraCalibration(this));
     setPage(PageId::RightCameraResultId, new PageRightCameraResult(this));
 
+    setPage(PageId::SingleCameraImagesId, new PageSingleCameraImages(this));
+    setPage(PageId::SingleCameraDetectionId, new PageSingleCameraDetection(this));
+    setPage(PageId::SingleCameraCalibrationId, new PageSingleCameraCalibration(this));
+    setPage(PageId::SingleCameraResultId, new PageSingleCameraResult(this));
+
     setStartId(PageId::IntroductionId);
 }
 

@@ -93,7 +93,22 @@ protected:
 
 
 // *********************************************************************
-// *                    Calibration page: left camera                  *
+// *                  Calibration page: single camera                  *
+// *********************************************************************
+class PageSingleCameraCalibration : public PageCalibration
+{
+    Q_OBJECT
+
+public:
+    PageSingleCameraCalibration (QWidget *parent = Q_NULLPTR);
+    virtual ~PageSingleCameraCalibration ();
+
+    virtual int nextId () const override;
+};
+
+
+// *********************************************************************
+// *                   Calibration page: left camera                   *
 // *********************************************************************
 class PageLeftCameraCalibration : public PageCalibration
 {
@@ -108,7 +123,7 @@ public:
 
 
 // *********************************************************************
-// *                   Calibration page: right camera                  *
+// *                  Calibration page: right camera                   *
 // *********************************************************************
 class PageRightCameraCalibration : public PageCalibration
 {
@@ -125,7 +140,7 @@ public:
 
 
 // *********************************************************************
-// *                      Calibration page: stereo                     *
+// *                     Calibration page: stereo                      *
 // *********************************************************************
 class PageStereoCalibration : public QWizardPage
 {
