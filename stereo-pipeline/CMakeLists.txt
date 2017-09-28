@@ -2,6 +2,19 @@ cmake_minimum_required(VERSION 3.2)
 
 project(libmvl_stereo_pipeline VERSION 2.1.0 LANGUAGES CXX)
 
+# Semantic versioning 2.0.0 (semver.org):
+# MAJOR is increased when backwards-incompatible changes are made to
+# the API (e.g., removal of interfaces). In this case, MINOR and PATCH
+# should be reset to zero.
+# MINOR is increased when features are added to the API (e.g., addition
+# of interfaces). In this case, PATCH should be reset to zero.
+# PATCH is increased for all other changes such as bug-fixes.
+set(PROJECT_SOVERSION_MAJOR 0)
+set(PROJECT_SOVERSION_MINOR 0)
+set(PROJECT_SOVERSION_PATCH 0)
+set(PROJECT_SOVERSION ${PROJECT_SOVERSION_MAJOR}.${PROJECT_SOVERSION_MINOR}.${PROJECT_SOVERSION_PATCH})
+
+
 include(GenerateExportHeader)
 
 set(CMAKE_AUTOMOC TRUE)
@@ -59,6 +72,11 @@ target_link_libraries(mvl_stereo_pipeline PUBLIC opencv_core PRIVATE opencv_cali
 if(OPENCV_CUDASTEREO_FOUND)
     target_link_libraries(mvl_stereo_pipeline PRIVATE opencv_cudastereo)
 endif()
+
+set_target_properties(mvl_stereo_pipeline PROPERTIES
+    VERSION ${PROJECT_SOVERSION}
+    SOVERSION ${PROJECT_SOVERSION_MAJOR}
+)
 
 generate_export_header(mvl_stereo_pipeline EXPORT_FILE_NAME export.h)
 
