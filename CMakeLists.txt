@@ -1,23 +1,18 @@
-cmake_minimum_required(VERSION 2.8.11)
+cmake_minimum_required(VERSION 3.2)
 
-if(POLICY CMP0048)
-    cmake_policy(SET CMP0048 OLD)
-endif()
-
-project(MVLStereoToolbox C CXX)
-set(PROJECT_VERSION 2.0.0)
+project(MVLStereoToolbox VERSION 2.1.0 LANGUAGES CXX)
 
 option(WITH_GUI "Disable GUI elements (builds only stereo pipeline library)" ON)
 
 include(GNUInstallDirs)
 
+# Enable C++11
+set(CMAKE_CXX_STANDARD 11)
+
+# Extra warnings on gcc
 if(CMAKE_COMPILER_IS_GNUCXX)
-    add_definitions(-std=c++11)
     add_definitions(-Wall -Wextra -Wno-unused-parameter)
 endif()
-
-# Project version
-add_definitions(-DPROJECT_VERSION="${PROJECT_VERSION}")
 
 # Automatically include current dir
 set(CMAKE_INCLUDE_CURRENT_DIR ON)

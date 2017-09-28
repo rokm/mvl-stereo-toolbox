@@ -1,10 +1,6 @@
-cmake_minimum_required(VERSION 2.8.11)
+cmake_minimum_required(VERSION 3.2)
 
-if(POLICY CMP0048)
-    cmake_policy(SET CMP0048 OLD)
-endif()
-
-project(libmvl_stereo_widgets CXX)
+project(libmvl_stereo_widgets VERSION 2.1.0 LANGUAGES CXX)
 
 include(GenerateExportHeader)
 

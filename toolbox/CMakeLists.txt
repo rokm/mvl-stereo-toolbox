@@ -1,10 +1,6 @@
-cmake_minimum_required(VERSION 2.8.11)
+cmake_minimum_required(VERSION 3.2)
 
-if(POLICY CMP0048)
-    cmake_policy(SET CMP0048 OLD)
-endif()
-
-project(toolbox CXX)
+project(toolbox VERSION 2.1.0 LANGUAGES CXX)
 
 set(CMAKE_AUTOMOC TRUE)
 
@@ -51,11 +47,13 @@ set(toolbox_HEADERS
 
 add_executable(MVLStereoToolbox ${toolbox_SOURCES} ${toolbox_HEADERS})
 
-target_link_libraries(MVLStereoToolbox Qt5::Widgets Qt5::Concurrent)
+target_compile_definitions(MVLStereoToolbox PRIVATE -DPROJECT_VERSION="${PROJECT_VERSION}")
 
-target_link_libraries(MVLStereoToolbox opencv_core opencv_calib3d)
+target_link_libraries(MVLStereoToolbox PRIVATE Qt5::Widgets Qt5::Concurrent)
 
-target_link_libraries(MVLStereoToolbox mvl_stereo_pipeline)
-target_link_libraries(MVLStereoToolbox mvl_stereo_widgets)
+target_link_libraries(MVLStereoToolbox PRIVATE opencv_core opencv_calib3d)
+
+target_link_libraries(MVLStereoToolbox PRIVATE mvl_stereo_pipeline)
+target_link_libraries(MVLStereoToolbox PRIVATE mvl_stereo_widgets)
 
 install(TARGETS MVLStereoToolbox DESTINATION ${CMAKE_INSTALL_BINDIR})

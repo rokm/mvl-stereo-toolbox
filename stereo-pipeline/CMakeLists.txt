@@ -1,10 +1,6 @@
-cmake_minimum_required(VERSION 2.8.11)
+cmake_minimum_required(VERSION 3.2)
 
-if(POLICY CMP0048)
-    cmake_policy(SET CMP0048 OLD)
-endif()
-
-project(libmvl_stereo_pipeline CXX)
+project(libmvl_stereo_pipeline VERSION 2.1.0 LANGUAGES CXX)
 
 include(GenerateExportHeader)
 
@@ -51,8 +47,6 @@ set(pipeline_HEADERS
 )
 
 include_directories(${OpenCV_INCLUDE_DIRS})
-
-include_directories(pipeline-async)
 
 # Define plugin path
 set(MVL_STEREO_PIPELINE_PLUGIN_DIR "${CMAKE_INSTALL_FULL_LIBDIR}/MVL/stereo-pipeline" CACHE PATH "Path to MVL Stereo Pipeline plugins")

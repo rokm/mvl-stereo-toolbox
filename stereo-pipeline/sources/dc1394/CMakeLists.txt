@@ -1,10 +1,6 @@
-cmake_minimum_required(VERSION 2.8.11)
+cmake_minimum_required(VERSION 3.2)
 
-if(POLICY CMP0048)
-    cmake_policy(SET CMP0048 OLD)
-endif()
-
-project(source_dc1394 CXX)
+project(source_dc1394 VERSION 2.1.0 LANGUAGES CXX)
 
 find_package(PkgConfig REQUIRED)
 find_package(OpenCV 3.0.0 REQUIRED core imgproc)
@@ -34,9 +30,9 @@ set(plugin_HEADERS
 )
 
 add_library(${plugin_name} SHARED ${plugin_SOURCES} ${plugin_HEADERS})
-target_link_libraries(${plugin_name} Qt5::Widgets)
-target_link_libraries(${plugin_name} ${DC1394_LIBRARIES})
-target_link_libraries(${plugin_name} opencv_core opencv_imgproc)
+target_link_libraries(${plugin_name} PRIVATE Qt5::Widgets)
+target_link_libraries(${plugin_name} PRIVATE ${DC1394_LIBRARIES})
+target_link_libraries(${plugin_name} PRIVATE opencv_core opencv_imgproc)
 set_target_properties(${plugin_name} PROPERTIES PREFIX "")
 
 install(TARGETS ${plugin_name} DESTINATION ${MVL_STEREO_PIPELINE_PLUGIN_DIR})

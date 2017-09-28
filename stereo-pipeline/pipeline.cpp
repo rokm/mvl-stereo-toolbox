@@ -39,11 +39,11 @@
 
 #include "pipeline_p.h"
 
-#include "source_element.h"
-#include "rectification_element.h"
-#include "method_element.h"
-#include "reprojection_element.h"
-#include "visualization_element.h"
+#include "pipeline-async/source_element.h"
+#include "pipeline-async/rectification_element.h"
+#include "pipeline-async/method_element.h"
+#include "pipeline-async/reprojection_element.h"
+#include "pipeline-async/visualization_element.h"
 
 
 namespace MVL {
