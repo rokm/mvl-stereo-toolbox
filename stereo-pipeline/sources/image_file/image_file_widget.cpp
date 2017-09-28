@@ -1,6 +1,6 @@
 /*
  * Image File Source: image file widget
- * Copyright (C) 2013-2015 Rok Mandeljc
+ * Copyright (C) 2013-2017 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,8 +27,9 @@ namespace Pipeline {
 namespace SourceImageFile {
 
 
-ImageFileWidget::ImageFileWidget (ImageFile *f, QWidget *parent)
-    : QWidget(parent), file(f)
+ImageFileWidget::ImageFileWidget (ImageFile *file, QWidget *parent)
+    : QWidget(parent),
+      file(file)
 {
     QFormLayout *layout = new QFormLayout(this);
     layout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
@@ -56,12 +57,12 @@ ImageFileWidget::ImageFileWidget (ImageFile *f, QWidget *parent)
     button = new QPushButton("File", this);
     button->setToolTip(tooltip);
     connect(button, &QPushButton::clicked, this, [this] {
-        QString filename = QFileDialog::getOpenFileName(this, "Load image", QFileInfo(file->getImageFilename()).filePath(), "Images (*.png *.jpg *.pgm *.ppm *.tif *.bmp)");
+        QString filename = QFileDialog::getOpenFileName(this, "Load image", QFileInfo(this->file->getImageFilename()).filePath(), "Images (*.png *.jpg *.pgm *.ppm *.tif *.bmp)");
         if (!filename.isEmpty()) {
             // Set filename
-            file->setImageFileOrUrl(filename, false);
+            this->file->setImageFileOrUrl(filename, false);
             // Get image
-            file->refreshImage();
+            this->file->refreshImage();
         }
     });
 
@@ -76,9 +77,9 @@ ImageFileWidget::ImageFileWidget (ImageFile *f, QWidget *parent)
         // Run the dialog
         if (dialogUrl->exec() == QDialog::Accepted) {
             // Set URL
-            file->setImageFileOrUrl(dialogUrl->getUrl(), true);
+            this->file->setImageFileOrUrl(dialogUrl->getUrl(), true);
             // Get image
-            file->refreshImage();
+            this->file->refreshImage();
         }
     });
 
@@ -126,9 +127,9 @@ ImageFileWidget::ImageFileWidget (ImageFile *f, QWidget *parent)
     // Signals
     connect(file, &ImageFile::imageReady, this, [this] {
         // Display image information
-        textEditFilename->setText(QString("%1").arg(file->getImageFilename()));
-        labelResolution->setText(QString("%1x%2").arg(file->getImageWidth()).arg(file->getImageHeight()));
-        labelChannels->setText(QString("%1").arg(file->getImageChannels()));
+        textEditFilename->setText(QString("%1").arg(this->file->getImageFilename()));
+        labelResolution->setText(QString("%1x%2").arg(this->file->getImageWidth()).arg(this->file->getImageHeight()));
+        labelChannels->setText(QString("%1").arg(this->file->getImageChannels()));
     }, Qt::QueuedConnection);
 }
 

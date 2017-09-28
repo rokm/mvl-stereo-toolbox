@@ -1,6 +1,6 @@
 /*
  * Stereo Pipeline: disparity visualization
- * Copyright (C) 2013-2015 Rok Mandeljc
+ * Copyright (C) 2013-2017 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -41,7 +41,7 @@ class MVL_STEREO_PIPELINE_EXPORT DisparityVisualization : public QObject
     QScopedPointer<DisparityVisualizationPrivate> const d_ptr;
 
 public:
-    DisparityVisualization (QObject *parent = nullptr);
+    DisparityVisualization (QObject *parent = Q_NULLPTR);
     ~DisparityVisualization ();
 
     enum {

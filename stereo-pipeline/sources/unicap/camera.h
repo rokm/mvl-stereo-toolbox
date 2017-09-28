@@ -1,6 +1,6 @@
 /*
  * Unicap Source: camera
- * Copyright (C) 2013-2015 Rok Mandeljc
+ * Copyright (C) 2013-2017 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,11 +37,11 @@ class Camera : public QObject
     Q_OBJECT
 
 public:
-    Camera (unicap_handle_t h, QObject *parent = nullptr);
+    Camera (unicap_handle_t handle, QObject *parent = Q_NULLPTR);
     virtual ~Camera ();
 
     // Config widget
-    QWidget *createConfigWidget (QWidget *parent = nullptr);
+    QWidget *createConfigWidget (QWidget *parent = Q_NULLPTR);
 
     // Camera identification
     unicap_device_t getDevice () const;
@@ -66,7 +66,7 @@ public:
     void updateProperty (unicap_property_t &property);
 
     void setPropertyValue (const QString &name, double value);
-    void setPropertyValue (const QString &name, const QString & value);
+    void setPropertyValue (const QString &name, const QString &value);
 
     enum PropertyMode {
         PropertyModeManual,

@@ -1,6 +1,6 @@
 /*
  * DC1394 Source: feature widget
- * Copyright (C) 2013-2015 Rok Mandeljc
+ * Copyright (C) 2013-2017 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,7 +38,7 @@ class FeatureWidget : public QWidget
     Q_OBJECT
 
 public:
-    FeatureWidget (Camera *c, const dc1394feature_info_t &f, QWidget *parent = nullptr);
+    FeatureWidget (Camera *camera, const dc1394feature_info_t &feature, QWidget *parent = Q_NULLPTR);
     virtual ~FeatureWidget ();
 
 protected:

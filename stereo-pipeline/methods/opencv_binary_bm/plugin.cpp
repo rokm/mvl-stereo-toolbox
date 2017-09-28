@@ -33,19 +33,19 @@ class Plugin : public QObject, PluginFactory
     Q_PLUGIN_METADATA(IID "mvl-stereo-toolbox.Plugin.StereoMethod.OpenCV_Binary_BM")
     Q_INTERFACES(MVL::StereoToolbox::Pipeline::PluginFactory)
 
-    PluginType getPluginType () const {
+    PluginType getPluginType () const override {
         return PluginStereoMethod;
     }
 
-    QString getShortName () const {
+    QString getShortName () const override {
         return "Binary BM";
     }
 
-    QString getDescription () const {
+    QString getDescription () const override {
         return "OpenCV Binary Block Matching";
     }
 
-    QObject *createObject (QObject *parent = 0) const {
+    QObject *createObject (QObject *parent = Q_NULLPTR) const override {
         return new Method(parent);
     }
 };

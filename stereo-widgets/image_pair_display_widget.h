@@ -1,6 +1,6 @@
 /*
  * Stereo Widgets: image pair display widget
- * Copyright (C) 2013-2015 Rok Mandeljc
+ * Copyright (C) 2013-2017 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,16 +38,16 @@ class MVL_STEREO_WIDGETS_EXPORT ImagePairDisplayWidget : public ImageDisplayWidg
     Q_DECLARE_PRIVATE(ImagePairDisplayWidget)
 
 public:
-    ImagePairDisplayWidget (const QString &text = QString(), QWidget *parent = 0);
+    ImagePairDisplayWidget (const QString &text = QString(), QWidget *parent = Q_NULLPTR);
     virtual ~ImagePairDisplayWidget ();
 
-    virtual void setImage (const cv::Mat &image);
+    virtual void setImage (const cv::Mat &image) override;
 
     void setImagePairROI (const cv::Rect &roiLeft, const cv::Rect &roiRight);
     void setImagePair (const cv::Mat &left, const cv::Mat &right);
 
 protected:
-    virtual void paintEvent (QPaintEvent *event);
+    virtual void paintEvent (QPaintEvent *event) override;
 };
 
 

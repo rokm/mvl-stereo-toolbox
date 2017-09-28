@@ -27,10 +27,11 @@ namespace Pipeline {
 namespace StereoMethodOpenCvBinaryBm {
 
 
-MethodWidget::MethodWidget (Method *m, QWidget *parent)
-    : QWidget(parent), method(m)
+MethodWidget::MethodWidget (Method *method, QWidget *parent)
+    : QWidget(parent),
+      method(method)
 {
-    connect(method, &Method::parameterChanged, this, &MethodWidget::updateParameters);
+    connect(method, &Method::parameterChanged, this, &MethodWidget::updateParameters, Qt::QueuedConnection);
 
     // Build layout
     QVBoxLayout *baseLayout = new QVBoxLayout(this);
@@ -71,7 +72,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
 
     button = new QPushButton("Reset");
     button->setToolTip(tooltip);
-    connect(button, &QPushButton::clicked, method, &Method::resetParameters);
+    connect(button, &QPushButton::clicked, method, &Method::resetParameters, Qt::QueuedConnection);
 
     layout->addRow(button);
 
@@ -91,7 +92,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
     spinBox->setRange(-9999, 9999);
-    connect(spinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), method, &Method::setMinDisparity);
+    connect(spinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), method, &Method::setMinDisparity, Qt::QueuedConnection);
     spinBoxMinDisparity = spinBox;
 
     layout->addRow(label, spinBox);
@@ -107,7 +108,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
     spinBox->setKeyboardTracking(false);
     spinBox->setRange(16, 16*1000);
     spinBox->setSingleStep(16); // Must be divisible by 16
-    connect(spinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), method, &Method::setNumDisparities);
+    connect(spinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), method, &Method::setNumDisparities, Qt::QueuedConnection);
     spinBoxNumDisparities = spinBox;
 
     layout->addRow(label, spinBox);
@@ -122,7 +123,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
     spinBox->setKeyboardTracking(false);
     spinBox->setRange(5, 255); // 5...255
     spinBox->setSingleStep(2); // Always odd values
-    connect(spinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), method, &Method::setBlockSize);
+    connect(spinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), method, &Method::setBlockSize, Qt::QueuedConnection);
     spinBoxBlockSize = spinBox;
 
     layout->addRow(label, spinBox);
@@ -136,7 +137,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
     spinBox->setRange(0, 1000);
-    connect(spinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), method, &Method::setSpeckleWindowSize);
+    connect(spinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), method, &Method::setSpeckleWindowSize, Qt::QueuedConnection);
     spinBoxSpeckleWindowSize = spinBox;
 
     layout->addRow(label, spinBox);
@@ -150,7 +151,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
     spinBox->setRange(0, 1000);
-    connect(spinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), method, &Method::setSpeckleRange);
+    connect(spinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), method, &Method::setSpeckleRange, Qt::QueuedConnection);
     spinBoxSpeckleRange = spinBox;
 
     layout->addRow(label, spinBox);
@@ -165,7 +166,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
     spinBox->setRange(-1, 255);
-    connect(spinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), method, &Method::setDisp12MaxDiff);
+    connect(spinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), method, &Method::setDisp12MaxDiff, Qt::QueuedConnection);
     spinBoxDisp12MaxDiff = spinBox;
 
     layout->addRow(label, spinBox);
@@ -182,7 +183,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
 
     checkBox = new QCheckBox("Use pre-filter", this);
     checkBox->setToolTip(tooltip);
-    connect(checkBox, &QCheckBox::toggled, method, &Method::setUsePreFilter);
+    connect(checkBox, &QCheckBox::toggled, method, &Method::setUsePreFilter, Qt::QueuedConnection);
     checkBoxUsePreFilter = checkBox;
 
     layout->addRow(checkBox);
@@ -199,9 +200,9 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
     comboBox->addItem("XSOBEL", cv::stereo::StereoBinaryBM::PREFILTER_XSOBEL);
     comboBox->setItemData(0, "Sobel filter.", Qt::ToolTipRole);
 
-    connect(comboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, [this, comboBox] (int index) {
+    connect(comboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), method, [method, comboBox] (int index) {
         method->setPreFilterType(comboBox->itemData(index).toInt());
-    });
+    }, Qt::QueuedConnection);
 
     comboBoxPreFilterType = comboBox;
 
@@ -217,7 +218,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
     spinBox->setKeyboardTracking(false);
     spinBox->setRange(5, 255); // 5...255
     spinBox->setSingleStep(2); // Allows only odd values
-    connect(spinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), method, &Method::setPreFilterSize);
+    connect(spinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), method, &Method::setPreFilterSize, Qt::QueuedConnection);
     spinBoxPreFilterSize = spinBox;
 
     layout->addRow(label, spinBox);
@@ -231,7 +232,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
     spinBox->setRange(1, 63);
-    connect(spinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), method, &Method::setPreFilterCap);
+    connect(spinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), method, &Method::setPreFilterCap, Qt::QueuedConnection);
     spinBoxPreFilterCap = spinBox;
 
     layout->addRow(label, spinBox);
@@ -253,7 +254,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
     spinBox->setRange(0, 32000);
-    connect(spinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), method, &Method::setTextureThreshold);
+    connect(spinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), method, &Method::setTextureThreshold, Qt::QueuedConnection);
     spinBoxTextureThreshold = spinBox;
 
     layout->addRow(label, spinBox);
@@ -267,7 +268,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
     spinBox->setRange(0, 255);
-    connect(spinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), method, &Method::setUniquenessRatio);
+    connect(spinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), method, &Method::setUniquenessRatio, Qt::QueuedConnection);
     spinBoxUniquenessRatio = spinBox;
 
     layout->addRow(label, spinBox);
@@ -288,7 +289,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
     spinBox->setRange(0, 255);
-    connect(spinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), method, &Method::setSmallerBlockSize);
+    connect(spinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), method, &Method::setSmallerBlockSize, Qt::QueuedConnection);
     spinBoxSmallerBlockSize = spinBox;
 
     layout->addRow(label, spinBox);
@@ -305,9 +306,9 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
     comboBox->addItem("SPECKLE_REMOVAL_AVG_ALGORITHM", cv::stereo::CV_SPECKLE_REMOVAL_AVG_ALGORITHM);
     comboBox->setItemData(0, "Fill speckles with average disparity of surrounding pixels.", Qt::ToolTipRole);
 
-    connect(comboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, [this, comboBox] (int index) {
+    connect(comboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), method, [method, comboBox] (int index) {
         method->setSpeckleRemovalTechnique(comboBox->itemData(index).toInt());
-    });
+    }, Qt::QueuedConnection);
 
     comboBoxSpeckleRemovalTechnique = comboBox;
 
@@ -335,9 +336,9 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
     comboBox->addItem("STAR_KERNEL", cv::stereo::CV_STAR_KERNEL);
     comboBox->setItemData(0, "STAR kernel descriptor.", Qt::ToolTipRole);
 
-    connect(comboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, [this, comboBox] (int index) {
+    connect(comboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), method, [method, comboBox] (int index) {
         method->setBinaryKernelType(comboBox->itemData(index).toInt());
-    });
+    }, Qt::QueuedConnection);
 
     comboBoxBinaryKernelType = comboBox;
 
@@ -352,7 +353,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
     spinBox->setRange(0, 255);
-    connect(spinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), method, &Method::setAggregationWindowSize);
+    connect(spinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), method, &Method::setAggregationWindowSize, Qt::QueuedConnection);
     spinBoxAggregationWindowSize = spinBox;
 
     layout->addRow(label, spinBox);

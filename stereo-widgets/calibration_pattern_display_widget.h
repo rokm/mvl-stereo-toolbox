@@ -1,6 +1,6 @@
 /*
  * Stereo Widgets: calibration pattern display widget
- * Copyright (C) 2013-2015 Rok Mandeljc
+ * Copyright (C) 2013-2017 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,13 +38,13 @@ class MVL_STEREO_WIDGETS_EXPORT CalibrationPatternDisplayWidget : public ImageDi
     Q_DECLARE_PRIVATE(CalibrationPatternDisplayWidget)
 
 public:
-    CalibrationPatternDisplayWidget (const QString &text = QString(), QWidget *parent = 0);
+    CalibrationPatternDisplayWidget (const QString &text = QString(), QWidget *parent = Q_NULLPTR);
     virtual ~CalibrationPatternDisplayWidget ();
 
     void setPattern (bool found, const std::vector<cv::Point2f> &points, const cv::Size &size);
 
 protected:
-    virtual void paintEvent (QPaintEvent *event);
+    virtual void paintEvent (QPaintEvent *event) override;
 
 };
 

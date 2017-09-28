@@ -1,6 +1,6 @@
 /*
  * Efficient LArge-scale Stereo: method
- * Copyright (C) 2013-2015 Rok Mandeljc
+ * Copyright (C) 2013-2017 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,109 +37,109 @@ class Method : public QObject, public StereoMethod
     Q_INTERFACES(MVL::StereoToolbox::Pipeline::StereoMethod)
 
 public:
-    Method (QObject * = 0);
+    Method (QObject *parent = Q_NULLPTR);
     virtual ~Method ();
 
-    virtual QString getShortName () const;
-    virtual QWidget *createConfigWidget (QWidget * = 0);
-    virtual void computeDisparity (const cv::Mat &, const cv::Mat &, cv::Mat &, int &);
-    virtual void loadParameters (const QString &);
-    virtual void saveParameters (const QString &) const;
+    virtual QString getShortName () const override;
+    virtual QWidget *createConfigWidget (QWidget *parent = Q_NULLPTR) override;
+    virtual void computeDisparity (const cv::Mat &img1, const cv::Mat &img2, cv::Mat &disparity, int &numDisparities) override;
+    virtual void loadParameters (const QString &filename) override;
+    virtual void saveParameters (const QString &filename) const override;
 
 
     // Parameters
-    enum {
+    enum PresetType {
         ElasRobotics,
         ElasMiddlebury,
-    } PresetType;
+    };
 
-    void usePreset (int type);
+    void usePreset (int preset);
 
-    void setMinDisparity (int);
+    void setMinDisparity (int value);
     int getMinDisparity () const;
 
-    void setMaxDisparity (int);
+    void setMaxDisparity (int value);
     int getMaxDisparity () const;
 
 
-    void setSupportThreshold (double);
+    void setSupportThreshold (double value);
     double getSupportThreshold () const;
 
-    void setSupportTexture (int);
+    void setSupportTexture (int value);
     int getSupportTexture () const;
 
-    void setCandidateStepSize (int);
+    void setCandidateStepSize (int value);
     int getCandidateStepSize () const;
 
-    void setInconsistentWindowSize (int);
+    void setInconsistentWindowSize (in valuet);
     int getInconsistentWindowSize () const;
 
-    void setInconsistentThreshold (int);
+    void setInconsistentThreshold (int value);
     int getInconsistentThreshold () const;
 
-    void setInconsistentMinSupport (int);
+    void setInconsistentMinSupport (int value);
     int getInconsistentMinSupport () const;
 
 
-    void setAddCorners (bool);
+    void setAddCorners (bool value);
     bool getAddCorners () const;
 
-    void setGridSize (int);
+    void setGridSize (int value);
     int getGridSize () const;
 
 
-    void setBeta (double);
+    void setBeta (double value);
     double getBeta () const;
 
-    void setGamma (double);
+    void setGamma (double value);
     double getGamma () const;
 
-    void setSigma (double);
+    void setSigma (double value);
     double getSigma () const;
 
-    void setSigmaRadius (double);
+    void setSigmaRadius (double value);
     double getSigmaRadius () const;
 
 
-    void setMatchTexture (int);
+    void setMatchTexture (int value);
     int getMatchTexture () const;
 
-    void setLRThreshold (int);
+    void setLRThreshold (int value);
     int getLRThreshold () const;
 
 
-    void setSpeckleSimThreshold (double);
+    void setSpeckleSimThreshold (double value);
     double getSpeckleSimThreshold () const;
 
-    void setSpeckleSize (int);
+    void setSpeckleSize (int value);
     int getSpeckleSize () const;
 
-    void setInterpolationGapWidth (int);
+    void setInterpolationGapWidth (int value);
     int getInterpolationGapWidth () const;
 
 
-    void setFilterMedian (bool);
+    void setFilterMedian (bool value);
     bool getFilterMedian () const;
 
-    void setFilterAdaptiveMean (bool);
+    void setFilterAdaptiveMean (bool value);
     bool getFilterAdaptiveMean () const;
 
-    void setPostProcessOnlyLeft (bool);
+    void setPostProcessOnlyLeft (bool value);
     bool getPostProcessOnlyLeft () const;
 
-    void setSubsampling (bool);
+    void setSubsampling (bool value);
     bool getSubsampling () const;
 
 
-    void setReturnLeft (bool);
+    void setReturnLeft (bool value);
     bool getReturnLeft () const;
 
 protected:
     // Generic parameter setting
-    template <typename T> void setParameter (T &parameter, const T &newValue) {
+    template <typename T> void setParameter (T &parameter, const T &value) {
         // Set only if necessary
-        if (parameter != newValue) {
-            parameter = newValue;
+        if (parameter != value) {
+            parameter = value;
 
             // Create ELAS object
             createElasObject();
@@ -150,7 +150,7 @@ protected:
 
 signals:
     // Signals from interface
-    void parameterChanged ();
+    void parameterChanged () override;
 
 protected:
     // Method implementation
@@ -165,10 +165,10 @@ protected:
 };
 
 
-}; // StereoMethodELAS
-}; // Pipeline
-}; // StereoToolbox
-}; // MVL
+} // StereoMethodELAS
+} // Pipeline
+} // StereoToolbox
+} // MVL
 
 
 #endif

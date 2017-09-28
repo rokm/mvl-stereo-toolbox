@@ -1,6 +1,6 @@
 /*
  * Image File Source: source
- * Copyright (C) 2013-2015 Rok Mandeljc
+ * Copyright (C) 2013-2017 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -39,36 +39,36 @@ class Source : public QObject, public ImagePairSource
     Q_INTERFACES(MVL::StereoToolbox::Pipeline::ImagePairSource)
 
 public:
-    Source (QObject *parent = 0);
+    Source (QObject *parent = Q_NULLPTR);
     virtual ~Source ();
 
-    virtual QString getShortName () const;
-    virtual void getImages (cv::Mat &left, cv::Mat &right) const;
-    virtual void stopSource ();
-    virtual QWidget *createConfigWidget (QWidget *parent = 0);
+    virtual QString getShortName () const override;
+    virtual void getImages (cv::Mat &left, cv::Mat &right) const override;
+    virtual void stopSource () override;
+    virtual QWidget *createConfigWidget (QWidget *parent = Q_NULLPTR) override;
 
     ImageFile *getLeftImageFile ();
     ImageFile *getRightImageFile ();
 
-    void loadImagePair (const QString &, const QString &, bool);
+    void loadImagePair (const QString &left, const QString &right, bool remote);
 
     bool getPeriodicRefreshState () const;
     int getRefreshPeriod () const;
 
-    void setPeriodicRefreshState (bool);
-    void setRefreshPeriod (int);
+    void setPeriodicRefreshState (bool enable);
+    void setRefreshPeriod (int newPeriod);
 
 protected:
     void periodicRefresh ();
     void synchronizeFrames ();
 
 signals:
-    void periodicRefreshStateChanged (bool);
-    void refreshPeriodChanged (int);
+    void periodicRefreshStateChanged (bool enabled);
+    void refreshPeriodChanged (int period);
 
     // Signals from interface
-    void imagesChanged ();
-    void error (QString message);
+    void imagesChanged () override;
+    void error (QString message) override;
 
 protected:
     QTimer *refreshTimer;

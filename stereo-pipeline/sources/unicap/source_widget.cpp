@@ -1,6 +1,6 @@
 /*
  * Unicap Source: source widget
- * Copyright (C) 2013-2015 Rok Mandeljc
+ * Copyright (C) 2013-2017 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -157,11 +157,10 @@ SourceWidget::~SourceWidget ()
 // *                           Camera frame                            *
 // *********************************************************************
 CameraFrame::CameraFrame (Source *source, QWidget *parent)
-    : QFrame(parent)
+    : QFrame(parent),
+     widgetCameraConfig(Q_NULLPTR)
 {
     setFrameStyle(QFrame::Box | QFrame::Sunken);
-
-    widgetCameraConfig = nullptr;
 
     QFormLayout *layout = new QFormLayout(this);
 
@@ -200,7 +199,7 @@ void CameraFrame::setCamera (Camera *camera)
     if (widgetCameraConfig) {
         frameCamera->layout()->removeWidget(widgetCameraConfig);
         widgetCameraConfig->deleteLater();
-        widgetCameraConfig = nullptr;
+        widgetCameraConfig = Q_NULLPTR;
     }
 
     // Get new device's config widget

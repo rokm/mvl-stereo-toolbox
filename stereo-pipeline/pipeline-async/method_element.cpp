@@ -1,3 +1,22 @@
+/*
+ * Stereo Pipeline: asynchronous pipeline: stereo method placeholder element
+ * Copyright (C) 2017 Rok Mandeljc
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
 #include "method_element.h"
 
 #include <stereo-pipeline/stereo_method.h>
@@ -11,9 +30,9 @@ namespace AsyncPipeline {
 
 MethodElement::MethodElement (QObject *parent)
     : Element("StereoMethod", parent),
-      methodObject(nullptr),
-      methodParent(nullptr),
-      methodIface(nullptr)
+      methodObject(Q_NULLPTR),
+      methodParent(Q_NULLPTR),
+      methodIface(Q_NULLPTR)
 {
     // Update time and FPS statistics (local loop)
     connect(this, &MethodElement::disparityChanged, this, &MethodElement::incrementUpdateCount);
@@ -44,7 +63,7 @@ void MethodElement::setStereoMethod (QObject *newMethod)
     methodIface = newMethodIface;
 
     methodParent = methodObject->parent(); // Store parent
-    methodObject->setParent(nullptr);
+    methodObject->setParent(Q_NULLPTR);
 
     methodObject->moveToThread(thread);
 
@@ -74,9 +93,9 @@ void MethodElement::setStereoMethod (QObject *newMethod)
         // Clear pointers
         signalConnections.clear();
 
-        methodObject = nullptr;
-        methodParent = nullptr;
-        methodIface = nullptr;
+        methodObject = Q_NULLPTR;
+        methodParent = Q_NULLPTR;
+        methodIface = Q_NULLPTR;
 
         // Clear cached image
         QWriteLocker locker(&lock);

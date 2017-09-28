@@ -1,6 +1,6 @@
 /*
  * Stereo Pipeline: reprojection
- * Copyright (C) 2013-2015 Rok Mandeljc
+ * Copyright (C) 2013-2017 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -41,7 +41,7 @@ class MVL_STEREO_PIPELINE_EXPORT Reprojection : public QObject
     QScopedPointer<ReprojectionPrivate> const d_ptr;
 
 public:
-    Reprojection (QObject *parent = 0);
+    Reprojection (QObject *parent = Q_NULLPTR);
     ~Reprojection ();
 
     enum {

@@ -1,6 +1,6 @@
 /*
  * DC1394 Source: plugin
- * Copyright (C) 2013-2015 Rok Mandeljc
+ * Copyright (C) 2013-2017 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,19 +33,19 @@ class Plugin : public QObject, public PluginFactory
     Q_PLUGIN_METADATA(IID "mvl-stereo-toolbox.Plugin.Source.DC1394")
     Q_INTERFACES(MVL::StereoToolbox::Pipeline::PluginFactory)
 
-    PluginType getPluginType () const {
+    PluginType getPluginType () const override {
         return PluginImagePairSource;
     }
 
-    QString getShortName () const {
+    QString getShortName () const override {
         return "DC1394";
     }
 
-    QString getDescription () const {
+    QString getDescription () const override {
         return "DC1394 Image Pair Source";
     }
 
-    QObject *createObject (QObject *parent = 0) const {
+    QObject *createObject (QObject *parent = Q_NULLPTR) const override {
         return new Source(parent);
     }
 };

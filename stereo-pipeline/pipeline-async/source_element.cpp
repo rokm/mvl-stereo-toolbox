@@ -1,3 +1,22 @@
+/*
+ * Stereo Pipeline: asynchronous pipeline: image-pair source placeholder element
+ * Copyright (C) 2017 Rok Mandeljc
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
 #include "source_element.h"
 
 #include <stereo-pipeline/image_pair_source.h>
@@ -11,9 +30,9 @@ namespace AsyncPipeline {
 
 SourceElement::SourceElement (QObject *parent)
     : Element("ImagePairSource", parent),
-      sourceObject(nullptr),
-      sourceParent(nullptr),
-      sourceIface(nullptr),
+      sourceObject(Q_NULLPTR),
+      sourceParent(Q_NULLPTR),
+      sourceIface(Q_NULLPTR),
       framerateLimit(0.0)
 {
     // Update time and FPS statistics (local loop)
@@ -45,7 +64,7 @@ void SourceElement::setImagePairSource (QObject *newSource)
     sourceIface = newSourceIface;
 
     sourceParent = sourceObject->parent(); // Store parent
-    sourceObject->setParent(nullptr);
+    sourceObject->setParent(Q_NULLPTR);
 
     sourceObject->moveToThread(thread);
 
@@ -92,9 +111,9 @@ void SourceElement::setImagePairSource (QObject *newSource)
         // Clear pointers
         signalConnections.clear();
 
-        sourceObject = nullptr;
-        sourceParent = nullptr;
-        sourceIface = nullptr;
+        sourceObject = Q_NULLPTR;
+        sourceParent = Q_NULLPTR;
+        sourceIface = Q_NULLPTR;
 
         // Clear cached image
         QWriteLocker locker(&lock);

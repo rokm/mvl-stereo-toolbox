@@ -1,6 +1,6 @@
 /*
  * Video File Source: source
- * Copyright (C) 2014-2015 Rok Mandeljc
+ * Copyright (C) 2014-2017 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -39,13 +39,13 @@ class Source : public QObject, public ImagePairSource
     Q_INTERFACES(MVL::StereoToolbox::Pipeline::ImagePairSource)
 
 public:
-    Source (QObject *parent = nullptr);
+    Source (QObject *parent = Q_NULLPTR);
     virtual ~Source ();
 
-    virtual QString getShortName () const;
-    virtual void getImages (cv::Mat &left, cv::Mat &right) const;
-    virtual void stopSource ();
-    virtual QWidget *createConfigWidget (QWidget *parent = nullptr);
+    virtual QString getShortName () const override;
+    virtual void getImages (cv::Mat &left, cv::Mat &right) const override;
+    virtual void stopSource () override;
+    virtual QWidget *createConfigWidget (QWidget *parent = Q_NULLPTR) override;
 
     int getVideoWidth ();
     int getVideoHeight ();
@@ -64,8 +64,8 @@ protected:
 
 signals:
     // Signals from interface
-    void imagesChanged ();
-    void error (QString message);
+    void imagesChanged () override;
+    void error (QString message) override;
 
     void playbackStateChanged (bool playing);
     void videoFileChanged (bool available);

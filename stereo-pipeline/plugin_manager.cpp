@@ -1,6 +1,6 @@
 /*
  * Stereo Pipeline: plugin manager
- * Copyright (C) 2014-2015 Rok Mandeljc
+ * Copyright (C) 2014-2017 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -52,13 +52,13 @@ static void recursiveDirectoryScan (QDir dir, QStringList &files)
 {
     // List all files in current directory
     dir.setFilter(QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks);
-    foreach (QString fileName, dir.entryList()) {
+    for (const QString &fileName : dir.entryList()) {
         files.append(dir.absoluteFilePath(fileName));
     }
 
     // List all directories and recursively scan them
     dir.setFilter(QDir::AllDirs | QDir::NoDotAndDotDot | QDir::NoSymLinks);
-    foreach (QString dirName, dir.entryList()) {
+    for (const QString &dirName : dir.entryList()) {
         recursiveDirectoryScan(dir.absoluteFilePath(dirName), files);
     }
 }
@@ -68,7 +68,7 @@ void PluginManager::setPluginDirectory (const QString &path)
     Q_D(PluginManager);
 
     // Clear old plugins
-    foreach (QObject *plugin, d->plugins) {
+    for (QObject *plugin : d->plugins) {
         delete plugin;
     }
     d->plugins.clear();
@@ -90,7 +90,7 @@ void PluginManager::setPluginDirectory (const QString &path)
     QStringList files;
     recursiveDirectoryScan(d->pluginDirectory.absolutePath(), files);
 
-    foreach (QString fileName, files) {
+    for (const QString &fileName : files) {
         // Make sure it is a library
         if (!QLibrary::isLibrary(fileName)) {
             continue;

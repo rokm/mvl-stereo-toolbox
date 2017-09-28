@@ -1,6 +1,6 @@
 /*
  * MVL Stereo Toolbox: stereo method window
- * Copyright (C) 2013-2015 Rok Mandeljc
+ * Copyright (C) 2013-2017 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,8 +17,8 @@
  *
  */
 
-#ifndef WINDOW_STEREO_METHOD_H
-#define WINDOW_STEREO_METHOD_H
+#ifndef MVL_STEREO_TOOLBOX__TOOLBOX__WINDOW_STEREO_METHOD_H
+#define MVL_STEREO_TOOLBOX__TOOLBOX__WINDOW_STEREO_METHOD_H
 
 #include <QtWidgets>
 
@@ -44,11 +44,11 @@ class WindowStereoMethod : public QWidget
     Q_OBJECT
 
 public:
-    WindowStereoMethod (Pipeline::Pipeline *p, QList<QObject *> &m, QWidget *parent = nullptr);
+    WindowStereoMethod (Pipeline::Pipeline *pipeline, QList<QObject *> &methods, QWidget *parent = Q_NULLPTR);
     virtual ~WindowStereoMethod ();
 
 protected:
-    void setMethod (int i);
+    void setMethod (int idx);
 
     void saveImage ();
 

@@ -1,6 +1,6 @@
 /*
  * MVL Stereo Toolbox: main toolbox object and window
- * Copyright (C) 2013-2015 Rok Mandeljc
+ * Copyright (C) 2013-2017 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,8 +17,8 @@
  *
  */
 
-#ifndef TOOLBOX_H
-#define TOOLBOX_H
+#ifndef MVL_STEREO_TOOLBOX__TOOLBOX__TOOLBOX_H
+#define MVL_STEREO_TOOLBOX__TOOLBOX__TOOLBOX_H
 
 #include <QtWidgets>
 
@@ -47,18 +47,18 @@ class Toolbox : public QWidget
     Q_OBJECT
 
 public:
-    Toolbox ();
+    Toolbox (QWidget *parent = Q_NULLPTR);
     virtual ~Toolbox ();
 
 protected:
     void createGui ();
     void loadPlugins ();
 
-    void displayError (int, const QString &);
+    void displayError (int, const QString &message);
     void clearError ();
 
-    void showWindowOnTop (QWidget *);
-    void setActiveButtonState (QPushButton *, bool);
+    void showWindowOnTop (QWidget *window);
+    void setActiveButtonState (QPushButton *button, bool active);
 
 protected:
     WindowImagePairSource *windowImagePairSource;

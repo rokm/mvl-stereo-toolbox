@@ -1,6 +1,6 @@
 /*
  * MVL Stereo Toolbox: stereo method window
- * Copyright (C) 2013-2015 Rok Mandeljc
+ * Copyright (C) 2013-2017 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,9 +34,14 @@ namespace StereoToolbox {
 namespace GUI {
 
 
-WindowStereoMethod::WindowStereoMethod (Pipeline::Pipeline *p, QList<QObject *> &m, QWidget *parent)
-    : QWidget(parent, Qt::Window), pipeline(p), methods(m), visualization(pipeline->getVisualization()),
-      disparityInfo({ false, 0, 0, 0 }), numDroppedFrames(0), estimatedFps(0.0f)
+WindowStereoMethod::WindowStereoMethod (Pipeline::Pipeline *pipeline, QList<QObject *> &methods, QWidget *parent)
+    : QWidget(parent, Qt::Window),
+      pipeline(pipeline),
+      methods(methods),
+      visualization(pipeline->getVisualization()),
+      disparityInfo({ false, 0, 0, 0 }),
+      numDroppedFrames(0),
+      estimatedFps(0.0f)
 {
     setWindowTitle("Stereo method");
     resize(800, 600);
@@ -161,12 +166,12 @@ WindowStereoMethod::WindowStereoMethod (Pipeline::Pipeline *p, QList<QObject *> 
 
     // Pipeline
     connect(pipeline, &Pipeline::Pipeline::visualizationChanged, this, [this] () {
-        cv::Mat image = pipeline->getDisparityVisualization();
+        cv::Mat image = this->pipeline->getDisparityVisualization();
         displayDisparityImage->setImage(image);
     });
 
     connect(pipeline, &Pipeline::Pipeline::disparityChanged, this, [this] () {
-        cv::Mat disparity = pipeline->getDisparity();
+        cv::Mat disparity = this->pipeline->getDisparity();
 
         // Disparity
         displayDisparityImage->setDisparity(disparity);
@@ -187,11 +192,11 @@ WindowStereoMethod::WindowStereoMethod (Pipeline::Pipeline *p, QList<QObject *> 
     });
 
     // Pipeline's error signalization
-    connect(pipeline, &Pipeline::Pipeline::error, this, [this] (int errorType, const QString &errorMessage) {
+    connect(pipeline, &Pipeline::Pipeline::error, this, [this] (int errorType, const QString &message) {
         if (errorType == Pipeline::Pipeline::ErrorStereoMethod) {
-            QMessageBox::warning(this, "Stereo Method Error", errorMessage);
+            QMessageBox::warning(this, "Stereo Method Error", message);
         } else if (errorType == Pipeline::Pipeline::ErrorVisualization) {
-            QMessageBox::warning(this, "Visualization Error", errorMessage);
+            QMessageBox::warning(this, "Visualization Error", message);
         }
     });
 
@@ -210,14 +215,14 @@ WindowStereoMethod::~WindowStereoMethod ()
 {
 }
 
-void WindowStereoMethod::setMethod (int i)
+void WindowStereoMethod::setMethod (int idx)
 {
-    if (i < 0 || i >= methods.size()) {
-        qWarning() << "Method" << i << "does not exist!";
+    if (idx < 0 || idx >= methods.size()) {
+        qWarning() << "Method" << idx << "does not exist!";
         return;
     }
 
-    pipeline->setStereoMethod(methods[i]);
+    pipeline->setStereoMethod(methods[idx]);
 }
 
 

@@ -1,6 +1,6 @@
 /*
  * Image File Source: source widget
- * Copyright (C) 2013-2015 Rok Mandeljc
+ * Copyright (C) 2013-2017 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,8 +28,9 @@ namespace Pipeline {
 namespace SourceImageFile {
 
 
-SourceWidget::SourceWidget (Source *s, QWidget *parent)
-    : QWidget(parent), source(s)
+SourceWidget::SourceWidget (Source *source, QWidget *parent)
+    : QWidget(parent),
+      source(source)
 {
     // Build layout
     QVBoxLayout *baseLayout = new QVBoxLayout(this);
@@ -69,7 +70,7 @@ SourceWidget::SourceWidget (Source *s, QWidget *parent)
     button->setToolTip(tooltip);
     connect(button, &QPushButton::clicked, this, [this] {
         // Get filename
-        QStringList filenames = QFileDialog::getOpenFileNames(this, "Load left and right image", QFileInfo(source->getLeftImageFile()->getImageFilename()).filePath(), "Images (*.png *.jpg *.pgm *.ppm *.tif *.bmp)");
+        QStringList filenames = QFileDialog::getOpenFileNames(this, "Load left and right image", QFileInfo(this->source->getLeftImageFile()->getImageFilename()).filePath(), "Images (*.png *.jpg *.pgm *.ppm *.tif *.bmp)");
 
         if (filenames.size() >= 2) {
             emit requestImageLoad(filenames[0], filenames[1]);
@@ -77,7 +78,7 @@ SourceWidget::SourceWidget (Source *s, QWidget *parent)
     });
     connect(this, &SourceWidget::requestImageLoad, source, [this] (QString filenameLeft, QString filenameRight) {
         // Load image pair
-        source->loadImagePair(filenameLeft, filenameRight, false);
+        this->source->loadImagePair(filenameLeft, filenameRight, false);
     }, Qt::QueuedConnection);
 
     layout->addRow(button);

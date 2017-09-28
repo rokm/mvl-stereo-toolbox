@@ -1,6 +1,6 @@
 /*
  * Unicap Source: property widget
- * Copyright (C) 2013-2015 Rok Mandeljc
+ * Copyright (C) 2013-2017 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,8 +27,10 @@ namespace Pipeline {
 namespace SourceUnicap {
 
 
-PropertyWidget::PropertyWidget (Camera *c, const unicap_property_t &p, QWidget *parent)
-    : QWidget(parent), camera(c), property(p)
+PropertyWidget::PropertyWidget (Camera *camera, const unicap_property_t &property, QWidget *parent)
+    : QWidget(parent),
+      camera(camera),
+      property(property)
 {
     connect(camera, &Camera::propertyChanged, this, &PropertyWidget::updateProperty);
 
@@ -42,8 +44,8 @@ PropertyWidget::PropertyWidget (Camera *c, const unicap_property_t &p, QWidget *
                 pushButtonValue = new QPushButton(this);
                 pushButtonValue->setCheckable(true);
 
-                connect(pushButtonValue, &QPushButton::toggled, camera, [this] (bool newValue) {
-                    camera->setPropertyValue(property.identifier, newValue);
+                connect(pushButtonValue, &QPushButton::toggled, camera, [this] (bool value) {
+                    this->camera->setPropertyValue(this->property.identifier, value);
                 }, Qt::QueuedConnection);
                 layout->addWidget(pushButtonValue);
 
@@ -63,8 +65,8 @@ PropertyWidget::PropertyWidget (Camera *c, const unicap_property_t &p, QWidget *
                     spinBoxValue->setSuffix(" " + unit);
                 }
 
-                connect(spinBoxValue, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), camera, [this] (double newValue) {
-                    camera->setPropertyValue(property.identifier, newValue);
+                connect(spinBoxValue, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), camera, [this] (double value) {
+                    this->camera->setPropertyValue(this->property.identifier, value);
                 }, Qt::QueuedConnection);
                 layout->addWidget(spinBoxValue);
 
@@ -76,7 +78,7 @@ PropertyWidget::PropertyWidget (Camera *c, const unicap_property_t &p, QWidget *
             comboBoxValue = new QComboBox(this);
 
             connect(comboBoxValue, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), camera, [this] (int index) {
-                camera->setPropertyValue(property.identifier, property.value_list.values[index]);
+                this->camera->setPropertyValue(this->property.identifier, this->property.value_list.values[index]);
             }, Qt::QueuedConnection);
             layout->addWidget(comboBoxValue);
 
@@ -91,7 +93,7 @@ PropertyWidget::PropertyWidget (Camera *c, const unicap_property_t &p, QWidget *
             comboBoxValue = new QComboBox(this);
 
             connect(comboBoxValue, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), camera, [this] (int index) {
-                camera->setPropertyValue(property.identifier, property.menu.menu_items[index]);
+                this->camera->setPropertyValue(this->property.identifier, this->property.menu.menu_items[index]);
             }, Qt::QueuedConnection);
             layout->addWidget(comboBoxValue);
 
@@ -115,7 +117,7 @@ PropertyWidget::PropertyWidget (Camera *c, const unicap_property_t &p, QWidget *
     comboBoxMode = new QComboBox(this);
     connect(comboBoxMode, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), camera, [this] (int index) {
         int mode = comboBoxMode->itemData(index).toInt();
-        camera->setPropertyMode(property.identifier, (Camera::PropertyMode)mode);
+        this->camera->setPropertyMode(this->property.identifier, (Camera::PropertyMode)mode);
     }, Qt::QueuedConnection);
     layout->addWidget(comboBoxMode);
 

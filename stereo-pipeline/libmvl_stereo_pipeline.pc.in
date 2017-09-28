@@ -9,4 +9,3 @@ Description: MVL Stereo Pipeline shared library
 Version: @PROJECT_VERSION@
 Libs: -L${libdir} -lmvl_stereo_pipeline
 Cflags: -I${includedir}/MVL
-

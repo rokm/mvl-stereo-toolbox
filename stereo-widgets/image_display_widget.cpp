@@ -1,6 +1,6 @@
 /*
  * Stereo Widgets: image display widget
- * Copyright (C) 2013-2015 Rok Mandeljc
+ * Copyright (C) 2013-2017 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -64,7 +64,7 @@ void ImageDisplayWidget::setImage (const cv::Mat &image)
     } else {
         cv::cvtColor(image, d->image, cv::COLOR_BGR2RGB);
     }
-    
+
     // Refresh
     update();
 }
@@ -107,7 +107,7 @@ void ImageDisplayWidget::paintEvent (QPaintEvent *event)
         h *= scale;
 
         painter.translate((width() - w)/2, (height() - h)/2);
-        
+
         painter.drawImage(QRect(0, 0, w, h), QImage(d->image.data, d->image.cols, d->image.rows, d->image.step, QImage::Format_RGB888));
     }
 

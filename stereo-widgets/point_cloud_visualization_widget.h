@@ -1,6 +1,6 @@
 /*
  * Stereo Widgets: point cloud visualization widget
- * Copyright (C) 2015 Rok Mandeljc
+ * Copyright (C) 2015-2017 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -45,10 +45,10 @@ class MVL_STEREO_WIDGETS_EXPORT PointCloudVisualizationWidget : public QOpenGLWi
 
 protected:
     QScopedPointer<PointCloudVisualizationWidgetPrivate> const d_ptr;
-    PointCloudVisualizationWidget (PointCloudVisualizationWidgetPrivate *d, QWidget *parent = 0);
+    PointCloudVisualizationWidget (PointCloudVisualizationWidgetPrivate *d, QWidget *parent = Q_NULLPTR);
 
 public:
-    PointCloudVisualizationWidget (QWidget *parent = 0);
+    PointCloudVisualizationWidget (QWidget *parent = Q_NULLPTR);
     virtual ~PointCloudVisualizationWidget ();
 
     void setImage (const cv::Mat &image);
@@ -56,18 +56,18 @@ public:
     void setPointCloud (const cv::Mat &image, const cv::Mat &points);
 
 protected:
-    virtual void mousePressEvent (QMouseEvent *event);
-    virtual void mouseReleaseEvent (QMouseEvent *event);
-    virtual void mouseMoveEvent (QMouseEvent *event);
+    virtual void mousePressEvent (QMouseEvent *event) override;
+    virtual void mouseReleaseEvent (QMouseEvent *event) override;
+    virtual void mouseMoveEvent (QMouseEvent *event) override;
 
-    virtual void keyPressEvent (QKeyEvent *event);
+    virtual void keyPressEvent (QKeyEvent *event) override;
 
-    virtual void wheelEvent (QWheelEvent *event);
+    virtual void wheelEvent (QWheelEvent *event) override;
 
 protected:
-    virtual void initializeGL ();
-    virtual void resizeGL (int w, int h);
-    virtual void paintGL ();
+    virtual void initializeGL () override;
+    virtual void resizeGL (int w, int h) override;
+    virtual void paintGL () override;
 };
 
 #else
@@ -80,10 +80,10 @@ class MVL_STEREO_WIDGETS_EXPORT PointCloudVisualizationWidget : public QLabel
 
 protected:
     QScopedPointer<PointCloudVisualizationWidgetPrivate> const d_ptr;
-    PointCloudVisualizationWidget (PointCloudVisualizationWidgetPrivate *d, QWidget *parent = 0);
+    PointCloudVisualizationWidget (PointCloudVisualizationWidgetPrivate *d, QWidget *parent = Q_NULLPTR);
 
 public:
-    PointCloudVisualizationWidget (QWidget *parent = 0);
+    PointCloudVisualizationWidget (QWidget *parent = Q_NULLPTR);
     virtual ~PointCloudVisualizationWidget ();
 
     void setImage (const cv::Mat &image);

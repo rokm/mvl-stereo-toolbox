@@ -1,6 +1,6 @@
 /*
  * Unicap Source: camera
- * Copyright (C) 2013-2015 Rok Mandeljc
+ * Copyright (C) 2013-2017 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,12 +27,13 @@ namespace Pipeline {
 namespace SourceUnicap {
 
 
-static void callback_new_frame (unicap_event_t, unicap_handle_t, unicap_data_buffer_t *, void *);
+static void callback_new_frame (unicap_event_t event, unicap_handle_t hande, unicap_data_buffer_t *buffer, void *usr_data);
 
 #define FOURCC(a,b,c,d) (unsigned int)((((unsigned int)a))+(((unsigned int)b)<<8)+(((unsigned int)c)<<16)+(((unsigned int)d)<<24))
 
-Camera::Camera (unicap_handle_t h, QObject *parent)
-    : QObject(parent), handle(h)
+Camera::Camera (unicap_handle_t handle, QObject *parent)
+    : QObject(parent),
+      handle(handle)
 {
     int num_formats;
     int num_properties;
@@ -223,7 +224,7 @@ void Camera::setPropertyValue (const QString &name, const QString &value)
 
     // Find this property in our list
     bool found = false;
-    foreach (unicap_property_t p, properties) {
+    for (unicap_property_t &p : properties) {
         if (name.compare(p.identifier)) {
             property = p;
             found = true;

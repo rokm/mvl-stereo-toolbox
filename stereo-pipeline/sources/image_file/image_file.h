@@ -1,6 +1,6 @@
 /*
  * Image File Source: image file
- * Copyright (C) 2013-2015 Rok Mandeljc
+ * Copyright (C) 2013-2017 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,33 +36,33 @@ class ImageFile : public QObject
     Q_OBJECT
 
 public:
-    ImageFile (QObject * = 0);
+    ImageFile (QObject *parent = Q_NULLPTR);
     virtual ~ImageFile ();
 
-    QWidget *createConfigWidget (QWidget * = 0);
+    QWidget *createConfigWidget (QWidget *parent = Q_NULLPTR);
 
     const QString &getImageFilename ();
     int getImageWidth ();
     int getImageHeight ();
     int getImageChannels ();
 
-    void copyFrame (cv::Mat &);
+    void copyFrame (cv::Mat &frame);
 
 public:
-    void setImageFileOrUrl (const QString &, bool);
+    void setImageFileOrUrl (const QString &name, bool remote);
 
     void refreshImage ();
 
 protected:
-    void imageLoadingError (const QString &);
+    void imageLoadingError (const QString &message);
     void loadLocalImage ();
     void loadRemoteImage ();
 
-    void processRemoteReply (QNetworkReply *);
+    void processRemoteReply (QNetworkReply *reply);
 
 signals:
     void imageReady ();
-    void error (const QString);
+    void error (const QString message);
 
 protected:
     QString fileNameOrUrl;

@@ -1,6 +1,6 @@
 /*
  * Image File Source: image file widget
- * Copyright (C) 2013-2015 Rok Mandeljc
+ * Copyright (C) 2013-2017 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,7 +37,7 @@ class ImageFileWidget : public QWidget
     Q_OBJECT
 
 public:
-    ImageFileWidget (ImageFile *, QWidget * = 0);
+    ImageFileWidget (ImageFile *file, QWidget *parent = Q_NULLPTR);
     virtual ~ImageFileWidget ();
 
 protected:
@@ -56,7 +56,7 @@ class UrlDialog : public QDialog
     Q_OBJECT
 
 public:
-    UrlDialog (QWidget * = 0);
+    UrlDialog (QWidget *parent = Q_NULLPTR);
     virtual ~UrlDialog ();
 
     QString getUrl () const;

@@ -1,6 +1,6 @@
 /*
  * MVL Stereo Toolbox: point cloud window
- * Copyright (C) 2015 Rok Mandeljc
+ * Copyright (C) 2015-2017 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,8 +31,9 @@ namespace StereoToolbox {
 namespace GUI {
 
 
-WindowPointCloud::WindowPointCloud (Pipeline::Pipeline *p, QWidget *parent)
-    : QWidget(parent, Qt::Window), pipeline(p)
+WindowPointCloud::WindowPointCloud (Pipeline::Pipeline *pipeline, QWidget *parent)
+    : QWidget(parent, Qt::Window),
+      pipeline(pipeline)
 {
     setWindowTitle("Point cloud");
     resize(800, 600);
@@ -63,12 +64,12 @@ WindowPointCloud::WindowPointCloud (Pipeline::Pipeline *p, QWidget *parent)
     // framerate is high enough that receiving a newer image before
     // the point cloud is computed does not cause noticeable artifacts...
     connect(pipeline, &Pipeline::Pipeline::rectifiedImagesChanged, this, [this] () {
-        cv::Mat image = pipeline->getLeftRectifiedImage();
+        cv::Mat image = this->pipeline->getLeftRectifiedImage();
         visualizationWidget->setImage(image);
     });
 
     connect(pipeline, &Pipeline::Pipeline::pointsChanged, this, [this] () {
-        cv::Mat points = pipeline->getPoints();
+        cv::Mat points = this->pipeline->getPoints();
         visualizationWidget->setPoints(points);
     });
 }

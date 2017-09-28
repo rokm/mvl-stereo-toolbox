@@ -1,6 +1,6 @@
 /*
  * Stereo Pipeline: stereo method interface
- * Copyright (C) 2013-2015 Rok Mandeljc
+ * Copyright (C) 2013-2017 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,7 +36,7 @@ public:
     virtual QString getShortName () const = 0;
 
     // Config widget
-    virtual QWidget *createConfigWidget (QWidget *parent = 0) = 0;
+    virtual QWidget *createConfigWidget (QWidget *parent = Q_NULLPTR) = 0;
 
     // Disparity image computation
     virtual void computeDisparity (const cv::Mat &img1, const cv::Mat &img2, cv::Mat &disparity, int &numDisparities) = 0;

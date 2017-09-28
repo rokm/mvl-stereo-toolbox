@@ -1,6 +1,6 @@
 /*
  * Efficient LArge-scale Stereo: method
- * Copyright (C) 2013-2015 Rok Mandeljc
+ * Copyright (C) 2013-2017 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -69,9 +69,9 @@ QWidget *Method::createConfigWidget (QWidget *parent)
 // *********************************************************************
 // *                              Preset                               *
 // *********************************************************************
-void Method::usePreset (int type)
+void Method::usePreset (int preset)
 {
-    switch (type) {
+    switch (preset) {
         case ElasRobotics: {
             // Robotics preset
             param = Elas::parameters(Elas::ROBOTICS);
@@ -254,9 +254,9 @@ int Method::getMinDisparity () const
     return param.disp_min;
 }
 
-void Method::setMinDisparity (int newValue)
+void Method::setMinDisparity (int value)
 {
-    setParameter(param.disp_min, newValue);
+    setParameter(param.disp_min, value);
 }
 
 // Maximum disparity
@@ -265,9 +265,9 @@ int Method::getMaxDisparity () const
     return param.disp_max;
 }
 
-void Method::setMaxDisparity (int newValue)
+void Method::setMaxDisparity (int value)
 {
-    setParameter(param.disp_max, newValue);
+    setParameter(param.disp_max, value);
 }
 
 
@@ -277,9 +277,9 @@ double Method::getSupportThreshold () const
     return param.support_threshold;
 }
 
-void Method::setSupportThreshold (double newValue)
+void Method::setSupportThreshold (double value)
 {
-    setParameter(param.support_threshold, (float)newValue);
+    setParameter(param.support_threshold, (float)value);
 }
 
 // Support texture
@@ -288,9 +288,9 @@ int Method::getSupportTexture () const
     return param.support_texture;
 }
 
-void Method::setSupportTexture (int newValue)
+void Method::setSupportTexture (int value)
 {
-    setParameter(param.support_texture, newValue);
+    setParameter(param.support_texture, value);
 }
 
 // Candidate step size
@@ -299,9 +299,9 @@ int Method::getCandidateStepSize () const
     return param.candidate_stepsize;
 }
 
-void Method::setCandidateStepSize (int newValue)
+void Method::setCandidateStepSize (int value)
 {
-    setParameter(param.candidate_stepsize, newValue);
+    setParameter(param.candidate_stepsize, value);
 }
 
 // Inconsistent window size
@@ -310,9 +310,9 @@ int Method::getInconsistentWindowSize () const
     return param.incon_window_size;
 }
 
-void Method::setInconsistentWindowSize (int newValue)
+void Method::setInconsistentWindowSize (int value)
 {
-    setParameter(param.incon_window_size, newValue);
+    setParameter(param.incon_window_size, value);
 }
 
 // Inconsistent threshold
@@ -321,9 +321,9 @@ int Method::getInconsistentThreshold () const
     return param.incon_threshold;
 }
 
-void Method::setInconsistentThreshold (int newValue)
+void Method::setInconsistentThreshold (int value)
 {
-    setParameter(param.incon_threshold, newValue);
+    setParameter(param.incon_threshold, value);
 }
 
 // Inconsistent min support
@@ -332,9 +332,9 @@ int Method::getInconsistentMinSupport () const
     return param.incon_min_support;
 }
 
-void Method::setInconsistentMinSupport (int newValue)
+void Method::setInconsistentMinSupport (int value)
 {
-    setParameter(param.incon_min_support, newValue);
+    setParameter(param.incon_min_support, value);
 }
 
 
@@ -344,9 +344,9 @@ bool Method::getAddCorners () const
     return param.add_corners;
 }
 
-void Method::setAddCorners (bool newValue)
+void Method::setAddCorners (bool value)
 {
-    setParameter(param.add_corners, newValue);
+    setParameter(param.add_corners, value);
 }
 
 // Grid size
@@ -355,9 +355,9 @@ int Method::getGridSize () const
     return param.grid_size;
 }
 
-void Method::setGridSize (int newValue)
+void Method::setGridSize (int value)
 {
-    setParameter(param.grid_size, newValue);
+    setParameter(param.grid_size, value);
 }
 
 
@@ -367,9 +367,9 @@ double Method::getBeta () const
     return param.beta;
 }
 
-void Method::setBeta (double newValue)
+void Method::setBeta (double value)
 {
-    setParameter(param.beta, (float)newValue);
+    setParameter(param.beta, (float)value);
 }
 
 // Gamma
@@ -378,9 +378,9 @@ double Method::getGamma () const
     return param.gamma;
 }
 
-void Method::setGamma (double newValue)
+void Method::setGamma (double value)
 {
-    setParameter(param.gamma, (float)newValue);
+    setParameter(param.gamma, (float)value);
 }
 
 // Sigma
@@ -389,9 +389,9 @@ double Method::getSigma () const
     return param.sigma;
 }
 
-void Method::setSigma (double newValue)
+void Method::setSigma (double value)
 {
-    setParameter(param.sigma, (float)newValue);
+    setParameter(param.sigma, (float)value);
 }
 
 // Sigma radius
@@ -400,9 +400,9 @@ double Method::getSigmaRadius () const
     return param.sradius;
 }
 
-void Method::setSigmaRadius (double newValue)
+void Method::setSigmaRadius (double value)
 {
-    setParameter(param.sradius, (float)newValue);
+    setParameter(param.sradius, (float)value);
 }
 
 
@@ -412,9 +412,9 @@ int Method::getMatchTexture () const
     return param.match_texture;
 }
 
-void Method::setMatchTexture (int newValue)
+void Method::setMatchTexture (int value)
 {
-    setParameter(param.match_texture, newValue);
+    setParameter(param.match_texture, value);
 }
 
 // Left/right threshold
@@ -423,9 +423,9 @@ int Method::getLRThreshold () const
     return param.lr_threshold;
 }
 
-void Method::setLRThreshold (int newValue)
+void Method::setLRThreshold (int value)
 {
-    setParameter(param.lr_threshold, newValue);
+    setParameter(param.lr_threshold, value);
 }
 
 
@@ -435,9 +435,9 @@ double Method::getSpeckleSimThreshold () const
     return param.speckle_sim_threshold;
 }
 
-void Method::setSpeckleSimThreshold (double newValue)
+void Method::setSpeckleSimThreshold (double value)
 {
-    setParameter(param.speckle_sim_threshold, (float)newValue);
+    setParameter(param.speckle_sim_threshold, (float)value);
 }
 
 // Speckle size
@@ -446,9 +446,9 @@ int Method::getSpeckleSize () const
     return param.speckle_size;
 }
 
-void Method::setSpeckleSize (int newValue)
+void Method::setSpeckleSize (int value)
 {
-    setParameter(param.speckle_size, newValue);
+    setParameter(param.speckle_size, value);
 }
 
 // Interpolation gap width
@@ -457,9 +457,9 @@ int Method::getInterpolationGapWidth () const
     return param.ipol_gap_width;
 }
 
-void Method::setInterpolationGapWidth (int newValue)
+void Method::setInterpolationGapWidth (int value)
 {
-    setParameter(param.ipol_gap_width, newValue);
+    setParameter(param.ipol_gap_width, value);
 }
 
 
@@ -469,9 +469,9 @@ bool Method::getFilterMedian () const
     return param.filter_median;
 }
 
-void Method::setFilterMedian (bool newValue)
+void Method::setFilterMedian (bool value)
 {
-    setParameter(param.filter_median, newValue);
+    setParameter(param.filter_median, value);
 }
 
 // Adaptive mean filter
@@ -480,9 +480,9 @@ bool Method::getFilterAdaptiveMean () const
     return param.filter_adaptive_mean;
 }
 
-void Method::setFilterAdaptiveMean (bool newValue)
+void Method::setFilterAdaptiveMean (bool value)
 {
-    setParameter(param.filter_adaptive_mean, newValue);
+    setParameter(param.filter_adaptive_mean, value);
 }
 
 // Post-process only left
@@ -491,9 +491,9 @@ bool Method::getPostProcessOnlyLeft () const
     return param.postprocess_only_left;
 }
 
-void Method::setPostProcessOnlyLeft (bool newValue)
+void Method::setPostProcessOnlyLeft (bool value)
 {
-    setParameter(param.postprocess_only_left, newValue);
+    setParameter(param.postprocess_only_left, value);
 }
 
 // Subsampling
@@ -502,9 +502,9 @@ bool Method::getSubsampling () const
     return param.subsampling;
 }
 
-void Method::setSubsampling (bool newValue)
+void Method::setSubsampling (bool value)
 {
-    setParameter(param.subsampling, newValue);
+    setParameter(param.subsampling, value);
 }
 
 
@@ -514,13 +514,13 @@ bool Method::getReturnLeft () const
     return returnLeft;
 }
 
-void Method::setReturnLeft (bool newValue)
+void Method::setReturnLeft (bool value)
 {
-    setParameter(returnLeft, newValue);
+    setParameter(returnLeft, value);
 }
 
 
-}; // StereoMethodELAS
-}; // Pipeline
-}; // StereoToolbox
-}; // MVL
+} // StereoMethodELAS
+} // Pipeline
+} // StereoToolbox
+} // MVL

@@ -1,6 +1,6 @@
 /*
  * MVL Stereo Toolbox: rectification window
- * Copyright (C) 2013-2015 Rok Mandeljc
+ * Copyright (C) 2013-2017 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,9 +33,12 @@ namespace StereoToolbox {
 namespace GUI {
 
 
-WindowRectification::WindowRectification (Pipeline::Pipeline *p, Pipeline::Rectification *r, QWidget *parent)
-    : QWidget(parent, Qt::Window), pipeline(p), rectification(r),
-      numDroppedFrames(0), estimatedFps(0.0f)
+WindowRectification::WindowRectification (Pipeline::Pipeline *pipeline, QWidget *parent)
+    : QWidget(parent, Qt::Window),
+      pipeline(pipeline),
+      rectification(pipeline->getRectification()),
+      numDroppedFrames(0),
+      estimatedFps(0.0f)
 {
     setWindowTitle("Rectification");
     resize(800, 600);
@@ -148,9 +151,9 @@ WindowRectification::WindowRectification (Pipeline::Pipeline *p, Pipeline::Recti
     wizard = new CalibrationWizard::Wizard(this);
 
     // Pipeline's error signalization
-    connect(pipeline, &Pipeline::Pipeline::error, this, [this] (int errorType, const QString &errorMessage) {
+    connect(pipeline, &Pipeline::Pipeline::error, this, [this] (int errorType, const QString &message) {
         if (errorType == Pipeline::Pipeline::ErrorRectification) {
-            QMessageBox::warning(this, "Rectification Error", errorMessage);
+            QMessageBox::warning(this, "Rectification Error", message);
         }
     });
 
@@ -447,9 +450,9 @@ float RectificationSettingsDialog::getAlpha () const
 }
 
 
-void RectificationSettingsDialog::setZeroDisparity (bool value)
+void RectificationSettingsDialog::setZeroDisparity (bool enabled)
 {
-    checkBoxZeroDisparity->setChecked(value);
+    checkBoxZeroDisparity->setChecked(enabled);
 }
 
 bool RectificationSettingsDialog::getZeroDisparity () const

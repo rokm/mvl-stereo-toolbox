@@ -1,6 +1,6 @@
 /*
  * OpenCV CUDA Belief Propagation: method widget
- * Copyright (C) 2013-2015 Rok Mandeljc
+ * Copyright (C) 2013-2017 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,10 +30,11 @@ namespace Pipeline {
 namespace StereoMethodOpenCvCudaBp {
 
 
-MethodWidget::MethodWidget (Method *m, QWidget *parent)
-    : QWidget(parent), method(m)
+MethodWidget::MethodWidget (Method *method, QWidget *parent)
+    : QWidget(parent),
+      method(method)
 {
-    connect(method, &Method::parameterChanged, this, &MethodWidget::updateParameters);
+    connect(method, &Method::parameterChanged, this, &MethodWidget::updateParameters, Qt::QueuedConnection);
 
     // Build layout
     QVBoxLayout *baseLayout = new QVBoxLayout(this);
@@ -80,9 +81,9 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
     comboBox->addItem("OpenCV - recommended", Method::OpenCVRecommended);
     comboBox->setItemData(1, "Recommended parameters estimated from image dimensions.", Qt::ToolTipRole);
 
-    connect(comboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, [this, comboBox] (int index) {
+    connect(comboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), method, [method, comboBox] (int index) {
         method->usePreset(comboBox->itemData(index).toInt());
-    });
+    }, Qt::QueuedConnection);
 
     layout->addRow(label, comboBox);
 
@@ -101,7 +102,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
     spinBox->setRange(0, 9999);
-    connect(spinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), method, &Method::setNumDisparities);
+    connect(spinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), method, &Method::setNumDisparities, Qt::QueuedConnection);
     spinBoxNumDisparities = spinBox;
 
     layout->addRow(label, spinBox);
@@ -115,7 +116,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
     spinBox->setRange(1, 9999);
-    connect(spinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), method, &Method::setIterations);
+    connect(spinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), method, &Method::setIterations, Qt::QueuedConnection);
     spinBoxIterations = spinBox;
 
     layout->addRow(label, spinBox);
@@ -129,7 +130,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
     spinBox->setRange(1, 9999);
-    connect(spinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), method, &Method::setLevels);
+    connect(spinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), method, &Method::setLevels, Qt::QueuedConnection);
     spinBoxLevels = spinBox;
 
     layout->addRow(label, spinBox);
@@ -149,7 +150,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
     spinBoxD = new QDoubleSpinBox(this);
     spinBoxD->setKeyboardTracking(false);
     spinBoxD->setRange(0.0, 9999.0);
-    connect(spinBoxD, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), method, &Method::setMaxDataTerm);
+    connect(spinBoxD, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), method, &Method::setMaxDataTerm, Qt::QueuedConnection);
     spinBoxMaxDataTerm = spinBoxD;
 
     layout->addRow(label, spinBoxD);
@@ -163,7 +164,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
     spinBoxD = new QDoubleSpinBox(this);
     spinBoxD->setKeyboardTracking(false);
     spinBoxD->setRange(0.0, 9999.0);
-    connect(spinBoxD, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), method, &Method::setDataWeight);
+    connect(spinBoxD, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), method, &Method::setDataWeight, Qt::QueuedConnection);
     spinBoxDataWeight = spinBoxD;
 
     layout->addRow(label, spinBoxD);
@@ -177,7 +178,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
     spinBoxD = new QDoubleSpinBox(this);
     spinBoxD->setKeyboardTracking(false);
     spinBoxD->setRange(0.0, 9999.0);
-    connect(spinBoxD, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), method, &Method::setMaxDiscTerm);
+    connect(spinBoxD, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), method, &Method::setMaxDiscTerm, Qt::QueuedConnection);
     spinBoxMaxDiscTerm = spinBoxD;
 
     layout->addRow(label, spinBoxD);
@@ -191,7 +192,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
     spinBoxD = new QDoubleSpinBox(this);
     spinBoxD->setKeyboardTracking(false);
     spinBoxD->setRange(0.0, 9999.0);
-    connect(spinBoxD, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), method, &Method::setDiscSingleJump);
+    connect(spinBoxD, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), method, &Method::setDiscSingleJump, Qt::QueuedConnection);
     spinBoxDiscSingleJump = spinBoxD;
 
     layout->addRow(label, spinBoxD);

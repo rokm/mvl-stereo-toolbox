@@ -1,6 +1,6 @@
 /*
  * OpenCV Camera Source: camera widget
- * Copyright (C) 2013-2015 Rok Mandeljc
+ * Copyright (C) 2013-2017 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,8 +28,9 @@ namespace Pipeline {
 namespace SourceOpenCvCam {
 
 
-CameraWidget::CameraWidget (Camera *c, QWidget *parent)
-    : QWidget(parent), camera(c)
+CameraWidget::CameraWidget (Camera *camera, QWidget *parent)
+    : QWidget(parent),
+      camera(camera)
 {
     QFormLayout *layout = new QFormLayout(this);
     layout->setContentsMargins(0, 0, 0, 0);
@@ -57,9 +58,9 @@ CameraWidget::CameraWidget (Camera *c, QWidget *parent)
     button->setCheckable(true);
     connect(button, &QPushButton::toggled, camera, [this] (bool start) {
         if (start) {
-            camera->startCapture();
+            this->camera->startCapture();
         } else {
-            camera->stopCapture();
+            this->camera->stopCapture();
         }
     }, Qt::QueuedConnection);
     pushButtonCapture = button;

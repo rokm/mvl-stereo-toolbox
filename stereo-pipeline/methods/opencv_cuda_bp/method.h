@@ -1,6 +1,6 @@
 /*
  * OpenCV CUDA Belief Propagation: method
- * Copyright (C) 2013-2015 Rok Mandeljc
+ * Copyright (C) 2013-2017 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,50 +37,50 @@ class Method : public QObject, public StereoMethod
     Q_INTERFACES(MVL::StereoToolbox::Pipeline::StereoMethod)
 
 public:
-    Method (QObject * = 0);
+    Method (QObject *parent = Q_NULLPTR);
     virtual ~Method ();
 
-    virtual QString getShortName () const;
-    virtual QWidget *createConfigWidget (QWidget * = 0);
-    virtual void computeDisparity (const cv::Mat &, const cv::Mat &, cv::Mat &, int &);
-    virtual void loadParameters (const QString &);
-    virtual void saveParameters (const QString &) const;
+    virtual QString getShortName () const override;
+    virtual QWidget *createConfigWidget (QWidget *parent = Q_NULLPTR) override;
+    virtual void computeDisparity (const cv::Mat &img1, const cv::Mat &img2, cv::Mat &disparity, int &numDisparities) override;
+    virtual void loadParameters (const QString &filename) override;
+    virtual void saveParameters (const QString &filename) const override;
 
     // Parameters
-    enum {
+    enum PresetType {
         OpenCVInit,
         OpenCVRecommended,
-    } PresetType;
+    };
 
-    void usePreset (int);
+    void usePreset (int preset);
 
 
-    void setNumDisparities (int);
+    void setNumDisparities (int value);
     int getNumDisparities () const;
 
 
-    void setIterations (int);
+    void setIterations (int value);
     int getIterations () const;
 
-    void setLevels (int);
+    void setLevels (int value);
     int getLevels () const;
 
 
-    void setMaxDataTerm (double);
+    void setMaxDataTerm (double value);
     double getMaxDataTerm () const;
 
-    void setDataWeight (double);
+    void setDataWeight (double value);
     double getDataWeight () const;
 
-    void setMaxDiscTerm (double);
+    void setMaxDiscTerm (double value);
     double getMaxDiscTerm () const;
 
-    void setDiscSingleJump (double);
+    void setDiscSingleJump (double value);
     double getDiscSingleJump () const;
 
 signals:
     // Signals from interface
-    void parameterChanged ();
+    void parameterChanged () override;
 
 protected:
     // Method implementation

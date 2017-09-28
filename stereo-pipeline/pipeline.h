@@ -1,6 +1,6 @@
 /*
  * Stereo Pipeline: pipeline
- * Copyright (C) 2013-2015 Rok Mandeljc
+ * Copyright (C) 2013-2017 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -47,7 +47,7 @@ class MVL_STEREO_PIPELINE_EXPORT Pipeline : public QObject
     QScopedPointer<PipelinePrivate> const d_ptr;
 
 public:
-    Pipeline (QObject *parent = 0);
+    Pipeline (QObject *parent = Q_NULLPTR);
     virtual ~Pipeline ();
 
     // GPU/CUDA management
@@ -136,7 +136,7 @@ public:
 
 
     // Error types
-    enum {
+    enum ErrorType {
         ErrorGeneral,
         ErrorImagePairSource,
         ErrorRectification,

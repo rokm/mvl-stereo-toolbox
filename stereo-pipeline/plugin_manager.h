@@ -40,7 +40,7 @@ class MVL_STEREO_PIPELINE_EXPORT PluginManager : public QObject
     QScopedPointer<PluginManagerPrivate> const d_ptr;
 
 public:
-    PluginManager (QObject *parent = 0);
+    PluginManager (QObject *parent = Q_NULLPTR);
     virtual ~PluginManager ();
 
     void setPluginDirectory (const QString &path = QString());

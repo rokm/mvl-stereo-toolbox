@@ -1,6 +1,6 @@
 /*
  * Image File Source: image file
- * Copyright (C) 2013-2015 Rok Mandeljc
+ * Copyright (C) 2013-2017 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -61,7 +61,7 @@ void ImageFile::setImageFileOrUrl (const QString &name, bool remote)
 }
 
 
-void ImageFile::imageLoadingError (const QString &errorDescription)
+void ImageFile::imageLoadingError (const QString &message)
 {
     // Clear image
     frameBufferLock.lockForWrite();
@@ -69,8 +69,8 @@ void ImageFile::imageLoadingError (const QString &errorDescription)
     frameBufferLock.unlock();
 
     // Emit error
-    qWarning() << qPrintable(errorDescription);
-    emit error(errorDescription);
+    qWarning() << qPrintable(message);
+    emit error(message);
 }
 
 

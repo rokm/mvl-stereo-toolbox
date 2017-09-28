@@ -1,6 +1,6 @@
 /*
  * OpenCV Camera Source: property widget
- * Copyright (C) 2013-2015 Rok Mandeljc
+ * Copyright (C) 2013-2017 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,7 +36,7 @@ class PropertyWidget : public QDoubleSpinBox
     Q_OBJECT
 
 public:
-    PropertyWidget (Camera *c, int p, bool integer_value, QWidget *parent = nullptr);
+    PropertyWidget (Camera *camera, int property, bool integer_value, QWidget *parent = Q_NULLPTR);
     virtual ~PropertyWidget ();
 
 protected:

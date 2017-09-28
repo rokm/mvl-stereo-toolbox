@@ -1,6 +1,6 @@
 /*
  * MVL Stereo Toolbox: main
- * Copyright (C) 2013-2015 Rok Mandeljc
+ * Copyright (C) 2013-2017 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,9 +24,8 @@ int main (int argc, char **argv)
 {
     QApplication app(argc, argv);
 
-    qDebug() << qPrintable(QString("MVL Stereo Toolbox v.%1").arg(PROJECT_VERSION));
-    qDebug() << qPrintable(QString("(C) 2013-%1 Rok Mandeljc <rok.mandeljc@fe.uni-lj.si>").arg(QDate::currentDate().year()));
-    qDebug() << "";
+    qInfo() << qPrintable(QString("MVL Stereo Toolbox v.%1").arg(PROJECT_VERSION));
+    qInfo() << qPrintable(QString("(C) 2013-%1 Rok Mandeljc <rok.mandeljc@fe.uni-lj.si>").arg(QDate::currentDate().year())) << endl;
 
     MVL::StereoToolbox::GUI::Toolbox toolbox;
     toolbox.show();

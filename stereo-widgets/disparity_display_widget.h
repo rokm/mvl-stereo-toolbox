@@ -1,6 +1,6 @@
 /*
  * Stereo Widgets: disparity display widget
- * Copyright (C) 2013-2015 Rok Mandeljc
+ * Copyright (C) 2013-2017 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,13 +38,13 @@ class MVL_STEREO_WIDGETS_EXPORT DisparityDisplayWidget : public ImageDisplayWidg
     Q_DECLARE_PRIVATE(DisparityDisplayWidget)
 
 public:
-    DisparityDisplayWidget (const QString &text = QString(), QWidget *parent = 0);
+    DisparityDisplayWidget (const QString &text = QString(), QWidget *parent = Q_NULLPTR);
     virtual ~DisparityDisplayWidget ();
 
     void setDisparity (const cv::Mat &disparity);
 
 protected:
-    virtual void mouseMoveEvent (QMouseEvent *event);
+    virtual void mouseMoveEvent (QMouseEvent *event) override;
 
     float getDisparityAtPixel (const QPoint &pos);
 

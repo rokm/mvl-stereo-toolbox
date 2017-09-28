@@ -1,6 +1,6 @@
 /*
  * OpenCV Camera Source: camera
- * Copyright (C) 2013-2015 Rok Mandeljc
+ * Copyright (C) 2013-2017 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -43,11 +43,11 @@ class Camera : public QObject
     Q_OBJECT
 
 public:
-    Camera (cv::VideoCapture *cap, ocv_camera_id_t cid, QObject *parent = nullptr);
+    Camera (cv::VideoCapture *capture, ocv_camera_id_t id, QObject *parent = Q_NULLPTR);
     virtual ~Camera ();
 
     // Config widget
-    QWidget *createConfigWidget (QWidget *parent = nullptr);
+    QWidget *createConfigWidget (QWidget *parent = Q_NULLPTR);
 
     // Camera identification
     const ocv_camera_id_t &getId () const;
@@ -63,7 +63,7 @@ public:
     void copyFrame (cv::Mat &frame);
 
     // Properties
-    void setProperty (int prop, double newValue);
+    void setProperty (int prop, double value);
     double getProperty (int prop);
 
 protected:

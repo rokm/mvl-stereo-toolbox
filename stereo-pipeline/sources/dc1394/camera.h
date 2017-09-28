@@ -1,6 +1,6 @@
 /*
  * DC1394 Source: camera
- * Copyright (C) 2013-2015 Rok Mandeljc
+ * Copyright (C) 2013-2017 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -39,11 +39,11 @@ class Camera : public QObject
     Q_OBJECT
 
 public:
-    Camera (dc1394camera_t *c, QObject *parent = nullptr);
+    Camera (dc1394camera_t *camera, QObject *parent = Q_NULLPTR);
     virtual ~Camera ();
 
     // Config widget
-    QWidget *createConfigWidget (QWidget *parent = nullptr);
+    QWidget *createConfigWidget (QWidget *parent = Q_NULLPTR);
 
     // Camera identification
     dc1394camera_id_t getId () const;
@@ -67,10 +67,10 @@ public:
     // Camera features
     const dc1394featureset_t &getFeatureSet () const;
 
-    void setFeatureValue (dc1394feature_t feature, int newValue);
+    void setFeatureValue (dc1394feature_t feature, int value);
     int getFeatureValue (dc1394feature_t);
 
-    void setFeatureAbsoluteValue (dc1394feature_t feature, double newValue);
+    void setFeatureAbsoluteValue (dc1394feature_t feature, double value);
     double getFeatureAbsoluteValue (dc1394feature_t);
 
     QList<dc1394feature_mode_t> getFeatureModes (dc1394feature_t feature);
@@ -117,7 +117,7 @@ class CameraCaptureWorker : public QObject
     Q_OBJECT
 
 public:
-    CameraCaptureWorker (dc1394camera_t *c, QObject *parent = nullptr);
+    CameraCaptureWorker (dc1394camera_t *camera, QObject *parent = Q_NULLPTR);
     virtual ~CameraCaptureWorker ();
 
     void copyFrame (cv::Mat &frame);
@@ -137,7 +137,7 @@ signals:
     void captureFinished ();
     void frameReady ();
 
-    void error (QString);
+    void error (QString message);
 
 protected:
     dc1394camera_t *camera;

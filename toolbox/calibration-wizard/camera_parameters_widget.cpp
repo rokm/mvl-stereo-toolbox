@@ -1,6 +1,6 @@
 /*
  * MVL Stereo Toolbox: calibration wizard: camera parameters widget
- * Copyright (C) 2013-2015 Rok Mandeljc
+ * Copyright (C) 2013-2017 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -198,9 +198,9 @@ double CameraParametersWidget::getFocalLengthX () const
     return spinBoxFx->value();
 }
 
-void CameraParametersWidget::setFocalLengthX (double newValue)
+void CameraParametersWidget::setFocalLengthX (double value)
 {
-    spinBoxFx->setValue(newValue);
+    spinBoxFx->setValue(value);
 }
 
 double CameraParametersWidget::getFocalLengthY () const
@@ -208,9 +208,9 @@ double CameraParametersWidget::getFocalLengthY () const
     return spinBoxFy->value();
 }
 
-void CameraParametersWidget::setFocalLengthY (double newValue)
+void CameraParametersWidget::setFocalLengthY (double value)
 {
-    spinBoxFy->setValue(newValue);
+    spinBoxFy->setValue(value);
 }
 
 
@@ -219,9 +219,9 @@ double CameraParametersWidget::getPrincipalPointX () const
     return spinBoxCx->value();
 }
 
-void CameraParametersWidget::setPrincipalPointX (double newValue)
+void CameraParametersWidget::setPrincipalPointX (double value)
 {
-    spinBoxCx->setValue(newValue);
+    spinBoxCx->setValue(value);
 }
 
 
@@ -230,9 +230,9 @@ double CameraParametersWidget::getPrincipalPointY () const
     return spinBoxCy->value();
 }
 
-void CameraParametersWidget::setPrincipalPointY (double newValue)
+void CameraParametersWidget::setPrincipalPointY (double value)
 {
-    spinBoxCy->setValue(newValue);
+    spinBoxCy->setValue(value);
 }
 
 
@@ -241,9 +241,9 @@ double CameraParametersWidget::getDistortionK1 () const
     return spinBoxK1->value();
 }
 
-void CameraParametersWidget::setDistortionK1 (double newValue)
+void CameraParametersWidget::setDistortionK1 (double value)
 {
-    spinBoxK1->setValue(newValue);
+    spinBoxK1->setValue(value);
 }
 
 
@@ -252,9 +252,9 @@ double CameraParametersWidget::getDistortionK2 () const
     return spinBoxK2->value();
 }
 
-void CameraParametersWidget::setDistortionK2 (double newValue)
+void CameraParametersWidget::setDistortionK2 (double value)
 {
-    spinBoxK2->setValue(newValue);
+    spinBoxK2->setValue(value);
 }
 
 
@@ -263,9 +263,9 @@ double CameraParametersWidget::getDistortionK3 () const
     return spinBoxK3->value();
 }
 
-void CameraParametersWidget::setDistortionK3 (double newValue)
+void CameraParametersWidget::setDistortionK3 (double value)
 {
-    spinBoxK3->setValue(newValue);
+    spinBoxK3->setValue(value);
 }
 
 
@@ -274,9 +274,9 @@ double CameraParametersWidget::getDistortionP1 () const
     return spinBoxP1->value();
 }
 
-void CameraParametersWidget::setDistortionP1 (double newValue)
+void CameraParametersWidget::setDistortionP1 (double value)
 {
-    spinBoxP1->setValue(newValue);
+    spinBoxP1->setValue(value);
 }
 
 
@@ -285,9 +285,9 @@ double CameraParametersWidget::getDistortionP2 () const
     return spinBoxP2->value();
 }
 
-void CameraParametersWidget::setDistortionP2 (double newValue)
+void CameraParametersWidget::setDistortionP2 (double value)
 {
-    spinBoxP2->setValue(newValue);
+    spinBoxP2->setValue(value);
 }
 
 
@@ -296,9 +296,9 @@ double CameraParametersWidget::getDistortionK4 () const
     return spinBoxK4->value();
 }
 
-void CameraParametersWidget::setDistortionK4 (double newValue)
+void CameraParametersWidget::setDistortionK4 (double value)
 {
-    spinBoxK4->setValue(newValue);
+    spinBoxK4->setValue(value);
 }
 
 
@@ -307,9 +307,9 @@ double CameraParametersWidget::getDistortionK5 () const
     return spinBoxK5->value();
 }
 
-void CameraParametersWidget::setDistortionK5 (double newValue)
+void CameraParametersWidget::setDistortionK5 (double value)
 {
-    spinBoxK5->setValue(newValue);
+    spinBoxK5->setValue(value);
 }
 
 
@@ -318,9 +318,9 @@ double CameraParametersWidget::getDistortionK6 () const
     return spinBoxK6->value();
 }
 
-void CameraParametersWidget::setDistortionK6 (double newValue)
+void CameraParametersWidget::setDistortionK6 (double value)
 {
-    spinBoxK6->setValue(newValue);
+    spinBoxK6->setValue(value);
 }
 
 void CameraParametersWidget::setCameraMatrix (const cv::Mat &cameraMatrix, const std::vector<double> &distCoeffs)

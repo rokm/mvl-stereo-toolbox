@@ -1,6 +1,6 @@
 /*
  * OpenCV Camera Source: property widget
- * Copyright (C) 2013-2015 Rok Mandeljc
+ * Copyright (C) 2013-2017 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,8 +27,10 @@ namespace Pipeline {
 namespace SourceOpenCvCam {
 
 
-PropertyWidget::PropertyWidget (Camera *c, int p, bool integer_value, QWidget *parent)
-    : QDoubleSpinBox(parent), camera(c), property(p)
+PropertyWidget::PropertyWidget (Camera *camera, int property, bool integer_value, QWidget *parent)
+    : QDoubleSpinBox(parent),
+      camera(camera),
+      property(property)
 {
     // Integer vs. double
     if (integer_value) {
@@ -44,8 +46,8 @@ PropertyWidget::PropertyWidget (Camera *c, int p, bool integer_value, QWidget *p
 
     connect(camera, &Camera::propertyChanged, this, &PropertyWidget::updateProperty);
 
-    connect(this, static_cast<void (PropertyWidget::*)(double)>(&PropertyWidget::valueChanged), camera, [this] (double newValue) {
-        camera->setProperty(property, newValue);
+    connect(this, static_cast<void (PropertyWidget::*)(double)>(&PropertyWidget::valueChanged), camera, [camera, property] (double value) {
+        camera->setProperty(property, value);
     }, Qt::QueuedConnection);
 
     // Get initial property value; as per OpenCV docs, assume that if 0

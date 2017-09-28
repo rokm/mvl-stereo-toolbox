@@ -1,6 +1,6 @@
 /*
  * Stereo Widgets: image display widget
- * Copyright (C) 2013-2015 Rok Mandeljc
+ * Copyright (C) 2013-2017 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -42,10 +42,10 @@ class MVL_STEREO_WIDGETS_EXPORT ImageDisplayWidget : public QFrame
 
 protected:
     QScopedPointer<ImageDisplayWidgetPrivate> const d_ptr;
-    ImageDisplayWidget (ImageDisplayWidgetPrivate *d, const QString &text = QString(), QWidget *parent = 0);
+    ImageDisplayWidget (ImageDisplayWidgetPrivate *d, const QString &text = QString(), QWidget *parent = Q_NULLPTR);
 
 public:
-    ImageDisplayWidget (const QString &text = QString(), QWidget *parent = 0);
+    ImageDisplayWidget (const QString &text = QString(), QWidget *parent = Q_NULLPTR);
     virtual ~ImageDisplayWidget ();
 
     virtual void setImage (const cv::Mat &image);
@@ -54,7 +54,7 @@ public:
     static QImage convertCvMatToQImage (const cv::Mat &src);
 
 protected:
-    virtual void paintEvent (QPaintEvent *event);
+    virtual void paintEvent (QPaintEvent *event) override;
 };
 
 

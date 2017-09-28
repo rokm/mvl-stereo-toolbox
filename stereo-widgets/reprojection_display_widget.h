@@ -1,6 +1,6 @@
 /*
  * Stereo Widgets: reprojection display widget
- * Copyright (C) 2013-2015 Rok Mandeljc
+ * Copyright (C) 2013-2017 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,13 +38,13 @@ class MVL_STEREO_WIDGETS_EXPORT ReprojectionDisplayWidget : public ImageDisplayW
     Q_DECLARE_PRIVATE(ReprojectionDisplayWidget)
 
 public:
-    ReprojectionDisplayWidget (const QString & = QString(), QWidget * = 0);
+    ReprojectionDisplayWidget (const QString &text = QString(), QWidget *parent = Q_NULLPTR);
     virtual ~ReprojectionDisplayWidget ();
 
     void setPoints (const cv::Mat &points);
 
 protected:
-    virtual void mouseMoveEvent (QMouseEvent *event);
+    virtual void mouseMoveEvent (QMouseEvent *event) override;
 
     QVector3D getCoordinatesAtPixel (const QPoint &pos);
 

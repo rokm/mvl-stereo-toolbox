@@ -1,6 +1,6 @@
 /*
  * OpenCV Block Matching: method
- * Copyright (C) 2013-2015 Rok Mandeljc
+ * Copyright (C) 2013-2017 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,62 +37,62 @@ class Method : public QObject, public StereoMethod
     Q_INTERFACES(MVL::StereoToolbox::Pipeline::StereoMethod)
 
 public:
-    Method (QObject * = 0);
+    Method (QObject *parent = Q_NULLPTR);
     virtual ~Method ();
 
-    virtual QString getShortName () const;
-    virtual QWidget *createConfigWidget (QWidget * = 0);
-    virtual void computeDisparity (const cv::Mat &, const cv::Mat &, cv::Mat &, int &);
-    virtual void loadParameters (const QString &);
-    virtual void saveParameters (const QString &) const;
+    virtual QString getShortName () const override;
+    virtual QWidget *createConfigWidget (QWidget *parent = Q_NULLPTR) override;
+    virtual void computeDisparity (const cv::Mat &img1, const cv::Mat &img2, cv::Mat &disparity, int &numDisparities) override;
+    virtual void loadParameters (const QString &filename) override;
+    virtual void saveParameters (const QString &filename) const override;
 
     // Parameters
-    enum {
+    enum PresetType {
         OpenCV,
         StereoMatch,
-    } PresetType;
+    };
 
-    void usePreset (int type);
+    void usePreset (int preset);
 
-    void setPreFilterType (int);
+    void setPreFilterType (int value);
     int getPreFilterType () const;
 
-    void setPreFilterSize (int);
+    void setPreFilterSize (int value);
     int getPreFilterSize () const;
 
-    void setPreFilterCap (int);
+    void setPreFilterCap (int value);
     int getPreFilterCap () const;
 
 
-    void setSADWindowSize (int);
+    void setSADWindowSize (int value);
     int getSADWindowSize () const;
 
-    void setMinDisparity (int);
+    void setMinDisparity (int value);
     int getMinDisparity () const;
 
-    void setNumDisparities (int);
+    void setNumDisparities (int value);
     int getNumDisparities () const;
 
 
-    void setTextureThreshold (int);
+    void setTextureThreshold (int value);
     int getTextureThreshold () const;
 
-    void setUniquenessRatio (int);
+    void setUniquenessRatio (int value);
     int getUniquenessRatio () const;
 
-    void setSpeckleWindowSize (int);
+    void setSpeckleWindowSize (int value);
     int getSpeckleWindowSize () const;
 
-    void setSpeckleRange (int);
+    void setSpeckleRange (int value);
     int getSpeckleRange () const;
 
 
-    void setDisp12MaxDiff (int);
+    void setDisp12MaxDiff (int value);
     int getDisp12MaxDiff () const;
 
 signals:
     // Signals from interface
-    void parameterChanged ();
+    void parameterChanged () override;
 
 protected:
     // Block matcher

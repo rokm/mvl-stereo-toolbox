@@ -1,6 +1,6 @@
 /*
  * OpenCV Semi-Global Block Matching: plugin
- * Copyright (C) 2013-2015 Rok Mandeljc
+ * Copyright (C) 2013-2017 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,19 +33,19 @@ class Plugin : public QObject, PluginFactory
     Q_PLUGIN_METADATA(IID "mvl-stereo-toolbox.Plugin.StereoMethod.OpenCV_SGBM")
     Q_INTERFACES(MVL::StereoToolbox::Pipeline::PluginFactory)
 
-    PluginType getPluginType () const {
+    PluginType getPluginType () const override {
         return PluginStereoMethod;
     }
 
-    QString getShortName () const {
+    QString getShortName () const override  {
         return "SGBM";
     }
 
-    QString getDescription () const {
+    QString getDescription () const override  {
         return "OpenCV Semi-Global Block Matching";
     }
 
-    QObject *createObject (QObject *parent = 0) const {
+    QObject *createObject (QObject *parent = Q_NULLPTR) const override  {
         return new Method(parent);
     }
 };

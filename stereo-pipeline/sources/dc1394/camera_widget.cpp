@@ -1,6 +1,6 @@
 /*
  * DC1394 Source: camera widget
- * Copyright (C) 2013-2015 Rok Mandeljc
+ * Copyright (C) 2013-2017 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,8 +32,9 @@ static const QString videoModeToString (dc1394video_mode_t);
 static const QString framerateToString (dc1394framerate_t);
 
 
-CameraWidget::CameraWidget (Camera *c, QWidget *parent)
-    : QWidget(parent), camera(c)
+CameraWidget::CameraWidget (Camera *camera, QWidget *parent)
+    : QWidget(parent),
+      camera(camera)
 {
     QFormLayout *layout = new QFormLayout(this);
     layout->setContentsMargins(0, 0, 0, 0);
@@ -86,7 +87,7 @@ CameraWidget::CameraWidget (Camera *c, QWidget *parent)
     button->setToolTip(tooltip);
     button->setCheckable(true);
 
-    connect(button, &QPushButton::toggled, camera, [this] (bool start) {
+    connect(button, &QPushButton::toggled, camera, [camera] (bool start) {
         if (start) {
             camera->startCapture();
         } else {
@@ -112,13 +113,13 @@ CameraWidget::CameraWidget (Camera *c, QWidget *parent)
 
     comboBox = new QComboBox(this);
     connect(comboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), camera, [this] (int index) {
-        camera->setMode((dc1394video_mode_t)comboBoxMode->itemData(index).toInt());
+        this->camera->setMode((dc1394video_mode_t)comboBoxMode->itemData(index).toInt());
     }, Qt::QueuedConnection);
 
     // Mode change requires re-enumeration of framerates
     connect(camera, &Camera::modeChanged, this, [this] () {
         comboBoxFramerate->clear();
-        foreach (dc1394framerate_t framerate, camera->getSupportedFramerates()) {
+        for (dc1394framerate_t &framerate : this->camera->getSupportedFramerates()) {
             comboBoxFramerate->addItem(framerateToString(framerate), framerate);
         }
     }, Qt::QueuedConnection);
@@ -127,7 +128,7 @@ CameraWidget::CameraWidget (Camera *c, QWidget *parent)
 
     layout->addRow(label, comboBox);
 
-    foreach (dc1394video_mode_t mode, camera->getSupportedModes()) {
+    for (dc1394video_mode_t &mode : camera->getSupportedModes()) {
         comboBoxMode->addItem(videoModeToString(mode), mode);
     }
 
@@ -140,14 +141,14 @@ CameraWidget::CameraWidget (Camera *c, QWidget *parent)
     comboBox = new QComboBox(this);
 
     connect(comboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), camera, [this] (int index) {
-        camera->setFramerate((dc1394framerate_t)comboBoxFramerate->itemData(index).toInt());
+        this->camera->setFramerate((dc1394framerate_t)comboBoxFramerate->itemData(index).toInt());
     }, Qt::QueuedConnection);
 
     comboBoxFramerate = comboBox;
 
     layout->addRow(label, comboBox);
 
-    foreach (dc1394framerate_t framerate, camera->getSupportedFramerates()) {
+    for (dc1394framerate_t &framerate : camera->getSupportedFramerates()) {
         comboBoxFramerate->addItem(framerateToString(framerate), framerate);
     }
 

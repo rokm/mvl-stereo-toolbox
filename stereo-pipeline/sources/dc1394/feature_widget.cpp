@@ -1,6 +1,6 @@
 /*
  * DC1394 Source: feature widget
- * Copyright (C) 2013-2015 Rok Mandeljc
+ * Copyright (C) 2013-2017 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,8 +30,10 @@ namespace SourceDC1394 {
 static const QString featureModeToString (dc1394feature_mode_t);
 
 
-FeatureWidget::FeatureWidget (Camera *c, const dc1394feature_info_t &f, QWidget *parent)
-    : QWidget(parent), camera(c), feature(f)
+FeatureWidget::FeatureWidget (Camera *camera, const dc1394feature_info_t &feature, QWidget *parent)
+    : QWidget(parent),
+      camera(camera),
+      feature(feature)
 {
     connect(camera, &Camera::parameterChanged, this, &FeatureWidget::updateParameters, Qt::QueuedConnection);
 
@@ -43,8 +45,8 @@ FeatureWidget::FeatureWidget (Camera *c, const dc1394feature_info_t &f, QWidget 
     spinBoxValue->setToolTip(QString("Min: %1 Max: %2").arg(feature.min).arg(feature.max));
     spinBoxValue->setKeyboardTracking(false);
     spinBoxValue->setRange(feature.min, feature.max);
-    connect(spinBoxValue, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), camera, [this] (int newValue) {
-        camera->setFeatureValue(feature.id, newValue);
+    connect(spinBoxValue, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), camera, [this] (int value) {
+        this->camera->setFeatureValue(this->feature.id, value);
     }, Qt::QueuedConnection);
 
     layout->addWidget(spinBoxValue);
@@ -52,13 +54,13 @@ FeatureWidget::FeatureWidget (Camera *c, const dc1394feature_info_t &f, QWidget 
     // Mode
     comboBoxMode = new QComboBox(this);
     connect(comboBoxMode, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), camera, [this] (int index) {
-        camera->setFeatureMode(feature.id, (dc1394feature_mode_t)comboBoxMode->itemData(index).toInt());
+        this->camera->setFeatureMode(this->feature.id, (dc1394feature_mode_t)comboBoxMode->itemData(index).toInt());
     }, Qt::QueuedConnection);
 
     layout->addWidget(comboBoxMode);
 
     QList<dc1394feature_mode_t> availableModes = camera->getFeatureModes(feature.id);
-    foreach (dc1394feature_mode_t mode, availableModes) {
+    for (dc1394feature_mode_t &mode : availableModes) {
         comboBoxMode->addItem(featureModeToString(mode), mode);
     }
 
@@ -74,8 +76,8 @@ FeatureWidget::FeatureWidget (Camera *c, const dc1394feature_info_t &f, QWidget 
         spinBoxAbsoluteValue->setDecimals(6);
         spinBoxAbsoluteValue->setEnabled(false);
         spinBoxAbsoluteValue->setRange(feature.abs_min, feature.abs_max);
-        connect(spinBoxAbsoluteValue, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), camera, [this] (double newValue) {
-            camera->setFeatureAbsoluteValue(feature.id, newValue);
+        connect(spinBoxAbsoluteValue, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), camera, [this] (double value) {
+            this->camera->setFeatureAbsoluteValue(this->feature.id, value);
         }, Qt::QueuedConnection);
         layout->addWidget(spinBoxAbsoluteValue);
     }

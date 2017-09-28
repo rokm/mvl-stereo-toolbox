@@ -1,6 +1,6 @@
 /*
  * Stereo Pipeline: image pair source interface
- * Copyright (C) 2013-2015 Rok Mandeljc
+ * Copyright (C) 2013-2017 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,7 +38,7 @@ public:
     virtual void stopSource () = 0;
 
     // Config widget
-    virtual QWidget *createConfigWidget (QWidget *parent = 0) = 0;
+    virtual QWidget *createConfigWidget (QWidget *parent = Q_NULLPTR) = 0;
 
     // These are actually signals, but they are not allowed in non-QObject classes
 public:

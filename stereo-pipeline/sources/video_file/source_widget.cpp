@@ -1,6 +1,6 @@
 /*
  * Video File Source: source widget
- * Copyright (C) 2014-2015 Rok Mandeljc
+ * Copyright (C) 2014-2017 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,8 +27,9 @@ namespace Pipeline {
 namespace SourceVideoFile {
 
 
-SourceWidget::SourceWidget (Source *s, QWidget *parent)
-    : QWidget(parent), source(s)
+SourceWidget::SourceWidget (Source *source, QWidget *parent)
+    : QWidget(parent),
+      source(source)
 {
     // Build layout
     QVBoxLayout *baseLayout = new QVBoxLayout(this);
@@ -125,9 +126,9 @@ SourceWidget::SourceWidget (Source *s, QWidget *parent)
     button->setCheckable(true);
     connect(button, &QPushButton::toggled, source, [this] (bool active) {
         if (active) {
-            source->startPlayback();
+            this->source->startPlayback();
         } else {
-            source->stopPlayback();
+            this->source->stopPlayback();
         }
     }, Qt::QueuedConnection);
     connect(source, &Source::playbackStateChanged, button, &QPushButton::setChecked);
@@ -145,7 +146,7 @@ SourceWidget::SourceWidget (Source *s, QWidget *parent)
 
     spinBoxFrame = new QSpinBox(this);
     connect(spinBoxFrame, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), source, [this] (int value) {
-        source->setVideoPosition(value - 1);
+        this->source->setVideoPosition(value - 1);
     }, Qt::QueuedConnection);
     hbox->addWidget(spinBoxFrame);
 
@@ -170,7 +171,7 @@ SourceWidget::SourceWidget (Source *s, QWidget *parent)
     sliderPosition->setTracking(false);
     layoutVideo->addWidget(sliderPosition);
     connect(sliderPosition, &QSlider::valueChanged, source, [this] (int value) {
-        source->setVideoPosition(value - 1);
+        this->source->setVideoPosition(value - 1);
     }, Qt::QueuedConnection);
 
     // Separator

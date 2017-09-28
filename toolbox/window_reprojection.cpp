@@ -1,6 +1,6 @@
 /*
  * MVL Stereo Toolbox: reprojection window
- * Copyright (C) 2013-2015 Rok Mandeljc
+ * Copyright (C) 2013-2017 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,9 +32,13 @@ namespace StereoToolbox {
 namespace GUI {
 
 
-WindowReprojection::WindowReprojection (Pipeline::Pipeline *p, Pipeline::Reprojection *r, QWidget *parent)
-    : QWidget(parent, Qt::Window), pipeline(p), reprojection(r),
-      pointsInfo({ false, 0, 0 }), numDroppedFrames(0), estimatedFps(0.0f)
+WindowReprojection::WindowReprojection (Pipeline::Pipeline *pipeline, QWidget *parent)
+    : QWidget(parent, Qt::Window),
+      pipeline(pipeline),
+      reprojection(pipeline->getReprojection()),
+      pointsInfo({ false, 0, 0 }),
+      numDroppedFrames(0),
+      estimatedFps(0.0f)
 {
     setWindowTitle("Reprojection");
     resize(800, 600);
@@ -73,17 +77,17 @@ WindowReprojection::WindowReprojection (Pipeline::Pipeline *p, Pipeline::Reproje
         switch (index) {
             case 0: {
                 // Disparity visualization
-                displayReprojectedImage->setImage(pipeline->getDisparityVisualization());
+                displayReprojectedImage->setImage(this->pipeline->getDisparityVisualization());
                 break;
             }
             case 1: {
                 // Left
-                displayReprojectedImage->setImage(pipeline->getLeftRectifiedImage());
+                displayReprojectedImage->setImage(this->pipeline->getLeftRectifiedImage());
                 break;
             }
             case 2: {
                 // Right
-                displayReprojectedImage->setImage(pipeline->getRightRectifiedImage());
+                displayReprojectedImage->setImage(this->pipeline->getRightRectifiedImage());
                 break;
             }
         }
@@ -155,7 +159,7 @@ WindowReprojection::WindowReprojection (Pipeline::Pipeline *p, Pipeline::Reproje
     connect(pipeline, &Pipeline::Pipeline::visualizationChanged, this, [this] () {
         if (comboBoxImage->currentIndex() == 0) {
             // Display disparity visualization
-            cv::Mat image = pipeline->getDisparityVisualization();
+            cv::Mat image = this->pipeline->getDisparityVisualization();
             displayReprojectedImage->setImage(image);
         }
     });
@@ -163,16 +167,16 @@ WindowReprojection::WindowReprojection (Pipeline::Pipeline *p, Pipeline::Reproje
     connect(pipeline, &Pipeline::Pipeline::rectifiedImagesChanged, this, [this] () {
         if (comboBoxImage->currentIndex() == 1) {
             // Left image
-            cv::Mat image = pipeline->getLeftRectifiedImage();
+            cv::Mat image = this->pipeline->getLeftRectifiedImage();
             displayReprojectedImage->setImage(image);
         } else if (comboBoxImage->currentIndex() == 2) {
-            cv::Mat image = pipeline->getRightRectifiedImage();
+            cv::Mat image = this->pipeline->getRightRectifiedImage();
             displayReprojectedImage->setImage(image);
         }
     });
 
     connect(pipeline, &Pipeline::Pipeline::pointsChanged, this, [this] () {
-        cv::Mat points = pipeline->getPoints();
+        cv::Mat points = this->pipeline->getPoints();
 
         displayReprojectedImage->setPoints(points);
 
@@ -187,9 +191,9 @@ WindowReprojection::WindowReprojection (Pipeline::Pipeline *p, Pipeline::Reproje
     });
 
     // Pipeline's error signalization
-    connect(pipeline, &Pipeline::Pipeline::error, this, [this] (int errorType, const QString &errorMessage) {
+    connect(pipeline, &Pipeline::Pipeline::error, this, [this] (int errorType, const QString &message) {
         if (errorType == Pipeline::Pipeline::ErrorReprojection) {
-            QMessageBox::warning(this, "Reprojection Error", errorMessage);
+            QMessageBox::warning(this, "Reprojection Error", message);
         }
     });
 

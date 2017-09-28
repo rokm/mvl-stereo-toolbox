@@ -1,6 +1,6 @@
 /*
  * OpenCV Semi-Global Block Matching: method
- * Copyright (C) 2013-2015 Rok Mandeljc
+ * Copyright (C) 2013-2017 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,8 +31,8 @@ namespace StereoMethodOpenCvSgbm {
 
 Method::Method (QObject *parent)
     : QObject(parent), StereoMethod(),
-    sgbm(cv::StereoSGBM::create(0, 16, 3)),
-    imageWidth(640), imageChannels(1)
+      sgbm(cv::StereoSGBM::create(0, 16, 3)),
+      imageWidth(640), imageChannels(1)
 {
     usePreset(OpenCV);
 }
@@ -226,11 +226,11 @@ int Method::getMinDisparity () const
     return sgbm->getMinDisparity();
 }
 
-void Method::setMinDisparity (int newValue)
+void Method::setMinDisparity (int value)
 {
     // Set
     QMutexLocker locker(&mutex);
-    sgbm->setMinDisparity(newValue);
+    sgbm->setMinDisparity(value);
     locker.unlock();
 
     emit parameterChanged();
@@ -242,15 +242,15 @@ int Method::getNumDisparities () const
     return sgbm->getNumDisparities();
 }
 
-void Method::setNumDisparities (int newValue)
+void Method::setNumDisparities (int value)
 {
     // Validate
-    newValue = qRound(newValue / 16.0) * 16; // Must be divisible by 16
-    newValue = qMax(16, newValue);
+    value = qRound(value / 16.0) * 16; // Must be divisible by 16
+    value = qMax(16, value);
 
     // Set
     QMutexLocker locker(&mutex);
-    sgbm->setNumDisparities(newValue);
+    sgbm->setNumDisparities(value);
     locker.unlock();
 
     emit parameterChanged();
@@ -262,11 +262,11 @@ int Method::getSADWindowSize () const
     return sgbm->getBlockSize();
 }
 
-void Method::setSADWindowSize (int newValue)
+void Method::setSADWindowSize (int value)
 {
     // Set
     QMutexLocker locker(&mutex);
-    sgbm->setBlockSize(newValue);
+    sgbm->setBlockSize(value);
     locker.unlock();
 
     emit parameterChanged();
@@ -278,11 +278,11 @@ int Method::getPreFilterCap () const
     return sgbm->getPreFilterCap();
 }
 
-void Method::setPreFilterCap (int newValue)
+void Method::setPreFilterCap (int value)
 {
     // Set
     QMutexLocker locker(&mutex);
-    sgbm->setPreFilterCap(newValue);
+    sgbm->setPreFilterCap(value);
     locker.unlock();
 
     emit parameterChanged();
@@ -297,11 +297,11 @@ int Method::getUniquenessRatio () const
     return sgbm->getUniquenessRatio();
 }
 
-void Method::setUniquenessRatio (int newValue)
+void Method::setUniquenessRatio (int value)
 {
     // Set
     QMutexLocker locker(&mutex);
-    sgbm->setUniquenessRatio(newValue);
+    sgbm->setUniquenessRatio(value);
     locker.unlock();
 
     emit parameterChanged();
@@ -313,11 +313,11 @@ int Method::getP1 () const
     return sgbm->getP1();
 }
 
-void Method::setP1 (int newValue)
+void Method::setP1 (int value)
 {
     // Set
     QMutexLocker locker(&mutex);
-    sgbm->setP1(newValue);
+    sgbm->setP1(value);
     locker.unlock();
 
     emit parameterChanged();
@@ -329,11 +329,11 @@ int Method::getP2 () const
     return sgbm->getP2();
 }
 
-void Method::setP2 (int newValue)
+void Method::setP2 (int value)
 {
     // Set
     QMutexLocker locker(&mutex);
-    sgbm->setP2(newValue);
+    sgbm->setP2(value);
     locker.unlock();
 
     emit parameterChanged();
@@ -345,11 +345,11 @@ int Method::getSpeckleWindowSize () const
     return sgbm->getSpeckleWindowSize();
 }
 
-void Method::setSpeckleWindowSize (int newValue)
+void Method::setSpeckleWindowSize (int value)
 {
     // Set
     QMutexLocker locker(&mutex);
-    sgbm->setSpeckleWindowSize(newValue);
+    sgbm->setSpeckleWindowSize(value);
     locker.unlock();
 
     emit parameterChanged();
@@ -361,11 +361,11 @@ int Method::getSpeckleRange () const
     return sgbm->getSpeckleRange();
 }
 
-void Method::setSpeckleRange (int newValue)
+void Method::setSpeckleRange (int value)
 {
     // Set
     QMutexLocker locker(&mutex);
-    sgbm->setSpeckleRange(newValue);
+    sgbm->setSpeckleRange(value);
     locker.unlock();
 
     emit parameterChanged();
@@ -377,11 +377,11 @@ int Method::getDisp12MaxDiff () const
     return sgbm->getDisp12MaxDiff();
 }
 
-void Method::setDisp12MaxDiff (int newValue)
+void Method::setDisp12MaxDiff (int value)
 {
     // Set
     QMutexLocker locker(&mutex);
-    sgbm->setDisp12MaxDiff(newValue);
+    sgbm->setDisp12MaxDiff(value);
     locker.unlock();
 
     emit parameterChanged();
@@ -394,16 +394,16 @@ int Method::getMode () const
     return sgbm->getMode();
 }
 
-void Method::setMode (int newValue)
+void Method::setMode (int value)
 {
     // Validate
-    if (newValue != cv::StereoSGBM::MODE_SGBM && newValue != cv::StereoSGBM::MODE_HH) {
-        newValue = cv::StereoSGBM::MODE_SGBM;
+    if (value != cv::StereoSGBM::MODE_SGBM && value != cv::StereoSGBM::MODE_HH) {
+        value = cv::StereoSGBM::MODE_SGBM;
     }
 
     // Set
     QMutexLocker locker(&mutex);
-    sgbm->setMode(newValue);
+    sgbm->setMode(value);
     locker.unlock();
 
     emit parameterChanged();

@@ -1,6 +1,6 @@
 /*
  * OpenCV Camera Source: camera
- * Copyright (C) 2013-2015 Rok Mandeljc
+ * Copyright (C) 2013-2017 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,8 +29,10 @@ namespace Pipeline {
 namespace SourceOpenCvCam {
 
 
-Camera::Camera (cv::VideoCapture *cap, ocv_camera_id_t cid, QObject *parent)
-    : QObject(parent), capture(cap), id(cid)
+Camera::Camera (cv::VideoCapture *capture, ocv_camera_id_t id, QObject *parent)
+    : QObject(parent),
+      capture(capture),
+      id(id)
 {
 }
 
@@ -71,9 +73,9 @@ double Camera::getProperty (int prop)
     return capture->get(prop);
 }
 
-void Camera::setProperty (int prop, double newValue)
+void Camera::setProperty (int prop, double value)
 {
-    if (!capture->set(prop, newValue)) {
+    if (!capture->set(prop, value)) {
         emit error(QString("Failed to set property %1!").arg(prop));
     }
 

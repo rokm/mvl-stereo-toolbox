@@ -1,6 +1,6 @@
 /*
  * DC1394 Source: camera
- * Copyright (C) 2013-2015 Rok Mandeljc
+ * Copyright (C) 2013-2017 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,8 +31,9 @@ namespace Pipeline {
 namespace SourceDC1394 {
 
 
-Camera::Camera (dc1394camera_t *c, QObject *parent)
-    : QObject(parent), camera(c)
+Camera::Camera (dc1394camera_t *camera, QObject *parent)
+    : QObject(parent),
+      camera(camera)
 {
     // Print info
     //dc1394_camera_print_info(camera, stdout);
@@ -246,11 +247,11 @@ const dc1394featureset_t &Camera::getFeatureSet () const
 }
 
 
-void Camera::setFeatureValue (dc1394feature_t feature, int newValue)
+void Camera::setFeatureValue (dc1394feature_t feature, int value)
 {
     dc1394error_t ret;
 
-    ret = dc1394_feature_set_value(camera, feature, newValue);
+    ret = dc1394_feature_set_value(camera, feature, value);
     if (ret) {
         qWarning() << "Failed to set feature value!";
     }
@@ -272,11 +273,11 @@ int Camera::getFeatureValue (dc1394feature_t feature)
 }
 
 
-void Camera::setFeatureAbsoluteValue (dc1394feature_t feature, double newValue)
+void Camera::setFeatureAbsoluteValue (dc1394feature_t feature, double value)
 {
     dc1394error_t ret;
 
-    ret = dc1394_feature_set_absolute_value(camera, feature, newValue);
+    ret = dc1394_feature_set_absolute_value(camera, feature, value);
     if (ret) {
         qWarning() << "Failed to set feature absolute value!";
     }

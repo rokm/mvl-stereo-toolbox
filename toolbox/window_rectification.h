@@ -1,6 +1,6 @@
 /*
  * MVL Stereo Toolbox: rectification window
- * Copyright (C) 2013-2015 Rok Mandeljc
+ * Copyright (C) 2013-2017 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,8 +17,8 @@
  *
  */
 
-#ifndef WINDOW_RECTIFICATION_H
-#define WINDOW_RECTIFICATION_H
+#ifndef MVL_STEREO_TOOLBOX__TOOLBOX__WINDOW_RECTIFICATION_H
+#define MVL_STEREO_TOOLBOX__TOOLBOX__WINDOW_RECTIFICATION_H
 
 #include <QtWidgets>
 
@@ -53,7 +53,7 @@ class WindowRectification : public QWidget
     Q_OBJECT
 
 public:
-    WindowRectification (Pipeline::Pipeline *, Pipeline::Rectification *, QWidget * = 0);
+    WindowRectification (Pipeline::Pipeline *pipeline, QWidget *parent = Q_NULLPTR);
     virtual ~WindowRectification ();
 
 protected:
@@ -114,13 +114,13 @@ class RectificationSettingsDialog : public QDialog
     Q_OBJECT
 
 public:
-    RectificationSettingsDialog (QWidget * = 0);
+    RectificationSettingsDialog (QWidget *parent = Q_NULLPTR);
     virtual ~RectificationSettingsDialog();
 
-    void setAlpha (float);
+    void setAlpha (float alpha);
     float getAlpha () const;
 
-    void setZeroDisparity (bool);
+    void setZeroDisparity (bool enable);
     bool getZeroDisparity () const;
 
 protected:

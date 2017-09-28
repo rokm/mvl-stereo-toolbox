@@ -1,6 +1,6 @@
 /*
  * Stereo Widgets: image pair display widget
- * Copyright (C) 2013-2015 Rok Mandeljc
+ * Copyright (C) 2013-2017 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -82,7 +82,7 @@ void ImagePairDisplayWidget::setImagePair (const cv::Mat &left, const cv::Mat &r
     } else {
         cv::cvtColor(left, d->imageLeft, cv::COLOR_BGR2RGB);
     }
-    
+
     if (right.empty()) {
         d->imageRight = cv::Mat();
     } else if (right.channels() == 1) {

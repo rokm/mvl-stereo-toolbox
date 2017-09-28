@@ -1,6 +1,6 @@
 /*
  * Unicap Source: camera widget
- * Copyright (C) 2013-2015 Rok Mandeljc
+ * Copyright (C) 2013-2017 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,7 +38,7 @@ class CameraWidget : public QWidget
     Q_OBJECT
 
 public:
-    CameraWidget (Camera *c, QWidget *parent = nullptr);
+    CameraWidget (Camera *camera, QWidget *parent = Q_NULLPTR);
     virtual ~CameraWidget ();
 
 protected:
@@ -71,7 +71,7 @@ class SizeWidget : public QWidget
     Q_OBJECT
 
 public:
-    SizeWidget (QWidget *parent = nullptr);
+    SizeWidget (QWidget *parent = Q_NULLPTR);
     virtual ~SizeWidget ();
 
     void setSize (const unicap_rect_t &size);

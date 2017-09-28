@@ -39,8 +39,8 @@ namespace StereoToolbox {
 namespace GUI {
 
 
-Toolbox::Toolbox ()
-    : QWidget()
+Toolbox::Toolbox (QWidget *parent)
+    : QWidget(parent)
 {
     // Resize window
     resize(200, 100);
@@ -70,13 +70,13 @@ Toolbox::Toolbox ()
     windowImagePairSource = new WindowImagePairSource(pipeline, imagePairSources);
     windowImagePairSource->setAttribute(Qt::WA_QuitOnClose, false);
 
-    windowRectification = new WindowRectification(pipeline, pipeline->getRectification());
+    windowRectification = new WindowRectification(pipeline);
     windowRectification->setAttribute(Qt::WA_QuitOnClose, false);
 
     windowStereoMethod = new WindowStereoMethod(pipeline, stereoMethods);
     windowStereoMethod->setAttribute(Qt::WA_QuitOnClose, false);
 
-    windowReprojection = new WindowReprojection(pipeline, pipeline->getReprojection());
+    windowReprojection = new WindowReprojection(pipeline);
     windowReprojection->setAttribute(Qt::WA_QuitOnClose, false);
 
     windowPointCloud = new WindowPointCloud(pipeline);
@@ -250,14 +250,14 @@ void Toolbox::setActiveButtonState (QPushButton *button, bool active)
 // *********************************************************************
 // *                         Status message                            *
 // *********************************************************************
-void Toolbox::displayError (int errorType, const QString &errorMessage)
+void Toolbox::displayError (int errorType, const QString &message)
 {
     statusLabel->setText("Status: ERROR");
 
     // If this is a general error, show it in the status bar; otherwise,
     // the corresponding sub window will pop up an error dialog
     if (errorType == Pipeline::Pipeline::ErrorGeneral) {
-        statusLabel->setToolTip(errorMessage);
+        statusLabel->setToolTip(message);
     }
 
     // Stop the image pair source, so that the user can resolve the
@@ -281,9 +281,9 @@ void Toolbox::clearError ()
 // *********************************************************************
 void Toolbox::loadPlugins ()
 {
-    foreach (QObject *plugin, plugin_manager->getAvailablePlugins()) {
+    for (QObject *plugin : plugin_manager->getAvailablePlugins()) {
         Pipeline::PluginFactory *factory = qobject_cast<Pipeline::PluginFactory *>(plugin);
-        QObject *object = nullptr;
+        QObject *object = Q_NULLPTR;
 
         // Create object
         try {

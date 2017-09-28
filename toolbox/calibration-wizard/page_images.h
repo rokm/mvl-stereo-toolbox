@@ -1,6 +1,6 @@
 /*
  * MVL Stereo Toolbox: calibration wizard: images selection page
- * Copyright (C) 2013-2015 Rok Mandeljc
+ * Copyright (C) 2013-2017 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

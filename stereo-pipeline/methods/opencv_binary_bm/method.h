@@ -37,14 +37,14 @@ class Method : public QObject, public StereoMethod
     Q_INTERFACES(MVL::StereoToolbox::Pipeline::StereoMethod)
 
 public:
-    Method (QObject *parent = nullptr);
+    Method (QObject *parent = Q_NULLPTR);
     virtual ~Method ();
 
-    virtual QString getShortName () const;
-    virtual QWidget *createConfigWidget (QWidget *parent = 0);
-    virtual void computeDisparity (const cv::Mat &img1, const cv::Mat &img2, cv::Mat &disparity, int &numDisparities);
-    virtual void loadParameters (const QString &filename);
-    virtual void saveParameters (const QString &filename) const;
+    virtual QString getShortName () const override;
+    virtual QWidget *createConfigWidget (QWidget *parent = Q_NULLPTR) override;
+    virtual void computeDisparity (const cv::Mat &img1, const cv::Mat &img2, cv::Mat &disparity, int &numDisparities) override;
+    virtual void loadParameters (const QString &filename) override;
+    virtual void saveParameters (const QString &filename) const override;
 
     void resetParameters ();
 

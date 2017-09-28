@@ -1,6 +1,6 @@
 /*
  * Unicap Source: property widget
- * Copyright (C) 2013-2015 Rok Mandeljc
+ * Copyright (C) 2013-2017 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,7 +37,7 @@ class PropertyWidget : public QWidget
     Q_OBJECT
 
 public:
-    PropertyWidget (Camera *c, const unicap_property_t &p, QWidget *parent = nullptr);
+    PropertyWidget (Camera *camera, const unicap_property_t &property, QWidget *parent = Q_NULLPTR);
     virtual ~PropertyWidget ();
 
 protected:

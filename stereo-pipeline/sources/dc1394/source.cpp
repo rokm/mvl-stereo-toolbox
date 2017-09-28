@@ -1,6 +1,6 @@
 /*
  * DC1394 Source: source
- * Copyright (C) 2013-2015 Rok Mandeljc
+ * Copyright (C) 2013-2017 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,8 +31,8 @@ namespace SourceDC1394 {
 Source::Source (QObject *parent)
     : QAbstractListModel(parent), ImagePairSource(),
       singleCameraMode(false),
-      leftCamera(nullptr),
-      rightCamera(nullptr)
+      leftCamera(Q_NULLPTR),
+      rightCamera(Q_NULLPTR)
 {
     // FireWire bus
     fw = dc1394_new();

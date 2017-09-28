@@ -1,6 +1,6 @@
 /*
  * Unicap Source: camera widget
- * Copyright (C) 2013-2015 Rok Mandeljc
+ * Copyright (C) 2013-2017 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,8 +28,9 @@ namespace Pipeline {
 namespace SourceUnicap {
 
 
-CameraWidget::CameraWidget (Camera *c, QWidget *parent)
-    : QWidget(parent), camera(c)
+CameraWidget::CameraWidget (Camera *camera, QWidget *parent)
+    : QWidget(parent),
+      camera(camera)
 {
     QFormLayout *layout = new QFormLayout(this);
     layout->setContentsMargins(0, 0, 0, 0);
@@ -98,7 +99,7 @@ CameraWidget::CameraWidget (Camera *c, QWidget *parent)
     button->setToolTip(tooltip);
     button->setCheckable(true);
 
-    connect(button, &QPushButton::toggled, camera, [this] (bool start) {
+    connect(button, &QPushButton::toggled, camera, [camera] (bool start) {
         if (start) {
             camera->startCapture();
         } else {
@@ -124,13 +125,13 @@ CameraWidget::CameraWidget (Camera *c, QWidget *parent)
 
     comboBox = new QComboBox(this);
     connect(comboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), camera, [this] (int index) {
-        camera->setFormat(camera->getSupportedFormats()[index]);
+        this->camera->setFormat(this->camera->getSupportedFormats()[index]);
     }, Qt::QueuedConnection);
     comboBoxFormat = comboBox;
 
     layout->addRow(label, comboBox);
 
-    foreach (const unicap_format_t &format, camera->getSupportedFormats()) {
+    for (const unicap_format_t &format : camera->getSupportedFormats()) {
         QString entry(format.identifier);
         comboBoxFormat->addItem(entry, entry);
     }
@@ -144,7 +145,7 @@ CameraWidget::CameraWidget (Camera *c, QWidget *parent)
 
     widgetSize = new SizeWidget(this);
     connect(widgetSize, &SizeWidget::sizeChanged, camera, [this] (unicap_rect_t newSize) {
-        camera->setSize(newSize);
+        this->camera->setSize(newSize);
     }, Qt::QueuedConnection);
 
     layout->addRow(label, widgetSize);
@@ -158,7 +159,7 @@ CameraWidget::CameraWidget (Camera *c, QWidget *parent)
 
     comboBox = new QComboBox(this);
     connect(comboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), camera, [this] (int index) {
-        camera->setSize(format.sizes[index]);
+        this->camera->setSize(format.sizes[index]);
     }, Qt::QueuedConnection);
 
     comboBoxSize = comboBox;
@@ -189,7 +190,7 @@ void CameraWidget::addPropertyWidgets ()
     QLabel *label;
     PropertyWidget *widget;
 
-    foreach (const unicap_property_t &property, properties) {
+    for (const unicap_property_t &property : properties) {
         label = new QLabel(property.identifier, this);
         widget = new PropertyWidget(camera, property, this);
 
@@ -323,6 +324,10 @@ SizeWidget::~SizeWidget ()
 unicap_rect_t SizeWidget::getSize () const
 {
     unicap_rect_t size;
+    size.x = spinBoxOffsetX->value();
+    size.y = spinBoxOffsetY->value();
+    size.width = spinBoxWidth->value();
+    size.height = spinBoxHeight->value();
     return size;
 }
 

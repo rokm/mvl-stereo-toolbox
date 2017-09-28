@@ -1,6 +1,6 @@
 /*
  * MVL Stereo Toolbox: point cloud window
- * Copyright (C) 2015 Rok Mandeljc
+ * Copyright (C) 2015-2017 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,8 +17,8 @@
  *
  */
 
-#ifndef WINDOW_POINT_CLOUD_H
-#define WINDOW_POINT_CLOUD_H
+#ifndef MVL_STEREO_TOOLBOX__TOOLBOX__WINDOW_POINT_CLOUD_H
+#define MVL_STEREO_TOOLBOX__TOOLBOX__WINDOW_POINT_CLOUD_H
 
 #include <QtWidgets>
 
@@ -44,7 +44,7 @@ class WindowPointCloud : public QWidget
     Q_OBJECT
 
 public:
-    WindowPointCloud (Pipeline::Pipeline *, QWidget * = 0);
+    WindowPointCloud (Pipeline::Pipeline *pipeline, QWidget *parent = Q_NULLPTR);
     virtual ~WindowPointCloud ();
 
 protected:

@@ -1,6 +1,6 @@
 /*
  * MVL Stereo Toolbox: reprojection window
- * Copyright (C) 2013-2015 Rok Mandeljc
+ * Copyright (C) 2013-2017 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,8 +17,8 @@
  *
  */
 
-#ifndef WINDOW_REPROJECTION_H
-#define WINDOW_REPROJECTION_H
+#ifndef MVL_STEREO_TOOLBOX__TOOLBOX__WINDOW_REPROJECTION_H
+#define MVL_STEREO_TOOLBOX__TOOLBOX__WINDOW_REPROJECTION_H
 
 #include <QtWidgets>
 
@@ -43,7 +43,7 @@ class WindowReprojection : public QWidget
     Q_OBJECT
 
 public:
-    WindowReprojection (Pipeline::Pipeline *, Pipeline::Reprojection *, QWidget * = 0);
+    WindowReprojection (Pipeline::Pipeline *pipeline, QWidget *parent = Q_NULLPTR);
     virtual ~WindowReprojection ();
 
 protected:

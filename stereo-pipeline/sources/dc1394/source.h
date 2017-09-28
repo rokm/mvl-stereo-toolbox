@@ -1,6 +1,6 @@
 /*
  * DC1394 Source: source
- * Copyright (C) 2013-2015 Rok Mandeljc
+ * Copyright (C) 2013-2017 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -39,13 +39,13 @@ class Source : public QAbstractListModel, public ImagePairSource
     Q_INTERFACES(MVL::StereoToolbox::Pipeline::ImagePairSource)
 
 public:
-    Source (QObject *parent = nullptr);
+    Source (QObject *parent = Q_NULLPTR);
     virtual ~Source ();
 
-    virtual QString getShortName () const;
-    virtual void getImages (cv::Mat &left, cv::Mat &right) const;
-    virtual void stopSource ();
-    virtual QWidget *createConfigWidget (QWidget *parent = nullptr);
+    virtual QString getShortName () const override;
+    virtual void getImages (cv::Mat &left, cv::Mat &right) const override;
+    virtual void stopSource () override;
+    virtual QWidget *createConfigWidget (QWidget *parent = Q_NULLPTR) override;
 
     bool getSingleCameraMode () const;
     void setSingleCameraMode (bool enabled);
@@ -59,9 +59,9 @@ public:
     Camera *getRightCamera ();
 
     // Model
-    virtual int rowCount (const QModelIndex &index) const;
-    virtual Qt::ItemFlags flags (const QModelIndex &index) const;
-    virtual QVariant data (const QModelIndex &index, int role) const;
+    virtual int rowCount (const QModelIndex &index) const override;
+    virtual Qt::ItemFlags flags (const QModelIndex &index) const override;
+    virtual QVariant data (const QModelIndex &index, int role) const override;
 
     void refreshCameraList ();
     void startStopCapture (bool start);
@@ -81,8 +81,8 @@ signals:
     void rightCameraChanged ();
 
     // Signals from interface
-    void imagesChanged ();
-    void error (QString message);
+    void imagesChanged () override;
+    void error (QString message) override;
 
 protected:
     dc1394_t *fw;

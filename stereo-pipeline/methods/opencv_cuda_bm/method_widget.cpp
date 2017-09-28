@@ -1,6 +1,6 @@
 /*
  * OpenCV CUDA Block Matching: method widget
- * Copyright (C) 2013-2015 Rok Mandeljc
+ * Copyright (C) 2013-2017 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,10 +30,11 @@ namespace Pipeline {
 namespace StereoMethodOpenCvCudaBm {
 
 
-MethodWidget::MethodWidget (Method *m, QWidget *parent)
-    : QWidget(parent), method(m)
+MethodWidget::MethodWidget (Method *method, QWidget *parent)
+    : QWidget(parent),
+      method(method)
 {
-    connect(method, &Method::parameterChanged, this, &MethodWidget::updateParameters);
+    connect(method, &Method::parameterChanged, this, &MethodWidget::updateParameters, Qt::QueuedConnection);
 
     // Build layout
     QVBoxLayout *baseLayout = new QVBoxLayout(this);
@@ -74,7 +75,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
 
     button = new QPushButton("Default values");
     button->setToolTip(tooltip);
-    connect(button, &QPushButton::clicked, method, &Method::resetToDefaults);
+    connect(button, &QPushButton::clicked, method, &Method::resetToDefaults, Qt::QueuedConnection);
 
     layout->addRow(button);
 
@@ -96,9 +97,9 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
     comboBox->addItem("XSOBEL", cv::StereoBM::PREFILTER_XSOBEL);
     comboBox->setItemData(1, "Sobel pre-filtering mode.", Qt::ToolTipRole);
 
-    connect(comboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, [this, comboBox] (int index) {
+    connect(comboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), method, [method, comboBox] (int index) {
         method->setPreFilterType(comboBox->itemData(index).toInt());
-    });
+    }, Qt::QueuedConnection);
 
     comboBoxPreFilterType = comboBox;
 
@@ -113,7 +114,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
     spinBox = new QSpinBox(this);
     spinBox->setKeyboardTracking(false);
     spinBox->setRange(1, 63);
-    connect(spinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), method, &Method::setPreFilterCap);
+    connect(spinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), method, &Method::setPreFilterCap, Qt::QueuedConnection);
     spinBoxPreFilterCap = spinBox;
 
     layout->addRow(label, spinBox);
@@ -134,7 +135,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
     spinBox->setKeyboardTracking(false);
     spinBox->setRange(8, 256);
     spinBox->setSingleStep(8); // Must be divisible by 8
-    connect(spinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), method, &Method::setNumDisparities);
+    connect(spinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), method, &Method::setNumDisparities, Qt::QueuedConnection);
     spinBoxNumDisparities = spinBox;
 
     layout->addRow(label, spinBox);
@@ -149,7 +150,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
     spinBox->setKeyboardTracking(false);
     spinBox->setRange(3, 63);
     spinBox->setSingleStep(2); // Must not be divisible by 2
-    connect(spinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), method, &Method::setWindowSize);
+    connect(spinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), method, &Method::setWindowSize, Qt::QueuedConnection);
     spinBoxWindowSize = spinBox;
 
     layout->addRow(label, spinBox);
@@ -165,7 +166,7 @@ MethodWidget::MethodWidget (Method *m, QWidget *parent)
     spinBoxD = new QDoubleSpinBox(this);
     spinBoxD->setKeyboardTracking(false);
     spinBoxD->setRange(0.0, 9999.0);
-    connect(spinBoxD, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), method, &Method::setAverageTextureThreshold);
+    connect(spinBoxD, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), method, &Method::setAverageTextureThreshold, Qt::QueuedConnection);
     spinBoxAverageTextureThreshold = spinBoxD;
 
     layout->addRow(label, spinBoxD);

@@ -1,6 +1,6 @@
 /*
  * OpenCV Block Matching: method
- * Copyright (C) 2013-2015 Rok Mandeljc
+ * Copyright (C) 2013-2017 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -60,11 +60,11 @@ QWidget *Method::createConfigWidget (QWidget *parent)
 // *********************************************************************
 // *                              Preset                               *
 // *********************************************************************
-void Method::usePreset (int type)
+void Method::usePreset (int preset)
 {
     QMutexLocker locker(&mutex);
 
-    switch (type) {
+    switch (preset) {
         case OpenCV: {
             // Default OpenCV settings
             bm->setPreFilterType(cv::StereoBM::PREFILTER_XSOBEL);
@@ -234,16 +234,16 @@ int Method::getPreFilterType () const
     return bm->getPreFilterType();
 }
 
-void Method::setPreFilterType (int newValue)
+void Method::setPreFilterType (int value)
 {
     // Validate
-    if (newValue != cv::StereoBM::PREFILTER_NORMALIZED_RESPONSE && newValue != cv::StereoBM::PREFILTER_XSOBEL) {
-        newValue = cv::StereoBM::PREFILTER_NORMALIZED_RESPONSE;
+    if (value != cv::StereoBM::PREFILTER_NORMALIZED_RESPONSE && value != cv::StereoBM::PREFILTER_XSOBEL) {
+        value = cv::StereoBM::PREFILTER_NORMALIZED_RESPONSE;
     }
 
     // Set
     QMutexLocker locker(&mutex);
-    bm->setPreFilterType(newValue);
+    bm->setPreFilterType(value);
     locker.unlock();
 
     emit parameterChanged();
@@ -255,15 +255,15 @@ int Method::getPreFilterSize () const
     return bm->getPreFilterSize();
 }
 
-void Method::setPreFilterSize (int newValue)
+void Method::setPreFilterSize (int value)
 {
     // Validate
-    newValue += !(newValue % 2); // Must be odd
-    newValue = qBound(5, newValue, 255);
+    value += !(value % 2); // Must be odd
+    value = qBound(5, value, 255);
 
     // Set
     QMutexLocker locker(&mutex);
-    bm->setPreFilterSize(newValue);
+    bm->setPreFilterSize(value);
     locker.unlock();
 
     emit parameterChanged();
@@ -275,14 +275,14 @@ int Method::getPreFilterCap () const
     return bm->getPreFilterCap();
 }
 
-void Method::setPreFilterCap (int newValue)
+void Method::setPreFilterCap (int value)
 {
     // Validate
-    newValue = qBound(1, newValue, 63);
+    value = qBound(1, value, 63);
 
     // Set
     QMutexLocker locker(&mutex);
-    bm->setPreFilterCap(newValue);
+    bm->setPreFilterCap(value);
     locker.unlock();
 
     emit parameterChanged();
@@ -295,15 +295,15 @@ int Method::getSADWindowSize () const
     return bm->getBlockSize();
 }
 
-void Method::setSADWindowSize (int newValue)
+void Method::setSADWindowSize (int value)
 {
     // Validate
-    newValue += !(newValue % 2); // Must be odd
-    newValue = qBound(5, newValue, 255);
+    value += !(value % 2); // Must be odd
+    value = qBound(5, value, 255);
 
     // Set
     QMutexLocker locker(&mutex);
-    bm->setBlockSize(newValue);
+    bm->setBlockSize(value);
     locker.unlock();
 
     emit parameterChanged();
@@ -315,11 +315,11 @@ int Method::getMinDisparity () const
     return bm->getMinDisparity();
 }
 
-void Method::setMinDisparity (int newValue)
+void Method::setMinDisparity (int value)
 {
     // Set
     QMutexLocker locker(&mutex);
-    bm->setMinDisparity(newValue);
+    bm->setMinDisparity(value);
     locker.unlock();
 
     emit parameterChanged();
@@ -331,15 +331,15 @@ int Method::getNumDisparities () const
     return bm->getNumDisparities();
 }
 
-void Method::setNumDisparities (int newValue)
+void Method::setNumDisparities (int value)
 {
     // Validate
-    newValue = qRound(newValue / 16.0) * 16; // Must be divisible by 16
-    newValue = qMax(16, newValue);
+    value = qRound(value / 16.0) * 16; // Must be divisible by 16
+    value = qMax(16, value);
 
     // Set
     QMutexLocker locker(&mutex);
-    bm->setNumDisparities(newValue);
+    bm->setNumDisparities(value);
     locker.unlock();
 
     emit parameterChanged();
@@ -352,11 +352,11 @@ int Method::getTextureThreshold () const
     return bm->getTextureThreshold();
 }
 
-void Method::setTextureThreshold (int newValue)
+void Method::setTextureThreshold (int value)
 {
     // Set
     QMutexLocker locker(&mutex);
-    bm->setTextureThreshold(newValue);
+    bm->setTextureThreshold(value);
     locker.unlock();
 
     emit parameterChanged();
@@ -370,11 +370,11 @@ int Method::getUniquenessRatio () const
     return bm->getUniquenessRatio();
 }
 
-void Method::setUniquenessRatio (int newValue)
+void Method::setUniquenessRatio (int value)
 {
     // Set
     QMutexLocker locker(&mutex);
-    bm->setUniquenessRatio(newValue);
+    bm->setUniquenessRatio(value);
     locker.unlock();
 
     emit parameterChanged();
@@ -386,11 +386,11 @@ int Method::getSpeckleWindowSize () const
     return bm->getSpeckleWindowSize();
 }
 
-void Method::setSpeckleWindowSize (int newValue)
+void Method::setSpeckleWindowSize (int value)
 {
     // Set
     QMutexLocker locker(&mutex);
-    bm->setSpeckleWindowSize(newValue);
+    bm->setSpeckleWindowSize(value);
     locker.unlock();
 
     emit parameterChanged();
@@ -402,11 +402,11 @@ int Method::getSpeckleRange () const
     return bm->getSpeckleRange();
 }
 
-void Method::setSpeckleRange (int newValue)
+void Method::setSpeckleRange (int value)
 {
     // Set
     QMutexLocker locker(&mutex);
-    bm->setSpeckleRange(newValue);
+    bm->setSpeckleRange(value);
     locker.unlock();
 
     emit parameterChanged();
@@ -418,11 +418,11 @@ int Method::getDisp12MaxDiff () const
     return bm->getDisp12MaxDiff();
 }
 
-void Method::setDisp12MaxDiff (int newValue)
+void Method::setDisp12MaxDiff (int value)
 {
     // Set
     QMutexLocker locker(&mutex);
-    bm->setDisp12MaxDiff(newValue);
+    bm->setDisp12MaxDiff(value);
     locker.unlock();
 
     emit parameterChanged();

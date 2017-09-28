@@ -1,6 +1,6 @@
 /*
  * OpenCV CUDA Belief Propagation: method
- * Copyright (C) 2013-2015 Rok Mandeljc
+ * Copyright (C) 2013-2017 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -198,11 +198,11 @@ int Method::getNumDisparities () const
     return bp->getNumDisparities();
 }
 
-void Method::setNumDisparities (int newValue)
+void Method::setNumDisparities (int value)
 {
     // Set
     QMutexLocker locker(&mutex);
-    bp->setNumDisparities(newValue);
+    bp->setNumDisparities(value);
     locker.unlock();
 
     emit parameterChanged();
@@ -214,11 +214,11 @@ int Method::getIterations () const
     return bp->getNumIters();
 }
 
-void Method::setIterations (int newValue)
+void Method::setIterations (int value)
 {
     // Set
     QMutexLocker locker(&mutex);
-    bp->setNumIters(newValue);
+    bp->setNumIters(value);
     locker.unlock();
 
     emit parameterChanged();
@@ -230,11 +230,11 @@ int Method::getLevels () const
     return bp->getNumLevels();
 }
 
-void Method::setLevels (int newValue)
+void Method::setLevels (int value)
 {
     // Set
     QMutexLocker locker(&mutex);
-    bp->setNumLevels(newValue);
+    bp->setNumLevels(value);
     locker.unlock();
 
     emit parameterChanged();
@@ -246,11 +246,11 @@ double Method::getMaxDataTerm () const
     return bp->getMaxDataTerm();
 }
 
-void Method::setMaxDataTerm (double newValue)
+void Method::setMaxDataTerm (double value)
 {
     // Set
     QMutexLocker locker(&mutex);
-    bp->setMaxDataTerm(newValue);
+    bp->setMaxDataTerm(value);
     locker.unlock();
 
     emit parameterChanged();
@@ -262,11 +262,11 @@ double Method::getDataWeight () const
     return bp->getDataWeight();
 }
 
-void Method::setDataWeight (double newValue)
+void Method::setDataWeight (double value)
 {
     // Set
     QMutexLocker locker(&mutex);
-    bp->setDataWeight(newValue);
+    bp->setDataWeight(value);
     locker.unlock();
 
     emit parameterChanged();
@@ -278,11 +278,11 @@ double Method::getMaxDiscTerm () const
     return bp->getMaxDiscTerm();
 }
 
-void Method::setMaxDiscTerm (double newValue)
+void Method::setMaxDiscTerm (double value)
 {
     // Set
     QMutexLocker locker(&mutex);
-    bp->setMaxDiscTerm(newValue);
+    bp->setMaxDiscTerm(value);
     locker.unlock();
 
     emit parameterChanged();
@@ -294,11 +294,11 @@ double Method::getDiscSingleJump () const
     return bp->getDiscSingleJump();
 }
 
-void Method::setDiscSingleJump (double newValue)
+void Method::setDiscSingleJump (double value)
 {
     // Set
     QMutexLocker locker(&mutex);
-    bp->setDiscSingleJump(newValue);
+    bp->setDiscSingleJump(value);
     locker.unlock();
 
     emit parameterChanged();

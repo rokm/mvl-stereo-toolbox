@@ -1,6 +1,6 @@
 /*
  * OpenCV CUDA Block Matching: method
- * Copyright (C) 2013-2015 Rok Mandeljc
+ * Copyright (C) 2013-2017 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -179,16 +179,16 @@ int Method::getPreFilterType () const
     return bm->getPreFilterType();
 }
 
-void Method::setPreFilterType (int newValue)
+void Method::setPreFilterType (int value)
 {
     // Validate
-    if (newValue != cv::StereoBM::PREFILTER_NORMALIZED_RESPONSE && newValue != cv::StereoBM::PREFILTER_XSOBEL) {
-        newValue = cv::StereoBM::PREFILTER_NORMALIZED_RESPONSE;
+    if (value != cv::StereoBM::PREFILTER_NORMALIZED_RESPONSE && value != cv::StereoBM::PREFILTER_XSOBEL) {
+        value = cv::StereoBM::PREFILTER_NORMALIZED_RESPONSE;
     }
 
     // Set
     QMutexLocker locker(&mutex);
-    bm->setPreFilterType(newValue);
+    bm->setPreFilterType(value);
     locker.unlock();
 
     emit parameterChanged();
@@ -200,11 +200,11 @@ int Method::getPreFilterCap () const
     return bm->getPreFilterCap();
 }
 
-void Method::setPreFilterCap (int newValue)
+void Method::setPreFilterCap (int value)
 {
     // Set
     QMutexLocker locker(&mutex);
-    bm->setPreFilterCap(newValue);
+    bm->setPreFilterCap(value);
     locker.unlock();
 
     emit parameterChanged();
@@ -216,15 +216,15 @@ int Method::getNumDisparities () const
     return bm->getNumDisparities();
 }
 
-void Method::setNumDisparities (int newValue)
+void Method::setNumDisparities (int value)
 {
     // Validate
-    newValue = qRound(newValue / 8.0) * 8; // Must be divisible by 8
-    newValue = qMax(8, newValue);
+    value = qRound(value / 8.0) * 8; // Must be divisible by 8
+    value = qMax(8, value);
 
     // Set
     QMutexLocker locker(&mutex);
-    bm->setNumDisparities(newValue);
+    bm->setNumDisparities(value);
     locker.unlock();
 
     emit parameterChanged();
@@ -236,16 +236,16 @@ int Method::getWindowSize () const
     return bm->getBlockSize();
 }
 
-void Method::setWindowSize (int newValue)
+void Method::setWindowSize (int value)
 {
     // Validate
-    if (newValue % 2 == 0) {
-        newValue++; // Must be odd number
+    if (value % 2 == 0) {
+        value++; // Must be odd number
     }
 
     // Set
     QMutexLocker locker(&mutex);
-    bm->setBlockSize(newValue);
+    bm->setBlockSize(value);
     locker.unlock();
 
     emit parameterChanged();
@@ -258,11 +258,11 @@ double Method::getAverageTextureThreshold () const
     return bm->getTextureThreshold();
 }
 
-void Method::setAverageTextureThreshold (double newValue)
+void Method::setAverageTextureThreshold (double value)
 {
     // Set
     QMutexLocker locker(&mutex);
-    bm->setTextureThreshold(newValue);
+    bm->setTextureThreshold(value);
     locker.unlock();
 
     emit parameterChanged();

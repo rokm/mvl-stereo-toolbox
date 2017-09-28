@@ -1,6 +1,6 @@
 /*
  * MVL Stereo Toolbox: image pair source window
- * Copyright (C) 2013-2015 Rok Mandeljc
+ * Copyright (C) 2013-2017 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,11 +33,14 @@ namespace StereoToolbox {
 namespace GUI {
 
 
-WindowImagePairSource::WindowImagePairSource (Pipeline::Pipeline *p, QList<QObject *> &s, QWidget *parent)
-    : QWidget(parent, Qt::Window), pipeline(p), sources(s),
+WindowImagePairSource::WindowImagePairSource (Pipeline::Pipeline *pipeline, QList<QObject *> &sources, QWidget *parent)
+    : QWidget(parent, Qt::Window),
+      pipeline(pipeline),
+      sources(sources),
       leftInfo({ false, 0, 0, 0 }),
       rightInfo({ false, 0, 0, 0 }),
-      numDroppedFrames(0), estimatedFps(0.0f)
+      numDroppedFrames(0),
+      estimatedFps(0.0f)
 {
     setWindowTitle("Image source");
     resize(800, 600);
@@ -120,7 +123,7 @@ WindowImagePairSource::WindowImagePairSource (Pipeline::Pipeline *p, QList<QObje
         QDoubleSpinBox spinBox;
         spinBox.setDecimals(2);
         spinBox.setRange(0, 120);
-        spinBox.setValue(pipeline->getImageCaptureFramerateLimit());
+        spinBox.setValue(this->pipeline->getImageCaptureFramerateLimit());
         spinBox.setToolTip("Enforce maximum framerate limit (0 = disabled)");
         hbox.addWidget(&spinBox);
 
@@ -132,13 +135,13 @@ WindowImagePairSource::WindowImagePairSource (Pipeline::Pipeline *p, QList<QObje
         layout.addWidget(&buttons);
 
         if (dialog.exec() == QDialog::Accepted) {
-            pipeline->setImageCaptureFramerateLimit(spinBox.value());
+            this->pipeline->setImageCaptureFramerateLimit(spinBox.value());
         }
     });
 
     // Create config tabs
-    for (int i = 0; i < sources.size(); i++) {
-        Pipeline::ImagePairSource *source = qobject_cast<Pipeline::ImagePairSource * >(sources[i]);
+    for (QObject *sourceObject : sources) {
+        Pipeline::ImagePairSource *source = qobject_cast<Pipeline::ImagePairSource * >(sourceObject);
         tabWidget->addTab(source->createConfigWidget(this), source->getShortName());
     }
 
@@ -149,7 +152,7 @@ WindowImagePairSource::WindowImagePairSource (Pipeline::Pipeline *p, QList<QObje
     // Pipeline
     connect(pipeline, &Pipeline::Pipeline::inputImagesChanged, this, [this] () {
         cv::Mat imageLeft, imageRight;
-        pipeline->getImages(imageLeft, imageRight);
+        this->pipeline->getImages(imageLeft, imageRight);
 
         // Store image info for status bar
         if (!imageLeft.empty()) {
@@ -177,9 +180,9 @@ WindowImagePairSource::WindowImagePairSource (Pipeline::Pipeline *p, QList<QObje
     });
 
     // Pipeline's error signalization
-    connect(pipeline, &Pipeline::Pipeline::error, this, [this] (int errorType, const QString &errorMessage) {
+    connect(pipeline, &Pipeline::Pipeline::error, this, [this] (int errorType, const QString &message) {
         if (errorType == Pipeline::Pipeline::ErrorImagePairSource) {
-            QMessageBox::warning(this, "Image Pair Source Error", errorMessage);
+            QMessageBox::warning(this, "Image Pair Source Error", message);
         }
     });
 
@@ -198,14 +201,14 @@ WindowImagePairSource::~WindowImagePairSource ()
 {
 }
 
-void WindowImagePairSource::setSource (int i)
+void WindowImagePairSource::setSource (int idx)
 {
-    if (i < 0 || i >= sources.size()) {
-        qWarning() << "Source" << i << "does not exist!";
+    if (idx < 0 || idx >= sources.size()) {
+        qWarning() << "Source" << idx << "does not exist!";
         return;
     }
 
-    pipeline->setImagePairSource(sources[i]);
+    pipeline->setImagePairSource(sources[idx]);
 }
 
 

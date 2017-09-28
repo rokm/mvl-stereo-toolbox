@@ -1,6 +1,6 @@
 /*
  * Stereo Pipeline: plugin factory interface
- * Copyright (C) 2013-2015 Rok Mandeljc
+ * Copyright (C) 2013-2017 Rok Mandeljc
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -41,7 +41,7 @@ public:
     virtual QString getShortName () const = 0;
     virtual QString getDescription () const = 0;
 
-    virtual QObject *createObject (QObject *parent = 0) const = 0;
+    virtual QObject *createObject (QObject *parent = Q_NULLPTR) const = 0;
 };
 
 
