@@ -64,11 +64,12 @@ protected:
     CameraParametersWidget *widgetCameraParameters;
     Widgets::ImageDisplayWidget *widgetImage;
 
-    QMetaObject::Connection customButtonConnection;
-
     QString customTestImage;
     cv::Mat cameraMatrix;
     cv::Mat distCoeffs;
+
+private:
+    QMetaObject::Connection customButtonConnection;
 };
 
 
@@ -139,8 +140,6 @@ protected:
 protected:
     QString fieldPrefix;
 
-    QMetaObject::Connection customButtonConnection;
-
     CameraParametersWidget *widgetLeftCameraParameters;
     CameraParametersWidget *widgetRightCameraParameters;
 
@@ -151,6 +150,9 @@ protected:
 
     cv::Rect validRoi1, validRoi2;
     cv::Mat map11, map12, map21, map22;
+
+private:
+    QMetaObject::Connection customButtonConnection;
 };
 
 

@@ -290,6 +290,40 @@ void PageImages::setPatternType (int type)
 }
 
 
+// Camera calibration import
+static void importCameraCalibration (const QString &filename, bool leftCamera, cv::Mat &cameraMatrix, cv::Mat &distCoeffs, cv::Size &imageSize)
+{
+    // Load
+    cv::FileStorage storage(filename.toStdString(), cv::FileStorage::READ);
+    if (!storage.isOpened()) {
+        throw QString("Failed to open file '%1' for reading!").arg(filename);
+    }
+
+    // Validate data type
+    QString dataType = QString::fromStdString(storage["DataType"]);
+    if (dataType == "StereoCalibration") {
+        if (leftCamera) {
+            storage["M1"] >> cameraMatrix;
+            storage["D1"] >> distCoeffs;
+        } else {
+            storage["M2"] >> cameraMatrix;
+            storage["D2"] >> distCoeffs;
+        }
+        std::vector<int> size;
+        storage["imageSize"] >> size;
+        imageSize = cv::Size(size[0], size[1]);
+    } else if (dataType == "CameraCalibration") {
+        storage["cameraMatrix"] >> cameraMatrix;
+        storage["distCoeffs"] >> distCoeffs;
+        std::vector<int> size;
+        storage["imageSize"] >> size;
+        imageSize = cv::Size(size[0], size[1]);
+    } else {
+        throw QString("Invalid calibration data!");
+    }
+}
+
+
 // *********************************************************************
 // *                 Image selection page: single camera               *
 // *********************************************************************
@@ -325,18 +359,37 @@ bool PageSingleCameraImages::isComplete () const
 // *                  Image selection page: left camera                *
 // *********************************************************************
 PageLeftCameraImages::PageLeftCameraImages (QWidget *parent)
-    : PageImages("LeftCamera", parent)
+    : PageImages("LeftCamera", parent),
+      skipCalibration(false)
 {
     setTitle("Left camera calibration");
+
+    registerField(fieldPrefix + "SkipCalibration", this, "skipCalibration");
 }
 
 PageLeftCameraImages::~PageLeftCameraImages ()
 {
 }
 
+
+bool PageLeftCameraImages::getSkipCalibration () const
+{
+    return skipCalibration;
+}
+
+void PageLeftCameraImages::setSkipCalibration (bool skip)
+{
+    skipCalibration = skip;
+}
+
+
 int PageLeftCameraImages::nextId () const
 {
-    return Wizard::PageId::LeftCameraDetectionId;
+    if (field(fieldPrefix + "SkipCalibration").value<bool>()) {
+        return Wizard::PageId::LeftCameraResultId;
+    } else {
+        return Wizard::PageId::LeftCameraDetectionId;
+    }
 }
 
 bool PageLeftCameraImages::isComplete () const
@@ -351,23 +404,88 @@ bool PageLeftCameraImages::isComplete () const
     return true;
 }
 
+void PageLeftCameraImages::setVisible (bool visible)
+{
+    QWizardPage::setVisible(visible);
+
+    // On Windows, this function gets called without wizard being set...
+    if (!wizard()) {
+        return;
+    }
+
+    if (visible) {
+        setField(fieldPrefix + "SkipCalibration", false); // Reset the skip flag
+
+        wizard()->setButtonText(QWizard::CustomButton1, tr("&Import calibration"));
+        wizard()->setOption(QWizard::HaveCustomButton1, true);
+        customButtonConnection = connect(wizard(), &QWizard::customButtonClicked, this, [this] () {
+            // Select file
+            QString fileName = QFileDialog::getOpenFileName(this, "Open camera calibration", QString(), "OpenCV storage file (*.xml *.yml *.yaml)");
+            if (fileName.isEmpty()) {
+                return;
+            }
+
+            // Load calibration
+            cv::Mat cameraMatrix, distCoeffs;
+            cv::Size imageSize;
+
+            try {
+                importCameraCalibration(fileName, true, cameraMatrix, distCoeffs, imageSize);
+            } catch (const QString &message) {
+                QMessageBox::warning(this, "Import error", QString("Failed to import calibration: %1").arg(message));
+                return;
+            }
+
+            // Set variables and mark for skip
+            setField(fieldPrefix + "CameraMatrix", QVariant::fromValue(cameraMatrix));
+            setField(fieldPrefix + "DistCoeffs", QVariant::fromValue(distCoeffs));
+            setField(fieldPrefix + "ImageSize", QVariant::fromValue(imageSize));
+
+            setField(fieldPrefix + "SkipCalibration", true);
+            wizard()->next();
+        });
+    } else {
+        wizard()->setOption(QWizard::HaveCustomButton1, false);
+        QObject::disconnect(customButtonConnection);
+    }
+}
+
 
 // *********************************************************************
 // *                 Image selection page: right camera                *
 // *********************************************************************
 PageRightCameraImages::PageRightCameraImages (QWidget *parent)
-    : PageImages("RightCamera", parent)
+    : PageImages("RightCamera", parent),
+      skipCalibration(false)
 {
     setTitle("Right camera calibration");
+
+    registerField(fieldPrefix + "SkipCalibration", this, "skipCalibration");
 }
 
 PageRightCameraImages::~PageRightCameraImages ()
 {
 }
 
+
+bool PageRightCameraImages::getSkipCalibration () const
+{
+    return skipCalibration;
+}
+
+void PageRightCameraImages::setSkipCalibration (bool skip)
+{
+    skipCalibration = skip;
+}
+
+
 int PageRightCameraImages::nextId () const
 {
-    return Wizard::PageId::RightCameraDetectionId;
+    if (field(fieldPrefix + "SkipCalibration").value<bool>()) {
+        return Wizard::PageId::RightCameraResultId;
+    } else {
+        return Wizard::PageId::RightCameraDetectionId;
+    }
 }
 
 bool PageRightCameraImages::isComplete () const
@@ -395,6 +513,52 @@ void PageRightCameraImages::initializePage ()
 
     for (const QString &fieldName : patternParameters) {
         setField(fieldPrefix + fieldName, field(leftCameraPrefix + fieldName));
+    }
+}
+
+void PageRightCameraImages::setVisible (bool visible)
+{
+    QWizardPage::setVisible(visible);
+
+    // On Windows, this function gets called without wizard being set...
+    if (!wizard()) {
+        return;
+    }
+
+    if (visible) {
+        setField(fieldPrefix + "SkipCalibration", false); // Reset the skip flag
+
+        wizard()->setButtonText(QWizard::CustomButton1, tr("&Import calibration"));
+        wizard()->setOption(QWizard::HaveCustomButton1, true);
+        customButtonConnection = connect(wizard(), &QWizard::customButtonClicked, this, [this] () {
+            // Select file
+            QString fileName = QFileDialog::getOpenFileName(this, "Open camera calibration", QString(), "OpenCV storage file (*.xml *.yml *.yaml)");
+            if (fileName.isEmpty()) {
+                return;
+            }
+
+            // Load calibration
+            cv::Mat cameraMatrix, distCoeffs;
+            cv::Size imageSize;
+
+            try {
+                importCameraCalibration(fileName, false, cameraMatrix, distCoeffs, imageSize);
+            } catch (const QString &message) {
+                QMessageBox::warning(this, "Import error", QString("Failed to import calibration: %1").arg(message));
+                return;
+            }
+
+            // Set variables and mark for skip
+            setField(fieldPrefix + "CameraMatrix", QVariant::fromValue(cameraMatrix));
+            setField(fieldPrefix + "DistCoeffs", QVariant::fromValue(distCoeffs));
+            setField(fieldPrefix + "ImageSize", QVariant::fromValue(imageSize));
+
+            setField(fieldPrefix + "SkipCalibration", true);
+            wizard()->next();
+        });
+    } else {
+        wizard()->setOption(QWizard::HaveCustomButton1, false);
+        QObject::disconnect(customButtonConnection);
     }
 }
 

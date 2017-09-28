@@ -93,9 +93,20 @@ cv::Mat PageCalibration::getCameraMatrix () const
     return cameraMatrix;
 }
 
+void PageCalibration::setCameraMatrix (const cv::Mat &camera)
+{
+    cameraMatrix = camera;
+}
+
+
 cv::Mat PageCalibration::getDistCoeffs () const
 {
     return distCoeffs;
+}
+
+void PageCalibration::setDistCoeffs (const cv::Mat &coeffs)
+{
+    distCoeffs = coeffs;
 }
 
 

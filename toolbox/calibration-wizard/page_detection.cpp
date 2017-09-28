@@ -144,6 +144,11 @@ const std::vector<std::vector<cv::Point3f> > &PageDetection::getPatternWorldPoin
     return patternWorldPoints;
 }
 
+void PageDetection::setImageSize (const cv::Size &size)
+{
+    imageSize = size;
+}
+
 const cv::Size &PageDetection::getImageSize () const
 {
     return imageSize;

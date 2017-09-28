@@ -49,7 +49,7 @@ class PageDetection : public QWizardPage
 
     Q_PROPERTY(std::vector<std::vector<cv::Point2f> > patternImagePoints READ getPatternImagePoints);
     Q_PROPERTY(std::vector<std::vector<cv::Point3f> > patternWorldPoints READ getPatternWorldPoints);
-    Q_PROPERTY(cv::Size imageSize READ getImageSize);
+    Q_PROPERTY(cv::Size imageSize READ getImageSize WRITE setImageSize);
 
 public:
     PageDetection (const QString &fieldPrefixString, bool pairs, QWidget *parent = Q_NULLPTR);
@@ -62,6 +62,8 @@ public:
 
     const std::vector<std::vector<cv::Point2f> > &getPatternImagePoints () const;
     const std::vector<std::vector<cv::Point3f> > &getPatternWorldPoints () const;
+
+    void setImageSize (const cv::Size &size);
     const cv::Size &getImageSize () const;
 
 protected:

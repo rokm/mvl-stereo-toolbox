@@ -43,8 +43,8 @@ class PageCalibration : public QWizardPage
 {
     Q_OBJECT
 
-    Q_PROPERTY(cv::Mat cameraMatrix READ getCameraMatrix);
-    Q_PROPERTY(cv::Mat distCoeffs READ getDistCoeffs);
+    Q_PROPERTY(cv::Mat cameraMatrix READ getCameraMatrix WRITE setCameraMatrix);
+    Q_PROPERTY(cv::Mat distCoeffs READ getDistCoeffs WRITE setDistCoeffs);
     Q_PROPERTY(int calibrationFlags READ getCalibrationFlags WRITE setCalibrationFlags);
 
 public:
@@ -56,7 +56,10 @@ public:
     virtual void setVisible (bool visible) override;
 
     cv::Mat getCameraMatrix () const;
+    void setCameraMatrix (const cv::Mat &camera);
+
     cv::Mat getDistCoeffs () const;
+    void setDistCoeffs (const cv::Mat &coeffs);
 
     void setCalibrationFlags (int flags);
     int getCalibrationFlags (void) const;
@@ -76,8 +79,6 @@ protected:
     CameraParametersWidget *widgetCameraParameters;
     CalibrationFlagsWidget *widgetCalibrationFlags;
 
-    QMetaObject::Connection customButtonConnection;
-
     // Worker
     bool calibrationComplete;
     QFutureWatcher<bool> calibrationWatcher;
@@ -89,6 +90,9 @@ protected:
     // Data
     cv::Mat cameraMatrix;
     cv::Mat distCoeffs;
+
+private:
+    QMetaObject::Connection customButtonConnection;
 };
 
 
@@ -185,8 +189,6 @@ protected:
     CameraParametersWidget *widgetRightCameraParameters;
     StereoCalibrationFlagsWidget *widgetCalibrationFlags;
 
-    QMetaObject::Connection customButtonConnection;
-
     // Worker
     bool calibrationComplete;
     QFutureWatcher<bool> calibrationWatcher;
@@ -203,6 +205,9 @@ protected:
     cv::Mat distCoeffs2;
     cv::Mat R, T;
     cv::Size imageSize;
+
+private:
+    QMetaObject::Connection customButtonConnection;
 };
 
 

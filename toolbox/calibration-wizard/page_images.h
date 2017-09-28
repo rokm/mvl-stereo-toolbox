@@ -100,12 +100,25 @@ class PageLeftCameraImages : public PageImages
 {
     Q_OBJECT
 
+    Q_PROPERTY(bool skipCalibration READ getSkipCalibration WRITE setSkipCalibration);
+
 public:
     PageLeftCameraImages (QWidget *parent = Q_NULLPTR);
     virtual ~PageLeftCameraImages ();
 
     virtual int nextId () const override;
     virtual bool isComplete () const override;
+
+    virtual void setVisible (bool visible) override;
+
+    bool getSkipCalibration () const;
+    void setSkipCalibration (bool skip);
+
+protected:
+    bool skipCalibration;
+
+private:
+    QMetaObject::Connection customButtonConnection;
 };
 
 
@@ -116,6 +129,8 @@ class PageRightCameraImages : public PageImages
 {
     Q_OBJECT
 
+    Q_PROPERTY(bool skipCalibration READ getSkipCalibration WRITE setSkipCalibration);
+
 public:
     PageRightCameraImages (QWidget *parent = Q_NULLPTR);
     virtual ~PageRightCameraImages ();
@@ -124,6 +139,17 @@ public:
 
     virtual int nextId () const override;
     virtual bool isComplete () const override;
+
+    virtual void setVisible (bool visible) override;
+
+    bool getSkipCalibration () const;
+    void setSkipCalibration (bool skip);
+
+protected:
+    bool skipCalibration;
+
+private:
+    QMetaObject::Connection customButtonConnection;
 };
 
 
