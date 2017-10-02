@@ -137,6 +137,8 @@ WindowImagePairSource::WindowImagePairSource (Pipeline::Pipeline *pipeline, QLis
         if (dialog.exec() == QDialog::Accepted) {
             this->pipeline->setImageCaptureFramerateLimit(spinBox.value());
         }
+
+        updateStatusBar();
     });
 
     // Create config tabs
@@ -227,7 +229,7 @@ void WindowImagePairSource::updateStatusBar ()
             .arg(fpsLimit, 0, 'f' , 2)
             .arg(numDroppedFrames));
     } else {
-        statusBar->showMessage(QString("Image: %1x%2 %3, %4x%5 %6. FPS: %7, dropped %8 frames")
+        statusBar->showMessage(QString("Image: %1x%2 %3, %4x%5 %6. FPS: %7 (right-click to set limit), dropped %8 frames")
             .arg(leftInfo.width)
             .arg(leftInfo.height)
             .arg(Utils::cvDepthToString(leftInfo.depth))
