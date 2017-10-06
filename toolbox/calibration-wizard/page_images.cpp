@@ -193,7 +193,7 @@ void PageImages::addImages ()
         return;
     }
 
-    if (fileNames.size() == 1) {
+    if (fileNames.size() == 1 && QFileInfo(fileNames[0]).suffix() == "txt") {
         // Single file is given, assume it is a text file with a list
         QFile listFile(fileNames[0]);
         if (listFile.open(QIODevice::ReadOnly)) {
