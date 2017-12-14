@@ -60,7 +60,7 @@ protected:
     cv::Mat map11, map12, map21, map22;
 
     // Rectification options
-    float alpha;
+    double alpha;
     bool zeroDisparity;
 };
 

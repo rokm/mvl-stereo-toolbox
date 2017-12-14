@@ -67,7 +67,7 @@ bool Rectification::isCalibrationValid () const
 // *********************************************************************
 // *                     Calibration import/export                     *
 // *********************************************************************
-void Rectification::exportStereoCalibration (const QString &filename, const cv::Mat &cameraMatrix1, const cv::Mat &distCoeffs1, const cv::Mat &cameraMatrix2, const cv::Mat &distCoeffs2, const cv::Mat &rotation, const cv::Mat &translation, const cv::Size &imageSize)
+void Rectification::exportStereoCalibration (const QString &filename, const cv::Mat &cameraMatrix1, const cv::Mat &distCoeffs1, const cv::Mat &cameraMatrix2, const cv::Mat &distCoeffs2, const cv::Mat &rotation, const cv::Mat &translation, const cv::Size &imageSize, bool zeroDisparity, double alpha)
 {
     // NOTE: we store "raw" parameters, i.e. the ones from which
     // rectification is yet to be computed...
@@ -85,12 +85,15 @@ void Rectification::exportStereoCalibration (const QString &filename, const cv::
 
         storage << "R" << rotation;
         storage << "T" << translation;
+
+        storage << "zeroDisparity" << zeroDisparity;
+        storage << "alpha" << alpha;
     } else {
         throw QString("Failed to open file '%1' for writing!").arg(filename);
     }
 }
 
-void Rectification::importStereoCalibration (const QString &filename, cv::Mat &cameraMatrix1, cv::Mat &distCoeffs1, cv::Mat &cameraMatrix2, cv::Mat &distCoeffs2, cv::Mat &rotation, cv::Mat &translation, cv::Size &imageSize)
+void Rectification::importStereoCalibration (const QString &filename, cv::Mat &cameraMatrix1, cv::Mat &distCoeffs1, cv::Mat &cameraMatrix2, cv::Mat &distCoeffs2, cv::Mat &rotation, cv::Mat &translation, cv::Size &imageSize, bool &zeroDisparity, double &alpha)
 {
     // Load
     cv::FileStorage storage(filename.toStdString(), cv::FileStorage::READ);
@@ -116,13 +119,28 @@ void Rectification::importStereoCalibration (const QString &filename, cv::Mat &c
 
     storage["R"] >> rotation;
     storage["T"] >> translation;
+
+    // Load rectification paramaters (optional)
+    cv::FileNode node = storage["zeroDisparity"];
+    if (!node.isNone()) {
+        node >> zeroDisparity;
+    } else {
+        zeroDisparity = true;
+    }
+
+    node = storage["alpha"];
+    if (!node.isNone()) {
+        node >> alpha;
+    } else {
+        alpha = 0.0;
+    }
 }
 
 
 // *********************************************************************
 // *                            Calibration                            *
 // *********************************************************************
-void Rectification::setStereoCalibration (const cv::Mat &cameraMatrix1, const cv::Mat &distCoeffs1, const cv::Mat &cameraMatrix2, const cv::Mat &distCoeffs2, const cv::Mat &rotation, const cv::Mat &translation, const cv::Size &imageSize)
+void Rectification::setStereoCalibration (const cv::Mat &cameraMatrix1, const cv::Mat &distCoeffs1, const cv::Mat &cameraMatrix2, const cv::Mat &distCoeffs2, const cv::Mat &rotation, const cv::Mat &translation, const cv::Size &imageSize, bool zeroDisparity, double alpha)
 {
     Q_D(Rectification);
 
@@ -141,6 +159,9 @@ void Rectification::setStereoCalibration (const cv::Mat &cameraMatrix1, const cv
 
     d->imageSize = imageSize;
 
+    d->zeroDisparity = zeroDisparity;
+    d->alpha = alpha;
+
     // Initialize rectification
     initializeRectification();
 }
@@ -153,7 +174,7 @@ void Rectification::loadStereoCalibration (const QString &filename)
     d->isValid = false;
 
     // Import
-    importStereoCalibration(filename, d->M1, d->D1, d->M2, d->D2, d->R, d->T, d->imageSize);
+    importStereoCalibration(filename, d->M1, d->D1, d->M2, d->D2, d->R, d->T, d->imageSize, d->zeroDisparity, d->alpha);
 
     // Initialize rectification from loaded calibration
     initializeRectification();
@@ -164,7 +185,7 @@ void Rectification::saveStereoCalibration (const QString &filename) const
     Q_D(const Rectification);
 
     // Export
-    exportStereoCalibration(filename, d->M1, d->D1, d->M2, d->D2, d->R, d->T, d->imageSize);
+    exportStereoCalibration(filename, d->M1, d->D1, d->M2, d->D2, d->R, d->T, d->imageSize, d->zeroDisparity, d->alpha);
 }
 
 void Rectification::clearStereoCalibration ()

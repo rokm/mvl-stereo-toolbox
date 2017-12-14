@@ -239,12 +239,16 @@ void WindowRectification::updateButtonsState ()
 // *********************************************************************
 void WindowRectification::runCalibrationWizard ()
 {
+    const QString fieldPrefix = "Stereo";
+
     // Run calibration wizard
+    wizard->setField(fieldPrefix + "RectificationAlpha", rectification->getAlpha());
+    wizard->setField(fieldPrefix + "RectificationZeroDisparity", rectification->getZeroDisparity());
     wizard->restart();
+
     if (wizard->exec() == QDialog::Accepted &&
         wizard->field("CalibrationType").value<QString>() != "SingleCameraCalibration") {
         // Get parameters and set them to rectification object
-        QString fieldPrefix = "Stereo";
         rectification->setStereoCalibration(
             wizard->field(fieldPrefix + "CameraMatrix1").value<cv::Mat>(),
             wizard->field(fieldPrefix + "DistCoeffs1").value<cv::Mat>(),
@@ -252,7 +256,9 @@ void WindowRectification::runCalibrationWizard ()
             wizard->field(fieldPrefix + "DistCoeffs2").value<cv::Mat>(),
             wizard->field(fieldPrefix + "R").value<cv::Mat>(),
             wizard->field(fieldPrefix + "T").value<cv::Mat>(),
-            wizard->field(fieldPrefix + "ImageSize").value<cv::Size>()
+            wizard->field(fieldPrefix + "ImageSize").value<cv::Size>(),
+            wizard->field(fieldPrefix + "RectificationZeroDisparity").value<bool>(),
+            wizard->field(fieldPrefix + "RectificationAlpha").value<double>()
         );
     }
 }

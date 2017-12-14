@@ -83,6 +83,9 @@ class PageSingleCameraResult : public PageResult
 public:
     PageSingleCameraResult (QWidget *parent = Q_NULLPTR);
     virtual ~PageSingleCameraResult ();
+
+protected:
+    virtual int nextId () const override;
 };
 
 
@@ -135,7 +138,11 @@ public:
 protected:
     void exportCalibration ();
 
-    void displayTestImagePair (const QString &filenameLeft, const QString &filenameRight);
+    void initializeRectificationMaps ();
+    void loadTestImagePair (const QString &filenameLeft, const QString &filenameRight);
+    void displayTestImagePair ();
+
+    virtual int nextId () const override;
 
 protected:
     QString fieldPrefix;
@@ -145,11 +152,16 @@ protected:
 
     Widgets::ImagePairDisplayWidget *widgetImage;
 
+    QDoubleSpinBox *spinBoxAlpha;
+    QCheckBox *checkBoxZeroDisparity;
+
     QString customTestImageLeft;
     QString customTestImageRight;
 
     cv::Rect validRoi1, validRoi2;
     cv::Mat map11, map12, map21, map22;
+
+    cv::Mat image1, image2;
 
 private:
     QMetaObject::Connection customButtonConnection;

@@ -271,6 +271,11 @@ PageSingleCameraResult::~PageSingleCameraResult ()
 {
 }
 
+int PageSingleCameraResult::nextId () const
+{
+    return -1;
+}
+
 
 // *********************************************************************
 // *                     Result page: left camera                      *
@@ -358,12 +363,39 @@ PageStereoResult::PageStereoResult (QWidget *parent)
         }
 
         // Display
-        displayTestImagePair(filenames[0], filenames[1]);
+        loadTestImagePair(filenames[0], filenames[1]);
 
         // Store
         customTestImageLeft = filenames[0];
         customTestImageRight = filenames[1];
     });
+
+    // Rectification parameters
+    QGroupBox *groupBoxRectification = new QGroupBox("Rectification parameters", this);
+    QHBoxLayout *rectificationLayout = new QHBoxLayout(groupBoxRectification);
+
+    checkBoxZeroDisparity = new QCheckBox("CALIB_ZERO_DISPARITY", this);
+
+    rectificationLayout->addWidget(checkBoxZeroDisparity);
+
+    rectificationLayout->addStretch(1);
+
+    spinBoxAlpha = new QDoubleSpinBox(this);
+    spinBoxAlpha->setRange(-1, 1);
+    spinBoxAlpha->setDecimals(2);
+    spinBoxAlpha->setSingleStep(0.10);
+
+    rectificationLayout->addWidget(new QLabel("Alpha: ", this));
+    rectificationLayout->addWidget(spinBoxAlpha);
+
+    splitter->addWidget(groupBoxRectification);
+
+    auto lambdaUpdateRectification = [this] () {
+        initializeRectificationMaps();
+        displayTestImagePair();
+    };
+    connect(spinBoxAlpha, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, lambdaUpdateRectification);
+    connect(checkBoxZeroDisparity, &QCheckBox::toggled, this, lambdaUpdateRectification);
 
     // Scroll area; camera parameters
     QScrollArea *scrollArea = new QScrollArea(this);
@@ -391,17 +423,59 @@ PageStereoResult::PageStereoResult (QWidget *parent)
 
     scrollArea->setWidget(parametersWidget);
     splitter->addWidget(scrollArea);
+
+    // Settable fields
+    registerField(fieldPrefix + "RectificationAlpha", spinBoxAlpha, "value");
+    registerField(fieldPrefix + "RectificationZeroDisparity", checkBoxZeroDisparity);
 }
 
 PageStereoResult::~PageStereoResult ()
 {
 }
 
-void PageStereoResult::displayTestImagePair (const QString &filenameLeft, const QString &filenameRight)
+int PageStereoResult::nextId () const
 {
-    // Load and rectify a pair
-    cv::Mat image1 = cv::imread(filenameLeft.toStdString(), -1);
-    cv::Mat image2 = cv::imread(filenameRight.toStdString(), -1);
+    return -1;
+}
+
+
+void PageStereoResult::initializeRectificationMaps ()
+{
+    // Get stereo calibration
+    cv::Mat M1 = field(fieldPrefix + "CameraMatrix1").value<cv::Mat>();
+    cv::Mat D1 = field(fieldPrefix + "DistCoeffs1").value<cv::Mat>();
+    cv::Mat M2 = field(fieldPrefix + "CameraMatrix2").value<cv::Mat>();
+    cv::Mat D2 = field(fieldPrefix + "DistCoeffs2").value<cv::Mat>();
+    cv::Mat T = field(fieldPrefix + "T").value<cv::Mat>();
+    cv::Mat R = field(fieldPrefix + "R").value<cv::Mat>();
+    cv::Size imageSize = field(fieldPrefix + "ImageSize").value<cv::Size>();
+
+    if (M1.empty()) {
+        // This catches the call triggered by initial setting of
+        // rectification parameters when the wizard is started...
+        return;
+    }
+
+    // Get rectification settings
+    double alpha = field(fieldPrefix + "RectificationAlpha").value<double>();
+    bool zeroDisparity = field(fieldPrefix + "RectificationZeroDisparity").value<bool>();
+
+    // Initialize stereo rectification
+    cv::Mat R1, R2;
+    cv::Mat P1, P2;
+    cv::Mat Q;
+
+    cv::stereoRectify(M1, D1, M2, D2, imageSize, R, T, R1, R2, P1, P2, Q, zeroDisparity ? cv::CALIB_ZERO_DISPARITY : 0, alpha, imageSize, &validRoi1, &validRoi2);
+
+    cv::initUndistortRectifyMap(M1, D1, R1, P1, imageSize, CV_16SC2, map11, map12);
+    cv::initUndistortRectifyMap(M2, D2, R2, P2, imageSize, CV_16SC2, map21, map22);
+}
+
+void PageStereoResult::loadTestImagePair (const QString &filenameLeft, const QString &filenameRight)
+{
+    // Load image pair
+    image1 = cv::imread(filenameLeft.toStdString(), -1);
+    image2 = cv::imread(filenameRight.toStdString(), -1);
 
     if (image1.empty()) {
         qWarning() << this << ": failed to load test image:" << filenameLeft;
@@ -410,6 +484,16 @@ void PageStereoResult::displayTestImagePair (const QString &filenameLeft, const 
 
     if (image2.empty()) {
         qWarning() << this << ": failed to load test image:" << filenameRight;
+        return;
+    }
+
+    // Rectify and display the pair
+    displayTestImagePair();
+}
+
+void PageStereoResult::displayTestImagePair ()
+{
+    if (image1.empty() || image2.empty()) {
         return;
     }
 
@@ -431,33 +515,23 @@ void PageStereoResult::initializePage ()
     cv::Mat D1 = field(fieldPrefix + "DistCoeffs1").value<cv::Mat>();
     cv::Mat M2 = field(fieldPrefix + "CameraMatrix2").value<cv::Mat>();
     cv::Mat D2 = field(fieldPrefix + "DistCoeffs2").value<cv::Mat>();
-    cv::Mat T = field(fieldPrefix + "T").value<cv::Mat>();
-    cv::Mat R = field(fieldPrefix + "R").value<cv::Mat>();
-    cv::Size imageSize = field(fieldPrefix + "ImageSize").value<cv::Size>();
 
     // Display parameters
     widgetLeftCameraParameters->setCameraMatrix(M1, D1);
     widgetRightCameraParameters->setCameraMatrix(M2, D2);
 
     // Initialize stereo rectification
-    cv::Mat R1, R2;
-    cv::Mat P1, P2;
-    cv::Mat Q;
-
-    cv::stereoRectify(M1, D1, M2, D2, imageSize, R, T, R1, R2, P1, P2, Q, cv::CALIB_ZERO_DISPARITY, 0, imageSize, &validRoi1, &validRoi2);
-
-    cv::initUndistortRectifyMap(M1, D1, R1, P1, imageSize, CV_16SC2, map11, map12);
-    cv::initUndistortRectifyMap(M2, D2, R2, P2, imageSize, CV_16SC2, map21, map22);
+    initializeRectificationMaps();
 
     // Display test image pair
     if (customTestImageLeft.isEmpty() || customTestImageRight.isEmpty()) {
         QStringList images = field(fieldPrefix + "Images").toStringList();
         if (images.size() >= 2) {
-            displayTestImagePair(images[0], images[1]);
+            loadTestImagePair(images[0], images[1]);
         }
     } else {
         // Custom test images
-        displayTestImagePair(customTestImageLeft, customTestImageRight);
+        loadTestImagePair(customTestImageLeft, customTestImageRight);
     }
 }
 
@@ -502,7 +576,9 @@ void PageStereoResult::exportCalibration ()
                 field(fieldPrefix + "DistCoeffs2").value<cv::Mat>(),
                 field(fieldPrefix + "R").value<cv::Mat>(),
                 field(fieldPrefix + "T").value<cv::Mat>(),
-                field(fieldPrefix + "ImageSize").value<cv::Size>()
+                field(fieldPrefix + "ImageSize").value<cv::Size>(),
+                field(fieldPrefix + "RectificationZeroDisparity").value<bool>(),
+                field(fieldPrefix + "RectificationAlpha").value<double>()
             );
         } catch (QString &e) {
             QMessageBox::warning(this, "Error", "Failed to export calibration: " + e);
