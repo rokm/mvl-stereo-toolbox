@@ -66,17 +66,22 @@ PageIntroduction::PageIntroduction (QWidget *parent)
 
     layout->addWidget(label);
 
+
+    QGroupBox *groupBox = new QGroupBox("Calibration type");
+    QVBoxLayout *groupBoxLayout = new QVBoxLayout(groupBox);
+    layout->addWidget(groupBox);
+
     radioButtonJointCalibration = new QRadioButton("&Joint calibration");
     radioButtonJointCalibration->setToolTip("Estimate all parameters together.");
-    layout->addWidget(radioButtonJointCalibration);
+    groupBoxLayout->addWidget(radioButtonJointCalibration);
 
     radioButtonDecoupledCalibration = new QRadioButton("&Decoupled calibration");
     radioButtonDecoupledCalibration->setToolTip("Separately estimate intrinsic parameters and stereo parameters.");
-    layout->addWidget(radioButtonDecoupledCalibration);
+    groupBoxLayout->addWidget(radioButtonDecoupledCalibration);
 
     radioButtonSingleCalibration = new QRadioButton("&Single-camera calibration");
     radioButtonSingleCalibration->setToolTip("Calibrate intrinsic parameters of a single camera.");
-    layout->addWidget(radioButtonSingleCalibration);
+    groupBoxLayout->addWidget(radioButtonSingleCalibration);
 
     registerField("JointCalibration", radioButtonJointCalibration);
 
