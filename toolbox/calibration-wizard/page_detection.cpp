@@ -163,14 +163,13 @@ void PageDetection::initializePage ()
 
     // Clear image
     widgetImage->setImage(cv::Mat());
-    widgetImage->setText("Press \"Start\" to begin");
 
     // Clear points
     patternImagePoints.clear();
     patternWorldPoints.clear();
 
     // Clear status label
-    labelStatus->setText(QString());
+    labelStatus->setText("Press \"Start\" to begin");
 
     // Make "Accept" button a start one...
     pushButtonAccept->setText("Start");
