@@ -149,6 +149,27 @@ WindowRectification::WindowRectification (Pipeline::Pipeline *pipeline, QWidget 
 
     // Calibration wizard
     wizard = new CalibrationWizard::Wizard(this);
+    connect(wizard, &CalibrationWizard::Wizard::accepted, this, [this] () {
+        // Ignore single-camera calibration
+        if (wizard->field("CalibrationType").value<QString>() == "SingleCameraCalibration") {
+            return;
+        }
+
+        // Get parameters and set them to rectification object
+        const QString fieldPrefix = "Stereo";
+
+        rectification->setStereoCalibration(
+            wizard->field(fieldPrefix + "CameraMatrix1").value<cv::Mat>(),
+            wizard->field(fieldPrefix + "DistCoeffs1").value<cv::Mat>(),
+            wizard->field(fieldPrefix + "CameraMatrix2").value<cv::Mat>(),
+            wizard->field(fieldPrefix + "DistCoeffs2").value<cv::Mat>(),
+            wizard->field(fieldPrefix + "R").value<cv::Mat>(),
+            wizard->field(fieldPrefix + "T").value<cv::Mat>(),
+            wizard->field(fieldPrefix + "ImageSize").value<cv::Size>(),
+            wizard->field(fieldPrefix + "RectificationZeroDisparity").value<bool>(),
+            wizard->field(fieldPrefix + "RectificationAlpha").value<double>()
+        );
+    });
 
     // Pipeline's error signalization
     connect(pipeline, &Pipeline::Pipeline::error, this, [this] (int errorType, const QString &message) {
@@ -246,21 +267,12 @@ void WindowRectification::runCalibrationWizard ()
     wizard->setField(fieldPrefix + "RectificationZeroDisparity", rectification->getZeroDisparity());
     wizard->restart();
 
-    if (wizard->exec() == QDialog::Accepted &&
-        wizard->field("CalibrationType").value<QString>() != "SingleCameraCalibration") {
-        // Get parameters and set them to rectification object
-        rectification->setStereoCalibration(
-            wizard->field(fieldPrefix + "CameraMatrix1").value<cv::Mat>(),
-            wizard->field(fieldPrefix + "DistCoeffs1").value<cv::Mat>(),
-            wizard->field(fieldPrefix + "CameraMatrix2").value<cv::Mat>(),
-            wizard->field(fieldPrefix + "DistCoeffs2").value<cv::Mat>(),
-            wizard->field(fieldPrefix + "R").value<cv::Mat>(),
-            wizard->field(fieldPrefix + "T").value<cv::Mat>(),
-            wizard->field(fieldPrefix + "ImageSize").value<cv::Size>(),
-            wizard->field(fieldPrefix + "RectificationZeroDisparity").value<bool>(),
-            wizard->field(fieldPrefix + "RectificationAlpha").value<double>()
-        );
-    }
+    // To prevent wizard from blocking the rest of application (e.g.,
+    // if we need to directly capture calibration images from source),
+    // we use show() instead of exect(), and we have already connected
+    // the QWizard::accepted() signal to apply the calibration when
+    // user clicks on Finish button
+    wizard->show();
 }
 
 void WindowRectification::importCalibration ()
