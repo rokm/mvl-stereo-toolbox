@@ -37,6 +37,8 @@ protected:
     CalibrationPatternDisplayWidgetPrivate (CalibrationPatternDisplayWidget *parent);
 
 protected:
+    bool patternValid; // Has pattern been set?
+
     bool patternFound;
     cv::Size patternSize;
     std::vector<cv::Point2f> patternPoints;

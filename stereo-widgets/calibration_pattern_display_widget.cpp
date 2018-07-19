@@ -27,7 +27,7 @@ namespace Widgets {
 
 
 CalibrationPatternDisplayWidgetPrivate::CalibrationPatternDisplayWidgetPrivate (CalibrationPatternDisplayWidget *parent)
-    : ImageDisplayWidgetPrivate(parent)
+    : ImageDisplayWidgetPrivate(parent), patternValid(false)
 {
 }
 
@@ -42,11 +42,24 @@ CalibrationPatternDisplayWidget::~CalibrationPatternDisplayWidget ()
 }
 
 
+void CalibrationPatternDisplayWidget::setImage (const cv::Mat &image)
+{
+    Q_D(CalibrationPatternDisplayWidget);
+
+    // Clear pattern
+    d->patternValid = false;
+
+    // Chain up to parent
+    ImageDisplayWidget::setImage(image);
+}
+
 void CalibrationPatternDisplayWidget::setPattern (bool found, const std::vector<cv::Point2f> &points, const cv::Size &size)
 {
     Q_D(CalibrationPatternDisplayWidget);
 
     // Store pattern
+    d->patternValid = true;
+
     d->patternSize = size;
     d->patternFound = found;
     d->patternPoints = points;
@@ -86,59 +99,61 @@ void CalibrationPatternDisplayWidget::paintEvent (QPaintEvent *event)
         painter.drawImage(QRect(0, 0, w, h), QImage(d->image.data, d->image.cols, d->image.rows, d->image.step, QImage::Format_RGB888));
 
         // Display pattern
-        painter.scale(scale, scale);
+        if (d->patternValid) {
+            painter.scale(scale, scale);
 
-        int r = 8;
-        QColor color;
-        QPointF currentPoint, previousPoint;
+            int r = 8;
+            QColor color;
+            QPointF currentPoint, previousPoint;
 
-        QPointF lineOffsetA1 = QPointF(-r,-r) / sqrtf(2.0);
-        QPointF lineOffsetA2 = QPointF(r,r) / sqrtf(2.0);
-        QPointF lineOffsetB1 = QPointF(-r,r) / sqrtf(2.0);
-        QPointF lineOffsetB2 = QPointF(r,-r) / sqrtf(2.0);
+            QPointF lineOffsetA1 = QPointF(-r,-r) / sqrtf(2.0);
+            QPointF lineOffsetA2 = QPointF(r,r) / sqrtf(2.0);
+            QPointF lineOffsetB1 = QPointF(-r,r) / sqrtf(2.0);
+            QPointF lineOffsetB2 = QPointF(r,-r) / sqrtf(2.0);
 
-        for (unsigned int i = 0; i < d->patternPoints.size(); i++) {
-            // Select color based on which row we are drawing
-            if (d->patternFound) {
-                int row = i / d->patternSize.width;
-                switch (row % 6) {
-                    case 0: color = QColor(255,   0,   0); break;
-                    case 1: color = QColor(255, 128,   0); break;
-                    case 2: color = QColor(200, 200,   0); break;
-                    case 3: color = QColor(  0, 255,   0); break;
-                    case 4: color = QColor(  0,   0, 255); break;
-                    case 5: color = QColor(255,   0, 255); break;
-                }
-            } else {
-                color = Qt::red;
-            }
-
-            // Point coordinates
-            currentPoint = QPointF(d->patternPoints[i].x, d->patternPoints[i].y);
-
-            // Draw circle
-            painter.setPen(QPen(color, 2.0));
-            painter.drawEllipse(currentPoint, r, r);
-
-            // Draw crossed lines
-            painter.drawLine(currentPoint + lineOffsetA1, currentPoint + lineOffsetA2);
-            painter.drawLine(currentPoint + lineOffsetB1, currentPoint + lineOffsetB2);
-
-            // Draw connecting line; only if pattern has been found
-            if (!d->patternFound) {
-                continue;
-            }
-
-            if (i > 0) {
-                if (i % d->patternSize.width) {
-                    painter.setPen(QPen(color, 2.0, Qt::SolidLine));
+            for (unsigned int i = 0; i < d->patternPoints.size(); i++) {
+                // Select color based on which row we are drawing
+                if (d->patternFound) {
+                    int row = i / d->patternSize.width;
+                    switch (row % 6) {
+                        case 0: color = QColor(255,   0,   0); break;
+                        case 1: color = QColor(255, 128,   0); break;
+                        case 2: color = QColor(200, 200,   0); break;
+                        case 3: color = QColor(  0, 255,   0); break;
+                        case 4: color = QColor(  0,   0, 255); break;
+                        case 5: color = QColor(255,   0, 255); break;
+                    }
                 } else {
-                    painter.setPen(QPen(color, 2.0, Qt::DashLine));
+                    color = Qt::red;
                 }
-                painter.drawLine(previousPoint, currentPoint);
-            }
 
-            previousPoint = currentPoint;
+                // Point coordinates
+                currentPoint = QPointF(d->patternPoints[i].x, d->patternPoints[i].y);
+
+                // Draw circle
+                painter.setPen(QPen(color, 2.0));
+                painter.drawEllipse(currentPoint, r, r);
+
+                // Draw crossed lines
+                painter.drawLine(currentPoint + lineOffsetA1, currentPoint + lineOffsetA2);
+                painter.drawLine(currentPoint + lineOffsetB1, currentPoint + lineOffsetB2);
+
+                // Draw connecting line; only if pattern has been found
+                if (!d->patternFound) {
+                    continue;
+                }
+
+                if (i > 0) {
+                    if (i % d->patternSize.width) {
+                        painter.setPen(QPen(color, 2.0, Qt::SolidLine));
+                    } else {
+                        painter.setPen(QPen(color, 2.0, Qt::DashLine));
+                    }
+                    painter.drawLine(previousPoint, currentPoint);
+                }
+
+                previousPoint = currentPoint;
+            }
         }
     }
 

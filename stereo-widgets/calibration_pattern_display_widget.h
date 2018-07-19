@@ -41,6 +41,8 @@ public:
     CalibrationPatternDisplayWidget (const QString &text = QString(), QWidget *parent = Q_NULLPTR);
     virtual ~CalibrationPatternDisplayWidget ();
 
+    virtual void setImage (const cv::Mat &image) override;
+
     void setPattern (bool found, const std::vector<cv::Point2f> &points, const cv::Size &size);
 
 protected:
