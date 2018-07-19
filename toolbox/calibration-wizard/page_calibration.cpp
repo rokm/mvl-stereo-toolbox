@@ -389,7 +389,7 @@ void PageStereoCalibration::setVisible (bool visible)
 
 void PageStereoCalibration::initializePage ()
 {
-    if (field("JointCalibration").toBool()) {
+    if (field("CalibrationType").toString() == "JointCalibration") {
         // Initialize principal point in the camera parameters widget
         cv::Size imageSize = field(fieldPrefix + "ImageSize").value<cv::Size>();
         widgetLeftCameraParameters->setPrincipalPointX(imageSize.width/2);

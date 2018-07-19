@@ -640,7 +640,7 @@ void PageStereoImages::initializePage ()
 {
     PageImages::initializePage();
 
-    if (!field("JointCalibration").toBool()) {
+    if (field("CalibrationType").toString() != "JointCalibration") {
         // If in not in joint calibration, copy pattern settings from right camera
         QString rightCameraPrefix = "RightCamera";
 

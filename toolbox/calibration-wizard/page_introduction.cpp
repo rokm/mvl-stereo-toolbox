@@ -83,8 +83,6 @@ PageIntroduction::PageIntroduction (QWidget *parent)
     radioButtonSingleCalibration->setToolTip("Calibrate intrinsic parameters of a single camera.");
     groupBoxLayout->addWidget(radioButtonSingleCalibration);
 
-    registerField("JointCalibration", radioButtonJointCalibration);
-
     radioButtonJointCalibration->setChecked(true);
 
     // Fields
