@@ -39,10 +39,13 @@ class PageImages : public QWizardPage
 
     Q_PROPERTY(QStringList images READ getImages WRITE setImages NOTIFY imagesChanged);
     Q_PROPERTY(int patternType READ getPatternType WRITE setPatternType);
+    Q_PROPERTY(bool liveCapture READ getLiveCapture);
 
 public:
     PageImages (const QString &fieldPrefixString, QWidget *parent = Q_NULLPTR);
     virtual ~PageImages ();
+
+    bool getLiveCapture () const;
 
 protected:
     void addImages ();
@@ -63,6 +66,8 @@ protected:
     QString fieldPrefix;
 
     // Image sequence
+    QGroupBox *groupBoxImages;
+
     QPushButton *pushButtonAddImages;
     QPushButton *pushButtonClearImages;
     QListWidget *listWidgetImages;

@@ -58,7 +58,6 @@ PageDetection::PageDetection (const QString &fieldPrefixString, QWidget *parent)
 
     // Separator
     separator = new QFrame(this);
-    separator = new QFrame(this);
     separator->setFrameStyle(QFrame::HLine | QFrame::Sunken);
 
     layout->addWidget(separator);

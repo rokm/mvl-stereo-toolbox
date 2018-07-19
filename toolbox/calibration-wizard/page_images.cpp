@@ -58,7 +58,12 @@ PageImages::PageImages (const QString &fieldPrefixString, QWidget *parent)
 
     // *** Calibration images ***
     box = new QGroupBox("Calibration images", this);
+    box->setCheckable(true);
+    box->setChecked(true);
     layout->addWidget(box, 1, 0, 1, 1);
+
+    groupBoxImages = box;
+    connect(groupBoxImages, &QGroupBox::toggled, this, &PageImages::completeChanged);
 
     // Layout
     QGridLayout *imagesLayout = new QGridLayout(box);
@@ -176,12 +181,21 @@ PageImages::PageImages (const QString &fieldPrefixString, QWidget *parent)
     registerField(fieldPrefix + "PatternType", this, "patternType"); // Because default implementation returns selected index, not value
     registerField(fieldPrefix + "ScaleLevels", spinBoxScaleLevels);
     registerField(fieldPrefix + "ScaleIncrement", spinBoxScaleIncrement, "value");  // QWizard does not know QDoubleSpinBox!
+    registerField(fieldPrefix + "LiveCapture", this, "liveCapture"); // Because default implementation returns selected index, not value
 
     connect(this, &PageImages::imagesChanged, this, &PageImages::completeChanged);
 }
 
 PageImages::~PageImages ()
 {
+}
+
+
+bool PageImages::getLiveCapture () const
+{
+    // If "Calibration images" group-box is checked, we are not using
+    // live-capture in next stage...
+    return !groupBoxImages->isChecked();
 }
 
 void PageImages::addImages ()
@@ -345,11 +359,13 @@ int PageSingleCameraImages::nextId () const
 
 bool PageSingleCameraImages::isComplete () const
 {
-    QStringList filenames = getImages();
+    if (field(fieldPrefix + "LiveCapture").value<bool>()) {
+        QStringList filenames = getImages();
 
-    // Must be at least six images
-    if (filenames.size() < 6) {
-        return false;
+        // Must be at least six images
+        if (filenames.size() < 6) {
+            return false;
+        }
     }
 
     return true;
@@ -395,11 +411,13 @@ int PageLeftCameraImages::nextId () const
 
 bool PageLeftCameraImages::isComplete () const
 {
-    QStringList filenames = getImages();
+    if (field(fieldPrefix + "LiveCapture").value<bool>()) {
+        QStringList filenames = getImages();
 
-    // Must be at least six images
-    if (filenames.size() < 6) {
-        return false;
+        // Must be at least six images
+        if (filenames.size() < 6) {
+            return false;
+        }
     }
 
     return true;
@@ -491,11 +509,13 @@ int PageRightCameraImages::nextId () const
 
 bool PageRightCameraImages::isComplete () const
 {
-    QStringList filenames = getImages();
+    if (field(fieldPrefix + "LiveCapture").value<bool>()) {
+        QStringList filenames = getImages();
 
-    // Must be at least six images
-    if (filenames.size() < 6) {
-        return false;
+        // Must be at least six images
+        if (filenames.size() < 6) {
+            return false;
+        }
     }
 
     return true;
@@ -602,7 +622,7 @@ PageStereoImages::PageStereoImages (QWidget *parent)
 
     // Add to layout, store pointer, etc.
     //layout()->addWidget(groupBox, 2, 0, 1, 2);
-    layout()->addWidget(groupBox);
+    groupBoxImages->layout()->addWidget(groupBox);
 
     connect(this, &PageStereoImages::imagesChanged, this, &PageStereoImages::updateImageEntries);
 
@@ -621,16 +641,18 @@ int PageStereoImages::nextId () const
 
 bool PageStereoImages::isComplete () const
 {
-    QStringList filenames = getImages();
+    if (groupBoxImages->isChecked()) {
+        QStringList filenames = getImages();
 
-    // Must be even number of images
-    if (filenames.size() % 2) {
-        return false;
-    }
+        // Must be even number of images
+        if (filenames.size() % 2) {
+            return false;
+        }
 
-    // Must be at least six image pairs
-    if (filenames.size() < 6*2) {
-        return false;
+        // Must be at least six image pairs
+        if (filenames.size() < 6*2) {
+            return false;
+        }
     }
 
     return true;
