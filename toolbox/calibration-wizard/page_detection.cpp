@@ -44,46 +44,33 @@ PageDetection::PageDetection (const QString &fieldPrefixString, QWidget *parent)
 {
     setSubTitle("Calibration pattern detection");
 
-    QLabel *label;
     QFrame *separator;
 
     // Layout
-    QGridLayout *layout = new QGridLayout(this);
-    layout->setSpacing(10);
+    QVBoxLayout *layout = new QVBoxLayout(this);
 
-    // Label
-    label = new QLabel("The procedure will try to locate calibration pattern in each "
-                       "calibration image, displaying result at each step. Please accept "
-                       "or discard the result (for example, if the pattern is mislocated). "
-                       "Please note that to complete this step, the pattern must be located "
-                       "in at least six images (for individual cameras) or image pairs (for "
-                       "stereo).");
-    label->setAlignment(Qt::AlignVCenter | Qt::AlignJustify);
-    label->setWordWrap(true);
+    // Label: the actual text is set by children
+    labelCaption = new QLabel();
+    labelCaption->setAlignment(Qt::AlignVCenter | Qt::AlignJustify);
+    labelCaption->setWordWrap(true);
 
-    layout->addWidget(label, 0, 0, 1, 2);
+    layout->addWidget(labelCaption);
 
     // Separator
     separator = new QFrame(this);
     separator = new QFrame(this);
     separator->setFrameStyle(QFrame::HLine | QFrame::Sunken);
 
-    layout->addWidget(separator, 1, 0, 1, 2);
+    layout->addWidget(separator);
 
-    // Display
-    widgetImage = new Widgets::CalibrationPatternDisplayWidget("Invalid image!", this);
-    widgetImage->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    layout->addWidget(widgetImage, 2, 0, 1, 2);
+    // NOTE: display widget is added by children
 
-    // Status label
+    // Status and buttons
+    QHBoxLayout *hbox = new QHBoxLayout();
+    layout->addLayout(hbox);
+
     labelStatus = new QLabel(this);
-    layout->addWidget(labelStatus, 3, 0, 1, 1);
-
-    // Button box
-    QHBoxLayout *buttonBox = new QHBoxLayout();
-    layout->addLayout(buttonBox, 3, 1, 1, 1);
-
-    buttonBox->addStretch();
+    hbox->addWidget(labelStatus, 1);
 
     pushButtonAuto = new QPushButton("Auto", this);
     pushButtonAuto->setCheckable(true);
@@ -101,7 +88,7 @@ PageDetection::PageDetection (const QString &fieldPrefixString, QWidget *parent)
             }
         }
     });
-    buttonBox->addWidget(pushButtonAuto);
+    hbox->addWidget(pushButtonAuto);
 
     pushButtonDiscard = new QPushButton("Discard", this);
     connect(pushButtonDiscard, &QPushButton::clicked, this, [this] () {
@@ -111,7 +98,7 @@ PageDetection::PageDetection (const QString &fieldPrefixString, QWidget *parent)
         // Manual discard
         discardPattern();
     });
-    buttonBox->addWidget(pushButtonDiscard);
+    hbox->addWidget(pushButtonDiscard);
 
     pushButtonAccept = new QPushButton("Accept", this);
     connect(pushButtonAccept, &QPushButton::clicked, this, [this] () {
@@ -121,7 +108,7 @@ PageDetection::PageDetection (const QString &fieldPrefixString, QWidget *parent)
         // Manual accept
         acceptPattern();
     });
-    buttonBox->addWidget(pushButtonAccept);
+    hbox->addWidget(pushButtonAccept);
 
     // Auto-process timer
     autoProcessTimer->setSingleShot(true);
@@ -166,8 +153,7 @@ void PageDetection::initializePage ()
     images = field(fieldPrefix + "Images").toStringList();
     imageCounter = -1;
 
-    // Clear image
-    widgetImage->setImage(cv::Mat());
+    // NOTE: images are cleared by children
 
     // Clear points
     patternImagePoints.clear();
@@ -259,15 +245,41 @@ PageSingleCameraDetection::PageSingleCameraDetection (const QString &fieldPrefix
     : PageDetection(fieldPrefixString, parent)
 {
     setTitle("Single camera calibration");
+
+    labelCaption->setText(
+        "The procedure will try to locate calibration pattern in each "
+        "calibration image, displaying result at each step. Please accept "
+        "or discard the result (for example, if the pattern is mislocated). "
+        "Please note that to complete this step, the pattern must be located "
+        "in at least six images."
+    );
+
+
+    QVBoxLayout *layout = qobject_cast<QVBoxLayout *>(this->layout());
+
+    // Display widget
+    widgetImage = new Widgets::CalibrationPatternDisplayWidget("Invalid image!", this);
+    widgetImage->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    layout->insertWidget(2, widgetImage);
 }
 
 PageSingleCameraDetection::~PageSingleCameraDetection ()
 {
 }
 
+
 int PageSingleCameraDetection::nextId () const
 {
     return Wizard::PageId::SingleCameraCalibrationId;
+}
+
+
+void PageSingleCameraDetection::initializePage ()
+{
+    PageDetection::initializePage();
+
+    // Clear image
+    widgetImage->setImage(cv::Mat());
 }
 
 
@@ -406,6 +418,7 @@ PageRightCameraDetection::~PageRightCameraDetection ()
 {
 }
 
+
 int PageRightCameraDetection::nextId () const
 {
     return Wizard::PageId::RightCameraCalibrationId;
@@ -420,15 +433,48 @@ PageStereoDetection::PageStereoDetection (QWidget *parent)
     : PageDetection("Stereo", parent)
 {
     setTitle("Stereo calibration");
+
+    labelCaption->setText(
+        "The procedure will try to locate calibration pattern in each "
+        "calibration image pair, displaying result at each step. Please accept "
+        "or discard the result (for example, if the pattern is mislocated). "
+        "Please note that to complete this step, the pattern must be located "
+        "in at least six image pairs."
+    );
+
+    QVBoxLayout *layout = qobject_cast<QVBoxLayout *>(this->layout());
+
+    // Display widgets
+    QHBoxLayout *hbox = new QHBoxLayout();
+    layout->insertLayout(2, hbox);
+
+    widgetImageLeft = new Widgets::CalibrationPatternDisplayWidget("Invalid image!", this);
+    widgetImageLeft->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    hbox->addWidget(widgetImageLeft);
+
+    widgetImageRight = new Widgets::CalibrationPatternDisplayWidget("Invalid image!", this);
+    widgetImageRight->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    hbox->addWidget(widgetImageRight);
 }
 
 PageStereoDetection::~PageStereoDetection ()
 {
 }
 
+
 int PageStereoDetection::nextId () const
 {
     return Wizard::PageId::StereoCalibrationId;
+}
+
+
+void PageStereoDetection::initializePage ()
+{
+    PageDetection::initializePage();
+
+    // Clear images
+    widgetImageLeft->setImage(cv::Mat());
+    widgetImageRight->setImage(cv::Mat());
 }
 
 
@@ -440,42 +486,24 @@ void PageStereoDetection::acceptPattern ()
         return;
     }
 
-    // Always append image coordinates vector; for odd counter
-    // numbers (second) images this is always safe, since if
-    // first image was discarded, we would be skipping the second
-    // one automatically. If first image is accepted, and second
-    // is rejected, then the first image's points will have to
-    // be removed from the list by the discard function.
-    patternImagePoints.push_back(currentImagePoints);
+    // Append coordinate vectors for both left and right image
+    patternImagePoints.push_back(currentImagePointsLeft);
+    patternImagePoints.push_back(currentImagePointsRight);
 
-    // For pairs, we append world coordinates vector only on odd
-    // counter numbers (so when second image of the pair is accepted)
-    if (imageCounter % 2) {
-        patternWorldPoints.push_back(calibrationPattern->computePlanarCoordinates());
-    }
+    // Append world coordinate vector
+    patternWorldPoints.push_back(calibrationPattern->computePlanarCoordinates());
 
-    // Process next
-    imageCounter++;
+    // Process next pair
+    imageCounter += 2;
     processImage();
 }
 
 void PageStereoDetection::discardPattern ()
 {
-    if (imageCounter % 2) {
-        // Discarding second image; since we are here (see below),
-        // this means that first image was accepted and we need to
-        // remove its image coordinates from the list.
-        patternImagePoints.pop_back();
+    // Skip the pair
+    imageCounter += 2;
 
-        // Skip the image
-        imageCounter++;
-    } else {
-        // Discarding first image; skip it together with the second
-        // one...
-        imageCounter += 2;
-    }
-
-    // Process next
+    // Process next pair
     processImage();
 }
 
@@ -493,8 +521,9 @@ void PageStereoDetection::processImage ()
         labelStatus->setText(QString("All %1 pairs processed. <b>Accepted:</b> %3.").arg(images.size()/2).arg(patternWorldPoints.size()));
     } else {
         // Update status
-        QString currentFileBasename = QFileInfo(images[imageCounter]).fileName();
-        labelStatus->setText(QString("<b>Pair</b> %1 / %2. <b>Accepted:</b> %3. <b>Current:</b> %4").arg(imageCounter/2 + 1).arg(images.size()/2).arg(patternWorldPoints.size()).arg(currentFileBasename));
+        QString currentFileBasenameLeft = QFileInfo(images[imageCounter]).fileName();
+        QString currentFileBasenameRight = QFileInfo(images[imageCounter+1]).fileName();
+        labelStatus->setText(QString("<b>Pair</b> %1 / %2. <b>Accepted:</b> %3. <b>Current:</b> %4 | %5").arg(imageCounter/2).arg(images.size()/2).arg(patternWorldPoints.size()).arg(currentFileBasenameLeft).arg(currentFileBasenameRight));
 
         // Enable both buttons
         pushButtonAccept->show();
@@ -502,46 +531,76 @@ void PageStereoDetection::processImage ()
         pushButtonDiscard->setEnabled(true);
 
         // Clear the text on image display
-        widgetImage->setText(QString());
+        widgetImageLeft->setText(QString());
+        widgetImageRight->setText(QString());
 
-        // Read image
-        cv::Mat image;
+        // Read and display images
+        cv::Mat imageLeft, imageRight;
+
         try {
-            image = cv::imread(images[imageCounter].toStdString());
+            imageLeft = cv::imread(images[imageCounter].toStdString());
         } catch (cv::Exception &e) {
-            QMessageBox::warning(this, "Image load", "Failed to load image: " + QString::fromStdString(e.what()));
+            QMessageBox::warning(this, "Image load", "Failed to load left image: " + QString::fromStdString(e.what()));
 
-            widgetImage->setText("Failed to load image!");
-            widgetImage->setImage(cv::Mat());
+            widgetImageLeft->setText("Failed to load image!");
+            widgetImageLeft->setImage(cv::Mat());
 
             pushButtonAccept->hide();
             pushButtonAccept->setEnabled(false);
             return;
         }
 
-        widgetImage->setImage(image);
+        widgetImageLeft->setImage(imageLeft);
+
+        try {
+            imageRight = cv::imread(images[imageCounter+1].toStdString());
+        } catch (cv::Exception &e) {
+            QMessageBox::warning(this, "Image load", "Failed to load right image: " + QString::fromStdString(e.what()));
+
+            widgetImageRight->setText("Failed to right image!");
+            widgetImageRight->setImage(cv::Mat());
+
+            pushButtonAccept->hide();
+            pushButtonAccept->setEnabled(false);
+            return;
+        }
+
+        widgetImageRight->setImage(imageRight);
+
 
         // Validate image size
         if (imageSize == cv::Size()) {
             // Store the first ...
-            imageSize = image.size();
-        } else if (image.size() != imageSize) {
-            QMessageBox::warning(this, "Invalid size", "Image size does not match the size of first image!");
+            imageSize = imageLeft.size();
+        }
+
+        if (imageLeft.size() != imageSize) {
+            QMessageBox::warning(this, "Invalid size", "Left image size does not match the size of first image!");
+            pushButtonAccept->hide();
+            pushButtonAccept->setEnabled(false);
+            return;
+        }
+
+        if (imageRight.size() != imageSize) {
+            QMessageBox::warning(this, "Invalid size", "Right image size does not match the size of first image!");
             pushButtonAccept->hide();
             pushButtonAccept->setEnabled(false);
             return;
         }
 
         // Find pattern
-        std::vector<cv::Point2f> points;
-        patternFound = calibrationPattern->findInImage(image, currentImagePoints);
+        bool patternFoundLeft = calibrationPattern->findInImage(imageLeft, currentImagePointsLeft);
+        widgetImageLeft->setPattern(patternFoundLeft, currentImagePointsLeft, calibrationPattern->getPatternSize());
+
+        bool patternFoundRight = calibrationPattern->findInImage(imageRight, currentImagePointsRight);
+        widgetImageRight->setPattern(patternFoundRight, currentImagePointsRight, calibrationPattern->getPatternSize());
+
+        patternFound = patternFoundLeft && patternFoundRight;
 
         if (!patternFound) {
             pushButtonAccept->hide();
             pushButtonAccept->setEnabled(false);
         }
-
-        widgetImage->setPattern(patternFound, currentImagePoints, calibrationPattern->getPatternSize());
     }
 
     // We might be ready to go on...

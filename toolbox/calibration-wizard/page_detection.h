@@ -78,8 +78,7 @@ protected:
 protected:
     QString fieldPrefix;
 
-    Widgets::CalibrationPatternDisplayWidget *widgetImage;
-
+    QLabel *labelCaption;
     QLabel *labelStatus;
 
     QPushButton *pushButtonAuto;
@@ -95,7 +94,6 @@ protected:
     QTimer *autoProcessTimer;
 
     Pipeline::CalibrationPattern *calibrationPattern;
-    std::vector<cv::Point2f> currentImagePoints;
 
     // These are what we will pass on...
     cv::Size imageSize;
@@ -120,10 +118,17 @@ public:
 
     virtual int nextId () const override;
 
+    virtual void initializePage () override;
+
 protected:
     virtual void acceptPattern () override;
     virtual void discardPattern () override;
     virtual void processImage () override;
+
+protected:
+    Widgets::CalibrationPatternDisplayWidget *widgetImage;
+
+    std::vector<cv::Point2f> currentImagePoints;
 };
 
 
@@ -171,10 +176,19 @@ public:
 
     virtual int nextId () const override;
 
+    virtual void initializePage () override;
+
 protected:
     virtual void acceptPattern () override;
     virtual void discardPattern () override;
     virtual void processImage () override;
+
+protected:
+    Widgets::CalibrationPatternDisplayWidget *widgetImageLeft;
+    Widgets::CalibrationPatternDisplayWidget *widgetImageRight;
+
+    std::vector<cv::Point2f> currentImagePointsLeft;
+    std::vector<cv::Point2f> currentImagePointsRight;
 };
 
 
