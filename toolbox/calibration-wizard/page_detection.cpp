@@ -35,10 +35,9 @@ namespace CalibrationWizard {
 // *********************************************************************
 // *                   Pattern detection page: common                  *
 // *********************************************************************
-PageDetection::PageDetection (const QString &fieldPrefixString, bool pairs, QWidget *parent)
+PageDetection::PageDetection (const QString &fieldPrefixString, QWidget *parent)
     : QWizardPage(parent),
       fieldPrefix(fieldPrefixString),
-      processImagePairs(pairs),
       autoProcess(false),
       autoProcessTimer(new QTimer(this)),
       calibrationPattern(new Pipeline::CalibrationPattern())
@@ -247,7 +246,32 @@ void PageDetection::doAutomaticProcessing ()
     }
 }
 
-void PageDetection::acceptPattern ()
+
+// *********************************************************************
+// *               Pattern detection page: single camera               *
+// *********************************************************************
+PageSingleCameraDetection::PageSingleCameraDetection (QWidget *parent)
+    : PageSingleCameraDetection("SingleCamera", parent)
+{
+}
+
+PageSingleCameraDetection::PageSingleCameraDetection (const QString &fieldPrefixString, QWidget *parent)
+    : PageDetection(fieldPrefixString, parent)
+{
+    setTitle("Single camera calibration");
+}
+
+PageSingleCameraDetection::~PageSingleCameraDetection ()
+{
+}
+
+int PageSingleCameraDetection::nextId () const
+{
+    return Wizard::PageId::SingleCameraCalibrationId;
+}
+
+
+void PageSingleCameraDetection::acceptPattern ()
 {
     if (imageCounter == -1) {
         // Start processing
@@ -255,59 +279,27 @@ void PageDetection::acceptPattern ()
         return;
     }
 
-    // Accept
-    if (processImagePairs) {
-        // Always append image coordinates vector; for odd counter
-        // numbers (second) images this is always safe, since if
-        // first image was discarded, we would be skipping the second
-        // one automatically. If first image is accepted, and second
-        // is rejected, then the first image's points will have to
-        // be removed from the list by the discard function.
-        patternImagePoints.push_back(currentImagePoints);
+    // Append image coordinates
+    patternImagePoints.push_back(currentImagePoints);
 
-        // For pairs, we append world coordinates vector only on odd
-        // counter numbers (so when second image of the pair is accepted)
-        if (imageCounter % 2) {
-            patternWorldPoints.push_back(calibrationPattern->computePlanarCoordinates());
-        }
-    } else {
-        // Append image coordinates
-        patternImagePoints.push_back(currentImagePoints);
-        // Append world coordinates
-        patternWorldPoints.push_back(calibrationPattern->computePlanarCoordinates());
-    }
+    // Append world coordinates
+    patternWorldPoints.push_back(calibrationPattern->computePlanarCoordinates());
 
     // Process next
     imageCounter++;
     processImage();
 }
 
-void PageDetection::discardPattern ()
+void PageSingleCameraDetection::discardPattern ()
 {
-    if (processImagePairs) {
-        if (imageCounter % 2) {
-            // Discarding second image; since we are here (see below),
-            // this means that first image was accepted and we need to
-            // remove its image coordinates from the list.
-            patternImagePoints.pop_back();
-
-            // Skip the image
-            imageCounter++;
-        } else {
-            // Discarding first image; skip it together with the second
-            // one...
-            imageCounter += 2;
-        }
-    } else {
-        // Just skip the image
-        imageCounter++;
-    }
+    // Just skip the image
+    imageCounter++;
 
     // Process next
     processImage();
 }
 
-void PageDetection::processImage ()
+void PageSingleCameraDetection::processImage ()
 {
     // Make sure we aren't at the end already
     if (imageCounter >= images.size()) {
@@ -318,19 +310,11 @@ void PageDetection::processImage ()
         pushButtonAuto->setChecked(false);
 
         // Update status
-        if (processImagePairs) {
-            labelStatus->setText(QString("All %1 pairs processed. <b>Accepted:</b> %3.").arg(images.size()/2).arg(patternWorldPoints.size()));
-        } else {
-            labelStatus->setText(QString("All %1 images processed. <b>Accepted:</b> %3.").arg(images.size()).arg(patternWorldPoints.size()));
-        }
+        labelStatus->setText(QString("All %1 images processed. <b>Accepted:</b> %3.").arg(images.size()).arg(patternWorldPoints.size()));
     } else {
         // Update status
         QString currentFileBasename = QFileInfo(images[imageCounter]).fileName();
-        if (processImagePairs) {
-            labelStatus->setText(QString("<b>Pair</b> %1 / %2. <b>Accepted:</b> %3. <b>Current:</b> %4").arg(imageCounter/2 + 1).arg(images.size()/2).arg(patternWorldPoints.size()).arg(currentFileBasename));
-        } else {
-            labelStatus->setText(QString("<b>Image</b> %1 / %2. <b>Accepted</b> %3. <b>Current:</b> %4").arg(imageCounter).arg(images.size()).arg(patternWorldPoints.size()).arg(currentFileBasename));
-        }
+        labelStatus->setText(QString("<b>Image</b> %1 / %2. <b>Accepted</b> %3. <b>Current:</b> %4").arg(imageCounter).arg(images.size()).arg(patternWorldPoints.size()).arg(currentFileBasename));
 
         // Enable both buttons
         pushButtonAccept->show();
@@ -391,29 +375,10 @@ void PageDetection::processImage ()
 
 
 // *********************************************************************
-// *               Pattern detection page: single camera               *
-// *********************************************************************
-PageSingleCameraDetection::PageSingleCameraDetection (QWidget *parent)
-    : PageDetection("SingleCamera", false, parent)
-{
-    setTitle("Single camera calibration");
-}
-
-PageSingleCameraDetection::~PageSingleCameraDetection ()
-{
-}
-
-int PageSingleCameraDetection::nextId () const
-{
-    return Wizard::PageId::SingleCameraCalibrationId;
-}
-
-
-// *********************************************************************
 // *                Pattern detection page: left camera                *
 // *********************************************************************
 PageLeftCameraDetection::PageLeftCameraDetection (QWidget *parent)
-    : PageDetection("LeftCamera", false, parent)
+    : PageSingleCameraDetection("LeftCamera", parent)
 {
     setTitle("Left camera calibration");
 }
@@ -432,7 +397,7 @@ int PageLeftCameraDetection::nextId () const
 // *                Pattern detection page: right camera               *
 // *********************************************************************
 PageRightCameraDetection::PageRightCameraDetection (QWidget *parent)
-    : PageDetection("RightCamera", false, parent)
+    : PageSingleCameraDetection("RightCamera", parent)
 {
     setTitle("Right camera calibration");
 }
@@ -452,7 +417,7 @@ int PageRightCameraDetection::nextId () const
 // *                   Pattern detection page: stereo                  *
 // *********************************************************************
 PageStereoDetection::PageStereoDetection (QWidget *parent)
-    : PageDetection("Stereo", true, parent)
+    : PageDetection("Stereo", parent)
 {
     setTitle("Stereo calibration");
 }
@@ -464,6 +429,128 @@ PageStereoDetection::~PageStereoDetection ()
 int PageStereoDetection::nextId () const
 {
     return Wizard::PageId::StereoCalibrationId;
+}
+
+
+void PageStereoDetection::acceptPattern ()
+{
+    if (imageCounter == -1) {
+        // Start processing
+        startProcessing();
+        return;
+    }
+
+    // Always append image coordinates vector; for odd counter
+    // numbers (second) images this is always safe, since if
+    // first image was discarded, we would be skipping the second
+    // one automatically. If first image is accepted, and second
+    // is rejected, then the first image's points will have to
+    // be removed from the list by the discard function.
+    patternImagePoints.push_back(currentImagePoints);
+
+    // For pairs, we append world coordinates vector only on odd
+    // counter numbers (so when second image of the pair is accepted)
+    if (imageCounter % 2) {
+        patternWorldPoints.push_back(calibrationPattern->computePlanarCoordinates());
+    }
+
+    // Process next
+    imageCounter++;
+    processImage();
+}
+
+void PageStereoDetection::discardPattern ()
+{
+    if (imageCounter % 2) {
+        // Discarding second image; since we are here (see below),
+        // this means that first image was accepted and we need to
+        // remove its image coordinates from the list.
+        patternImagePoints.pop_back();
+
+        // Skip the image
+        imageCounter++;
+    } else {
+        // Discarding first image; skip it together with the second
+        // one...
+        imageCounter += 2;
+    }
+
+    // Process next
+    processImage();
+}
+
+void PageStereoDetection::processImage ()
+{
+    // Make sure we aren't at the end already
+    if (imageCounter >= images.size()) {
+        // We are at the end of list; disable everything
+        pushButtonAccept->setEnabled(false);
+        pushButtonDiscard->setEnabled(false);
+        pushButtonAuto->setEnabled(false);
+        pushButtonAuto->setChecked(false);
+
+        // Update status
+        labelStatus->setText(QString("All %1 pairs processed. <b>Accepted:</b> %3.").arg(images.size()/2).arg(patternWorldPoints.size()));
+    } else {
+        // Update status
+        QString currentFileBasename = QFileInfo(images[imageCounter]).fileName();
+        labelStatus->setText(QString("<b>Pair</b> %1 / %2. <b>Accepted:</b> %3. <b>Current:</b> %4").arg(imageCounter/2 + 1).arg(images.size()/2).arg(patternWorldPoints.size()).arg(currentFileBasename));
+
+        // Enable both buttons
+        pushButtonAccept->show();
+        pushButtonAccept->setEnabled(true);
+        pushButtonDiscard->setEnabled(true);
+
+        // Clear the text on image display
+        widgetImage->setText(QString());
+
+        // Read image
+        cv::Mat image;
+        try {
+            image = cv::imread(images[imageCounter].toStdString());
+        } catch (cv::Exception &e) {
+            QMessageBox::warning(this, "Image load", "Failed to load image: " + QString::fromStdString(e.what()));
+
+            widgetImage->setText("Failed to load image!");
+            widgetImage->setImage(cv::Mat());
+
+            pushButtonAccept->hide();
+            pushButtonAccept->setEnabled(false);
+            return;
+        }
+
+        widgetImage->setImage(image);
+
+        // Validate image size
+        if (imageSize == cv::Size()) {
+            // Store the first ...
+            imageSize = image.size();
+        } else if (image.size() != imageSize) {
+            QMessageBox::warning(this, "Invalid size", "Image size does not match the size of first image!");
+            pushButtonAccept->hide();
+            pushButtonAccept->setEnabled(false);
+            return;
+        }
+
+        // Find pattern
+        std::vector<cv::Point2f> points;
+        patternFound = calibrationPattern->findInImage(image, currentImagePoints);
+
+        if (!patternFound) {
+            pushButtonAccept->hide();
+            pushButtonAccept->setEnabled(false);
+        }
+
+        widgetImage->setPattern(patternFound, currentImagePoints, calibrationPattern->getPatternSize());
+    }
+
+    // We might be ready to go on...
+    emit completeChanged();
+
+    // Auto process
+    if (autoProcess) {
+        autoProcessTimer->start(500);
+    }
 }
 
 

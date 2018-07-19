@@ -52,7 +52,7 @@ class PageDetection : public QWizardPage
     Q_PROPERTY(cv::Size imageSize READ getImageSize WRITE setImageSize);
 
 public:
-    PageDetection (const QString &fieldPrefixString, bool pairs, QWidget *parent = Q_NULLPTR);
+    PageDetection (const QString &fieldPrefixString, QWidget *parent = Q_NULLPTR);
     virtual ~PageDetection ();
 
     virtual void initializePage () override;
@@ -68,9 +68,10 @@ public:
 
 protected:
     void startProcessing ();
-    void acceptPattern ();
-    void discardPattern ();
-    void processImage ();
+
+    virtual void acceptPattern () = 0;
+    virtual void discardPattern () = 0;
+    virtual void processImage () = 0;
 
     void doAutomaticProcessing ();
 
@@ -84,9 +85,6 @@ protected:
     QPushButton *pushButtonAuto;
     QPushButton *pushButtonAccept;
     QPushButton *pushButtonDiscard;
-
-    // Processing part
-    bool processImagePairs;
 
     //
     QStringList images;
@@ -116,9 +114,16 @@ class PageSingleCameraDetection : public PageDetection
 
 public:
     PageSingleCameraDetection (QWidget *parent = Q_NULLPTR);
+    PageSingleCameraDetection (const QString &fieldPrefixString = "SingleCamera", QWidget *parent = Q_NULLPTR);
+
     virtual ~PageSingleCameraDetection ();
 
     virtual int nextId () const override;
+
+protected:
+    virtual void acceptPattern () override;
+    virtual void discardPattern () override;
+    virtual void processImage () override;
 };
 
 
@@ -126,7 +131,7 @@ public:
 // *                Pattern detection page: left camera                *
 // *********************************************************************
 //
-class PageLeftCameraDetection : public PageDetection
+class PageLeftCameraDetection : public PageSingleCameraDetection
 {
     Q_OBJECT
 
@@ -141,7 +146,7 @@ public:
 // *********************************************************************
 // *                Pattern detection page: right camera               *
 // *********************************************************************
-class PageRightCameraDetection : public PageDetection
+class PageRightCameraDetection : public PageSingleCameraDetection
 {
     Q_OBJECT
 
@@ -165,6 +170,11 @@ public:
     virtual ~PageStereoDetection ();
 
     virtual int nextId () const override;
+
+protected:
+    virtual void acceptPattern () override;
+    virtual void discardPattern () override;
+    virtual void processImage () override;
 };
 
 
