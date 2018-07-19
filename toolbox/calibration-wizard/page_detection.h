@@ -72,8 +72,6 @@ protected:
     void discardPattern ();
     void processImage ();
 
-    // Needs to be a slot for pre 5.4 compatibility!
-protected slots:
     void doAutomaticProcessing ();
 
 protected:
@@ -95,6 +93,8 @@ protected:
     int imageCounter;
     bool patternFound;
     bool autoProcess;
+
+    QTimer *autoProcessTimer;
 
     Pipeline::CalibrationPattern *calibrationPattern;
     std::vector<cv::Point2f> currentImagePoints;

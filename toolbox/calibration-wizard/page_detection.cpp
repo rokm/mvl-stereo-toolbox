@@ -39,6 +39,8 @@ PageDetection::PageDetection (const QString &fieldPrefixString, bool pairs, QWid
     : QWizardPage(parent),
       fieldPrefix(fieldPrefixString),
       processImagePairs(pairs),
+      autoProcess(false),
+      autoProcessTimer(new QTimer(this)),
       calibrationPattern(new Pipeline::CalibrationPattern())
 {
     setSubTitle("Calibration pattern detection");
@@ -121,6 +123,10 @@ PageDetection::PageDetection (const QString &fieldPrefixString, bool pairs, QWid
         acceptPattern();
     });
     buttonBox->addWidget(pushButtonAccept);
+
+    // Auto-process timer
+    autoProcessTimer->setSingleShot(true);
+    connect(autoProcessTimer, &QTimer::timeout, this, &PageDetection::doAutomaticProcessing);
 
     // Fields
     registerField(fieldPrefix + "PatternImagePoints", this, "patternImagePoints");
@@ -379,11 +385,7 @@ void PageDetection::processImage ()
 
     // Auto process
     if (autoProcess) {
-#if QT_VERSION >= QT_VERSION_CHECK(5, 4, 0)
-        QTimer::singleShot(500, this, &PageDetection::doAutomaticProcessing);
-#else
-        QTimer::singleShot(500, this, SLOT(doAutomaticProcessing()));
-#endif
+        autoProcessTimer->start(500);
     }
 }
 
