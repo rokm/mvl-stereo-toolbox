@@ -35,6 +35,11 @@ Q_DECLARE_METATYPE(cv::Mat);
 
 namespace MVL {
 namespace StereoToolbox {
+
+namespace Pipeline {
+class Pipeline;
+} // Pipeline
+
 namespace GUI {
 namespace CalibrationWizard {
 
@@ -47,7 +52,7 @@ class Wizard : public QWizard
     Q_OBJECT
 
 public:
-    Wizard (QWidget *parent = Q_NULLPTR);
+    Wizard (Pipeline::Pipeline *pipeline, QWidget *parent = Q_NULLPTR);
     virtual ~Wizard ();
 
     enum PageId {

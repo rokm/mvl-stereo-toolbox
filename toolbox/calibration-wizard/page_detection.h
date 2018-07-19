@@ -30,6 +30,7 @@ namespace StereoToolbox {
 
 namespace Pipeline {
 class CalibrationPattern;
+class Pipeline;
 } // Pipeline
 
 namespace Widgets {
@@ -52,7 +53,7 @@ class PageDetection : public QWizardPage
     Q_PROPERTY(cv::Size imageSize READ getImageSize WRITE setImageSize);
 
 public:
-    PageDetection (const QString &fieldPrefixString, QWidget *parent = Q_NULLPTR);
+    PageDetection (const QString &fieldPrefixString, Pipeline::Pipeline *pipeline, QWidget *parent = Q_NULLPTR);
     virtual ~PageDetection ();
 
     virtual void initializePage () override;
@@ -73,6 +74,11 @@ protected:
     virtual void discardPattern () = 0;
     virtual void processImage () = 0;
 
+    virtual void updateLiveCapture () = 0;
+
+    void disableLiveUpdate ();
+    void enableLiveUpdate ();
+
     void doAutomaticProcessing ();
 
 protected:
@@ -81,9 +87,11 @@ protected:
     QLabel *labelCaption;
     QLabel *labelStatus;
 
+    QPushButton *pushButtonProcess;
     QPushButton *pushButtonAuto;
     QPushButton *pushButtonAccept;
     QPushButton *pushButtonDiscard;
+    QPushButton *pushButtonStart;
 
     //
     QStringList images;
@@ -94,6 +102,10 @@ protected:
     QTimer *autoProcessTimer;
 
     Pipeline::CalibrationPattern *calibrationPattern;
+
+    bool liveCapture;
+    bool doLiveUpdate;
+    Pipeline::Pipeline *pipeline;
 
     // These are what we will pass on...
     cv::Size imageSize;
@@ -111,8 +123,8 @@ class PageSingleCameraDetection : public PageDetection
     Q_OBJECT
 
 public:
-    PageSingleCameraDetection (QWidget *parent = Q_NULLPTR);
-    PageSingleCameraDetection (const QString &fieldPrefixString = "SingleCamera", QWidget *parent = Q_NULLPTR);
+    PageSingleCameraDetection (Pipeline::Pipeline *pipeline, QWidget *parent = Q_NULLPTR);
+    PageSingleCameraDetection (const QString &fieldPrefixString, Pipeline::Pipeline *pipeline, QWidget *parent = Q_NULLPTR);
 
     virtual ~PageSingleCameraDetection ();
 
@@ -124,6 +136,10 @@ protected:
     virtual void acceptPattern () override;
     virtual void discardPattern () override;
     virtual void processImage () override;
+
+    virtual void updateLiveCapture () override;
+
+    virtual cv::Mat getImageFromPipeline (); // Returns left image
 
 protected:
     Widgets::CalibrationPatternDisplayWidget *widgetImage;
@@ -141,7 +157,7 @@ class PageLeftCameraDetection : public PageSingleCameraDetection
     Q_OBJECT
 
 public:
-    PageLeftCameraDetection (QWidget *parent = Q_NULLPTR);
+    PageLeftCameraDetection (Pipeline::Pipeline *pipeline, QWidget *parent = Q_NULLPTR);
     virtual ~PageLeftCameraDetection ();
 
     virtual int nextId () const override;
@@ -156,10 +172,13 @@ class PageRightCameraDetection : public PageSingleCameraDetection
     Q_OBJECT
 
 public:
-    PageRightCameraDetection (QWidget *parent = Q_NULLPTR);
+    PageRightCameraDetection (Pipeline::Pipeline *pipeline, QWidget *parent = Q_NULLPTR);
     virtual ~PageRightCameraDetection ();
 
     virtual int nextId () const override;
+
+protected:
+    virtual cv::Mat getImageFromPipeline () override; // Returns right image
 };
 
 
@@ -171,7 +190,7 @@ class PageStereoDetection : public PageDetection
     Q_OBJECT
 
 public:
-    PageStereoDetection (QWidget *parent = Q_NULLPTR);
+    PageStereoDetection (Pipeline::Pipeline *pipeline, QWidget *parent = Q_NULLPTR);
     virtual ~PageStereoDetection ();
 
     virtual int nextId () const override;
@@ -182,6 +201,8 @@ protected:
     virtual void acceptPattern () override;
     virtual void discardPattern () override;
     virtual void processImage () override;
+
+    virtual void updateLiveCapture () override;
 
 protected:
     Widgets::CalibrationPatternDisplayWidget *widgetImageLeft;

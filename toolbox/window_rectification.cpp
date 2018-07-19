@@ -148,7 +148,7 @@ WindowRectification::WindowRectification (Pipeline::Pipeline *pipeline, QWidget 
     updateButtonsState();
 
     // Calibration wizard
-    wizard = new CalibrationWizard::Wizard(this);
+    wizard = new CalibrationWizard::Wizard(pipeline, this);
     connect(wizard, &CalibrationWizard::Wizard::accepted, this, [this] () {
         // Ignore single-camera calibration
         if (wizard->field("CalibrationType").value<QString>() == "SingleCameraCalibration") {

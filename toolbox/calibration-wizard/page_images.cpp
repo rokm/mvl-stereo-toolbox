@@ -359,7 +359,7 @@ int PageSingleCameraImages::nextId () const
 
 bool PageSingleCameraImages::isComplete () const
 {
-    if (field(fieldPrefix + "LiveCapture").value<bool>()) {
+    if (!field(fieldPrefix + "LiveCapture").value<bool>()) {
         QStringList filenames = getImages();
 
         // Must be at least six images
@@ -411,7 +411,7 @@ int PageLeftCameraImages::nextId () const
 
 bool PageLeftCameraImages::isComplete () const
 {
-    if (field(fieldPrefix + "LiveCapture").value<bool>()) {
+    if (!field(fieldPrefix + "LiveCapture").value<bool>()) {
         QStringList filenames = getImages();
 
         // Must be at least six images
@@ -509,7 +509,7 @@ int PageRightCameraImages::nextId () const
 
 bool PageRightCameraImages::isComplete () const
 {
-    if (field(fieldPrefix + "LiveCapture").value<bool>()) {
+    if (!field(fieldPrefix + "LiveCapture").value<bool>()) {
         QStringList filenames = getImages();
 
         // Must be at least six images
@@ -641,7 +641,7 @@ int PageStereoImages::nextId () const
 
 bool PageStereoImages::isComplete () const
 {
-    if (groupBoxImages->isChecked()) {
+    if (!field(fieldPrefix + "LiveCapture").value<bool>()) {
         QStringList filenames = getImages();
 
         // Must be even number of images
