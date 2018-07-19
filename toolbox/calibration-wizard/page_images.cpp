@@ -88,6 +88,7 @@ PageImages::PageImages (const QString &fieldPrefixString, QWidget *parent)
 
     // Layout
     QFormLayout *patternLayout = new QFormLayout(box);
+    patternLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
 
     // Pattern width
     label = new QLabel("Pattern width", this);

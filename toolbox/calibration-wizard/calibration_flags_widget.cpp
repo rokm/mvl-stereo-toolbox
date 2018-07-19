@@ -35,6 +35,7 @@ CalibrationFlagsWidget::CalibrationFlagsWidget (const QString &title, QWidget *p
     : QGroupBox(title, parent)
 {
     QFormLayout *groupBoxLayout = new QFormLayout(this);
+    groupBoxLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
     QCheckBox *checkBox;
 
     // CALIB_USE_INTRINSIC_GUESS

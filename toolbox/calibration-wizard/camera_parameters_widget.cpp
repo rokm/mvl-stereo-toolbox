@@ -35,6 +35,7 @@ CameraParametersWidget::CameraParametersWidget (const QString &title, QWidget *p
     : QGroupBox(title, parent)
 {
     QFormLayout *groupBoxLayout = new QFormLayout(this);
+    groupBoxLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
     QLabel *label;
     QDoubleSpinBox *spinBoxD;
 
