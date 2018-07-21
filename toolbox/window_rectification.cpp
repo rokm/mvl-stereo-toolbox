@@ -38,7 +38,8 @@ WindowRectification::WindowRectification (Pipeline::Pipeline *pipeline, QWidget 
       pipeline(pipeline),
       rectification(pipeline->getRectification()),
       numDroppedFrames(0),
-      estimatedFps(0.0f)
+      estimatedFps(0.0f),
+      wizard(Q_NULLPTR)
 {
     setWindowTitle("Rectification");
     resize(800, 600);
@@ -147,30 +148,6 @@ WindowRectification::WindowRectification (Pipeline::Pipeline *pipeline, QWidget 
     connect(rectification, &Pipeline::Rectification::calibrationChanged, this, &WindowRectification::updateButtonsState);
     updateButtonsState();
 
-    // Calibration wizard
-    wizard = new CalibrationWizard::Wizard(pipeline, this);
-    connect(wizard, &CalibrationWizard::Wizard::accepted, this, [this] () {
-        // Ignore single-camera calibration
-        if (wizard->field("CalibrationType").value<QString>() == "SingleCameraCalibration") {
-            return;
-        }
-
-        // Get parameters and set them to rectification object
-        const QString fieldPrefix = "Stereo";
-
-        rectification->setStereoCalibration(
-            wizard->field(fieldPrefix + "CameraMatrix1").value<cv::Mat>(),
-            wizard->field(fieldPrefix + "DistCoeffs1").value<cv::Mat>(),
-            wizard->field(fieldPrefix + "CameraMatrix2").value<cv::Mat>(),
-            wizard->field(fieldPrefix + "DistCoeffs2").value<cv::Mat>(),
-            wizard->field(fieldPrefix + "R").value<cv::Mat>(),
-            wizard->field(fieldPrefix + "T").value<cv::Mat>(),
-            wizard->field(fieldPrefix + "ImageSize").value<cv::Size>(),
-            wizard->field(fieldPrefix + "RectificationZeroDisparity").value<bool>(),
-            wizard->field(fieldPrefix + "RectificationAlpha").value<double>()
-        );
-    });
-
     // Pipeline's error signalization
     connect(pipeline, &Pipeline::Pipeline::error, this, [this] (int errorType, const QString &message) {
         if (errorType == Pipeline::Pipeline::ErrorRectification) {
@@ -260,7 +237,48 @@ void WindowRectification::updateButtonsState ()
 // *********************************************************************
 void WindowRectification::runCalibrationWizard ()
 {
+    // If wizard is already running, show it
+    if (wizard) {
+        wizard->show();
+        return;
+    }
+
+    // Create new wizard
     const QString fieldPrefix = "Stereo";
+
+    wizard = new CalibrationWizard::Wizard(pipeline, this);
+
+    connect(wizard, &CalibrationWizard::Wizard::accepted, this, [this] () {
+        // Ignore single-camera calibration
+        if (wizard->field("CalibrationType").value<QString>() == "SingleCameraCalibration") {
+            return;
+        }
+
+        // Get parameters and set them to rectification object
+        const QString fieldPrefix = "Stereo";
+
+        rectification->setStereoCalibration(
+            wizard->field(fieldPrefix + "CameraMatrix1").value<cv::Mat>(),
+            wizard->field(fieldPrefix + "DistCoeffs1").value<cv::Mat>(),
+            wizard->field(fieldPrefix + "CameraMatrix2").value<cv::Mat>(),
+            wizard->field(fieldPrefix + "DistCoeffs2").value<cv::Mat>(),
+            wizard->field(fieldPrefix + "R").value<cv::Mat>(),
+            wizard->field(fieldPrefix + "T").value<cv::Mat>(),
+            wizard->field(fieldPrefix + "ImageSize").value<cv::Size>(),
+            wizard->field(fieldPrefix + "RectificationZeroDisparity").value<bool>(),
+            wizard->field(fieldPrefix + "RectificationAlpha").value<double>()
+        );
+
+        // Cleanup
+        wizard->deleteLater();
+        wizard = Q_NULLPTR;
+    });
+
+    connect(wizard, &CalibrationWizard::Wizard::rejected, this, [this] () {
+        // Cleanup
+        wizard->deleteLater();
+        wizard = Q_NULLPTR;
+    });
 
     // Run calibration wizard
     wizard->setField(fieldPrefix + "RectificationAlpha", rectification->getAlpha());

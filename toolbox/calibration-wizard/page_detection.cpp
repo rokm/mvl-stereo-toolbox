@@ -42,7 +42,7 @@ PageDetection::PageDetection (const QString &fieldPrefixString, Pipeline::Pipeli
       autoProcess(false),
       autoProcessTimer(new QTimer(this)),
       calibrationPattern(new Pipeline::CalibrationPattern()),
-      liveCapture(false),
+      liveCaptureMode(false),
       doLiveUpdate(false),
       pipeline(pipeline)
 {
@@ -168,7 +168,7 @@ const cv::Size &PageDetection::getImageSize () const
 
 void PageDetection::initializePage ()
 {
-    liveCapture = field(fieldPrefix + "LiveCapture").toBool();
+    liveCaptureMode = field(fieldPrefix + "LiveCapture").toBool();
 
     // Get fresh images list and reset the counter
     images = field(fieldPrefix + "Images").toStringList();
@@ -183,41 +183,25 @@ void PageDetection::initializePage ()
     patternWorldPoints.clear();
 
     // Clear status label
-    if (liveCapture) {
-        labelStatus->setText("Press \"Process\" to capture and process image.");
-    } else {
-        labelStatus->setText("Press \"Start\" to begin.");
-    }
+    labelStatus->setText("Press \"Start\" to begin.");
 
     // Hide Accept and Discard buttons at first
     pushButtonAccept->hide();
     pushButtonDiscard->hide();
 
+    // Show start button
+    pushButtonStart->show();
+
     // Show Process button (live capture); or Start and
     // Auto buttons (non-live)
-    if (liveCapture) {
-        pushButtonStart->hide();
-        pushButtonStart->setEnabled(false);
-
+    if (liveCaptureMode) {
         pushButtonAuto->hide();
-        pushButtonAuto->setEnabled(false);
 
-        pushButtonProcess->show();
-        pushButtonProcess->setEnabled(true);
+        pushButtonProcess->hide(); // Hide for now, but enable
     } else {
-        pushButtonStart->show();
-        pushButtonStart->setEnabled(true);
-
         pushButtonAuto->show();
-        pushButtonAuto->setEnabled(true);
 
         pushButtonProcess->hide();
-        pushButtonProcess->setEnabled(false);
-    }
-
-    // Enable live capture flag for live capture
-    if (liveCapture) {
-        enableLiveUpdate();
     }
 
     // Set parameters for pattern detector
@@ -240,26 +224,53 @@ bool PageDetection::isComplete () const
 
 bool PageDetection::validatePage ()
 {
-    // Stop the auto-detection
-    pushButtonAuto->setChecked(false);
+    // This is an abuse of the ::validatePage() functionality, but we
+    // have no other way to perform this sort of a cleanup when user
+    // clicks on the Next button...
+
+    if (liveCaptureMode) {
+        // Disable live image update to reduce overhead
+        doLiveUpdate = false;
+
+        // Hide all other buttons, show Start button again, so that
+        // user may re-start the capture
+        pushButtonAccept->hide();
+        pushButtonDiscard->hide();
+        pushButtonProcess->hide();
+
+        pushButtonStart->show();
+        labelStatus->setText("Press \"Start\" to continue capture.");
+    } else {
+        // Stop the auto-processing
+        pushButtonAuto->setChecked(false);
+    }
 
     return QWizardPage::validatePage();
+}
+
+void PageDetection::cleanupPage ()
+{
+    // Disable live update on the page when user presses Back button
+    // to avoid overhead of capturing and refreshing the image from
+    // the image source
+    doLiveUpdate = false;
+
+    return QWizardPage::cleanupPage();
 }
 
 
 void PageDetection::startProcessing ()
 {
+    // Hide start button
     pushButtonStart->hide();
-    pushButtonStart->setEnabled(false);
 
-    pushButtonAccept->show();
-    pushButtonAccept->setEnabled(true);
-
-    pushButtonDiscard->show();
-    pushButtonDiscard->setEnabled(true);
-
-    // Process next
-    processImage();
+    if (liveCaptureMode) {
+        // Enable live capture flag for live capture
+        enableLiveUpdate();
+    } else {
+        // Process next
+        processImage();
+    }
 }
 
 void PageDetection::doAutomaticProcessing ()
@@ -366,7 +377,7 @@ void PageSingleCameraDetection::acceptPattern ()
 
     imageCounter++;
 
-    if (!liveCapture) {
+    if (!liveCaptureMode) {
         // Process next
         processImage();
     } else {
@@ -383,7 +394,7 @@ void PageSingleCameraDetection::discardPattern ()
     // Skip the image
     imageCounter++;
 
-    if (!liveCapture) {
+    if (!liveCaptureMode) {
         // Process next pair
         processImage();
     } else {
@@ -416,28 +427,26 @@ cv::Mat PageSingleCameraDetection::getImageFromPipeline ()
 void PageSingleCameraDetection::processImage ()
 {
     // Make sure we aren't at the end already (only for non-live capture)
-    if (!liveCapture && imageCounter >= images.size()) {
+    if (!liveCaptureMode && imageCounter >= images.size()) {
         // We are at the end of list; disable everything
-        pushButtonAccept->setEnabled(false);
-        pushButtonDiscard->setEnabled(false);
-        pushButtonAuto->setEnabled(false);
         pushButtonAuto->setChecked(false);
+        pushButtonAuto->hide();
+
+        pushButtonAccept->hide();
+        pushButtonDiscard->hide();
 
         // Update status
         labelStatus->setText(QString("All %1 images processed. <b>Accepted:</b> %3.").arg(images.size()).arg(patternWorldPoints.size()));
     } else {
         // Update status
-        if (!liveCapture) {
+        if (!liveCaptureMode) {
             QString currentFileBasename = QFileInfo(images[imageCounter]).fileName();
             labelStatus->setText(QString("<b>Image</b> %1 / %2. <b>Accepted</b> %3. <b>Current:</b> %4").arg(imageCounter).arg(images.size()).arg(patternWorldPoints.size()).arg(currentFileBasename));
         }
 
         // Enable both buttons
         pushButtonAccept->show();
-        pushButtonAccept->setEnabled(true);
-
         pushButtonDiscard->show();
-        pushButtonDiscard->setEnabled(true);
 
         // Clear the text on image display
         widgetImage->setText(QString());
@@ -445,7 +454,7 @@ void PageSingleCameraDetection::processImage ()
         // Read image
         cv::Mat image;
 
-        if (!liveCapture) {
+        if (!liveCaptureMode) {
             try {
                 image = cv::imread(images[imageCounter].toStdString());
             } catch (cv::Exception &e) {
@@ -455,7 +464,6 @@ void PageSingleCameraDetection::processImage ()
                 widgetImage->setImage(cv::Mat());
 
                 pushButtonAccept->hide();
-                pushButtonAccept->setEnabled(false);
                 return;
             }
 
@@ -475,7 +483,6 @@ void PageSingleCameraDetection::processImage ()
         } else if (image.size() != imageSize) {
             QMessageBox::warning(this, "Invalid size", "Image size does not match the size of first image!");
             pushButtonAccept->hide();
-            pushButtonAccept->setEnabled(false);
             return;
         }
 
@@ -485,7 +492,6 @@ void PageSingleCameraDetection::processImage ()
 
         if (!patternFound) {
             pushButtonAccept->hide();
-            pushButtonAccept->setEnabled(false);
         }
 
         widgetImage->setPattern(patternFound, currentImagePoints, calibrationPattern->getPatternSize());
@@ -606,7 +612,7 @@ void PageStereoDetection::acceptPattern ()
 
     imageCounter += 2;
 
-    if (!liveCapture) {
+    if (!liveCaptureMode) {
         // Process next pair
         processImage();
     } else {
@@ -623,7 +629,7 @@ void PageStereoDetection::discardPattern ()
     // Skip the pair
     imageCounter += 2;
 
-    if (!liveCapture) {
+    if (!liveCaptureMode) {
         // Process next pair
         processImage();
     } else {
@@ -653,18 +659,19 @@ void PageStereoDetection::updateLiveCapture ()
 void PageStereoDetection::processImage ()
 {
     // Make sure we aren't at the end already (only for non-live capture)
-    if (!liveCapture && imageCounter >= images.size()) {
+    if (!liveCaptureMode && imageCounter >= images.size()) {
         // We are at the end of list; disable everything
-        pushButtonAccept->setEnabled(false);
-        pushButtonDiscard->setEnabled(false);
-        pushButtonAuto->setEnabled(false);
         pushButtonAuto->setChecked(false);
+        pushButtonAuto->hide();
+
+        pushButtonAccept->hide();
+        pushButtonDiscard->hide();
 
         // Update status
         labelStatus->setText(QString("All %1 pairs processed. <b>Accepted:</b> %3.").arg(images.size()/2).arg(patternWorldPoints.size()));
     } else {
         // Update status
-        if (!liveCapture) {
+        if (!liveCaptureMode) {
             QString currentFileBasenameLeft = QFileInfo(images[imageCounter]).fileName();
             QString currentFileBasenameRight = QFileInfo(images[imageCounter+1]).fileName();
             labelStatus->setText(QString("<b>Pair</b> %1 / %2. <b>Accepted:</b> %3. <b>Current:</b> %4 | %5").arg(imageCounter/2).arg(images.size()/2).arg(patternWorldPoints.size()).arg(currentFileBasenameLeft).arg(currentFileBasenameRight));
@@ -672,10 +679,7 @@ void PageStereoDetection::processImage ()
 
         // Enable both buttons
         pushButtonAccept->show();
-        pushButtonAccept->setEnabled(true);
-
         pushButtonDiscard->show();
-        pushButtonDiscard->setEnabled(true);
 
         // Clear the text on image display
         widgetImageLeft->setText(QString());
@@ -684,7 +688,7 @@ void PageStereoDetection::processImage ()
         // Read and display images
         cv::Mat imageLeft, imageRight;
 
-        if (!liveCapture) {
+        if (!liveCaptureMode) {
             try {
                 imageLeft = cv::imread(images[imageCounter].toStdString());
             } catch (cv::Exception &e) {
@@ -694,7 +698,6 @@ void PageStereoDetection::processImage ()
                 widgetImageLeft->setImage(cv::Mat());
 
                 pushButtonAccept->hide();
-                pushButtonAccept->setEnabled(false);
                 return;
             }
 
@@ -709,7 +712,6 @@ void PageStereoDetection::processImage ()
                 widgetImageRight->setImage(cv::Mat());
 
                 pushButtonAccept->hide();
-                pushButtonAccept->setEnabled(false);
                 return;
             }
 
@@ -733,14 +735,12 @@ void PageStereoDetection::processImage ()
         if (imageLeft.size() != imageSize) {
             QMessageBox::warning(this, "Invalid size", "Left image size does not match the size of first image!");
             pushButtonAccept->hide();
-            pushButtonAccept->setEnabled(false);
             return;
         }
 
         if (imageRight.size() != imageSize) {
             QMessageBox::warning(this, "Invalid size", "Right image size does not match the size of first image!");
             pushButtonAccept->hide();
-            pushButtonAccept->setEnabled(false);
             return;
         }
 
@@ -755,7 +755,6 @@ void PageStereoDetection::processImage ()
 
         if (!patternFound) {
             pushButtonAccept->hide();
-            pushButtonAccept->setEnabled(false);
         }
     }
 

@@ -60,6 +60,7 @@ public:
 
     virtual bool isComplete () const override;
     virtual bool validatePage () override;
+    virtual void cleanupPage () override;
 
     const std::vector<std::vector<cv::Point2f> > &getPatternImagePoints () const;
     const std::vector<std::vector<cv::Point3f> > &getPatternWorldPoints () const;
@@ -103,7 +104,7 @@ protected:
 
     Pipeline::CalibrationPattern *calibrationPattern;
 
-    bool liveCapture;
+    bool liveCaptureMode;
     bool doLiveUpdate;
     Pipeline::Pipeline *pipeline;
 
