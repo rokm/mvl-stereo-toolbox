@@ -44,7 +44,8 @@ PageDetection::PageDetection (const QString &fieldPrefix, Pipeline::Pipeline *pi
       calibrationPattern(new Pipeline::CalibrationPattern()),
       liveCaptureMode(false),
       doLiveUpdate(false),
-      pipeline(pipeline)
+      pipeline(pipeline),
+      storeAcceptedImages(false)
 {
     setSubTitle("Calibration pattern detection");
 
@@ -126,6 +127,27 @@ PageDetection::PageDetection (const QString &fieldPrefix, Pipeline::Pipeline *pi
     connect(pushButtonStart, &QPushButton::clicked, this, &PageDetection::startProcessing);
     hbox->addWidget(pushButtonStart);
 
+    // *** Accepted image export ***
+    widgetExport = new QWidget();
+    layout->addWidget(widgetExport);
+
+    hbox = new QHBoxLayout(widgetExport);
+    hbox->setContentsMargins(0, 0, 0, 0);
+
+    QCheckBox *checkBox = new QCheckBox("Store accepted images for export");
+    checkBox->setChecked(storeAcceptedImages);
+    hbox->addWidget(checkBox);
+    connect(checkBox, &QCheckBox::toggled, this, &PageDetection::setStoreAcceptedImages);
+    connect(this, &PageDetection::storeAcceptedImagesChanged, checkBox, &QCheckBox::setChecked);
+
+    hbox->addStretch(1);
+
+    pushButtonExport = new QPushButton("Export");
+    hbox->addWidget(pushButtonExport);
+    pushButtonExport->setEnabled(false);
+    connect(pushButtonExport, &QPushButton::clicked, this, static_cast<void (PageDetection::*)()>(&PageDetection::exportAcceptedImages));
+
+
     // Auto-process timer
     autoProcessTimer->setSingleShot(true);
     connect(autoProcessTimer, &QTimer::timeout, this, &PageDetection::doAutomaticProcessing);
@@ -142,6 +164,55 @@ PageDetection::PageDetection (const QString &fieldPrefix, Pipeline::Pipeline *pi
 PageDetection::~PageDetection ()
 {
     delete calibrationPattern;
+}
+
+
+void PageDetection::setStoreAcceptedImages (bool enable)
+{
+    if (storeAcceptedImages != enable) {
+        storeAcceptedImages = enable;
+
+        if (!enable) {
+            // Clear the list of currently-stored images
+            acceptedImages.clear();
+
+            // Disable Export button
+            pushButtonExport->setEnabled(false);
+        } else {
+            // Enabled Export button
+            pushButtonExport->setEnabled(true);
+        }
+
+        emit storeAcceptedImagesChanged(storeAcceptedImages);
+    }
+}
+
+bool PageDetection::getStoreAcceptedImages () const
+{
+    return storeAcceptedImages;
+}
+
+void PageDetection::exportAcceptedImages ()
+{
+    // Get basename for exported images
+    QString exportBasename = QFileDialog::getSaveFileName(this, "Select basename for exported images", "image.png");
+    if (exportBasename.isEmpty()) {
+        return;
+    }
+
+    // Get filename components
+    QFileInfo tmpFileName(exportBasename);
+
+    QDir dir = tmpFileName.absoluteDir();
+    QString base = tmpFileName.baseName();
+    QString ext = tmpFileName.completeSuffix();
+
+    if (ext.isEmpty()) {
+        ext = "png";
+    }
+
+    // Export
+    exportAcceptedImages(dir, base, ext);
 }
 
 
@@ -182,6 +253,9 @@ void PageDetection::initializePage ()
     patternImagePoints.clear();
     patternWorldPoints.clear();
 
+    // Clear the list of accepted images from live capture
+    acceptedImages.clear();
+
     // Clear status label
     labelStatus->setText("Press \"Start\" to begin.");
 
@@ -202,6 +276,15 @@ void PageDetection::initializePage ()
         pushButtonAuto->show();
 
         pushButtonProcess->hide();
+    }
+
+    // Disable storage of accepted images
+    setStoreAcceptedImages(false);
+
+    if (liveCaptureMode) {
+        widgetExport->show();
+    } else {
+        widgetExport->hide();
     }
 
     // Set parameters for pattern detector
@@ -383,6 +466,11 @@ void PageSingleCameraDetection::acceptPattern ()
     // Append world coordinates
     patternWorldPoints.push_back(calibrationPattern->computePlanarCoordinates());
 
+    // Store accepted image
+    if (storeAcceptedImages) {
+        acceptedImages.push_back(currentImage.clone());
+    }
+
     imageCounter++;
 
     if (!liveCaptureMode) {
@@ -509,6 +597,27 @@ void PageSingleCameraDetection::processImage ()
     }
 }
 
+void PageSingleCameraDetection::exportAcceptedImages (const QDir &dir, const QString &base, const QString &ext)
+{
+    for (size_t i = 0; i < acceptedImages.size(); i++) {
+        const cv::Mat &image = acceptedImages[i];
+
+        QString filename = generateExportFilename(base, i+1, ext);
+
+        try {
+            cv::imwrite(dir.absoluteFilePath(filename).toStdString(), image);
+        } catch (const cv::Exception &e) {
+            QMessageBox::warning(this, "Error", "Failed to save image: " + QString::fromStdString(e.what()));
+            return;
+        }
+    }
+}
+
+QString PageSingleCameraDetection::generateExportFilename (const QString &basename, int count, const QString &ext) const
+{
+    return QString("%1-%2.%3").arg(basename).arg(count).arg(ext);
+}
+
 
 // *********************************************************************
 // *                Pattern detection page: left camera                *
@@ -526,6 +635,12 @@ PageLeftCameraDetection::~PageLeftCameraDetection ()
 int PageLeftCameraDetection::nextId () const
 {
     return Wizard::PageId::LeftCameraCalibrationId;
+}
+
+
+QString PageLeftCameraDetection::generateExportFilename (const QString &basename, int count, const QString &ext) const
+{
+    return QString("%1-%2L.%3").arg(basename).arg(count).arg(ext);
 }
 
 
@@ -552,6 +667,12 @@ cv::Mat PageRightCameraDetection::getImageFromPipeline ()
 {
     // Return right image
     return pipeline->getRightImage();
+}
+
+
+QString PageRightCameraDetection::generateExportFilename (const QString &basename, int count, const QString &ext) const
+{
+    return QString("%1-%2R.%3").arg(basename).arg(count).arg(ext);
 }
 
 
@@ -630,6 +751,12 @@ void PageStereoDetection::acceptPattern ()
 
     // Append world coordinate vector
     patternWorldPoints.push_back(calibrationPattern->computePlanarCoordinates());
+
+    // Store accepted image pair
+    if (storeAcceptedImages) {
+        acceptedImages.push_back(currentImageLeft.clone());
+        acceptedImages.push_back(currentImageRight.clone());
+    }
 
     imageCounter += 2;
 
@@ -778,6 +905,25 @@ void PageStereoDetection::processImage ()
     // Auto process
     if (autoProcess) {
         autoProcessTimer->start(500);
+    }
+}
+
+void PageStereoDetection::exportAcceptedImages (const QDir &dir, const QString &base, const QString &ext)
+{
+    for (size_t i = 0; i < acceptedImages.size(); i += 2) {
+        const cv::Mat &imageLeft = acceptedImages[i];
+        const cv::Mat &imageRight = acceptedImages[i+1];
+
+        QString filenameLeft = QString("%1-%2L.%3").arg(base).arg(i+1).arg(ext);
+        QString filenameRight = QString("%1-%2R.%3").arg(base).arg(i+1).arg(ext);
+
+        try {
+            cv::imwrite(dir.absoluteFilePath(filenameLeft).toStdString(), imageLeft);
+            cv::imwrite(dir.absoluteFilePath(filenameRight).toStdString(), imageRight);
+        } catch (const cv::Exception &e) {
+            QMessageBox::warning(this, "Error", "Failed to save image pair: " + QString::fromStdString(e.what()));
+            return;
+        }
     }
 }
 

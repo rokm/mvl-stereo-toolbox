@@ -56,6 +56,9 @@ public:
     PageDetection (const QString &fieldPrefix, Pipeline::Pipeline *pipeline, QWidget *parent = Q_NULLPTR);
     virtual ~PageDetection ();
 
+    void setStoreAcceptedImages (bool enable);
+    bool getStoreAcceptedImages () const;
+
     virtual void initializePage () override;
 
     virtual bool isComplete () const override;
@@ -77,10 +80,16 @@ protected:
 
     virtual void updateLiveCapture () = 0;
 
+    void exportAcceptedImages ();
+    virtual void exportAcceptedImages (const QDir &dir, const QString &base, const QString &ext) = 0;
+
     void disableLiveUpdate ();
     void enableLiveUpdate ();
 
     void doAutomaticProcessing ();
+
+signals:
+    void storeAcceptedImagesChanged (bool enabled);
 
 protected:
     QString fieldPrefix;
@@ -93,6 +102,9 @@ protected:
     QPushButton *pushButtonAccept;
     QPushButton *pushButtonDiscard;
     QPushButton *pushButtonStart;
+
+    QWidget *widgetExport;
+    QPushButton *pushButtonExport;
 
     //
     QStringList images;
@@ -112,6 +124,10 @@ protected:
     cv::Size imageSize;
     std::vector<std::vector<cv::Point2f> > patternImagePoints;
     std::vector<std::vector<cv::Point3f> > patternWorldPoints;
+
+    // Accepted images from live capture
+    bool storeAcceptedImages;
+    std::vector<cv::Mat> acceptedImages;
 };
 
 
@@ -146,6 +162,9 @@ protected:
 
     virtual cv::Mat getImageFromPipeline (); // Returns left image
 
+    virtual void exportAcceptedImages (const QDir &dir, const QString &base, const QString &ext) override;
+    virtual QString generateExportFilename (const QString &basename, int count, const QString &ext) const;
+
 protected:
     Widgets::CalibrationPatternDisplayWidget *widgetImage;
 
@@ -167,6 +186,9 @@ public:
     virtual ~PageLeftCameraDetection ();
 
     virtual int nextId () const override;
+
+protected:
+    virtual QString generateExportFilename (const QString &basename, int count, const QString &ext) const override;
 };
 
 
@@ -185,6 +207,8 @@ public:
 
 protected:
     virtual cv::Mat getImageFromPipeline () override; // Returns right image
+
+    virtual QString generateExportFilename (const QString &basename, int count, const QString &ext) const override;
 };
 
 
@@ -215,6 +239,8 @@ protected:
     virtual void processImage () override;
 
     virtual void updateLiveCapture () override;
+
+    virtual void exportAcceptedImages (const QDir &dir, const QString &base, const QString &ext) override;
 
 protected:
     Widgets::CalibrationPatternDisplayWidget *widgetImageLeft;
