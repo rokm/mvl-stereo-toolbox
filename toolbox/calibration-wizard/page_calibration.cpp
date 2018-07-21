@@ -36,9 +36,9 @@ namespace CalibrationWizard {
 // *********************************************************************
 // *                      Calibration page: common                     *
 // *********************************************************************
-PageCalibration::PageCalibration (const QString &fieldPrefixString, QWidget *parent)
+PageCalibration::PageCalibration (const QString &fieldPrefix, QWidget *parent)
     : QWizardPage(parent),
-      fieldPrefix(fieldPrefixString)
+      fieldPrefix(fieldPrefix)
 {
     setSubTitle("Calibration parameters");
 

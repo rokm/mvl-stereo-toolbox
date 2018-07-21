@@ -48,7 +48,7 @@ class PageCalibration : public QWizardPage
     Q_PROPERTY(int calibrationFlags READ getCalibrationFlags WRITE setCalibrationFlags);
 
 public:
-    PageCalibration (const QString &fieldPrefixString, QWidget *parent = Q_NULLPTR);
+    PageCalibration (const QString &fieldPrefix, QWidget *parent = Q_NULLPTR);
     virtual ~PageCalibration ();
 
     virtual void initializePage () override;

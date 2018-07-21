@@ -28,6 +28,10 @@
 namespace MVL {
 namespace StereoToolbox {
 
+namespace Pipeline {
+class Pipeline;
+} // Pipeline
+
 namespace Widgets {
 class ImageDisplayWidget;
 class ImagePairDisplayWidget;
@@ -47,7 +51,7 @@ class PageResult : public QWizardPage
     Q_OBJECT
 
 public:
-    PageResult (const QString &fieldPrefixString, QWidget *parent = Q_NULLPTR);
+    PageResult (const QString &fieldPrefix, Pipeline::Pipeline *pipeline, QWidget *parent = Q_NULLPTR);
     virtual ~PageResult ();
 
     virtual void initializePage () override;
@@ -56,15 +60,18 @@ public:
 protected:
     void exportCalibration ();
 
-    void displayTestImage (const QString &filename);
+    void displayCustomTestImage ();
+    void displayTestImage (const cv::Mat &image);
+    virtual cv::Mat getImageFromPipeline (); // Returns left image
 
 protected:
     QString fieldPrefix;
+    Pipeline::Pipeline *pipeline;
 
+    QLabel *labelCaption;
     CameraParametersWidget *widgetCameraParameters;
     Widgets::ImageDisplayWidget *widgetImage;
 
-    QString customTestImage;
     cv::Mat cameraMatrix;
     cv::Mat distCoeffs;
 
@@ -81,7 +88,7 @@ class PageSingleCameraResult : public PageResult
     Q_OBJECT
 
 public:
-    PageSingleCameraResult (QWidget *parent = Q_NULLPTR);
+    PageSingleCameraResult (Pipeline::Pipeline *pipeline, QWidget *parent = Q_NULLPTR);
     virtual ~PageSingleCameraResult ();
 
 protected:
@@ -98,7 +105,7 @@ class PageLeftCameraResult : public PageResult
     Q_OBJECT
 
 public:
-    PageLeftCameraResult (QWidget *parent = Q_NULLPTR);
+    PageLeftCameraResult (Pipeline::Pipeline *pipeline, QWidget *parent = Q_NULLPTR);
     virtual ~PageLeftCameraResult ();
 
     virtual int nextId () const override;
@@ -113,10 +120,13 @@ class PageRightCameraResult : public PageResult
     Q_OBJECT
 
 public:
-    PageRightCameraResult (QWidget *parent = Q_NULLPTR);
+    PageRightCameraResult (Pipeline::Pipeline *pipeline, QWidget *parent = Q_NULLPTR);
     virtual ~PageRightCameraResult ();
 
     virtual int nextId () const override;
+
+protected:
+    virtual cv::Mat getImageFromPipeline () override; // Returns right image
 };
 
 
@@ -128,7 +138,7 @@ class PageStereoResult : public QWizardPage
     Q_OBJECT
 
 public:
-    PageStereoResult (QWidget *parent = Q_NULLPTR);
+    PageStereoResult (Pipeline::Pipeline *pipeline, QWidget *parent = Q_NULLPTR);
     virtual ~PageStereoResult ();
 
     virtual void initializePage () override;
@@ -139,14 +149,18 @@ protected:
     void exportCalibration ();
 
     void initializeRectificationMaps ();
-    void loadTestImagePair (const QString &filenameLeft, const QString &filenameRight);
+
+    void displayCustomTestImagePair ();
+    void displayTestImagePair (const cv::Mat &image1, const cv::Mat &testImage2);
     void displayTestImagePair ();
 
     virtual int nextId () const override;
 
 protected:
     QString fieldPrefix;
+    Pipeline::Pipeline *pipeline;
 
+    QLabel *labelCaption;
     CameraParametersWidget *widgetLeftCameraParameters;
     CameraParametersWidget *widgetRightCameraParameters;
 
@@ -154,9 +168,6 @@ protected:
 
     QDoubleSpinBox *spinBoxAlpha;
     QCheckBox *checkBoxZeroDisparity;
-
-    QString customTestImageLeft;
-    QString customTestImageRight;
 
     cv::Rect validRoi1, validRoi2;
     cv::Mat map11, map12, map21, map22;

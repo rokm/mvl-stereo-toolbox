@@ -33,9 +33,9 @@ namespace CalibrationWizard {
 // *********************************************************************
 // *                    Image selection page: common                   *
 // *********************************************************************
-PageImages::PageImages (const QString &fieldPrefixString, QWidget *parent)
+PageImages::PageImages (const QString &fieldPrefix, QWidget *parent)
     : QWizardPage(parent),
-      fieldPrefix(fieldPrefixString)
+      fieldPrefix(fieldPrefix)
 {
     setSubTitle("Calibration image sequence and pattern");
 
@@ -181,7 +181,7 @@ PageImages::PageImages (const QString &fieldPrefixString, QWidget *parent)
     registerField(fieldPrefix + "PatternType", this, "patternType"); // Because default implementation returns selected index, not value
     registerField(fieldPrefix + "ScaleLevels", spinBoxScaleLevels);
     registerField(fieldPrefix + "ScaleIncrement", spinBoxScaleIncrement, "value");  // QWizard does not know QDoubleSpinBox!
-    registerField(fieldPrefix + "LiveCapture", this, "liveCapture"); // Because default implementation returns selected index, not value
+    registerField(fieldPrefix + "LiveCapture", this, "liveCapture");
 
     connect(this, &PageImages::imagesChanged, this, &PageImages::completeChanged);
 }

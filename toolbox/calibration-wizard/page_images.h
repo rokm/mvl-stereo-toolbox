@@ -42,7 +42,7 @@ class PageImages : public QWizardPage
     Q_PROPERTY(bool liveCapture READ getLiveCapture);
 
 public:
-    PageImages (const QString &fieldPrefixString, QWidget *parent = Q_NULLPTR);
+    PageImages (const QString &fieldPrefix, QWidget *parent = Q_NULLPTR);
     virtual ~PageImages ();
 
     bool getLiveCapture () const;

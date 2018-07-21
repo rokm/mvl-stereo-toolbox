@@ -56,21 +56,22 @@ Wizard::Wizard (Pipeline::Pipeline *pipeline, QWidget *parent)
     setPage(PageId::StereoImagesId, new PageStereoImages(this));
     setPage(PageId::StereoDetectionId, new PageStereoDetection(pipeline, this));
     setPage(PageId::StereoCalibrationId, new PageStereoCalibration(this));
-    setPage(PageId::StereoResultId, new PageStereoResult(this));
+    setPage(PageId::StereoResultId, new PageStereoResult(pipeline, this));
 
     setPage(PageId::LeftCameraImagesId, new PageLeftCameraImages(this));
     setPage(PageId::LeftCameraDetectionId, new PageLeftCameraDetection(pipeline, this));
     setPage(PageId::LeftCameraCalibrationId, new PageLeftCameraCalibration(this));
-    setPage(PageId::LeftCameraResultId, new PageLeftCameraResult(this));
+    setPage(PageId::LeftCameraResultId, new PageLeftCameraResult(pipeline, this));
+
     setPage(PageId::RightCameraImagesId, new PageRightCameraImages(this));
     setPage(PageId::RightCameraDetectionId, new PageRightCameraDetection(pipeline, this));
     setPage(PageId::RightCameraCalibrationId, new PageRightCameraCalibration(this));
-    setPage(PageId::RightCameraResultId, new PageRightCameraResult(this));
+    setPage(PageId::RightCameraResultId, new PageRightCameraResult(pipeline, this));
 
     setPage(PageId::SingleCameraImagesId, new PageSingleCameraImages(this));
     setPage(PageId::SingleCameraDetectionId, new PageSingleCameraDetection(pipeline, this));
     setPage(PageId::SingleCameraCalibrationId, new PageSingleCameraCalibration(this));
-    setPage(PageId::SingleCameraResultId, new PageSingleCameraResult(this));
+    setPage(PageId::SingleCameraResultId, new PageSingleCameraResult(pipeline, this));
 
     setStartId(PageId::IntroductionId);
 }

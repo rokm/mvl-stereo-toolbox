@@ -48,7 +48,6 @@ PageIntroduction::PageIntroduction (QWidget *parent)
 
     // Separator
     separator = new QFrame(this);
-    separator = new QFrame(this);
     separator->setFrameStyle(QFrame::HLine | QFrame::Sunken);
 
     layout->addWidget(separator);

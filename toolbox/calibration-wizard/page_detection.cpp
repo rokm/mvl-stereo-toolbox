@@ -36,9 +36,9 @@ namespace CalibrationWizard {
 // *********************************************************************
 // *                   Pattern detection page: common                  *
 // *********************************************************************
-PageDetection::PageDetection (const QString &fieldPrefixString, Pipeline::Pipeline *pipeline, QWidget *parent)
+PageDetection::PageDetection (const QString &fieldPrefix, Pipeline::Pipeline *pipeline, QWidget *parent)
     : QWizardPage(parent),
-      fieldPrefix(fieldPrefixString),
+      fieldPrefix(fieldPrefix),
       autoProcess(false),
       autoProcessTimer(new QTimer(this)),
       calibrationPattern(new Pipeline::CalibrationPattern()),
@@ -325,8 +325,8 @@ PageSingleCameraDetection::PageSingleCameraDetection (Pipeline::Pipeline *pipeli
 {
 }
 
-PageSingleCameraDetection::PageSingleCameraDetection (const QString &fieldPrefixString, Pipeline::Pipeline *pipeline, QWidget *parent)
-    : PageDetection(fieldPrefixString, pipeline, parent)
+PageSingleCameraDetection::PageSingleCameraDetection (const QString &fieldPrefix, Pipeline::Pipeline *pipeline, QWidget *parent)
+    : PageDetection(fieldPrefix, pipeline, parent)
 {
     setTitle("Single camera calibration");
 
@@ -345,10 +345,18 @@ PageSingleCameraDetection::PageSingleCameraDetection (const QString &fieldPrefix
     widgetImage = new Widgets::CalibrationPatternDisplayWidget("Invalid image!", this);
     widgetImage->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     layout->insertWidget(2, widgetImage);
+
+    // Register field: last processed image
+    registerField(fieldPrefix + "LastProcessedImage", this, "lastProcessedImage");
 }
 
 PageSingleCameraDetection::~PageSingleCameraDetection ()
 {
+}
+
+cv::Mat PageSingleCameraDetection::getLastProcessedImage () const
+{
+    return currentImage;
 }
 
 
@@ -452,11 +460,9 @@ void PageSingleCameraDetection::processImage ()
         widgetImage->setText(QString());
 
         // Read image
-        cv::Mat image;
-
         if (!liveCaptureMode) {
             try {
-                image = cv::imread(images[imageCounter].toStdString());
+                currentImage = cv::imread(images[imageCounter].toStdString());
             } catch (cv::Exception &e) {
                 QMessageBox::warning(this, "Image load", "Failed to load image: " + QString::fromStdString(e.what()));
 
@@ -467,20 +473,20 @@ void PageSingleCameraDetection::processImage ()
                 return;
             }
 
-            widgetImage->setImage(image);
+            widgetImage->setImage(currentImage);
         } else {
             // Disable live upodate and hide Process button
             disableLiveUpdate();
 
-            image = getImageFromPipeline();
-            widgetImage->setImage(image);
+            currentImage = getImageFromPipeline();
+            widgetImage->setImage(currentImage);
         }
 
         // Validate image size
         if (imageSize == cv::Size()) {
             // Store the first ...
-            imageSize = image.size();
-        } else if (image.size() != imageSize) {
+            imageSize = currentImage.size();
+        } else if (currentImage.size() != imageSize) {
             QMessageBox::warning(this, "Invalid size", "Image size does not match the size of first image!");
             pushButtonAccept->hide();
             return;
@@ -488,7 +494,7 @@ void PageSingleCameraDetection::processImage ()
 
         // Find pattern
         std::vector<cv::Point2f> points;
-        patternFound = calibrationPattern->findInImage(image, currentImagePoints);
+        patternFound = calibrationPattern->findInImage(currentImage, currentImagePoints);
 
         if (!patternFound) {
             pushButtonAccept->hide();
@@ -578,10 +584,25 @@ PageStereoDetection::PageStereoDetection (Pipeline::Pipeline *pipeline, QWidget 
     widgetImageRight = new Widgets::CalibrationPatternDisplayWidget("Invalid image!", this);
     widgetImageRight->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     hbox->addWidget(widgetImageRight);
+
+    // Register field: last processed image
+    registerField(fieldPrefix + "LastProcessedImageLeft", this, "lastProcessedImageLeft");
+    registerField(fieldPrefix + "LastProcessedImageRight", this, "lastProcessedImageRight");
 }
 
 PageStereoDetection::~PageStereoDetection ()
 {
+}
+
+
+cv::Mat PageStereoDetection::getLastProcessedImageLeft () const
+{
+    return currentImageLeft;
+}
+
+cv::Mat PageStereoDetection::getLastProcessedImageRight () const
+{
+    return currentImageRight;
 }
 
 
@@ -686,11 +707,9 @@ void PageStereoDetection::processImage ()
         widgetImageRight->setText(QString());
 
         // Read and display images
-        cv::Mat imageLeft, imageRight;
-
         if (!liveCaptureMode) {
             try {
-                imageLeft = cv::imread(images[imageCounter].toStdString());
+                currentImageLeft = cv::imread(images[imageCounter].toStdString());
             } catch (cv::Exception &e) {
                 QMessageBox::warning(this, "Image load", "Failed to load left image: " + QString::fromStdString(e.what()));
 
@@ -700,11 +719,10 @@ void PageStereoDetection::processImage ()
                 pushButtonAccept->hide();
                 return;
             }
-
-            widgetImageLeft->setImage(imageLeft);
+            widgetImageLeft->setImage(currentImageLeft);
 
             try {
-                imageRight = cv::imread(images[imageCounter+1].toStdString());
+                currentImageRight = cv::imread(images[imageCounter+1].toStdString());
             } catch (cv::Exception &e) {
                 QMessageBox::warning(this, "Image load", "Failed to load right image: " + QString::fromStdString(e.what()));
 
@@ -714,41 +732,40 @@ void PageStereoDetection::processImage ()
                 pushButtonAccept->hide();
                 return;
             }
-
-            widgetImageRight->setImage(imageRight);
+            widgetImageRight->setImage(currentImageRight);
         } else {
             // Disable live upodate and hide Process button
             disableLiveUpdate();
 
-            pipeline->getImages(imageLeft, imageRight);
-            widgetImageLeft->setImage(imageLeft);
-            widgetImageRight->setImage(imageRight);
+            pipeline->getImages(currentImageLeft, currentImageRight);
+            widgetImageLeft->setImage(currentImageLeft);
+            widgetImageRight->setImage(currentImageRight);
         }
 
 
         // Validate image size
         if (imageSize == cv::Size()) {
             // Store the first ...
-            imageSize = imageLeft.size();
+            imageSize = currentImageLeft.size();
         }
 
-        if (imageLeft.size() != imageSize) {
+        if (currentImageLeft.size() != imageSize) {
             QMessageBox::warning(this, "Invalid size", "Left image size does not match the size of first image!");
             pushButtonAccept->hide();
             return;
         }
 
-        if (imageRight.size() != imageSize) {
+        if (currentImageRight.size() != imageSize) {
             QMessageBox::warning(this, "Invalid size", "Right image size does not match the size of first image!");
             pushButtonAccept->hide();
             return;
         }
 
         // Find pattern
-        bool patternFoundLeft = calibrationPattern->findInImage(imageLeft, currentImagePointsLeft);
+        bool patternFoundLeft = calibrationPattern->findInImage(currentImageLeft, currentImagePointsLeft);
         widgetImageLeft->setPattern(patternFoundLeft, currentImagePointsLeft, calibrationPattern->getPatternSize());
 
-        bool patternFoundRight = calibrationPattern->findInImage(imageRight, currentImagePointsRight);
+        bool patternFoundRight = calibrationPattern->findInImage(currentImageRight, currentImagePointsRight);
         widgetImageRight->setPattern(patternFoundRight, currentImagePointsRight, calibrationPattern->getPatternSize());
 
         patternFound = patternFoundLeft && patternFoundRight;

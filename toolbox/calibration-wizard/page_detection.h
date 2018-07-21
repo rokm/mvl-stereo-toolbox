@@ -48,12 +48,12 @@ class PageDetection : public QWizardPage
 {
     Q_OBJECT
 
-    Q_PROPERTY(std::vector<std::vector<cv::Point2f> > patternImagePoints READ getPatternImagePoints);
-    Q_PROPERTY(std::vector<std::vector<cv::Point3f> > patternWorldPoints READ getPatternWorldPoints);
-    Q_PROPERTY(cv::Size imageSize READ getImageSize WRITE setImageSize);
+    Q_PROPERTY(std::vector<std::vector<cv::Point2f> > patternImagePoints READ getPatternImagePoints)
+    Q_PROPERTY(std::vector<std::vector<cv::Point3f> > patternWorldPoints READ getPatternWorldPoints)
+    Q_PROPERTY(cv::Size imageSize READ getImageSize WRITE setImageSize)
 
 public:
-    PageDetection (const QString &fieldPrefixString, Pipeline::Pipeline *pipeline, QWidget *parent = Q_NULLPTR);
+    PageDetection (const QString &fieldPrefix, Pipeline::Pipeline *pipeline, QWidget *parent = Q_NULLPTR);
     virtual ~PageDetection ();
 
     virtual void initializePage () override;
@@ -123,11 +123,15 @@ class PageSingleCameraDetection : public PageDetection
 {
     Q_OBJECT
 
+    Q_PROPERTY(cv::Mat lastProcessedImage READ getLastProcessedImage)
+
 public:
     PageSingleCameraDetection (Pipeline::Pipeline *pipeline, QWidget *parent = Q_NULLPTR);
-    PageSingleCameraDetection (const QString &fieldPrefixString, Pipeline::Pipeline *pipeline, QWidget *parent = Q_NULLPTR);
+    PageSingleCameraDetection (const QString &fieldPrefix, Pipeline::Pipeline *pipeline, QWidget *parent = Q_NULLPTR);
 
     virtual ~PageSingleCameraDetection ();
+
+    cv::Mat getLastProcessedImage () const;
 
     virtual int nextId () const override;
 
@@ -145,6 +149,7 @@ protected:
 protected:
     Widgets::CalibrationPatternDisplayWidget *widgetImage;
 
+    cv::Mat currentImage;
     std::vector<cv::Point2f> currentImagePoints;
 };
 
@@ -190,9 +195,15 @@ class PageStereoDetection : public PageDetection
 {
     Q_OBJECT
 
+    Q_PROPERTY(cv::Mat lastProcessedImageLeft READ getLastProcessedImageLeft)
+    Q_PROPERTY(cv::Mat lastProcessedImageRight READ getLastProcessedImageRight)
+
 public:
     PageStereoDetection (Pipeline::Pipeline *pipeline, QWidget *parent = Q_NULLPTR);
     virtual ~PageStereoDetection ();
+
+    cv::Mat getLastProcessedImageLeft () const;
+    cv::Mat getLastProcessedImageRight () const;
 
     virtual int nextId () const override;
 
@@ -208,6 +219,9 @@ protected:
 protected:
     Widgets::CalibrationPatternDisplayWidget *widgetImageLeft;
     Widgets::CalibrationPatternDisplayWidget *widgetImageRight;
+
+    cv::Mat currentImageLeft;
+    cv::Mat currentImageRight;
 
     std::vector<cv::Point2f> currentImagePointsLeft;
     std::vector<cv::Point2f> currentImagePointsRight;
