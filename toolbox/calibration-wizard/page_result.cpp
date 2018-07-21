@@ -532,6 +532,10 @@ void PageStereoResult::displayTestImagePair (const cv::Mat &imageLeft, const cv:
 
 void PageStereoResult::displayTestImagePair ()
 {
+    if (image1.empty() || image2.empty() || map11.empty()) {
+        return;
+    }
+
     // Two simple remaps using look-up tables
     cv::Mat rectifiedImage1, rectifiedImage2;
 
