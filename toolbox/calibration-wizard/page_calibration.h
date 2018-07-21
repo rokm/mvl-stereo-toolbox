@@ -43,9 +43,9 @@ class PageCalibration : public QWizardPage
 {
     Q_OBJECT
 
-    Q_PROPERTY(cv::Mat cameraMatrix READ getCameraMatrix WRITE setCameraMatrix);
-    Q_PROPERTY(cv::Mat distCoeffs READ getDistCoeffs WRITE setDistCoeffs);
-    Q_PROPERTY(int calibrationFlags READ getCalibrationFlags WRITE setCalibrationFlags);
+    Q_PROPERTY(cv::Mat cameraMatrix READ getCameraMatrix WRITE setCameraMatrix)
+    Q_PROPERTY(cv::Mat distCoeffs READ getDistCoeffs WRITE setDistCoeffs)
+    Q_PROPERTY(int calibrationFlags READ getCalibrationFlags WRITE setCalibrationFlags)
 
 public:
     PageCalibration (const QString &fieldPrefix, QWidget *parent = Q_NULLPTR);
@@ -150,12 +150,12 @@ class PageStereoCalibration : public QWizardPage
 {
     Q_OBJECT
 
-    Q_PROPERTY(cv::Mat cameraMatrix1 READ getCameraMatrix1);
-    Q_PROPERTY(cv::Mat distCoeffs1 READ getDistCoeffs1);
-    Q_PROPERTY(cv::Mat cameraMatrix2 READ getCameraMatrix2);
-    Q_PROPERTY(cv::Mat distCoeffs2 READ getDistCoeffs2);
-    Q_PROPERTY(cv::Mat R READ getR);
-    Q_PROPERTY(cv::Mat T READ getT);
+    Q_PROPERTY(cv::Mat cameraMatrix1 READ getCameraMatrix1)
+    Q_PROPERTY(cv::Mat distCoeffs1 READ getDistCoeffs1)
+    Q_PROPERTY(cv::Mat cameraMatrix2 READ getCameraMatrix2)
+    Q_PROPERTY(cv::Mat distCoeffs2 READ getDistCoeffs2)
+    Q_PROPERTY(cv::Mat R READ getR)
+    Q_PROPERTY(cv::Mat T READ getT)
 
 public:
     PageStereoCalibration (QWidget *parent = Q_NULLPTR);

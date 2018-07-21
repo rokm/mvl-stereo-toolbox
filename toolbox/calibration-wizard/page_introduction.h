@@ -33,7 +33,7 @@ class PageIntroduction : public QWizardPage
 {
     Q_OBJECT
 
-    Q_PROPERTY(QString calibrationType READ getCalibrationType);
+    Q_PROPERTY(QString calibrationType READ getCalibrationType)
 
 public:
     PageIntroduction (QWidget *parent = Q_NULLPTR);

@@ -37,9 +37,9 @@ class PageImages : public QWizardPage
 {
     Q_OBJECT
 
-    Q_PROPERTY(QStringList images READ getImages WRITE setImages NOTIFY imagesChanged);
-    Q_PROPERTY(int patternType READ getPatternType WRITE setPatternType);
-    Q_PROPERTY(bool liveCapture READ getLiveCapture);
+    Q_PROPERTY(QStringList images READ getImages WRITE setImages NOTIFY imagesChanged)
+    Q_PROPERTY(int patternType READ getPatternType WRITE setPatternType)
+    Q_PROPERTY(bool liveCapture READ getLiveCapture)
 
 public:
     PageImages (const QString &fieldPrefix, QWidget *parent = Q_NULLPTR);
@@ -105,7 +105,7 @@ class PageLeftCameraImages : public PageImages
 {
     Q_OBJECT
 
-    Q_PROPERTY(bool skipCalibration READ getSkipCalibration WRITE setSkipCalibration);
+    Q_PROPERTY(bool skipCalibration READ getSkipCalibration WRITE setSkipCalibration)
 
 public:
     PageLeftCameraImages (QWidget *parent = Q_NULLPTR);
@@ -134,7 +134,7 @@ class PageRightCameraImages : public PageImages
 {
     Q_OBJECT
 
-    Q_PROPERTY(bool skipCalibration READ getSkipCalibration WRITE setSkipCalibration);
+    Q_PROPERTY(bool skipCalibration READ getSkipCalibration WRITE setSkipCalibration)
 
 public:
     PageRightCameraImages (QWidget *parent = Q_NULLPTR);
@@ -164,7 +164,7 @@ private:
 class PageStereoImages : public PageImages
 {
     Q_OBJECT
-    Q_PROPERTY(int imagesOrder READ getImagesOrder WRITE setImagesOrder);
+    Q_PROPERTY(int imagesOrder READ getImagesOrder WRITE setImagesOrder)
 
 public:
     PageStereoImages (QWidget *parent = Q_NULLPTR);
