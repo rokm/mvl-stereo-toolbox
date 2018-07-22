@@ -126,6 +126,9 @@ add_subdirectory(sources/video_file)
 # OpenCV Cam image pair source: always build
 add_subdirectory(sources/opencv_cam)
 
+# MPO file pair source: always build
+add_subdirectory(sources/mpo_file)
+
 # Plugins that require pkg-config (linux-only)
 if(PKG_CONFIG_FOUND)
     # DC1394 image pair source: build if we have libdc1394-2
