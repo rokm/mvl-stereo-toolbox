@@ -244,7 +244,7 @@ void Camera::setPropertyValue (const QString &name, const QString &value)
 
     // Set menu value
     QByteArray value_str = value.toLocal8Bit();
-    strncpy(property.menu_item, value_str, sizeof(property.menu_item));
+    strncpy(property.menu_item, value_str, sizeof(property.menu_item) - 1);
 
     status = unicap_set_property(handle, &property);
     if (status != STATUS_SUCCESS) {
