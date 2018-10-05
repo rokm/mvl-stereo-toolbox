@@ -405,7 +405,7 @@ const cv::Mat &Rectification::getRectificationTransformMatrix2 () const
 const cv::Mat &Rectification::getRectifiedCameraMatrix2 () const
 {
     Q_D(const Rectification);
-    return d->P1;
+    return d->P2;
 }
 
 
