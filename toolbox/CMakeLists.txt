@@ -51,7 +51,7 @@ target_compile_definitions(MVLStereoToolbox PRIVATE -DPROJECT_VERSION="${PROJECT
 
 target_link_libraries(MVLStereoToolbox PRIVATE Qt5::Widgets Qt5::Concurrent)
 
-target_link_libraries(MVLStereoToolbox PRIVATE opencv_core opencv_calib3d)
+target_link_libraries(MVLStereoToolbox PRIVATE opencv_core opencv_calib3d opencv_imgcodecs)
 
 target_link_libraries(MVLStereoToolbox PRIVATE mvl_stereo_pipeline)
 target_link_libraries(MVLStereoToolbox PRIVATE mvl_stereo_widgets)
