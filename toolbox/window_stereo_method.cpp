@@ -265,7 +265,7 @@ void WindowStereoMethod::saveImage ()
     QStringList fileFilters;
     fileFilters.append("Image files (*.png *.jpg *.pgm *.ppm *.tif *.bmp)");
     fileFilters.append("Binary files (*.bin)");
-    fileFilters.append("OpenCV storage files (*.xml *.yml *.yaml");
+    fileFilters.append("OpenCV storage files (*.xml *.yml *.yaml *.xml.gz *.yml.gz *.yaml.gz)");
 
     QString selectedFilter;
     QString fileName = QFileDialog::getSaveFileName(this, "Save disparity", lastSavedFile,  fileFilters.join(";;"), &selectedFilter);
@@ -278,13 +278,13 @@ void WindowStereoMethod::saveImage ()
             } else if (selectedFilter == fileFilters[1]) {
                 ext = "bin";
             } else {
-                ext = "yml";
+                ext = "yml.gz";
             }
             fileName += "." + ext;
         }
 
         // Create file
-        if (ext == "xml" || ext == "yml" || ext == "yaml") {
+        if (ext == "xml" || ext == "yml" || ext == "yaml" || ext == "xml.gz" || ext == "yml.gz" || ext == "yaml.gz") {
             // Save raw disparity in OpenCV storage format
             try {
                 cv::FileStorage fs(fileName.toStdString(), cv::FileStorage::WRITE);
@@ -323,7 +323,7 @@ void WindowStereoMethod::saveImage ()
 // *********************************************************************
 void WindowStereoMethod::importParameters ()
 {
-    QString fileName = QFileDialog::getOpenFileName(this, "Load parameters from file", QString(), "OpenCV storage file (*.xml *.yml *.yaml)");
+    QString fileName = QFileDialog::getOpenFileName(this, "Load parameters from file", QString(), "OpenCV storage files (*.xml *.yml *.yaml *.xml.gz *.yml.gz *.yaml.gz)");
     if (!fileName.isNull()) {
         try {
             pipeline->loadStereoMethodParameters(fileName);
@@ -335,7 +335,7 @@ void WindowStereoMethod::importParameters ()
 
 void WindowStereoMethod::exportParameters ()
 {
-    QString fileName = QFileDialog::getSaveFileName(this, "Save parameters to file", QString(), "OpenCV storage file (*.xml *.yml *.yaml)");
+    QString fileName = QFileDialog::getSaveFileName(this, "Save parameters to file", QString(), "OpenCV storage files (*.xml *.yml *.yaml *.xml.gz *.yml.gz *.yaml.gz)");
     if (!fileName.isNull()) {
         try {
             pipeline->saveStereoMethodParameters(fileName);

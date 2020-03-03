@@ -273,7 +273,7 @@ void WindowReprojection::saveReprojectionResult ()
     // Get filename
     QStringList fileFilters;
     fileFilters.append("Binary files (*.bin)");
-    fileFilters.append("OpenCV storage files (*.xml *.yml *.yaml");
+    fileFilters.append("OpenCV storage files (*.xml *.yml *.yaml *.xml.gz *.yml.gz *.yaml.gz)");
 
     QString selectedFilter = fileFilters[0];
     QString fileName = QFileDialog::getSaveFileName(this, "Save reprojected points", lastSavedFile,  fileFilters.join(";;"), &selectedFilter);
@@ -284,13 +284,13 @@ void WindowReprojection::saveReprojectionResult ()
             if (selectedFilter == fileFilters[0]) {
                 ext = "bin";
             } else {
-                ext = "yml";
+                ext = "yml.gz";
             }
             fileName += "." + ext;
         }
 
         // Create file
-        if (ext == "xml" || ext == "yml" || ext == "yaml") {
+        if (ext == "xml" || ext == "yml" || ext == "yaml" || ext == "xml.gz" || ext == "yml.gz" || ext == "yaml.gz") {
             // Save reprojected points in OpenCV storage format
             try {
                 cv::FileStorage fs(fileName.toStdString(), cv::FileStorage::WRITE);

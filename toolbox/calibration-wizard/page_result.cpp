@@ -251,7 +251,7 @@ void PageResult::setVisible (bool visible)
 
 void PageResult::exportCalibration ()
 {
-    QString fileName = QFileDialog::getSaveFileName(this, "Save camera calibration to file", QString(), "OpenCV storage file (*.xml *.yml *.yaml)");
+    QString fileName = QFileDialog::getSaveFileName(this, "Save camera calibration to file", QString(), "OpenCV storage files (*.xml *.yml *.yaml *.xml.gz *.yml.gz *.yaml.gz)");
     if (!fileName.isNull()) {
         QString ext = QFileInfo(fileName).completeSuffix();
         if (ext.isEmpty()) {
@@ -600,7 +600,7 @@ void PageStereoResult::setVisible (bool visible)
 
 void PageStereoResult::exportCalibration ()
 {
-    QString fileName = QFileDialog::getSaveFileName(this, "Export calibration to file", QString(), "OpenCV storage file (*.xml *.yml *.yaml)");
+    QString fileName = QFileDialog::getSaveFileName(this, "Export calibration to file", QString(), "OpenCV storage files (*.xml *.yml *.yaml *.xml.gz *.yml.gz *.yaml.gz)");
     if (!fileName.isNull()) {
         QString ext = QFileInfo(fileName).completeSuffix();
         if (ext.isEmpty()) {

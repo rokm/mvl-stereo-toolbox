@@ -439,7 +439,7 @@ void PageLeftCameraImages::setVisible (bool visible)
         wizard()->setOption(QWizard::HaveCustomButton1, true);
         customButtonConnection = connect(wizard(), &QWizard::customButtonClicked, this, [this] () {
             // Select file
-            QString fileName = QFileDialog::getOpenFileName(this, "Open camera calibration", QString(), "OpenCV storage file (*.xml *.yml *.yaml)");
+            QString fileName = QFileDialog::getOpenFileName(this, "Open camera calibration", QString(), "OpenCV storage files (*.xml *.yml *.yaml *.xml.gz *.yml.gz *.yaml.gz)");
             if (fileName.isEmpty()) {
                 return;
             }
@@ -553,7 +553,7 @@ void PageRightCameraImages::setVisible (bool visible)
         wizard()->setOption(QWizard::HaveCustomButton1, true);
         customButtonConnection = connect(wizard(), &QWizard::customButtonClicked, this, [this] () {
             // Select file
-            QString fileName = QFileDialog::getOpenFileName(this, "Open camera calibration", QString(), "OpenCV storage file (*.xml *.yml *.yaml)");
+            QString fileName = QFileDialog::getOpenFileName(this, "Open camera calibration", QString(), "OpenCV storage files (*.xml *.yml *.yaml *.xml.gz *.yml.gz *.yaml.gz)");
             if (fileName.isEmpty()) {
                 return;
             }
