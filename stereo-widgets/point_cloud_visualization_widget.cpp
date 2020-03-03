@@ -520,7 +520,7 @@ void PointCloudVisualizationWidgetPrivate::renderPointCloud (QOpenGLFunctions *g
 {
     QMatrix4x4 viewMatrix;
     viewMatrix.translate(position);
-    viewMatrix.rotate(orientation.conjugate()); // Conjugate = inverse rotation
+    viewMatrix.rotate(orientation.conjugated()); // Conjugate = inverse rotation
 
     QOpenGLVertexArrayObject::Binder vaoBinder(&vaoPointCloud);
     shaderProgramBasicElement.bind();
@@ -544,7 +544,7 @@ void PointCloudVisualizationWidgetPrivate::renderTrackBall (QOpenGLFunctions *gl
 
     modelMatrix.scale(trackBallRadius, trackBallRadius);
     if (rotationConstraint == ConstraintObjectAxes) {
-        modelMatrix.rotate(orientation.conjugate()); // Conjugate = inverse rotation
+        modelMatrix.rotate(orientation.conjugated()); // Conjugate = inverse rotation
     }
 
     int backupRGB, backupA;
