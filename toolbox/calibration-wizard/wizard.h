@@ -52,7 +52,7 @@ class Wizard : public QWizard
     Q_OBJECT
 
 public:
-    Wizard (Pipeline::Pipeline *pipeline, QWidget *parent = Q_NULLPTR);
+    Wizard (Pipeline::Pipeline *pipeline, QWidget *parent = nullptr);
     virtual ~Wizard ();
 
     enum PageId {

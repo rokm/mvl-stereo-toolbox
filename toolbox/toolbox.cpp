@@ -283,7 +283,7 @@ void Toolbox::loadPlugins ()
 {
     for (QObject *plugin : plugin_manager->getAvailablePlugins()) {
         Pipeline::PluginFactory *factory = qobject_cast<Pipeline::PluginFactory *>(plugin);
-        QObject *object = Q_NULLPTR;
+        QObject *object = nullptr;
 
         // Create object
         try {

@@ -38,7 +38,7 @@ class MVL_STEREO_WIDGETS_EXPORT ImagePairDisplayWidget : public ImageDisplayWidg
     Q_DECLARE_PRIVATE(ImagePairDisplayWidget)
 
 public:
-    ImagePairDisplayWidget (const QString &text = QString(), QWidget *parent = Q_NULLPTR);
+    ImagePairDisplayWidget (const QString &text = QString(), QWidget *parent = nullptr);
     virtual ~ImagePairDisplayWidget ();
 
     virtual void setImage (const cv::Mat &image) override;

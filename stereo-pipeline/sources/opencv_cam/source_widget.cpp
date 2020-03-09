@@ -158,7 +158,7 @@ SourceWidget::~SourceWidget ()
 // *********************************************************************
 CameraFrame::CameraFrame (Source *source, QWidget *parent)
     : QFrame(parent),
-      widgetCameraConfig(Q_NULLPTR)
+      widgetCameraConfig(nullptr)
 {
     setFrameStyle(QFrame::Box | QFrame::Sunken);
 
@@ -199,7 +199,7 @@ void CameraFrame::setCamera (Camera *camera)
     if (widgetCameraConfig) {
         frameCamera->layout()->removeWidget(widgetCameraConfig);
         widgetCameraConfig->deleteLater();
-        widgetCameraConfig = Q_NULLPTR;
+        widgetCameraConfig = nullptr;
     }
 
     // Get new device's config widget

@@ -47,7 +47,7 @@ class MVL_STEREO_PIPELINE_EXPORT Pipeline : public QObject
     QScopedPointer<PipelinePrivate> const d_ptr;
 
 public:
-    Pipeline (QObject *parent = Q_NULLPTR);
+    Pipeline (QObject *parent = nullptr);
     virtual ~Pipeline ();
 
     // GPU/CUDA management

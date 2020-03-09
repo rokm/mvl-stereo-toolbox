@@ -41,7 +41,7 @@ class MVL_STEREO_PIPELINE_EXPORT DisparityVisualization : public QObject
     QScopedPointer<DisparityVisualizationPrivate> const d_ptr;
 
 public:
-    DisparityVisualization (QObject *parent = Q_NULLPTR);
+    DisparityVisualization (QObject *parent = nullptr);
     ~DisparityVisualization ();
 
     enum {

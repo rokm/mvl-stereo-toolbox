@@ -36,7 +36,7 @@ class PageIntroduction : public QWizardPage
     Q_PROPERTY(QString calibrationType READ getCalibrationType)
 
 public:
-    PageIntroduction (QWidget *parent = Q_NULLPTR);
+    PageIntroduction (QWidget *parent = nullptr);
     virtual ~PageIntroduction ();
 
     virtual int nextId () const override;

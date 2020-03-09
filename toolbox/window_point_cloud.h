@@ -44,7 +44,7 @@ class WindowPointCloud : public QWidget
     Q_OBJECT
 
 public:
-    WindowPointCloud (Pipeline::Pipeline *pipeline, QWidget *parent = Q_NULLPTR);
+    WindowPointCloud (Pipeline::Pipeline *pipeline, QWidget *parent = nullptr);
     virtual ~WindowPointCloud ();
 
 protected:

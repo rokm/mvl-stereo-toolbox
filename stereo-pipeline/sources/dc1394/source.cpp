@@ -31,8 +31,8 @@ namespace SourceDC1394 {
 Source::Source (QObject *parent)
     : QAbstractListModel(parent), ImagePairSource(),
       singleCameraMode(false),
-      leftCamera(Q_NULLPTR),
-      rightCamera(Q_NULLPTR)
+      leftCamera(nullptr),
+      rightCamera(nullptr)
 {
     // FireWire bus
     fw = dc1394_new();
@@ -233,7 +233,7 @@ void Source::releaseCamera (Camera *& camera)
 
         // Delete camera object
         camera->deleteLater();
-        camera = NULL;
+        camera = nullptr;
 
         // Mark camera as inactive in our list
         setActive(id, false);

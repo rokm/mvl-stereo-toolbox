@@ -45,7 +45,7 @@ class Plugin : public QObject, PluginFactory
         return "Image File Pair Source";
     }
 
-    QObject *createObject (QObject *parent = Q_NULLPTR) const override {
+    QObject *createObject (QObject *parent = nullptr) const override {
         return new Source(parent);
     }
 };

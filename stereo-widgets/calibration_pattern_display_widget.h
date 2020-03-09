@@ -38,7 +38,7 @@ class MVL_STEREO_WIDGETS_EXPORT CalibrationPatternDisplayWidget : public ImageDi
     Q_DECLARE_PRIVATE(CalibrationPatternDisplayWidget)
 
 public:
-    CalibrationPatternDisplayWidget (const QString &text = QString(), QWidget *parent = Q_NULLPTR);
+    CalibrationPatternDisplayWidget (const QString &text = QString(), QWidget *parent = nullptr);
     virtual ~CalibrationPatternDisplayWidget ();
 
     virtual void setImage (const cv::Mat &image) override;

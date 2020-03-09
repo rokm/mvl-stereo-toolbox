@@ -37,7 +37,7 @@ class CalibrationFlagsWidget : public QGroupBox
     Q_OBJECT
 
 public:
-    CalibrationFlagsWidget (const QString &title = "Flags", QWidget *parent = Q_NULLPTR);
+    CalibrationFlagsWidget (const QString &title = "Flags", QWidget *parent = nullptr);
     virtual ~CalibrationFlagsWidget ();
 
     virtual int getFlags () const;
@@ -66,7 +66,7 @@ class StereoCalibrationFlagsWidget : public CalibrationFlagsWidget
     Q_OBJECT
 
 public:
-    StereoCalibrationFlagsWidget (const QString &title = "Flags", QWidget *parent = Q_NULLPTR);
+    StereoCalibrationFlagsWidget (const QString &title = "Flags", QWidget *parent = nullptr);
     virtual ~StereoCalibrationFlagsWidget ();
 
     virtual int getFlags () const override;

@@ -40,7 +40,7 @@ class MethodElement : public Element
     Q_OBJECT
 
 public:
-    MethodElement (QObject *parent = Q_NULLPTR);
+    MethodElement (QObject *parent = nullptr);
     virtual ~MethodElement ();
 
     void setStereoMethod (QObject *method);

@@ -40,7 +40,7 @@ class RectificationElement : public Element
     Q_OBJECT
 
 public:
-    RectificationElement (QObject *parent = Q_NULLPTR);
+    RectificationElement (QObject *parent = nullptr);
     virtual ~RectificationElement ();
 
     Rectification *getRectification ();

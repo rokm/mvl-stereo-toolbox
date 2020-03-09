@@ -45,7 +45,7 @@ class Plugin : public QObject, PluginFactory
         return "OpenCV Semi-Global Block Matching";
     }
 
-    QObject *createObject (QObject *parent = Q_NULLPTR) const override  {
+    QObject *createObject (QObject *parent = nullptr) const override  {
         return new Method(parent);
     }
 };

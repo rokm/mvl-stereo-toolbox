@@ -39,7 +39,7 @@ WindowRectification::WindowRectification (Pipeline::Pipeline *pipeline, QWidget 
       rectification(pipeline->getRectification()),
       numDroppedFrames(0),
       estimatedFps(0.0f),
-      wizard(Q_NULLPTR)
+      wizard(nullptr)
 {
     setWindowTitle("Rectification");
     resize(800, 600);
@@ -271,13 +271,13 @@ void WindowRectification::runCalibrationWizard ()
 
         // Cleanup
         wizard->deleteLater();
-        wizard = Q_NULLPTR;
+        wizard = nullptr;
     });
 
     connect(wizard, &CalibrationWizard::Wizard::rejected, this, [this] () {
         // Cleanup
         wizard->deleteLater();
-        wizard = Q_NULLPTR;
+        wizard = nullptr;
     });
 
     // Run calibration wizard

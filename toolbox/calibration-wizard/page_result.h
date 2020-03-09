@@ -51,7 +51,7 @@ class PageResult : public QWizardPage
     Q_OBJECT
 
 public:
-    PageResult (const QString &fieldPrefix, Pipeline::Pipeline *pipeline, QWidget *parent = Q_NULLPTR);
+    PageResult (const QString &fieldPrefix, Pipeline::Pipeline *pipeline, QWidget *parent = nullptr);
     virtual ~PageResult ();
 
     virtual void initializePage () override;
@@ -88,7 +88,7 @@ class PageSingleCameraResult : public PageResult
     Q_OBJECT
 
 public:
-    PageSingleCameraResult (Pipeline::Pipeline *pipeline, QWidget *parent = Q_NULLPTR);
+    PageSingleCameraResult (Pipeline::Pipeline *pipeline, QWidget *parent = nullptr);
     virtual ~PageSingleCameraResult ();
 
 protected:
@@ -105,7 +105,7 @@ class PageLeftCameraResult : public PageResult
     Q_OBJECT
 
 public:
-    PageLeftCameraResult (Pipeline::Pipeline *pipeline, QWidget *parent = Q_NULLPTR);
+    PageLeftCameraResult (Pipeline::Pipeline *pipeline, QWidget *parent = nullptr);
     virtual ~PageLeftCameraResult ();
 
     virtual int nextId () const override;
@@ -120,7 +120,7 @@ class PageRightCameraResult : public PageResult
     Q_OBJECT
 
 public:
-    PageRightCameraResult (Pipeline::Pipeline *pipeline, QWidget *parent = Q_NULLPTR);
+    PageRightCameraResult (Pipeline::Pipeline *pipeline, QWidget *parent = nullptr);
     virtual ~PageRightCameraResult ();
 
     virtual int nextId () const override;
@@ -138,7 +138,7 @@ class PageStereoResult : public QWizardPage
     Q_OBJECT
 
 public:
-    PageStereoResult (Pipeline::Pipeline *pipeline, QWidget *parent = Q_NULLPTR);
+    PageStereoResult (Pipeline::Pipeline *pipeline, QWidget *parent = nullptr);
     virtual ~PageStereoResult ();
 
     virtual void initializePage () override;

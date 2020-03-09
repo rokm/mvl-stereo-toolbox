@@ -48,7 +48,7 @@ class PageCalibration : public QWizardPage
     Q_PROPERTY(int calibrationFlags READ getCalibrationFlags WRITE setCalibrationFlags)
 
 public:
-    PageCalibration (const QString &fieldPrefix, QWidget *parent = Q_NULLPTR);
+    PageCalibration (const QString &fieldPrefix, QWidget *parent = nullptr);
     virtual ~PageCalibration ();
 
     virtual void initializePage () override;
@@ -104,7 +104,7 @@ class PageSingleCameraCalibration : public PageCalibration
     Q_OBJECT
 
 public:
-    PageSingleCameraCalibration (QWidget *parent = Q_NULLPTR);
+    PageSingleCameraCalibration (QWidget *parent = nullptr);
     virtual ~PageSingleCameraCalibration ();
 
     virtual int nextId () const override;
@@ -119,7 +119,7 @@ class PageLeftCameraCalibration : public PageCalibration
     Q_OBJECT
 
 public:
-    PageLeftCameraCalibration (QWidget *parent = Q_NULLPTR);
+    PageLeftCameraCalibration (QWidget *parent = nullptr);
     virtual ~PageLeftCameraCalibration ();
 
     virtual int nextId () const override;
@@ -134,7 +134,7 @@ class PageRightCameraCalibration : public PageCalibration
     Q_OBJECT
 
 public:
-    PageRightCameraCalibration (QWidget *parent = Q_NULLPTR);
+    PageRightCameraCalibration (QWidget *parent = nullptr);
     virtual ~PageRightCameraCalibration ();
 
     virtual int nextId () const override;
@@ -158,7 +158,7 @@ class PageStereoCalibration : public QWizardPage
     Q_PROPERTY(cv::Mat T READ getT)
 
 public:
-    PageStereoCalibration (QWidget *parent = Q_NULLPTR);
+    PageStereoCalibration (QWidget *parent = nullptr);
     virtual ~PageStereoCalibration ();
 
     virtual void initializePage () override;

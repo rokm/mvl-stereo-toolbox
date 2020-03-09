@@ -51,7 +51,7 @@ RectificationElement::RectificationElement (QObject *parent)
         rectification->deleteLater();
 
         // Clear pointer
-        rectification = Q_NULLPTR;
+        rectification = nullptr;
     }, Qt::BlockingQueuedConnection); // Connection must block!
 
     // Main worker function - executed in rectification object's context,

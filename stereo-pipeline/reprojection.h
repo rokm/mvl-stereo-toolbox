@@ -41,7 +41,7 @@ class MVL_STEREO_PIPELINE_EXPORT Reprojection : public QObject
     QScopedPointer<ReprojectionPrivate> const d_ptr;
 
 public:
-    Reprojection (QObject *parent = Q_NULLPTR);
+    Reprojection (QObject *parent = nullptr);
     ~Reprojection ();
 
     enum {

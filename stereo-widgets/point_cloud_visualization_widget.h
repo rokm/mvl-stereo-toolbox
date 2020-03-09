@@ -45,10 +45,10 @@ class MVL_STEREO_WIDGETS_EXPORT PointCloudVisualizationWidget : public QOpenGLWi
 
 protected:
     QScopedPointer<PointCloudVisualizationWidgetPrivate> const d_ptr;
-    PointCloudVisualizationWidget (PointCloudVisualizationWidgetPrivate *d, QWidget *parent = Q_NULLPTR);
+    PointCloudVisualizationWidget (PointCloudVisualizationWidgetPrivate *d, QWidget *parent = nullptr);
 
 public:
-    PointCloudVisualizationWidget (QWidget *parent = Q_NULLPTR);
+    PointCloudVisualizationWidget (QWidget *parent = nullptr);
     virtual ~PointCloudVisualizationWidget ();
 
     void setImage (const cv::Mat &image);
@@ -80,10 +80,10 @@ class MVL_STEREO_WIDGETS_EXPORT PointCloudVisualizationWidget : public QLabel
 
 protected:
     QScopedPointer<PointCloudVisualizationWidgetPrivate> const d_ptr;
-    PointCloudVisualizationWidget (PointCloudVisualizationWidgetPrivate *d, QWidget *parent = Q_NULLPTR);
+    PointCloudVisualizationWidget (PointCloudVisualizationWidgetPrivate *d, QWidget *parent = nullptr);
 
 public:
-    PointCloudVisualizationWidget (QWidget *parent = Q_NULLPTR);
+    PointCloudVisualizationWidget (QWidget *parent = nullptr);
     virtual ~PointCloudVisualizationWidget ();
 
     void setImage (const cv::Mat &image);

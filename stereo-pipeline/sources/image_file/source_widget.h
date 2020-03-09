@@ -36,7 +36,7 @@ class SourceWidget : public QWidget
     Q_OBJECT
 
 public:
-    SourceWidget (Source *source, QWidget *parent = Q_NULLPTR);
+    SourceWidget (Source *source, QWidget *parent = nullptr);
     virtual ~SourceWidget ();
 
 signals:

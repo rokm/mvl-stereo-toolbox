@@ -54,8 +54,8 @@ static const struct {
 Source::Source (QObject *parent)
     : QAbstractListModel(parent), ImagePairSource(),
       singleCameraMode(false),
-      leftCamera(Q_NULLPTR),
-      rightCamera(Q_NULLPTR)
+      leftCamera(nullptr),
+      rightCamera(nullptr)
 {
     // Enumerate cameras
     //refreshCameraList();
@@ -221,7 +221,7 @@ void Source::createCamera (Camera *& camera, int c)
     releaseCamera(camera);
 
     // Create new camera
-    cv::VideoCapture *cap = NULL;
+    cv::VideoCapture *cap = nullptr;
     int idx = interfaces_list[newId.interface_idx].id + newId.camera_idx;
     try {
         cap = new cv::VideoCapture(idx);
@@ -255,7 +255,7 @@ void Source::releaseCamera (Camera *& camera)
 
         // Delete camera object
         camera->deleteLater();
-        camera = NULL;
+        camera = nullptr;
 
         // Mark camera as inactive in our list
         setActive(id, false);

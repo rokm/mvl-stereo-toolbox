@@ -45,7 +45,7 @@ class Plugin : public QObject, public PluginFactory
         return "DC1394 Image Pair Source";
     }
 
-    QObject *createObject (QObject *parent = Q_NULLPTR) const override {
+    QObject *createObject (QObject *parent = nullptr) const override {
         return new Source(parent);
     }
 };

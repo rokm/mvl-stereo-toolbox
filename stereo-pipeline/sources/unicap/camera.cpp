@@ -46,7 +46,7 @@ Camera::Camera (unicap_handle_t handle, QObject *parent)
     unicap_reenumerate_formats(handle, &num_formats);
     formats.resize(num_formats);
     for (int i = 0; i < num_formats; i++) {
-        unicap_enumerate_formats(handle, NULL, &formats[i], i);
+        unicap_enumerate_formats(handle, nullptr, &formats[i], i);
 
         if (formats[i].fourcc == FOURCC('Y', '8', '0', '0') ||
             formats[i].fourcc == FOURCC('B', 'G', 'R', '3')) {
@@ -64,7 +64,7 @@ Camera::Camera (unicap_handle_t handle, QObject *parent)
     unicap_reenumerate_properties(handle, &num_properties);
     properties.resize(num_properties);
     for (int i = 0; i < num_properties; i++) {
-        unicap_enumerate_properties(handle, NULL, &properties[i], i);
+        unicap_enumerate_properties(handle, nullptr, &properties[i], i);
     }
 
     // Use system buffers for capture; in this mode, unicap internally

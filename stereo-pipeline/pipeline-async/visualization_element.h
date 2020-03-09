@@ -40,7 +40,7 @@ class VisualizationElement : public Element
     Q_OBJECT
 
 public:
-    VisualizationElement (QObject *parent = Q_NULLPTR);
+    VisualizationElement (QObject *parent = nullptr);
     virtual ~VisualizationElement ();
 
     DisparityVisualization *getVisualization ();

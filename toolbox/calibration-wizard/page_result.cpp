@@ -46,7 +46,7 @@ class ClickableImageDisplayWidget : public Widgets::ImageDisplayWidget
     Q_OBJECT
 
 public:
-    ClickableImageDisplayWidget (const QString &text = QString(), QWidget *parent = Q_NULLPTR);
+    ClickableImageDisplayWidget (const QString &text = QString(), QWidget *parent = nullptr);
     virtual ~ClickableImageDisplayWidget ();
 
 protected:
@@ -80,7 +80,7 @@ class ClickableImagePairDisplayWidget : public Widgets::ImagePairDisplayWidget
     Q_OBJECT
 
 public:
-    ClickableImagePairDisplayWidget (const QString &text = QString(), QWidget *parent = Q_NULLPTR);
+    ClickableImagePairDisplayWidget (const QString &text = QString(), QWidget *parent = nullptr);
     virtual ~ClickableImagePairDisplayWidget ();
 
 protected:

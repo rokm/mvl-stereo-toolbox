@@ -160,7 +160,7 @@ void PropertyWidget::updateProperty ()
     camera->updateProperty(property);
 
     // Value
-    QWidget *valueWidget = NULL;
+    QWidget *valueWidget = nullptr;
     switch (type) {
         case TypeValue: {
             spinBoxValue->blockSignals(true);

@@ -38,7 +38,7 @@ class FeatureWidget : public QWidget
     Q_OBJECT
 
 public:
-    FeatureWidget (Camera *camera, const dc1394feature_info_t &feature, QWidget *parent = Q_NULLPTR);
+    FeatureWidget (Camera *camera, const dc1394feature_info_t &feature, QWidget *parent = nullptr);
     virtual ~FeatureWidget ();
 
 protected:

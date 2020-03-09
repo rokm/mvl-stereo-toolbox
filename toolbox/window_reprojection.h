@@ -43,7 +43,7 @@ class WindowReprojection : public QWidget
     Q_OBJECT
 
 public:
-    WindowReprojection (Pipeline::Pipeline *pipeline, QWidget *parent = Q_NULLPTR);
+    WindowReprojection (Pipeline::Pipeline *pipeline, QWidget *parent = nullptr);
     virtual ~WindowReprojection ();
 
 protected:

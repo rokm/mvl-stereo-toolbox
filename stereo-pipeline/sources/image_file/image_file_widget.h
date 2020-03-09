@@ -37,7 +37,7 @@ class ImageFileWidget : public QWidget
     Q_OBJECT
 
 public:
-    ImageFileWidget (ImageFile *file, QWidget *parent = Q_NULLPTR);
+    ImageFileWidget (ImageFile *file, QWidget *parent = nullptr);
     virtual ~ImageFileWidget ();
 
 protected:
@@ -56,7 +56,7 @@ class UrlDialog : public QDialog
     Q_OBJECT
 
 public:
-    UrlDialog (QWidget *parent = Q_NULLPTR);
+    UrlDialog (QWidget *parent = nullptr);
     virtual ~UrlDialog ();
 
     QString getUrl () const;

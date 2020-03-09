@@ -36,10 +36,10 @@ class ImageFile : public QObject
     Q_OBJECT
 
 public:
-    ImageFile (QObject *parent = Q_NULLPTR);
+    ImageFile (QObject *parent = nullptr);
     virtual ~ImageFile ();
 
-    QWidget *createConfigWidget (QWidget *parent = Q_NULLPTR);
+    QWidget *createConfigWidget (QWidget *parent = nullptr);
 
     const QString &getImageFilename ();
     int getImageWidth ();

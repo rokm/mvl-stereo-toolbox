@@ -43,11 +43,11 @@ class Camera : public QObject
     Q_OBJECT
 
 public:
-    Camera (cv::VideoCapture *capture, ocv_camera_id_t id, QObject *parent = Q_NULLPTR);
+    Camera (cv::VideoCapture *capture, ocv_camera_id_t id, QObject *parent = nullptr);
     virtual ~Camera ();
 
     // Config widget
-    QWidget *createConfigWidget (QWidget *parent = Q_NULLPTR);
+    QWidget *createConfigWidget (QWidget *parent = nullptr);
 
     // Camera identification
     const ocv_camera_id_t &getId () const;

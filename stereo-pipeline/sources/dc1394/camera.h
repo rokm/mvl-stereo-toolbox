@@ -39,11 +39,11 @@ class Camera : public QObject
     Q_OBJECT
 
 public:
-    Camera (dc1394camera_t *camera, QObject *parent = Q_NULLPTR);
+    Camera (dc1394camera_t *camera, QObject *parent = nullptr);
     virtual ~Camera ();
 
     // Config widget
-    QWidget *createConfigWidget (QWidget *parent = Q_NULLPTR);
+    QWidget *createConfigWidget (QWidget *parent = nullptr);
 
     // Camera identification
     dc1394camera_id_t getId () const;
@@ -117,7 +117,7 @@ class CameraCaptureWorker : public QObject
     Q_OBJECT
 
 public:
-    CameraCaptureWorker (dc1394camera_t *camera, QObject *parent = Q_NULLPTR);
+    CameraCaptureWorker (dc1394camera_t *camera, QObject *parent = nullptr);
     virtual ~CameraCaptureWorker ();
 
     void copyFrame (cv::Mat &frame);

@@ -37,7 +37,7 @@ class PropertyWidget : public QWidget
     Q_OBJECT
 
 public:
-    PropertyWidget (Camera *camera, const unicap_property_t &property, QWidget *parent = Q_NULLPTR);
+    PropertyWidget (Camera *camera, const unicap_property_t &property, QWidget *parent = nullptr);
     virtual ~PropertyWidget ();
 
 protected:

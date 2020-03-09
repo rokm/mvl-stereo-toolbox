@@ -36,7 +36,7 @@ public:
     virtual QString getShortName () const = 0;
 
     // Config widget
-    virtual QWidget *createConfigWidget (QWidget *parent = Q_NULLPTR) = 0;
+    virtual QWidget *createConfigWidget (QWidget *parent = nullptr) = 0;
 
     // Disparity image computation
     virtual void computeDisparity (const cv::Mat &img1, const cv::Mat &img2, cv::Mat &disparity, int &numDisparities) = 0;

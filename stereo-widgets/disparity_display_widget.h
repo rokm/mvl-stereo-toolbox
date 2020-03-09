@@ -38,7 +38,7 @@ class MVL_STEREO_WIDGETS_EXPORT DisparityDisplayWidget : public ImageDisplayWidg
     Q_DECLARE_PRIVATE(DisparityDisplayWidget)
 
 public:
-    DisparityDisplayWidget (const QString &text = QString(), QWidget *parent = Q_NULLPTR);
+    DisparityDisplayWidget (const QString &text = QString(), QWidget *parent = nullptr);
     virtual ~DisparityDisplayWidget ();
 
     void setDisparity (const cv::Mat &disparity);

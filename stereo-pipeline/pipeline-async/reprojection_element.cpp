@@ -51,7 +51,7 @@ ReprojectionElement::ReprojectionElement (QObject *parent)
         reprojection->deleteLater();
 
         // Clear pointer
-        reprojection = Q_NULLPTR;
+        reprojection = nullptr;
     }, Qt::BlockingQueuedConnection); // Connection must block!
 
     // Main worker function - executed in reprojection object's context,

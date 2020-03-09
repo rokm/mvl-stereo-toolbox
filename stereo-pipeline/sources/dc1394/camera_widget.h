@@ -36,7 +36,7 @@ class CameraWidget : public QWidget
     Q_OBJECT
 
 public:
-    CameraWidget (Camera *camera, QWidget *parent = Q_NULLPTR);
+    CameraWidget (Camera *camera, QWidget *parent = nullptr);
     virtual ~CameraWidget ();
 
 protected:

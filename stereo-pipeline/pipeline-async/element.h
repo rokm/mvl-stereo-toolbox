@@ -34,7 +34,7 @@ class Element : public QObject
     Q_OBJECT
 
 public:
-    Element (const QString &name, QObject *parent = Q_NULLPTR);
+    Element (const QString &name, QObject *parent = nullptr);
     virtual ~Element ();
 
     void setState (bool active);

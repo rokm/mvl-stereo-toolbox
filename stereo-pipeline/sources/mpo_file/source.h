@@ -35,13 +35,13 @@ class Source : public QObject, public ImagePairSource
     Q_INTERFACES(MVL::StereoToolbox::Pipeline::ImagePairSource)
 
 public:
-    Source (QObject *parent = Q_NULLPTR);
+    Source (QObject *parent = nullptr);
     virtual ~Source ();
 
     virtual QString getShortName () const override;
     virtual void getImages (cv::Mat &left, cv::Mat &right) const override;
     virtual void stopSource () override;
-    virtual QWidget *createConfigWidget (QWidget *parent = Q_NULLPTR) override;
+    virtual QWidget *createConfigWidget (QWidget *parent = nullptr) override;
 
     void openMpoFile (const QString &filename);
 

@@ -38,7 +38,7 @@ public:
     virtual void stopSource () = 0;
 
     // Config widget
-    virtual QWidget *createConfigWidget (QWidget *parent = Q_NULLPTR) = 0;
+    virtual QWidget *createConfigWidget (QWidget *parent = nullptr) = 0;
 
     // These are actually signals, but they are not allowed in non-QObject classes
 public:

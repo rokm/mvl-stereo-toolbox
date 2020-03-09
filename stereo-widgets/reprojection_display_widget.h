@@ -38,7 +38,7 @@ class MVL_STEREO_WIDGETS_EXPORT ReprojectionDisplayWidget : public ImageDisplayW
     Q_DECLARE_PRIVATE(ReprojectionDisplayWidget)
 
 public:
-    ReprojectionDisplayWidget (const QString &text = QString(), QWidget *parent = Q_NULLPTR);
+    ReprojectionDisplayWidget (const QString &text = QString(), QWidget *parent = nullptr);
     virtual ~ReprojectionDisplayWidget ();
 
     void setPoints (const cv::Mat &points);

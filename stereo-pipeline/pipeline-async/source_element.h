@@ -40,7 +40,7 @@ class SourceElement : public Element
     Q_OBJECT
 
 public:
-    SourceElement (QObject *parent = Q_NULLPTR);
+    SourceElement (QObject *parent = nullptr);
     virtual ~SourceElement ();
 
     void setImagePairSource (QObject *source);

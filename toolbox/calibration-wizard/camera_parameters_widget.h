@@ -35,7 +35,7 @@ class CameraParametersWidget : public QGroupBox
     Q_OBJECT
 
 public:
-    CameraParametersWidget (const QString &title = "Parameters", QWidget *parent = Q_NULLPTR);
+    CameraParametersWidget (const QString &title = "Parameters", QWidget *parent = nullptr);
     virtual ~CameraParametersWidget ();
 
     double getFocalLengthX () const;

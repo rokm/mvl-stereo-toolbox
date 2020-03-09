@@ -38,7 +38,7 @@ class CameraWidget : public QWidget
     Q_OBJECT
 
 public:
-    CameraWidget (Camera *camera, QWidget *parent = Q_NULLPTR);
+    CameraWidget (Camera *camera, QWidget *parent = nullptr);
     virtual ~CameraWidget ();
 
 protected:
@@ -71,7 +71,7 @@ class SizeWidget : public QWidget
     Q_OBJECT
 
 public:
-    SizeWidget (QWidget *parent = Q_NULLPTR);
+    SizeWidget (QWidget *parent = nullptr);
     virtual ~SizeWidget ();
 
     void setSize (const unicap_rect_t &size);

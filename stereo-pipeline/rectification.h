@@ -41,7 +41,7 @@ class MVL_STEREO_PIPELINE_EXPORT Rectification : public QObject
     QScopedPointer<RectificationPrivate> const d_ptr;
 
 public:
-    Rectification (QObject *parent = Q_NULLPTR);
+    Rectification (QObject *parent = nullptr);
     virtual ~Rectification ();
 
     void setStereoCalibration (const cv::Mat &cameraMatrix1, const cv::Mat &distCoeffs1, const cv::Mat &cameraMatrix2, const cv::Mat &distCoeffs2, const cv::Mat &rotation, const cv::Mat &translation, const cv::Size &imageSize, bool zeroDisparity, double alpha);

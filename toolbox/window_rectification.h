@@ -53,7 +53,7 @@ class WindowRectification : public QWidget
     Q_OBJECT
 
 public:
-    WindowRectification (Pipeline::Pipeline *pipeline, QWidget *parent = Q_NULLPTR);
+    WindowRectification (Pipeline::Pipeline *pipeline, QWidget *parent = nullptr);
     virtual ~WindowRectification ();
 
 protected:
@@ -114,7 +114,7 @@ class RectificationSettingsDialog : public QDialog
     Q_OBJECT
 
 public:
-    RectificationSettingsDialog (QWidget *parent = Q_NULLPTR);
+    RectificationSettingsDialog (QWidget *parent = nullptr);
     virtual ~RectificationSettingsDialog();
 
     void setAlpha (float alpha);

@@ -31,8 +31,8 @@ namespace SourceUnicap {
 Source::Source (QObject *parent)
     : QAbstractListModel(parent), ImagePairSource(),
       singleCameraMode(false),
-      leftCamera(Q_NULLPTR),
-      rightCamera(Q_NULLPTR)
+      leftCamera(nullptr),
+      rightCamera(nullptr)
 {
     // Enumerate cameras
     //refreshCameraList();
@@ -121,7 +121,7 @@ void Source::refreshCameraList ()
         beginInsertRows(QModelIndex(), 1, num_devices);
 
         for (int i = 0; i < num_devices; i++) {
-            status = unicap_enumerate_devices(NULL, &entries[i], i);
+            status = unicap_enumerate_devices(nullptr, &entries[i], i);
             if (!SUCCESS(status)) {
                 qWarning() << "Failed to query device" << i;
             }
@@ -226,7 +226,7 @@ void Source::releaseCamera (Camera *& camera)
 
         // Delete camera object
         camera->deleteLater();
-        camera = NULL;
+        camera = nullptr;
 
         // Mark camera as inactive in our list
         setActive(device, false);

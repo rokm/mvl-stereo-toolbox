@@ -36,7 +36,7 @@ class MethodWidget : public QWidget
     Q_OBJECT
 
 public:
-    MethodWidget (Method *method, QWidget *parent = Q_NULLPTR);
+    MethodWidget (Method *method, QWidget *parent = nullptr);
     virtual ~MethodWidget ();
 
 protected:

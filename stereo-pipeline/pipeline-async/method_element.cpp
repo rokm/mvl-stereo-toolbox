@@ -31,9 +31,9 @@ namespace AsyncPipeline {
 
 MethodElement::MethodElement (QObject *parent)
     : Element("StereoMethod", parent),
-      methodObject(Q_NULLPTR),
-      methodParent(Q_NULLPTR),
-      methodIface(Q_NULLPTR)
+      methodObject(nullptr),
+      methodParent(nullptr),
+      methodIface(nullptr)
 {
     // Update time and FPS statistics (local loop)
     connect(this, &MethodElement::disparityChanged, this, &MethodElement::incrementUpdateCount);
@@ -64,7 +64,7 @@ void MethodElement::setStereoMethod (QObject *newMethod)
     methodIface = newMethodIface;
 
     methodParent = methodObject->parent(); // Store parent
-    methodObject->setParent(Q_NULLPTR);
+    methodObject->setParent(nullptr);
 
     methodObject->moveToThread(thread);
 
@@ -94,9 +94,9 @@ void MethodElement::setStereoMethod (QObject *newMethod)
         // Clear pointers
         signalConnections.clear();
 
-        methodObject = Q_NULLPTR;
-        methodParent = Q_NULLPTR;
-        methodIface = Q_NULLPTR;
+        methodObject = nullptr;
+        methodParent = nullptr;
+        methodIface = nullptr;
 
         // Clear cached image
         QWriteLocker locker(&lock);

@@ -436,7 +436,7 @@ void CameraCaptureWorker::stopCapture ()
     // Cleanup
     disconnect(frameNotifier, &QSocketNotifier::activated, this, &CameraCaptureWorker::grabFrame);
     delete frameNotifier;
-    frameNotifier = NULL;
+    frameNotifier = nullptr;
 
     ret = dc1394_video_set_transmission(camera, DC1394_OFF);
     if (ret) {

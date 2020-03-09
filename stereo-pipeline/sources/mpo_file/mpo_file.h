@@ -106,11 +106,11 @@ class MpFile : public QObject
 
 protected:
     QScopedPointer<MpFilePrivate> const d_ptr;
-    MpFile (MpFilePrivate *d, QObject *parent = Q_NULLPTR);
+    MpFile (MpFilePrivate *d, QObject *parent = nullptr);
 
 public:
-    MpFile (QObject *parent = Q_NULLPTR);
-    MpFile (const QString &filename, QObject *parent = Q_NULLPTR);
+    MpFile (QObject *parent = nullptr);
+    MpFile (const QString &filename, QObject *parent = nullptr);
 
     virtual ~MpFile ();
 

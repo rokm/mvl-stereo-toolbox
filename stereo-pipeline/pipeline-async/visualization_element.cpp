@@ -54,7 +54,7 @@ VisualizationElement::VisualizationElement (QObject *parent)
         visualization->deleteLater();
 
         // Clear pointer
-        visualization = Q_NULLPTR;
+        visualization = nullptr;
     }, Qt::BlockingQueuedConnection); // Connection must block!
 
     // Main worker function - executed in visualization object's context,

@@ -42,7 +42,7 @@ class PageImages : public QWizardPage
     Q_PROPERTY(bool liveCapture READ getLiveCapture)
 
 public:
-    PageImages (const QString &fieldPrefix, QWidget *parent = Q_NULLPTR);
+    PageImages (const QString &fieldPrefix, QWidget *parent = nullptr);
     virtual ~PageImages ();
 
     bool getLiveCapture () const;
@@ -90,7 +90,7 @@ class PageSingleCameraImages : public PageImages
     Q_OBJECT
 
 public:
-    PageSingleCameraImages (QWidget *parent = Q_NULLPTR);
+    PageSingleCameraImages (QWidget *parent = nullptr);
     virtual ~PageSingleCameraImages ();
 
     virtual int nextId () const override;
@@ -108,7 +108,7 @@ class PageLeftCameraImages : public PageImages
     Q_PROPERTY(bool skipCalibration READ getSkipCalibration WRITE setSkipCalibration)
 
 public:
-    PageLeftCameraImages (QWidget *parent = Q_NULLPTR);
+    PageLeftCameraImages (QWidget *parent = nullptr);
     virtual ~PageLeftCameraImages ();
 
     virtual int nextId () const override;
@@ -137,7 +137,7 @@ class PageRightCameraImages : public PageImages
     Q_PROPERTY(bool skipCalibration READ getSkipCalibration WRITE setSkipCalibration)
 
 public:
-    PageRightCameraImages (QWidget *parent = Q_NULLPTR);
+    PageRightCameraImages (QWidget *parent = nullptr);
     virtual ~PageRightCameraImages ();
 
     virtual void initializePage () override;
@@ -167,7 +167,7 @@ class PageStereoImages : public PageImages
     Q_PROPERTY(int imagesOrder READ getImagesOrder WRITE setImagesOrder)
 
 public:
-    PageStereoImages (QWidget *parent = Q_NULLPTR);
+    PageStereoImages (QWidget *parent = nullptr);
     virtual ~PageStereoImages ();
 
     virtual int nextId () const override;

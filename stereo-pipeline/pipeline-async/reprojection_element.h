@@ -40,7 +40,7 @@ class ReprojectionElement : public Element
     Q_OBJECT
 
 public:
-    ReprojectionElement (QObject *parent = Q_NULLPTR);
+    ReprojectionElement (QObject *parent = nullptr);
     virtual ~ReprojectionElement ();
 
     Reprojection *getReprojection ();

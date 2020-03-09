@@ -37,11 +37,11 @@ class Camera : public QObject
     Q_OBJECT
 
 public:
-    Camera (unicap_handle_t handle, QObject *parent = Q_NULLPTR);
+    Camera (unicap_handle_t handle, QObject *parent = nullptr);
     virtual ~Camera ();
 
     // Config widget
-    QWidget *createConfigWidget (QWidget *parent = Q_NULLPTR);
+    QWidget *createConfigWidget (QWidget *parent = nullptr);
 
     // Camera identification
     unicap_device_t getDevice () const;

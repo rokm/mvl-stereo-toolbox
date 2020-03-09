@@ -42,10 +42,10 @@ class MVL_STEREO_WIDGETS_EXPORT ImageDisplayWidget : public QFrame
 
 protected:
     QScopedPointer<ImageDisplayWidgetPrivate> const d_ptr;
-    ImageDisplayWidget (ImageDisplayWidgetPrivate *d, const QString &text = QString(), QWidget *parent = Q_NULLPTR);
+    ImageDisplayWidget (ImageDisplayWidgetPrivate *d, const QString &text = QString(), QWidget *parent = nullptr);
 
 public:
-    ImageDisplayWidget (const QString &text = QString(), QWidget *parent = Q_NULLPTR);
+    ImageDisplayWidget (const QString &text = QString(), QWidget *parent = nullptr);
     virtual ~ImageDisplayWidget ();
 
     virtual void setImage (const cv::Mat &image);

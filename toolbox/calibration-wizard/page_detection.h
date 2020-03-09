@@ -53,7 +53,7 @@ class PageDetection : public QWizardPage
     Q_PROPERTY(cv::Size imageSize READ getImageSize WRITE setImageSize)
 
 public:
-    PageDetection (const QString &fieldPrefix, Pipeline::Pipeline *pipeline, QWidget *parent = Q_NULLPTR);
+    PageDetection (const QString &fieldPrefix, Pipeline::Pipeline *pipeline, QWidget *parent = nullptr);
     virtual ~PageDetection ();
 
     void setStoreAcceptedImages (bool enable);
@@ -142,8 +142,8 @@ class PageSingleCameraDetection : public PageDetection
     Q_PROPERTY(cv::Mat lastProcessedImage READ getLastProcessedImage)
 
 public:
-    PageSingleCameraDetection (Pipeline::Pipeline *pipeline, QWidget *parent = Q_NULLPTR);
-    PageSingleCameraDetection (const QString &fieldPrefix, Pipeline::Pipeline *pipeline, QWidget *parent = Q_NULLPTR);
+    PageSingleCameraDetection (Pipeline::Pipeline *pipeline, QWidget *parent = nullptr);
+    PageSingleCameraDetection (const QString &fieldPrefix, Pipeline::Pipeline *pipeline, QWidget *parent = nullptr);
 
     virtual ~PageSingleCameraDetection ();
 
@@ -182,7 +182,7 @@ class PageLeftCameraDetection : public PageSingleCameraDetection
     Q_OBJECT
 
 public:
-    PageLeftCameraDetection (Pipeline::Pipeline *pipeline, QWidget *parent = Q_NULLPTR);
+    PageLeftCameraDetection (Pipeline::Pipeline *pipeline, QWidget *parent = nullptr);
     virtual ~PageLeftCameraDetection ();
 
     virtual int nextId () const override;
@@ -200,7 +200,7 @@ class PageRightCameraDetection : public PageSingleCameraDetection
     Q_OBJECT
 
 public:
-    PageRightCameraDetection (Pipeline::Pipeline *pipeline, QWidget *parent = Q_NULLPTR);
+    PageRightCameraDetection (Pipeline::Pipeline *pipeline, QWidget *parent = nullptr);
     virtual ~PageRightCameraDetection ();
 
     virtual int nextId () const override;
@@ -223,7 +223,7 @@ class PageStereoDetection : public PageDetection
     Q_PROPERTY(cv::Mat lastProcessedImageRight READ getLastProcessedImageRight)
 
 public:
-    PageStereoDetection (Pipeline::Pipeline *pipeline, QWidget *parent = Q_NULLPTR);
+    PageStereoDetection (Pipeline::Pipeline *pipeline, QWidget *parent = nullptr);
     virtual ~PageStereoDetection ();
 
     cv::Mat getLastProcessedImageLeft () const;

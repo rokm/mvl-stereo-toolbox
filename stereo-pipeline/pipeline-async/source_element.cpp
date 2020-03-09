@@ -30,9 +30,9 @@ namespace AsyncPipeline {
 
 SourceElement::SourceElement (QObject *parent)
     : Element("ImagePairSource", parent),
-      sourceObject(Q_NULLPTR),
-      sourceParent(Q_NULLPTR),
-      sourceIface(Q_NULLPTR),
+      sourceObject(nullptr),
+      sourceParent(nullptr),
+      sourceIface(nullptr),
       framerateLimit(0.0)
 {
     // Update time and FPS statistics (local loop)
@@ -64,7 +64,7 @@ void SourceElement::setImagePairSource (QObject *newSource)
     sourceIface = newSourceIface;
 
     sourceParent = sourceObject->parent(); // Store parent
-    sourceObject->setParent(Q_NULLPTR);
+    sourceObject->setParent(nullptr);
 
     sourceObject->moveToThread(thread);
 
@@ -111,9 +111,9 @@ void SourceElement::setImagePairSource (QObject *newSource)
         // Clear pointers
         signalConnections.clear();
 
-        sourceObject = Q_NULLPTR;
-        sourceParent = Q_NULLPTR;
-        sourceIface = Q_NULLPTR;
+        sourceObject = nullptr;
+        sourceParent = nullptr;
+        sourceIface = nullptr;
 
         // Clear cached image
         QWriteLocker locker(&lock);

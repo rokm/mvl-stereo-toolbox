@@ -47,7 +47,7 @@ class Toolbox : public QWidget
     Q_OBJECT
 
 public:
-    Toolbox (QWidget *parent = Q_NULLPTR);
+    Toolbox (QWidget *parent = nullptr);
     virtual ~Toolbox ();
 
 protected:
