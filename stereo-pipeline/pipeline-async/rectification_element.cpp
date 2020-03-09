@@ -62,14 +62,11 @@ RectificationElement::RectificationElement (QObject *parent)
         threadData.timer.start();
         try {
             rectification->rectifyImagePair(imageLeft, imageRight, threadData.imageL, threadData.imageR);
-        } catch (const QString &message) {
-            emit error(message);
-            return;
-        } catch (const std::exception &exception) {
-            emit error("Exception: " + QString::fromStdString(exception.what()));
+        } catch (const std::exception &e) {
+            emit error(QString::fromStdString(e.what()));
             return;
         } catch (...) {
-            emit error("Unknown exception");
+            emit error("Unhandled exception type!");
             return;
         }
 

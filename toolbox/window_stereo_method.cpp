@@ -232,7 +232,7 @@ void WindowStereoMethod::updateStatusBar ()
         statusBar->showMessage(QString("Disparity: %1x%2, %3. FPS: %4, dropped %5 frames, operation time: %6 ms.")
             .arg(disparityInfo.width)
             .arg(disparityInfo.height)
-            .arg(Utils::cvDepthToString(disparityInfo.depth))
+            .arg(Pipeline::Utils::cvDepthToString(disparityInfo.depth))
             .arg(estimatedFps, 0, 'f' , 2)
             .arg(numDroppedFrames)
             .arg(pipeline->getStereoMethodTime())
@@ -289,15 +289,15 @@ void WindowStereoMethod::saveImage ()
             try {
                 cv::FileStorage fs(fileName.toStdString(), cv::FileStorage::WRITE);
                 fs << "disparity" << disparity;
-            } catch (const cv::Exception &e) {
-                QMessageBox::warning(this, "Error", "Failed to save matrix: " + QString::fromStdString(e.what()));
+            } catch (const std::exception &e) {
+                QMessageBox::warning(this, "Error", QStringLiteral("Failed to save matrix: %1").arg(QString::fromStdString(e.what())));
             }
         } else if (ext == "bin") {
             // Save raw disparity in custom binary matrix format
             try {
-                Utils::writeMatrixToBinaryFile(disparity, fileName);
-            } catch (const QString &e) {
-                QMessageBox::warning(this, "Error", "Failed to save binary file: " + e);
+                Pipeline::Utils::writeMatrixToBinaryFile(disparity, fileName);
+            } catch (const std::exception &e) {
+                QMessageBox::warning(this, "Error", QStringLiteral("Failed to save binary file: %1").arg(QString::fromStdString(e.what())));
             }
         } else {
             // Save disparity visualization as image using cv::imwrite
@@ -308,8 +308,8 @@ void WindowStereoMethod::saveImage ()
 
             try {
                 cv::imwrite(fileName.toStdString(), visualization);
-            } catch (const cv::Exception &e) {
-                QMessageBox::warning(this, "Error", "Failed to save image: " + QString::fromStdString(e.what()));
+            } catch (const std::exception &e) {
+                QMessageBox::warning(this, "Error", QStringLiteral("Failed to save image: %1").arg(QString::fromStdString(e.what())));
             }
         }
 
@@ -327,8 +327,8 @@ void WindowStereoMethod::importParameters ()
     if (!fileName.isNull()) {
         try {
             pipeline->loadStereoMethodParameters(fileName);
-        } catch (QString &e) {
-            QMessageBox::warning(this, "Error", "Failed to import parameters: " + e);
+        } catch (const std::exception &e) {
+            QMessageBox::warning(this, "Error", QStringLiteral("Failed to import parameters: %1").arg(e.what()));
         }
     }
 }
@@ -339,8 +339,8 @@ void WindowStereoMethod::exportParameters ()
     if (!fileName.isNull()) {
         try {
             pipeline->saveStereoMethodParameters(fileName);
-        } catch (QString &e) {
-            QMessageBox::warning(this, "Error", "Failed to export parameters: " + e);
+        } catch (const std::exception &e) {
+            QMessageBox::warning(this, "Error", QStringLiteral("Failed to export parameters: %1").arg(QString::fromStdString(e.what())));
         }
     }
 }

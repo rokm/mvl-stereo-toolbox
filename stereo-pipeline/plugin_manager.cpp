@@ -17,8 +17,8 @@
  *
  */
 
-#include <stereo-pipeline/plugin_manager.h>
-#include <stereo-pipeline/plugin_factory.h>
+#include "plugin_manager.h"
+#include "plugin_factory.h"
 
 
 #include "plugin_manager_p.h"

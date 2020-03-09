@@ -17,15 +17,15 @@
  *
  */
 
-#include <stereo-pipeline/pipeline.h>
+#include "pipeline.h"
 
-#include <stereo-pipeline/disparity_visualization.h>
-#include <stereo-pipeline/image_pair_source.h>
-#include <stereo-pipeline/plugin_factory.h>
-#include <stereo-pipeline/rectification.h>
-#include <stereo-pipeline/reprojection.h>
-#include <stereo-pipeline/stereo_method.h>
-#include <stereo-pipeline/utils.h>
+#include "disparity_visualization.h"
+#include "image_pair_source.h"
+#include "plugin_factory.h"
+#include "rectification.h"
+#include "reprojection.h"
+#include "stereo_method.h"
+#include "utils.h"
 
 #include <QtConcurrent>
 

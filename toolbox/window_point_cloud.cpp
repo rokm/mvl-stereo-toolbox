@@ -106,9 +106,9 @@ void WindowPointCloud::savePointCloud ()
         }
 
         try {
-            Utils::writePointCloudToPcdFile(image, points, fileName, selectedFilter == fileFilters[0]);
-        } catch (const QString &e) {
-            QMessageBox::warning(this, "Error", "Failed to save point cloud: " + e);
+            Pipeline::Utils::writePointCloudToPcdFile(image, points, fileName, selectedFilter == fileFilters[0]);
+        } catch (const std::exception &e) {
+            QMessageBox::warning(this, "Error", QStringLiteral("Failed to save point cloud: %1").arg(QString::fromStdString(e.what())));
         }
 
         lastSavedFile = fileName;

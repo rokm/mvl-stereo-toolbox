@@ -94,15 +94,15 @@ void Source::openVideoFile (const QString &filename)
     // Open video file
     try {
         video.open(filename.toStdString());
-    } catch (std::exception &e) {
-        emit error(QString("Error while opening video '%1': %2").arg(filename).arg(QString::fromStdString(e.what())));
+    } catch (const std::exception &e) {
+        emit error(QStringLiteral("Error while opening video '%1': %2").arg(filename).arg(QString::fromStdString(e.what())));
         emit videoFileChanged(false);
         return;
     }
 
     // Make sure video was indeed opened
     if (!video.isOpened()) {
-        emit error(QString("Failed to open video '%1'").arg(filename));
+        emit error(QStringLiteral("Failed to open video '%1'").arg(filename));
         emit videoFileChanged(false);
         return;
     }

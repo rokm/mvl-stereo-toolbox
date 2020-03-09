@@ -19,6 +19,7 @@
 
 #include "method_element.h"
 
+#include <stereo-pipeline/exception.h>
 #include <stereo-pipeline/stereo_method.h>
 
 
@@ -116,14 +117,11 @@ void MethodElement::setStereoMethod (QObject *newMethod)
         threadData.timer.start();
         try {
             methodIface->computeDisparity(imageL, imageR, threadData.disparity, threadData.numDisparityLevels);
-        } catch (const QString &message) {
-            emit error(message);
-            return;
-        } catch (const std::exception &exception) {
-            emit error("Exception: " + QString::fromStdString(exception.what()));
+        } catch (const std::exception &e) {
+            emit error(QString::fromStdString(e.what()));
             return;
         } catch (...) {
-            emit error("Unknown exception");
+            emit error("Unhandled exception type!");
             return;
         }
 
@@ -162,7 +160,7 @@ QObject *MethodElement::getStereoMethod ()
 void MethodElement::loadParameters (const QString &filename)
 {
     if (!methodIface) {
-        throw QString("Method not set!");
+        throw Exception(QStringLiteral("Method not set!"));
     }
 
     QMutexLocker locker(&mutex);
@@ -172,7 +170,7 @@ void MethodElement::loadParameters (const QString &filename)
 void MethodElement::saveParameters (const QString &filename) const
 {
     if (!methodIface) {
-        throw QString("Method not set!");
+        throw Exception(QStringLiteral("Method not set!"));
     }
 
     QMutexLocker locker(&mutex);

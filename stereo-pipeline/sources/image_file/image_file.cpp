@@ -95,8 +95,8 @@ void ImageFile::loadLocalImage ()
         // Load both images and amit the change signal
         QWriteLocker locker(&frameBufferLock);
         frameBuffer = cv::imread(fileNameOrUrl.toStdString(), cv::IMREAD_ANYCOLOR);
-    } catch (std::exception &e) {
-        imageLoadingError(QString("Error while loading images: %1").arg(QString::fromStdString(e.what())));
+    } catch (const std::exception &e) {
+        imageLoadingError(QStringLiteral("Error while loading images: %1").arg(QString::fromStdString(e.what())));
     }
 
     emit imageReady();
@@ -119,7 +119,7 @@ void ImageFile::processRemoteReply (QNetworkReply *reply)
     waitingForReply = false;
 
     if (reply->error() != QNetworkReply::NoError) {
-        imageLoadingError(QString("Error while retrieving left image; network error code %1").arg(reply->error()));
+        imageLoadingError(QStringLiteral("Error while retrieving left image; network error code %1").arg(reply->error()));
     } else {
         QByteArray payload = reply->readAll();
         reply->deleteLater();
@@ -128,8 +128,8 @@ void ImageFile::processRemoteReply (QNetworkReply *reply)
         try {
             QWriteLocker locker(&frameBufferLock);
             cv::imdecode(cv::Mat(1, payload.size(), CV_8UC1, payload.data()), cv::IMREAD_ANYCOLOR, &frameBuffer);
-        } catch (std::exception &e) {
-            imageLoadingError(QString("Error while decoding retrieved image: %1").arg(QString::fromStdString(e.what())));
+        } catch (const std::exception &e) {
+            imageLoadingError(QStringLiteral("Error while decoding retrieved image: %1").arg(QString::fromStdString(e.what())));
         }
     }
 

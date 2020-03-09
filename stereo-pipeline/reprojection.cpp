@@ -17,7 +17,7 @@
  *
  */
 
-#include <stereo-pipeline/reprojection.h>
+#include "reprojection.h"
 
 #include <opencv2/opencv_modules.hpp>
 #include <opencv2/calib3d.hpp>

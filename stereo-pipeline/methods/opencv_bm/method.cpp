@@ -20,6 +20,8 @@
 #include "method.h"
 #include "method_widget.h"
 
+#include <stereo-pipeline/exception.h>
+
 #include <opencv2/imgproc.hpp>
 
 
@@ -156,19 +158,19 @@ void Method::loadParameters (const QString &filename)
     // Open storage
     cv::FileStorage storage(filename.toStdString(), cv::FileStorage::READ);
     if (!storage.isOpened()) {
-        throw QString("Cannot open file \"%1\" for reading!").arg(filename);
+        throw Exception(QStringLiteral("Cannot open file '%1' for reading!").arg(filename));
     }
 
     // Validate data type
     QString dataType = QString::fromStdString(storage["DataType"]);
     if (dataType.compare("StereoMethodParameters")) {
-        throw QString("Invalid stereo method parameters configuration!");
+        throw Exception(QStringLiteral("Invalid stereo method parameters configuration!"));
     }
 
     // Validate method name
     QString storedName = QString::fromStdString(storage["MethodName"]);
     if (storedName.compare(getShortName())) {
-        throw QString("Invalid configuration for method \"%1\"!").arg(getShortName());
+        throw Exception(QStringLiteral("Invalid configuration for method '%1'!").arg(getShortName()));
     }
 
     // Load parameters
@@ -198,7 +200,7 @@ void Method::saveParameters (const QString &filename) const
 {
     cv::FileStorage storage(filename.toStdString(), cv::FileStorage::WRITE);
     if (!storage.isOpened()) {
-        throw QString("Cannot open file \"%1\" for writing!").arg(filename);
+        throw Exception(QStringLiteral("Cannot open file '%1' for writing!").arg(filename));
     }
 
     // Data type

@@ -28,7 +28,9 @@
 
 namespace MVL {
 namespace StereoToolbox {
+namespace Pipeline {
 namespace Utils {
+
 
 // Helpers
 MVL_STEREO_PIPELINE_EXPORT QString cvDepthToString (int depth);
@@ -46,6 +48,7 @@ MVL_STEREO_PIPELINE_EXPORT void writePointCloudToPcdFile (const cv::Mat &image, 
 
 
 } // Utils
+} // Pipeline
 } // StereoToolbox
 } // MVL
 

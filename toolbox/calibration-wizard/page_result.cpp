@@ -623,8 +623,8 @@ void PageStereoResult::exportCalibration ()
                 field(fieldPrefix + "RectificationZeroDisparity").value<bool>(),
                 field(fieldPrefix + "RectificationAlpha").value<double>()
             );
-        } catch (QString &e) {
-            QMessageBox::warning(this, "Error", "Failed to export calibration: " + e);
+        } catch (const std::exception &e) {
+            QMessageBox::warning(this, "Error", QStringLiteral("Failed to export calibration: %1").arg(QString::fromStdString(e.what())));
         }
     }
 }

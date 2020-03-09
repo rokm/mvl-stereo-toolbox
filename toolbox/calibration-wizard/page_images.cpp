@@ -311,7 +311,7 @@ static void importCameraCalibration (const QString &filename, bool leftCamera, c
     // Load
     cv::FileStorage storage(filename.toStdString(), cv::FileStorage::READ);
     if (!storage.isOpened()) {
-        throw QString("Failed to open file '%1' for reading!").arg(filename);
+        throw std::runtime_error(QStringLiteral("Failed to open file '%1' for reading!").arg(filename).toStdString());
     }
 
     // Validate data type
@@ -334,7 +334,7 @@ static void importCameraCalibration (const QString &filename, bool leftCamera, c
         storage["imageSize"] >> size;
         imageSize = cv::Size(size[0], size[1]);
     } else {
-        throw QString("Invalid calibration data!");
+        throw std::runtime_error("Invalid calibration data!");
     }
 }
 
@@ -450,8 +450,8 @@ void PageLeftCameraImages::setVisible (bool visible)
 
             try {
                 importCameraCalibration(fileName, true, cameraMatrix, distCoeffs, imageSize);
-            } catch (const QString &message) {
-                QMessageBox::warning(this, "Import error", QString("Failed to import calibration: %1").arg(message));
+            } catch (const std::exception &e) {
+                QMessageBox::warning(this, "Import error", QStringLiteral("Failed to import calibration: %1").arg(QString::fromStdString(e.what())));
                 return;
             }
 
@@ -564,8 +564,8 @@ void PageRightCameraImages::setVisible (bool visible)
 
             try {
                 importCameraCalibration(fileName, false, cameraMatrix, distCoeffs, imageSize);
-            } catch (const QString &message) {
-                QMessageBox::warning(this, "Import error", QString("Failed to import calibration: %1").arg(message));
+            } catch (const std::exception &e) {
+                QMessageBox::warning(this, "Import error", QStringLiteral("Failed to import calibration: %1").arg(QString::fromStdString(e.what())));
                 return;
             }
 

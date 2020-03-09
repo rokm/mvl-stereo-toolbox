@@ -20,6 +20,8 @@
 #include "source.h"
 #include "source_widget.h"
 
+#include <stereo-pipeline/exception.h>
+
 #include "mpo_file.h"
 
 
@@ -101,13 +103,13 @@ static void loadDisparityMpo (const QString &filename, cv::Mat &imageLeft, cv::M
         Mpo::MpImageAttributeMap::ConstIterator iter;
         iter = info.attributes.constFind(Mpo::MpImageAttribute::MPIndividualNum);
         if (iter == info.attributes.constEnd()) {
-            throw QString("'MPIndividualNum' attribute missing!");
+            throw Exception(QStringLiteral("'MPIndividualNum' attribute missing!"));
         }
         entry.number = iter.value().value<quint32>();
 
         iter = info.attributes.constFind(Mpo::MpImageAttribute::BaseViewpointNum);
         if (iter == info.attributes.constEnd()) {
-            throw QString("'BaseViewpointNum' attribute missing!");
+            throw Exception(QStringLiteral("'BaseViewpointNum' attribute missing!"));
         }
         entry.baseViewNumber = iter.value().value<quint32>();
 
@@ -120,11 +122,11 @@ static void loadDisparityMpo (const QString &filename, cv::Mat &imageLeft, cv::M
     }
 
     if (disparityImages.size() < 2) {
-        throw QStringLiteral("MPO file contains fewer than 2 disparity images!");
+        throw Exception(QStringLiteral("MPO file contains fewer than 2 disparity images!"));
     }
 
     if (baseIdx == -1) {
-        throw QStringLiteral("Could not determine base viewpoint!");
+        throw Exception(QStringLiteral("Could not determine base viewpoint!"));
     }
 
     // Find the first viewpoint that corresponds to our base viewpoint
@@ -136,7 +138,7 @@ static void loadDisparityMpo (const QString &filename, cv::Mat &imageLeft, cv::M
     }
 
     if (otherIdx == -1) {
-        throw QStringLiteral("Could not find other viewpoint!");
+        throw Exception(QStringLiteral("Could not find other viewpoint!"));
     }
 
     // Load images
@@ -164,8 +166,8 @@ void Source::openMpoFile (const QString &filename)
     cv::Mat tmpLeft, tmpRight;
     try {
         loadDisparityMpo(filename, tmpLeft, tmpRight);
-    } catch (const QString &message) {
-        emit error(QString("Failed to load disparity MP file: %1").arg(message));
+    } catch (const std::exception &e) {
+        emit error(QStringLiteral("Failed to load disparity MP file: %1").arg(QString::fromStdString(e.what())));
         return;
     }
 

@@ -211,7 +211,7 @@ void WindowRectification::updateImage ()
         displayPair->setImagePair(imageL, imageR);
     } else if (visualizationType == VisualizationAnaglyph) {
         // Anaglyph
-        Utils::createAnaglyph(imageL, imageR, anaglyphImage);
+        Pipeline::Utils::createAnaglyph(imageL, imageR, anaglyphImage);
         displayPair->setImage(anaglyphImage);
     }
 
@@ -300,8 +300,8 @@ void WindowRectification::importCalibration ()
         lastCalibrationFilename = fileName; // Store filename
         try {
             rectification->loadStereoCalibration(fileName);
-        } catch (QString &e) {
-            QMessageBox::warning(this, "Error", "Failed to import calibration: " + e);
+        } catch (const std::exception &e) {
+            QMessageBox::warning(this, "Error", QStringLiteral("Failed to import calibration: %1").arg(QString::fromStdString(e.what())));
         }
     }
 }
@@ -320,8 +320,8 @@ void WindowRectification::exportCalibration ()
 
         try {
             rectification->saveStereoCalibration(fileName);
-        } catch (QString &e) {
-            QMessageBox::warning(this, "Error", "Failed to export calibration: " + e);
+        } catch (const std::exception &e) {
+            QMessageBox::warning(this, "Error", QStringLiteral("Failed to export calibration: %1").arg(QString::fromStdString(e.what())));
         }
     }
 }
@@ -394,19 +394,19 @@ void WindowRectification::saveImages ()
         try {
             cv::imwrite(fileNameLeft.toStdString(), imageLeft);
             cv::imwrite(fileNameRight.toStdString(), imageRight);
-        } catch (const cv::Exception &e) {
-            QMessageBox::warning(this, "Error", "Failed to save rectified image pair: " + QString::fromStdString(e.what()));
+        } catch (const std::exception &e) {
+            QMessageBox::warning(this, "Error", QStringLiteral("Failed to save rectified image pair: %1").arg(QString::fromStdString(e.what())));
         }
     } else if (visualizationType == VisualizationAnaglyph) {
         QString fileNameAnaglyph = tmpFileName.absolutePath() + "/" + tmpFileName.baseName() + "." + ext;
 
         cv::Mat anaglyph;
-        Utils::createAnaglyph(imageLeft, imageRight, anaglyph);
+        Pipeline::Utils::createAnaglyph(imageLeft, imageRight, anaglyph);
 
         try {
             cv::imwrite(fileNameAnaglyph.toStdString(), anaglyph);
-        } catch (const cv::Exception &e) {
-            QMessageBox::warning(this, "Error", "Failed to save anaglyph: " + QString::fromStdString(e.what()));
+        } catch (const std::exception &e) {
+            QMessageBox::warning(this, "Error", QStringLiteral("Failed to save anaglyph: %1").arg(QString::fromStdString(e.what())));
         }
     }
 }

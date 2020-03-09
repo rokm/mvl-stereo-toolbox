@@ -17,8 +17,8 @@
  *
  */
 
-#include <stereo-pipeline/disparity_visualization.h>
-#include <stereo-pipeline/utils.h>
+#include "disparity_visualization.h"
+#include "utils.h"
 
 #include <opencv2/opencv_modules.hpp>
 

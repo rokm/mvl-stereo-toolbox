@@ -62,14 +62,11 @@ ReprojectionElement::ReprojectionElement (QObject *parent)
         threadData.timer.start();
         try {
             reprojection->reprojectDisparity(disparity, threadData.points);
-        } catch (const QString &message) {
-            emit error(message);
-            return;
-        } catch (const std::exception &exception) {
-            emit error("Exception: " + QString::fromStdString(exception.what()));
+        } catch (const std::exception &e) {
+            emit error(QString::fromStdString(e.what()));
             return;
         } catch (...) {
-            emit error("Unknown exception");
+            emit error("Unhandled exception type!");
             return;
         }
 

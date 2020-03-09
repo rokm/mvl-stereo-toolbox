@@ -27,6 +27,7 @@ find_package(Qt5Concurrent REQUIRED)
 set(pipeline_SOURCES
     calibration_pattern.cpp
     disparity_visualization.cpp
+    exception.cpp
     pipeline.cpp
     plugin_manager.cpp
     rectification.cpp
@@ -43,6 +44,7 @@ set(pipeline_SOURCES
 set(pipeline_HEADERS
     calibration_pattern.h
     disparity_visualization.h
+    exception.h
     image_pair_source.h
     plugin_factory.h
     plugin_manager.h

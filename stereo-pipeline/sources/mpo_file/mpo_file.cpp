@@ -31,8 +31,36 @@ namespace Mpo {
 // Raw IFD structure
 typedef QHash< quint16, QPair<quint16, QVariant> > MpRawIfd;
 
-
 static QDataStream& operator >> (QDataStream &stream, MpImageInfo &entry);
+
+
+// *********************************************************************
+// *                             Exception                             *
+// *********************************************************************
+class Exception : public std::runtime_error
+{
+public:
+    Exception (const QString &message);
+    Exception (const QString &messagePrefix, const std::exception &e);
+
+    virtual ~Exception ();
+};
+
+
+// Exception implementation
+Exception::Exception (const QString &message)
+    : std::runtime_error(message.toStdString())
+{
+}
+
+Exception::Exception (const QString &messagePrefix, const std::exception &e)
+    : Exception(QStringLiteral("%1: %2").arg(messagePrefix).arg(QString::fromStdString(e.what())))
+{
+}
+
+Exception::~Exception ()
+{
+}
 
 
 // *********************************************************************
@@ -158,7 +186,7 @@ void MpFile::loadFile (const QString &filename)
     // Open file
     QFile file(filename);
     if (!file.open(QIODevice::ReadOnly)) {
-        throw QString("Failed to open file %1 for reading!").arg(filename);
+        throw Exception(QStringLiteral("Failed to open file %1 for reading!").arg(filename));
     }
 
     // Get the first MPO marker
@@ -167,20 +195,20 @@ void MpFile::loadFile (const QString &filename)
 
     try {
         mpoMarkerData = d->getMpoMarker(file, mpoMarkerDataOffset);
-    } catch (const QString &message) {
-        throw QString("Invalid MPO file - parser error: %1").arg(message);
+    } catch (const std::exception &e) {
+        throw Exception(QStringLiteral("Invalid MPO file - parser error"), e);
     }
 
     if (mpoMarkerData.isEmpty()) {
-        throw QString("Invalid MPO file - no MPO marker data found!");
+        throw Exception(QStringLiteral("Invalid MPO file - no MPO marker data found!"));
     }
 
     // Parse the first MPO marker
     MpImageAttributeMap firstImageAttributes;
     try {
         d->parseFirstMpoMarker(mpoMarkerData, d->imageEntries, firstImageAttributes);
-    } catch (const QString &message) {
-        throw QString("Failed to parse MPO marker: %1").arg(message);
+    } catch (const std::exception &e) {
+        throw Exception(QStringLiteral("Failed to parse MPO marker"), e);
     }
 
     // Store attributes of first image
@@ -210,8 +238,8 @@ void MpFile::loadFile (const QString &filename)
         qCDebug(debugMpo) << "Retrieving attributes for image" << i << "from file offset" << mpoMarkerDataOffset;
         try {
             mpoMarkerData = d->getMpoMarker(file, mpoMarkerDataOffset);
-        }  catch (const QString &message) {
-            qCDebug(debugMpo) << "Failed to retrieve MPO marker data for image" << i;
+        }  catch (const std::exception &e) {
+            qCDebug(debugMpo).nospace() << "Failed to retrieve MPO marker data for image " << i << ": " << QString::fromStdString(e.what());
             continue;
         }
 
@@ -263,7 +291,7 @@ QByteArray MpFilePrivate::getMpoMarker (QFile &file, quint32 &markerOffset)
     stream >> header[0] >> header[1];
 
     if (!(header[0] == 0xFF && header[1] == MarkerType::SOI)) {
-        throw QString("Invalid file header (found 0x%1 0x%2; expected 0xFF 0xD8)!").arg(header[0], 0, 16).arg(header[1], 0, 16);
+        throw Exception(QStringLiteral("Invalid file header (found 0x%1 0x%2; expected 0xFF 0xD8)!").arg(header[0], 0, 16).arg(header[1], 0, 16));
     }
 
     while (!stream.atEnd()) {
@@ -273,7 +301,7 @@ QByteArray MpFilePrivate::getMpoMarker (QFile &file, quint32 &markerOffset)
         stream >> marker[0] >> marker[1];
 
         if (marker[0] != 0xFF) {
-            throw QString("Invalid marker; does not begin with 0xFF!");
+            throw Exception(QStringLiteral("Invalid marker; does not begin with 0xFF!"));
         }
 
         qCDebug(debugMpo) << "Found marker:" << QString::number(marker[0], 16) << QString::number(marker[1], 16);
@@ -333,7 +361,7 @@ QByteArray MpFilePrivate::getMpoMarker (QFile &file, quint32 &markerOffset)
                 // Read whole marker
                 QByteArray buffer(markerSize - 2, 0); // Allocate buffer
                 if (stream.readRawData(buffer.data(), buffer.size()) != buffer.size()) {
-                    throw QString("Failed to read whole marker data!");
+                    throw Exception(QStringLiteral("Failed to read whole marker data!"));
                 }
 
                 if (buffer[0] == 'M' && buffer[1] == 'P' && buffer[2] == 'F' && buffer[3] == '\x00') {
@@ -344,7 +372,7 @@ QByteArray MpFilePrivate::getMpoMarker (QFile &file, quint32 &markerOffset)
                 break;
             }
             default: {
-                throw QString("Invalid marker code: %1").arg(marker[1], 16);
+                throw Exception(QStringLiteral("Invalid marker code: %1").arg(marker[1], 16));
             }
         }
     }
@@ -364,7 +392,13 @@ bool MpFilePrivate::determineMarkerByteOrder (const QByteArray &data)
         return true; // Big endian
     }
 
-    throw QString("Invalid MP endian tag: %1 %2 %3 %4!").arg(quint8(data[0]), 0, 16).arg(quint8(data[1]), 0, 16).arg(quint8(data[2]), 0, 16).arg(quint8(data[3]), 0, 16);
+    throw Exception(
+        QStringLiteral("Invalid MP endian tag: %1 %2 %3 %4!")
+            .arg(quint8(data[0]), 0, 16)
+            .arg(quint8(data[1]), 0, 16)
+            .arg(quint8(data[2]), 0, 16)
+            .arg(quint8(data[3]), 0, 16)
+    );
 }
 
 
@@ -531,7 +565,7 @@ MpRawIfd MpFilePrivate::readMpIfd (QDataStream &stream, quint32 baseOffset, quin
                     stream >> values[0];
                 } else {
                     // For now, we support only single-value LONG
-                    throw QString("Multi-value LONG tags are not supported!");
+                    throw Exception(QStringLiteral("Multi-value LONG tags are not supported!"));
                 }
 
                 ifd.insert(tagId, qMakePair(valueType, QVariant::fromValue(values)));
@@ -606,7 +640,7 @@ MpRawIfd MpFilePrivate::readMpIfd (QDataStream &stream, quint32 baseOffset, quin
                 break;
             }
             default: {
-                throw QString("Unhandled tag data type: %1!").arg(valueType);
+                throw Exception(QStringLiteral("Unhandled tag data type: %1!").arg(valueType));
             }
         }
     }
@@ -632,21 +666,21 @@ QList<MpImageInfo> MpFilePrivate::parseMpIndexIfd (const MpRawIfd &ifd, bool big
     // MP Format Version Number
     iter = ifd.constFind(0xB000);
     if (iter == ifd.constEnd()) {
-        throw QStringLiteral("Missing 'MPFVersion' tag!");
+        throw Exception(QStringLiteral("Missing 'MPFVersion' tag!"));
     } else {
         quint16 type = iter.value().first;
         const QVector<quint8> &value = iter.value().second.value< QVector<quint8> >();
 
         if (type != TagValueType::UNDEFINED) {
-            throw QStringLiteral("'MPFVersion' is not of type UNDEFINED!");
+            throw Exception(QStringLiteral("'MPFVersion' is not of type UNDEFINED!"));
         }
 
         if (value.size() != 4) {
-            throw QStringLiteral("'MPFVersion' does not have 4 elements!");
+            throw Exception(QStringLiteral("'MPFVersion' does not have 4 elements!"));
         }
 
         if (value[0] != '0' || value[1] != '1' || value[2] != '0' || value[3] != '0') {
-            throw QStringLiteral("'MPFVersion' value is not 0100!");
+            throw Exception(QStringLiteral("'MPFVersion' value is not 0100!"));
         }
     }
 
@@ -655,17 +689,17 @@ QList<MpImageInfo> MpFilePrivate::parseMpIndexIfd (const MpRawIfd &ifd, bool big
 
     iter = ifd.constFind(0xB001);
     if (iter == ifd.constEnd()) {
-        throw QStringLiteral("Missing 'NumberOfImages' tag!");
+        throw Exception(QStringLiteral("Missing 'NumberOfImages' tag!"));
     } else {
         quint16 type = iter.value().first;
         const QVector<quint32> &value = iter.value().second.value< QVector<quint32> >();
 
         if (type != TagValueType::LONG) {
-            throw QStringLiteral("'NumberOfImages' is not of type LONG!");
+            throw Exception(QStringLiteral("'NumberOfImages' is not of type LONG!"));
         }
 
         if (value.size() != 1) {
-            throw QStringLiteral("'NumberOfImages' does not have 1 element!");
+            throw Exception(QStringLiteral("'NumberOfImages' does not have 1 element!"));
         }
 
         numberOfImages = value[0];
@@ -674,17 +708,17 @@ QList<MpImageInfo> MpFilePrivate::parseMpIndexIfd (const MpRawIfd &ifd, bool big
     // MP Entry
     iter = ifd.constFind(0xB002);
     if (iter == ifd.constEnd()) {
-        throw QStringLiteral("Missing 'MPEntry' tag!");
+        throw Exception(QStringLiteral("Missing 'MPEntry' tag!"));
     } else {
         quint16 type = iter.value().first;
         const QVector<quint8> &value = iter.value().second.value< QVector<quint8> >();
 
         if (type != TagValueType::UNDEFINED) {
-            throw QStringLiteral("'MPEntry' is not of type UNDEFINED!");
+            throw Exception(QStringLiteral("'MPEntry' is not of type UNDEFINED!"));
         }
 
         if (value.size() != 16*numberOfImages) {
-            throw QString("'MPEntry' has incorrect number of elements (should be 16x%1; value is %2)").arg(numberOfImages).arg(value.size());
+            throw Exception(QStringLiteral("'MPEntry' has incorrect number of elements (should be 16x%1; value is %2)").arg(numberOfImages).arg(value.size()));
         }
 
         // Parse the MPO entries
@@ -718,7 +752,7 @@ void copyAttributeValue (const QString &name, quint16 code, int expectedCount, c
     const QVector<T> &value = data.value< QVector<T> >();
 
     if (value.size() != expectedCount) {
-        throw QString("'%1' has incorrect number of elements (value is %1; expected %2)").arg(name).arg(value.size()).arg(expectedCount);
+        throw Exception(QStringLiteral("'%1' has incorrect number of elements (value is %1; expected %2)").arg(name).arg(value.size()).arg(expectedCount));
     }
 
     if (expectedCount == 1) {
@@ -770,7 +804,7 @@ MpImageAttributeMap MpFilePrivate::parseMpAttributeIfd (const MpRawIfd &ifd, boo
         // Validate type
         quint16 type = iter.value().first;
         if (type != attribute.type) {
-            throw QString("'%1' is not of expected type %2 (actual type: %3)").arg(attribute.name).arg(attribute.type).arg(type);
+            throw Exception(QStringLiteral("'%1' is not of expected type %2 (actual type: %3)").arg(attribute.name).arg(attribute.type).arg(type));
         }
 
         switch (type) {

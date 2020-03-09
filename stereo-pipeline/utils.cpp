@@ -18,11 +18,13 @@
  */
 
 
-#include <stereo-pipeline/utils.h>
+#include "utils.h"
+#include "exception.h"
 
 
 namespace MVL {
 namespace StereoToolbox {
+namespace Pipeline {
 namespace Utils {
 
 
@@ -83,7 +85,7 @@ static QDataStream &operator << (QDataStream &stream, const cv::Mat &matrix)
                     break;
                 }
                 default: {
-                    throw QString("Unhandled matrix format %1!").arg(matrix.type());
+                    throw Exception(QStringLiteral("Unhandled matrix format %1!").arg(matrix.type()));
                 }
             }
         }
@@ -96,7 +98,7 @@ void writeMatrixToBinaryFile (const cv::Mat &matrix, const QString &fileName, bo
 {
     QFile file(fileName);
     if (!file.open(QIODevice::WriteOnly)) {
-        throw QString("Failed to open file!");
+        throw Exception(QStringLiteral("Failed to open file for writing!"));
     }
 
     QDataStream stream(&file);
@@ -172,7 +174,7 @@ static QDataStream &operator >> (QDataStream &stream, cv::Mat &matrix)
                     break;
                 }
                 default: {
-                    throw QString("Unhandled matrix format %1!").arg(matrix.type());
+                    throw Exception(QStringLiteral("Unhandled matrix format %1!").arg(matrix.type()));
                 }
             }
         }
@@ -185,7 +187,7 @@ void readMatrixFromBinaryFile (cv::Mat &matrix, const QString &fileName)
 {
     QFile file(fileName);
     if (!file.open(QIODevice::ReadOnly)) {
-        throw QString("Failed to open file!");
+        throw Exception(QStringLiteral("Failed to open file for reading!"));
     }
 
     QDataStream stream(&file);
@@ -201,7 +203,7 @@ void readMatrixFromBinaryFile (cv::Mat &matrix, const QString &fileName)
     stream >> signature[3];
 
     if (signature[0] != 'B' || signature[1] != 'M' || signature[2] != 'D' || (signature[3] != ' ' && signature[3] != 'C')) {
-        throw QString("Invalid binary matrix file!!");
+        throw Exception(QString("Invalid binary matrix file!!"));
     }
 
     if (signature[3] == ' ') {
@@ -320,7 +322,7 @@ void createColorCodedDisparityCpu (const cv::Mat &disparity, cv::Mat &image, int
             return __createColorCodedDisparityCpu<float>(disparity, image, numLevels);
         }
         default: {
-            throw QString("Unhandled disparity format %1!").arg(disparity.type());
+            throw Exception(QStringLiteral("Unhandled disparity format %1!").arg(disparity.type()));
         }
     }
 }
@@ -357,7 +359,7 @@ void writePointCloudToPcdFile (const cv::Mat &image, const cv::Mat &points, cons
 {
     // Validate input data
     if (image.rows*image.cols != points.rows*points.cols) {
-        throw QString("Size mismatch between image and points matrices!");
+        throw Exception(QStringLiteral("Size mismatch between image and points matrices!"));
     }
 
     // Count valid points
@@ -375,7 +377,7 @@ void writePointCloudToPcdFile (const cv::Mat &image, const cv::Mat &points, cons
     // Open file
     QFile file(fileName);
     if (!file.open(QIODevice::WriteOnly)) {
-        throw QString("Failed to open file!");
+        throw Exception(QStringLiteral("Failed to open file for writing!"));
     }
 
     // Prepare ASCII header
@@ -478,7 +480,9 @@ void writePointCloudToPcdFile (const cv::Mat &image, const cv::Mat &points, cons
     }
 }
 
+
 } // Utils
+} // Pipeline
 } // StereoToolbox
 } // MVL
 

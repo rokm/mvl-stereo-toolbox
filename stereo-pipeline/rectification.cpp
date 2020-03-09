@@ -17,7 +17,8 @@
  *
  */
 
-#include <stereo-pipeline/rectification.h>
+#include "rectification.h"
+#include "exception.h"
 
 #include <opencv2/calib3d.hpp>
 #include <opencv2/imgproc.hpp>
@@ -89,7 +90,7 @@ void Rectification::exportStereoCalibration (const QString &filename, const cv::
         storage << "zeroDisparity" << zeroDisparity;
         storage << "alpha" << alpha;
     } else {
-        throw QString("Failed to open file '%1' for writing!").arg(filename);
+        throw Exception(QStringLiteral("Failed to open file '%1' for writing!").arg(filename));
     }
 }
 
@@ -98,13 +99,13 @@ void Rectification::importStereoCalibration (const QString &filename, cv::Mat &c
     // Load
     cv::FileStorage storage(filename.toStdString(), cv::FileStorage::READ);
     if (!storage.isOpened()) {
-        throw QString("Failed to open file '%1' for reading!").arg(filename);
+        throw Exception(QStringLiteral("Failed to open file '%1' for reading!").arg(filename));
     }
 
     // Validate data type
     QString dataType = QString::fromStdString(storage["DataType"]);
     if (dataType.compare("StereoCalibration")) {
-        throw QString("Invalid stereo calibration data!");
+        throw Exception(QStringLiteral("Invalid stereo calibration data!"));
     }
 
     // Load calibration
