@@ -59,10 +59,14 @@ void ImageDisplayWidget::setImage (const cv::Mat &image)
     Q_D(ImageDisplayWidget);
 
     // Make a copy, and mark for the update
-    if (image.channels() == 1) {
-        cv::cvtColor(image, d->image, cv::COLOR_GRAY2RGB);
+    if (!image.empty()) {
+        if (image.channels() == 1) {
+            cv::cvtColor(image, d->image, cv::COLOR_GRAY2RGB);
+        } else {
+            cv::cvtColor(image, d->image, cv::COLOR_BGR2RGB);
+        }
     } else {
-        cv::cvtColor(image, d->image, cv::COLOR_BGR2RGB);
+        d->image = image;
     }
 
     // Refresh
