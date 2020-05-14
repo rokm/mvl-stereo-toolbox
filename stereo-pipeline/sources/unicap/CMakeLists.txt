@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.2)
 project(source_unicap VERSION 2.1.0 LANGUAGES CXX)
 
 find_package(PkgConfig REQUIRED)
-find_package(OpenCV 3.0.0 REQUIRED core)
+find_package(OpenCV REQUIRED core)
 find_package(Qt5Widgets REQUIRED)
 
 pkg_check_modules(UNICAP REQUIRED libunicap)

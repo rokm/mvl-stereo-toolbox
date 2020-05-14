@@ -4,7 +4,7 @@ project(toolbox VERSION 2.1.0 LANGUAGES CXX)
 
 set(CMAKE_AUTOMOC TRUE)
 
-find_package(OpenCV 3.0.0 REQUIRED)
+find_package(OpenCV REQUIRED)
 find_package(Qt5Widgets REQUIRED)
 find_package(Qt5Concurrent REQUIRED)
 

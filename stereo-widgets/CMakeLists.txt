@@ -21,7 +21,7 @@ set(CMAKE_AUTOMOC TRUE)
 set(CMAKE_AUTORCC TRUE)
 
 find_package(PkgConfig QUIET)
-find_package(OpenCV 3.0.0 REQUIRED)
+find_package(OpenCV REQUIRED)
 find_package(Qt5Core REQUIRED)
 find_package(Qt5Widgets REQUIRED)
 

@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.2)
 
 project(method_opencv_bm VERSION 2.1.0 LANGUAGES CXX)
 
-find_package(OpenCV 3.0.0 REQUIRED core calib3d imgproc)
+find_package(OpenCV REQUIRED core calib3d imgproc)
 find_package(Qt5Widgets REQUIRED)
 
 set(plugin_name ${PROJECT_NAME})
