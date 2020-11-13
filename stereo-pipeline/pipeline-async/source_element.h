@@ -73,7 +73,7 @@ protected:
 
     QList<QMetaObject::Connection> signalConnections;
 
-    QTime timeLastUpdate;
+    QElapsedTimer timeLastUpdate;
     double framerateLimit;
 
     // Cached input images

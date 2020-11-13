@@ -78,7 +78,7 @@ protected:
 
     // Worker thread's local variables
     struct {
-        QTime timer;
+        QElapsedTimer timer;
         cv::Mat disparity;
         int numDisparityLevels;
         int processingTime;

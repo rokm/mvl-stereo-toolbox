@@ -62,7 +62,7 @@ protected:
 
     int updateCounter;
     float fps;
-    QTime fpsTime;
+    QElapsedTimer fpsTime;
     QTimer *fpsTimer;
 
     QThread *thread;

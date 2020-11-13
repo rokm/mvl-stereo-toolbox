@@ -70,7 +70,7 @@ protected:
 
     // Worker thread's local variables
     struct {
-        QTime timer;
+        QElapsedTimer timer;
         cv::Mat points;
         int processingTime;
     } threadData;

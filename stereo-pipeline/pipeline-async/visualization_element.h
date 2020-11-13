@@ -63,7 +63,6 @@ protected:
 
     mutable QMutex mutex; // Method mutex
 
-
     // Cached input images
     mutable QReadWriteLock lock;
 
@@ -71,7 +70,7 @@ protected:
 
     // Worker thread's local variables
     struct {
-        QTime timer;
+        QElapsedTimer timer;
         cv::Mat image;
         int processingTime;
     } threadData;
