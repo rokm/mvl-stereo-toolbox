@@ -261,7 +261,7 @@ void PointCloudVisualizationWidget::wheelEvent (QWheelEvent *event)
     }
 
     // Pass zoom event to renderer
-    int numDegrees = event->delta() / 8;
+    int numDegrees = event->angleDelta().y() / 8;
     int numSteps = numDegrees / 15;
     d->performZooming(numSteps);
 
