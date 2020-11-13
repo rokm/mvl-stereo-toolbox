@@ -66,6 +66,8 @@ include_directories(${OpenCV_INCLUDE_DIRS})
 set(MVL_STEREO_PIPELINE_PLUGIN_DIR "${CMAKE_INSTALL_FULL_LIBDIR}/MVL/stereo-pipeline" CACHE PATH "Path to MVL Stereo Pipeline plugins")
 add_definitions(-DMVL_STEREO_PIPELINE_PLUGIN_DIR="${MVL_STEREO_PIPELINE_PLUGIN_DIR}")
 
+message(STATUS "MVL stereo pipeline plug-in dir: ${MVL_STEREO_PIPELINE_PLUGIN_DIR}")
+
 # *** Library ***
 add_library(mvl_stereo_pipeline SHARED ${pipeline_SOURCES} ${pipeline_HEADERS})
 target_link_libraries(mvl_stereo_pipeline PUBLIC Qt5::Core PRIVATE Qt5::Concurrent)
