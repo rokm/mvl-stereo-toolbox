@@ -22,8 +22,7 @@ set(CMAKE_AUTORCC TRUE)
 
 find_package(PkgConfig QUIET)
 find_package(OpenCV REQUIRED)
-find_package(Qt5Core REQUIRED)
-find_package(Qt5Widgets REQUIRED)
+find_package(Qt5 COMPONENTS Core Widgets REQUIRED)
 
 set(widgets_SOURCES
     calibration_pattern_display_widget.cpp

@@ -21,8 +21,7 @@ set(CMAKE_AUTOMOC TRUE)
 
 find_package(PkgConfig QUIET)
 find_package(OpenCV REQUIRED)
-find_package(Qt5Core REQUIRED)
-find_package(Qt5Concurrent REQUIRED)
+find_package(Qt5 COMPONENTS Core Concurrent REQUIRED)
 
 set(pipeline_SOURCES
     calibration_pattern.cpp

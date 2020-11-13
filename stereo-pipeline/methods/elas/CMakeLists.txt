@@ -4,7 +4,7 @@ project(method_elas VERSION 2.1.0 LANGUAGES CXX)
 
 find_package(PkgConfig REQUIRED)
 find_package(OpenCV REQUIRED core imgproc)
-find_package(Qt5Widgets REQUIRED)
+find_package(Qt5 COMPONENTS Widgets REQUIRED)
 
 pkg_check_modules(ELAS REQUIRED libelas)
 include_directories(${ELAS_INCLUDE_DIRS})

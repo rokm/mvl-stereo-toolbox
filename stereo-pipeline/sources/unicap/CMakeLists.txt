@@ -4,7 +4,7 @@ project(source_unicap VERSION 2.1.0 LANGUAGES CXX)
 
 find_package(PkgConfig REQUIRED)
 find_package(OpenCV REQUIRED core)
-find_package(Qt5Widgets REQUIRED)
+find_package(Qt5 COMPONENTS Widgets REQUIRED)
 
 pkg_check_modules(UNICAP REQUIRED libunicap)
 include_directories(${UNICAP_INCLUDE_DIRS})

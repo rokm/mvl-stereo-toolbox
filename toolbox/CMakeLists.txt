@@ -5,8 +5,7 @@ project(toolbox VERSION 2.1.0 LANGUAGES CXX)
 set(CMAKE_AUTOMOC TRUE)
 
 find_package(OpenCV REQUIRED)
-find_package(Qt5Widgets REQUIRED)
-find_package(Qt5Concurrent REQUIRED)
+find_package(Qt5 COMPONENTS Concurrent Widgets REQUIRED)
 
 include_directories(${OpenCV_INCLUDE_DIRS})
 

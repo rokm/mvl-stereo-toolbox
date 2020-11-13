@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.2)
 project(method_opencv_cuda_bm VERSION 2.1.0 LANGUAGES CXX)
 
 find_package(OpenCV REQUIRED core cudastereo imgproc)
-find_package(Qt5Widgets REQUIRED)
+find_package(Qt5 COMPONENTS Widgets REQUIRED)
 
 set(plugin_name ${PROJECT_NAME})
 

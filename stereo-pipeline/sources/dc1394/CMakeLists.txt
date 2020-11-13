@@ -4,7 +4,7 @@ project(source_dc1394 VERSION 2.1.0 LANGUAGES CXX)
 
 find_package(PkgConfig REQUIRED)
 find_package(OpenCV REQUIRED core imgproc)
-find_package(Qt5Widgets REQUIRED)
+find_package(Qt5 COMPONENTS Widgets REQUIRED)
 
 pkg_check_modules(DC1394 REQUIRED libdc1394-2)
 include_directories(${DC1394_INCLUDE_DIRS})

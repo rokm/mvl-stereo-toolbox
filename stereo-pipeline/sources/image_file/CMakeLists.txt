@@ -3,8 +3,7 @@ cmake_minimum_required(VERSION 3.2)
 project(source_image_file VERSION 2.1.0 LANGUAGES CXX)
 
 find_package(OpenCV REQUIRED core imgcodecs)
-find_package(Qt5Widgets REQUIRED)
-find_package(Qt5Network REQUIRED)
+find_package(Qt5 COMPONENTS Network Widgets REQUIRED)
 
 set(plugin_name ${PROJECT_NAME})
 
