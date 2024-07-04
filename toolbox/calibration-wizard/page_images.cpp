@@ -151,7 +151,7 @@ PageImages::PageImages (const QString &fieldPrefix, QWidget *parent)
     // Max image scale level
     label = new QLabel("Image scale levels", this);
     label->setToolTip("Maximum image scale level. If pattern is not found at original image size,\n"
-                      "image is upsampled and search is repeated. The image scale is 1.0 + level*scaleIncrement,\n"
+                      "image is upsampled or downsampled and search is repeated. The image scale is 1.0 + level*scaleIncrement,\n"
                       "where level goes from 0 to imageScaleLevels. Set this variable to 0 to disable\n"
                       "multi-scale search.");
 
@@ -162,11 +162,11 @@ PageImages::PageImages (const QString &fieldPrefix, QWidget *parent)
 
     // Max image scale level
     label = new QLabel("Scale increment", this);
-    label->setToolTip("Scale increment for multi-scale pattern search. For details, see description of \n"
-                      "image scale levels.");
+    label->setToolTip("Scale increment for multi-scale pattern search. Negative value will downsample the image.\n"
+                      "For details, see description of image scale levels.");
 
     spinBoxScaleIncrement = new QDoubleSpinBox(this);
-    spinBoxScaleIncrement->setRange(0.0, 2.0);
+    spinBoxScaleIncrement->setRange(-1.0, 2.0);
     spinBoxScaleIncrement->setSingleStep(0.05);
     spinBoxScaleIncrement->setValue(0.25);
     patternLayout->addRow(label, spinBoxScaleIncrement);
