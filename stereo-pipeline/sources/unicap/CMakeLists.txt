@@ -30,6 +30,7 @@ set(plugin_HEADERS
 )
 
 add_library(${plugin_name} SHARED ${plugin_SOURCES} ${plugin_HEADERS})
+target_link_libraries(${plugin_name} PRIVATE mvl_stereo_pipeline)
 target_link_libraries(${plugin_name} PRIVATE Qt5::Widgets)
 target_link_libraries(${plugin_name} PRIVATE ${UNICAP_LIBRARIES})
 target_link_libraries(${plugin_name} PRIVATE opencv_core)

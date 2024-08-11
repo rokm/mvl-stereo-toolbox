@@ -61,6 +61,12 @@ set_target_properties(mvl_stereo_widgets PROPERTIES
 
 generate_export_header(mvl_stereo_widgets EXPORT_FILE_NAME export.h)
 
+target_include_directories(mvl_stereo_widgets PUBLIC
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/..>
+    $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/..>
+    $<INSTALL_INTERFACE:include/MVL>
+)
+
 install(TARGETS mvl_stereo_widgets EXPORT mvl_stereo_widgets_targets DESTINATION ${CMAKE_INSTALL_LIBDIR})
 install(FILES ${widgets_HEADERS} ${PROJECT_BINARY_DIR}/export.h DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/MVL/stereo-widgets)
 
@@ -76,20 +82,18 @@ include(CMakePackageConfigHelpers)
 set(LIB_INSTALL_DIR ${CMAKE_INSTALL_LIBDIR})
 set(INCLUDE_INSTALL_DIR ${CMAKE_INSTALL_INCLUDEDIR}/MVL)
 
-configure_package_config_file(libmvl_stereo_widgets-config.cmake.in
-    ${CMAKE_CURRENT_BINARY_DIR}/libmvl_stereo_widgets-config.cmake
-    INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/libmvl_stereo_widgets
-    PATH_VARS LIB_INSTALL_DIR INCLUDE_INSTALL_DIR)
-
 write_basic_package_version_file(
     ${CMAKE_CURRENT_BINARY_DIR}/libmvl_stereo_widgets-config-version.cmake
     VERSION ${PROJECT_VERSION}
     COMPATIBILITY SameMajorVersion)
 
-install(FILES
+export(EXPORT mvl_stereo_widgets_targets
+    FILE ${CMAKE_CURRENT_BINARY_DIR}/libmvl_stereo_widgets-targets.cmake
+)
+
+configure_package_config_file(libmvl_stereo_widgets-config.cmake.in
     ${CMAKE_CURRENT_BINARY_DIR}/libmvl_stereo_widgets-config.cmake
-    ${CMAKE_CURRENT_BINARY_DIR}/libmvl_stereo_widgets-config-version.cmake
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/libmvl_stereo_widgets)
+    INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/libmvl_stereo_widgets)
 
 install(
     EXPORT mvl_stereo_widgets_targets
@@ -97,3 +101,7 @@ install(
     FILE libmvl_stereo_widgets-targets.cmake
 )
 
+install(FILES
+    ${CMAKE_CURRENT_BINARY_DIR}/libmvl_stereo_widgets-config.cmake
+    ${CMAKE_CURRENT_BINARY_DIR}/libmvl_stereo_widgets-config-version.cmake
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/libmvl_stereo_widgets)

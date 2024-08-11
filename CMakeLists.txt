@@ -17,9 +17,6 @@ endif()
 # Automatically include current dir
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-include_directories(${PROJECT_SOURCE_DIR})
-include_directories(${PROJECT_BINARY_DIR})
-
 # Stereo pipeline library
 add_subdirectory(stereo-pipeline)
 
