@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.2)
+cmake_minimum_required(VERSION 3.16)
 
 project(libmvl_stereo_pipeline VERSION 2.1.0 LANGUAGES CXX)
 
