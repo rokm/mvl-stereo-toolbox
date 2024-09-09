@@ -22,7 +22,7 @@
 #include <opencv2/imgcodecs.hpp>
 
 
-Q_LOGGING_CATEGORY(debugMpo, "mpo-file")
+Q_LOGGING_CATEGORY(debugMpo, "mpo-file", QtWarningMsg)
 
 
 namespace Mpo {
